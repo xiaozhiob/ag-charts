@@ -1,5 +1,7 @@
 export * from './util/angle';
 export * from './util/attributeUtil';
+export * from './util/bboxinterface';
+export * from './util/destroy';
 export * from './util/distance';
 export * from './util/id';
 export * from './util/interpolate';

@@ -19,7 +19,7 @@ import type { Node } from '../../scene/node';
 import { Selection } from '../../scene/selection';
 import { Line } from '../../scene/shape/line';
 import { type TextSizeProperties, TransformableText } from '../../scene/shape/text';
-import { Translatable } from '../../scene/transformable';
+import { Transformable, Translatable } from '../../scene/transformable';
 import type { PlacedLabelDatum } from '../../scene/util/labelPlacement';
 import { axisLabelsOverlap } from '../../scene/util/labelPlacement';
 import { normalizeAngle360, toRadians } from '../../util/angle';
@@ -1284,6 +1284,10 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
             scale: this.scale,
             direction: this.direction,
             continuous: ContinuousScale.is(scale) || OrdinalTimeScale.is(scale),
+            getCanvasBounds: () => {
+                const node = this.getRegionNode();
+                return node ? Transformable.toCanvas(node) : undefined;
+            },
             seriesKeyProperties: () =>
                 this.boundSeries.reduce((keys, series) => {
                     const seriesKeys = series.getKeyProperties(this.direction);

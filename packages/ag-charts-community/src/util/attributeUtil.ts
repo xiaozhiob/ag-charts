@@ -28,7 +28,7 @@ export type AttributeSet = Partial<{ [K in keyof BaseAttributeTypeMap]: BaseAttr
 export type InputAttributeSet = Partial<{ [K in keyof InputAttributeTypeMap]: InputAttributeTypeMap[K] }>;
 
 type BaseStyleTypeMap = {
-    cursor: 'pointer';
+    cursor: 'pointer' | 'ew-resize' | 'ns-resize';
     display: 'none';
     'pointer-events': 'auto' | 'none';
 };

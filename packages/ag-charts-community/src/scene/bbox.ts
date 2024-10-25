@@ -29,7 +29,7 @@ export class BBox implements BBoxValues, BBoxContainsTester, DistantObject, Inte
         return new BBox(x, y, width, height);
     }
 
-    static merge(boxes: Iterable<BBox>) {
+    static merge(boxes: Iterable<BBoxValues>) {
         let left = Infinity;
         let top = Infinity;
         let right = -Infinity;
