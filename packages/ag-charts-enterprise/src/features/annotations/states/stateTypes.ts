@@ -19,38 +19,56 @@ export type AnnotationStateEvents = InteractionEvents &
     Record<AnnotationType, undefined>;
 
 type InteractionEvents = {
-    click: { textInputValue?: string; bbox?: _Scene.BBox; point: Point; shiftKey: boolean };
-    dblclick: { offset: _ModuleSupport.Vec2 };
-    drag: {
+    click: {
+        point: Point;
         shiftKey: boolean;
+        bbox?: _Scene.BBox;
+        textInputValue?: string;
+    };
+    dblclick: {
+        offset: _ModuleSupport.Vec2;
+    };
+    drag: {
+        context: AnnotationContext;
         offset: _ModuleSupport.Vec2;
         point: Point;
-        context: AnnotationContext;
-        textInputValue?: string;
+        shiftKey: boolean;
         bbox?: _Scene.BBox;
+        textInputValue?: string;
     };
     dragStart: {
+        context: AnnotationContext;
         offset: _ModuleSupport.Vec2;
         point: Point;
-        context: AnnotationContext;
-        textInputValue: string | undefined;
         bbox: _Scene.BBox | undefined;
+        textInputValue: string | undefined;
     };
     dragEnd: undefined;
-    hover: { context: AnnotationContext; offset: _ModuleSupport.Vec2; shiftKey: boolean; point: Point };
-    keyDown: {
-        shiftKey: boolean;
+    hover: {
         context: AnnotationContext;
+        offset: _ModuleSupport.Vec2;
+        point: Point;
+        shiftKey: boolean;
     };
-    keyUp: { shiftKey: boolean; context: AnnotationContext };
+    keyDown: {
+        context: AnnotationContext;
+        shiftKey: boolean;
+    };
+    keyUp: {
+        context: AnnotationContext;
+        shiftKey: boolean;
+    };
     textInput: {
+        bbox: _Scene.BBox | undefined;
+        context: AnnotationContext;
         key: string;
         shiftKey: boolean;
         textInputValue: string | undefined;
-        bbox: _Scene.BBox | undefined;
-        context: AnnotationContext;
     };
-    resize: { textInputValue?: string; bbox: _Scene.BBox };
+    resize: {
+        bbox: _Scene.BBox;
+        textInputValue?: string;
+    };
 };
 
 type ActionEvents = {
