@@ -143,7 +143,14 @@ export class Scene {
         };
 
         if (Debug.check(DebugSelectors.SCENE_STATS_VERBOSE)) {
-            renderCtx.stats = { layersRendered: 0, layersSkipped: 0, nodesRendered: 0, nodesSkipped: 0 };
+            renderCtx.stats = {
+                layersRendered: 0,
+                layersSkipped: 0,
+                nodesRendered: 0,
+                nodesSkipped: 0,
+                opsPerformed: 0,
+                opsSkipped: 0,
+            };
         }
 
         prepareSceneNodeHighlight(renderCtx);

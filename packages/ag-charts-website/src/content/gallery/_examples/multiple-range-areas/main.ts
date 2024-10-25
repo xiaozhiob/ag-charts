@@ -48,7 +48,7 @@ const options: AgChartOptions = {
 
                     label: {
                         text: 'Highest Share 88% ',
-                        position: 'topRight',
+                        position: 'top-right',
                     },
                 },
                 {
@@ -59,7 +59,7 @@ const options: AgChartOptions = {
 
                     label: {
                         text: 'Lowest Share 60% ',
-                        position: 'bottomRight',
+                        position: 'bottom-right',
                     },
                 },
             ],

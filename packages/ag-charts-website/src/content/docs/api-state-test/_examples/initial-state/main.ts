@@ -33,23 +33,23 @@ const options: AgFinancialChartOptions = {
                 strokeWidth: 2,
             },
         ],
-        // zoom: {
-        //     rangeX: {
-        //         start: { __type: 'date', value: 'Thu Mar 21 2024 18:28:00 GMT+0000 (Greenwich Mean Time)' },
-        //         end: { __type: 'date', value: 'Thu Mar 21 2024 19:14:00 GMT+0000 (Greenwich Mean Time)' },
-        //     },
-        //     rangeY: {
-        //         start: 39810,
-        //         end: 39842,
-        //     },
-        // },
+        zoom: {
+            rangeX: {
+                start: { __type: 'date', value: 'Thu Mar 21 2024 18:28:00 GMT+0000 (Greenwich Mean Time)' },
+                end: { __type: 'date', value: 'Thu Mar 21 2024 19:14:00 GMT+0000 (Greenwich Mean Time)' },
+            },
+            rangeY: {
+                start: 39810,
+                end: 39842,
+            },
+        },
     },
 };
 
 const chart = AgCharts.createFinancialChart(options);
 
-let state: Pick<AgChartState, 'version'> & AgInitialStateOptions = {
-    version: '10.0.0',
+let state: AgChartState = {
+    version: '11.0.0',
 };
 
 function saveState() {

@@ -31,7 +31,15 @@ export class DragStateMachine<
     @StateMachineProperty()
     protected node?: Node;
 
+    // eslint-disable-next-line @typescript-eslint/prefer-readonly
+    private offset?: _ModuleSupport.Vec2;
+
     constructor(ctx: AnnotationsStateMachineContext) {
+        const actionKeyChange = ({ context }: { context: AnnotationContext }) => {
+            this.node?.drag(this.datum!, this.offset!, context, this.snapping);
+            ctx.update();
+        };
+
         super('idle', {
             idle: {
                 dragStart: {
@@ -39,14 +47,19 @@ export class DragStateMachine<
                     action: ({ offset, context }) => {
                         this.hasMoved = false;
                         this.dragStart = offset;
+                        this.offset = offset;
                         this.node?.dragStart(this.datum!, offset, context);
                     },
                 },
             },
 
             dragging: {
+                keyDown: actionKeyChange,
+                keyUp: actionKeyChange,
+
                 drag: ({ offset, context }) => {
                     this.hasMoved = Vec2.lengthSquared(Vec2.sub(offset, this.dragStart!)) > 0;
+                    this.offset = offset;
                     this.node?.drag(this.datum!, offset, context, this.snapping);
                     ctx.update();
                 },

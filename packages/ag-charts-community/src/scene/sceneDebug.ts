@@ -20,6 +20,28 @@ export enum DebugSelectors {
 
 type BuildTree = { name?: string; node?: any; dirty?: boolean };
 
+function formatBytes(value: number) {
+    for (const unit of ['B', 'KB', 'MB', 'GB']) {
+        if (value < 1536) {
+            return `${value.toFixed(1)}${unit}`;
+        }
+        value /= 1024;
+    }
+
+    return `${value.toFixed(1)}TB}`;
+}
+
+function memoryUsage() {
+    if (!('memory' in performance)) return;
+    const { totalJSHeapSize, usedJSHeapSize, jsHeapSizeLimit } = performance.memory as any;
+    let result = [];
+    for (const amount of [usedJSHeapSize, totalJSHeapSize, jsHeapSizeLimit]) {
+        if (typeof amount !== 'number') continue;
+        result.push(formatBytes(amount));
+    }
+    return `Heap ${result.join(' / ')}`;
+}
+
 export function debugStats(
     layersManager: LayersManager,
     debugSplitTimes: Record<string, number>,
@@ -30,7 +52,14 @@ export function debugStats(
 ) {
     if (!Debug.check(DebugSelectors.SCENE_STATS, DebugSelectors.SCENE_STATS_VERBOSE)) return;
 
-    const { layersRendered = 0, layersSkipped = 0, nodesRendered = 0, nodesSkipped = 0 } = renderCtxStats ?? {};
+    const {
+        layersRendered = 0,
+        layersSkipped = 0,
+        nodesRendered = 0,
+        nodesSkipped = 0,
+        opsPerformed = 0,
+        opsSkipped = 0,
+    } = renderCtxStats ?? {};
 
     const end = performance.now();
     const { start, ...durations } = debugSplitTimes;
@@ -46,11 +75,14 @@ export function debugStats(
         .join(' ; ');
 
     const detailedStats = Debug.check(DebugSelectors.SCENE_STATS_VERBOSE);
+    const memUsage = memoryUsage();
     const stats = [
         `${time('⏱️', start, end)} (${splits})`,
         `${extras}`,
         `Layers: ${detailedStats ? pct(layersRendered, layersSkipped) : layersManager.size}; Sprites: ${SpriteRenderer.offscreenCanvasCount}`,
         detailedStats ? `Nodes: ${pct(nodesRendered, nodesSkipped)}` : null,
+        detailedStats ? `Ops: ${pct(opsPerformed, opsSkipped)}` : null,
+        detailedStats && memUsage ? memUsage : null,
     ].filter(isString);
     const measurer = new SimpleTextMeasurer((t) => ctx.measureText(t));
     const statsSize = new Map(stats.map((t) => [t, measurer.measureLines(t)]));
