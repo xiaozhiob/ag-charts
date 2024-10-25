@@ -2,7 +2,6 @@ import { ascendingStringNumberUndefined } from '../util/compare';
 import { clamp } from '../util/number';
 import { BBox } from './bbox';
 import type { HdpiOffscreenCanvas } from './canvas/hdpiOffscreenCanvas';
-import { nodeCount } from './debug.util';
 import type { LayersManager } from './layersManager';
 import type { ChildNodeCounts, RenderContext } from './node';
 import { Node, SceneChangeDetection } from './node';
@@ -64,7 +63,7 @@ export class Group extends Node {
     }
 
     override preRender(): ChildNodeCounts {
-        const counts = super.preRender();
+        const counts = super.preRender(0);
 
         // Correct counts for this group.
         counts.groups += 1;
@@ -90,7 +89,7 @@ export class Group extends Node {
             return;
         }
 
-        const { ctx } = renderCtx;
+        const { ctx, stats } = renderCtx;
 
         if (this.isDirty(renderCtx)) {
             const transform = ctx.getTransform();
@@ -106,8 +105,11 @@ export class Group extends Node {
             this.renderInContext(childRenderCtx);
             layerCtx.restore();
             layerCtx.verifyDepthZero?.(); // Check for save/restore depth of zero!
+
+            if (stats) stats.layersRendered++;
         } else {
             this.skipRender(childRenderCtx);
+            if (stats) stats.layersSkipped++;
         }
 
         ctx.save();
@@ -125,7 +127,8 @@ export class Group extends Node {
             // Skip invisible children, but make sure their dirty flag is reset.
             child.markClean();
             if (stats) {
-                stats.nodesSkipped += nodeCount(child).count;
+                stats.nodesSkipped += this.childNodeCounts.groups + this.childNodeCounts.nonGroups;
+                stats.opsSkipped += this.childNodeCounts.complexity;
             }
         }
     }
@@ -160,7 +163,8 @@ export class Group extends Node {
             if (!child.visible) {
                 child.markClean();
                 if (stats) {
-                    stats.nodesSkipped += nodeCount(child).count;
+                    stats.nodesSkipped += child.childNodeCounts.nonGroups + child.childNodeCounts.groups;
+                    stats.opsSkipped += child.childNodeCounts.complexity;
                 }
                 continue;
             }

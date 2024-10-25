@@ -107,7 +107,7 @@ export class Path extends Shape implements DistantObject {
 
     override preRender(): ChildNodeCounts {
         this.updatePathIfDirty();
-        return super.preRender();
+        return super.preRender(this.path.commands.length);
     }
 
     override render(renderCtx: RenderContext) {
