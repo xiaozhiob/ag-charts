@@ -648,10 +648,7 @@ export abstract class BaseFunnelSeries<
     }
 
     protected override toggleSeriesItem(itemId: number, enabled: boolean): void {
-        const enabledCount = this.seriesItemEnabled.reduce(
-            (enabledCount, enabled) => Number(enabledCount) + Number(enabled),
-            0
-        );
+        const enabledCount = this.seriesItemEnabled.reduce((count, e) => Number(count) + Number(e), 0);
 
         if (!enabled && enabledCount < 3) {
             return;
