@@ -18,6 +18,8 @@ export type RenderContext = {
     resized: boolean;
     clipBBox?: BBox;
     stats?: {
+        opsPerformed: number;
+        opsSkipped: number;
         nodesRendered: number;
         nodesSkipped: number;
         layersRendered: number;
@@ -38,6 +40,8 @@ export type NodeWithOpacity = Node & { opacity: number };
 export type ChildNodeCounts = {
     groups: number;
     nonGroups: number;
+    thisComplexity: number;
+    complexity: number;
 };
 
 /**
@@ -58,7 +62,7 @@ export abstract class Node {
 
     /** Unique number to allow creation order to be easily determined. */
     readonly serialNumber = Node._nextSerialNumber++;
-    readonly childNodeCounts: ChildNodeCounts = { groups: 0, nonGroups: 0 };
+    readonly childNodeCounts: ChildNodeCounts = { groups: 0, nonGroups: 0, thisComplexity: 0, complexity: 0 };
 
     /** Unique node ID in the form `ClassName-NaturalNumber`. */
     readonly id = createId(this);
@@ -134,14 +138,17 @@ export abstract class Node {
     }
 
     /** Perform any pre-rendering initialization. */
-    preRender(): ChildNodeCounts {
+    preRender(thisComplexity = 1): ChildNodeCounts {
         this.childNodeCounts.groups = 0;
         this.childNodeCounts.nonGroups = 1; // Assume this node isn't a group.
+        this.childNodeCounts.complexity = thisComplexity;
+        this.childNodeCounts.thisComplexity = thisComplexity;
 
         for (const child of this.children()) {
             const childCounts = child.preRender();
             this.childNodeCounts.groups += childCounts.groups;
             this.childNodeCounts.nonGroups += childCounts.nonGroups;
+            this.childNodeCounts.complexity += childCounts.complexity;
         }
 
         return this.childNodeCounts;
@@ -161,6 +168,7 @@ export abstract class Node {
 
         if (stats) {
             stats.nodesRendered++;
+            stats.opsPerformed += this.childNodeCounts.thisComplexity;
         }
     }
 

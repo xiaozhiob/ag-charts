@@ -34,12 +34,12 @@ function formatBytes(value: number) {
 function memoryUsage() {
     if (!('memory' in performance)) return;
     const { totalJSHeapSize, usedJSHeapSize, jsHeapSizeLimit } = performance.memory as any;
-    let result = '';
-    for (const [name, amount] of Object.entries({ usedJSHeapSize, totalJSHeapSize, jsHeapSizeLimit })) {
-        if (!(typeof amount === 'number')) continue;
-        result += `${name}: ${formatBytes(amount)} `;
+    const result = [];
+    for (const amount of [usedJSHeapSize, totalJSHeapSize, jsHeapSizeLimit]) {
+        if (typeof amount !== 'number') continue;
+        result.push(formatBytes(amount));
     }
-    return result;
+    return `Heap ${result.join(' / ')}`;
 }
 
 export function debugStats(
@@ -52,7 +52,14 @@ export function debugStats(
 ) {
     if (!Debug.check(DebugSelectors.SCENE_STATS, DebugSelectors.SCENE_STATS_VERBOSE)) return;
 
-    const { layersRendered = 0, layersSkipped = 0, nodesRendered = 0, nodesSkipped = 0 } = renderCtxStats ?? {};
+    const {
+        layersRendered = 0,
+        layersSkipped = 0,
+        nodesRendered = 0,
+        nodesSkipped = 0,
+        opsPerformed = 0,
+        opsSkipped = 0,
+    } = renderCtxStats ?? {};
 
     const end = performance.now();
     const { start, ...durations } = debugSplitTimes;
@@ -74,7 +81,8 @@ export function debugStats(
         `${extras}`,
         `Layers: ${detailedStats ? pct(layersRendered, layersSkipped) : layersManager.size}; Sprites: ${SpriteRenderer.offscreenCanvasCount}`,
         detailedStats ? `Nodes: ${pct(nodesRendered, nodesSkipped)}` : null,
-        detailedStats && memUsage ? `Memory: ${memUsage}` : null,
+        detailedStats ? `Ops: ${pct(opsPerformed, opsSkipped)}` : null,
+        detailedStats && memUsage ? memUsage : null,
     ].filter(isString);
     const measurer = new SimpleTextMeasurer((t) => ctx.measureText(t));
     const statsSize = new Map(stats.map((t) => [t, measurer.measureLines(t)]));
