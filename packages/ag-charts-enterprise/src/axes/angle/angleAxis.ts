@@ -67,7 +67,6 @@ export abstract class AngleAxis<
         this.updateLabels();
         this.updateRadiusLine();
         this.updateCrossLines();
-        return this.tickData.length;
     }
 
     override computeRange() {

@@ -57,7 +57,7 @@ export abstract class CartesianAxis<S extends Scale<D, number, any> = Scale<any,
 
     override update(animated?: boolean) {
         this.updateDirection();
-        return super.update(animated);
+        super.update(animated);
     }
 
     override calculateLayout(domain?: any[], primaryTickCount?: number) {

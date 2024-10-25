@@ -447,14 +447,14 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
     /**
      * Creates/removes/updates the scene graph nodes that constitute the axis.
      */
-    update(animated = true): number | undefined {
+    update(animated = true) {
         if (!this.tickGenerationResult) return;
 
         this.updatePosition();
 
         const sideFlag = this.label.getSideFlag();
         const lineData = this.getAxisLineCoordinates();
-        const { tickData, combinedRotation, textBaseline, textAlign, primaryTickCount } = this.tickGenerationResult;
+        const { tickData, combinedRotation, textBaseline, textAlign } = this.tickGenerationResult;
         const previousTicks = this.tickLabelGroupSelection.nodes().slice(); // Clone before update to diff with.
 
         this.updateSelections(lineData, tickData.ticks, {
@@ -483,16 +483,10 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
         this.lineNode.setProperties({ stroke, strokeWidth: enabled ? width : 0 });
 
         this.updateLabels();
-
         this.updateGridLines(sideFlag);
-
         this.updateTickLines();
-
         this.updateTitle(!tickData.ticks.length);
-
         this.updateCrossLines();
-
-        return primaryTickCount;
     }
 
     private getAxisLineCoordinates(): AxisLineDatum {
