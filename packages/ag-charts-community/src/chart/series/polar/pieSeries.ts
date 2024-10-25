@@ -1363,6 +1363,7 @@ export class PieSeries extends PolarSeries<PieNodeDatum, PieSeriesProperties, Se
             legendData.push({
                 legendType: 'category',
                 id: this.id,
+                datum,
                 itemId: index,
                 seriesId: this.id,
                 enabled: visible && this.legendItemEnabled[index],

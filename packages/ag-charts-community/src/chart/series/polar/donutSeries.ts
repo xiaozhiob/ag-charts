@@ -1454,6 +1454,7 @@ export class DonutSeries extends PolarSeries<DonutNodeDatum, DonutSeriesProperti
             legendData.push({
                 legendType: 'category',
                 id: this.id,
+                datum,
                 itemId: index,
                 seriesId: this.id,
                 enabled: visible && this.legendItemEnabled[index],
