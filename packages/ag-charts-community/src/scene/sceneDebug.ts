@@ -20,6 +20,28 @@ export enum DebugSelectors {
 
 type BuildTree = { name?: string; node?: any; dirty?: boolean };
 
+function formatBytes(value: number) {
+    for (const unit of ['B', 'KB', 'MB', 'GB']) {
+        if (value < 1536) {
+            return `${value.toFixed(1)}${unit}`;
+        }
+        value /= 1024;
+    }
+
+    return `${value.toFixed(1)}TB}`;
+}
+
+function memoryUsage() {
+    if (!('memory' in performance)) return;
+    const { totalJSHeapSize, usedJSHeapSize, jsHeapSizeLimit } = performance.memory as any;
+    let result = '';
+    for (const [name, amount] of Object.entries({ usedJSHeapSize, totalJSHeapSize, jsHeapSizeLimit })) {
+        if (!(typeof amount === 'number')) continue;
+        result += `${name}: ${formatBytes(amount)} `;
+    }
+    return result;
+}
+
 export function debugStats(
     layersManager: LayersManager,
     debugSplitTimes: Record<string, number>,
@@ -46,11 +68,13 @@ export function debugStats(
         .join(' ; ');
 
     const detailedStats = Debug.check(DebugSelectors.SCENE_STATS_VERBOSE);
+    const memUsage = memoryUsage();
     const stats = [
         `${time('⏱️', start, end)} (${splits})`,
         `${extras}`,
         `Layers: ${detailedStats ? pct(layersRendered, layersSkipped) : layersManager.size}; Sprites: ${SpriteRenderer.offscreenCanvasCount}`,
         detailedStats ? `Nodes: ${pct(nodesRendered, nodesSkipped)}` : null,
+        detailedStats && memUsage ? `Memory: ${memUsage}` : null,
     ].filter(isString);
     const measurer = new SimpleTextMeasurer((t) => ctx.measureText(t));
     const statsSize = new Map(stats.map((t) => [t, measurer.measureLines(t)]));
