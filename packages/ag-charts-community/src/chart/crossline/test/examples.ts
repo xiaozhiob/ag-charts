@@ -358,7 +358,7 @@ export const LINE_CROSSLINES: AgCartesianChartOptions = {
                     range: [0.25, 0.33],
                     label: {
                         text: '0.25 - 0.33',
-                        position: 'insideLeft',
+                        position: 'inside-left',
                         padding: 10,
                     },
                     ...yAxisCrossLineStyle,
@@ -368,7 +368,7 @@ export const LINE_CROSSLINES: AgCartesianChartOptions = {
                     value: 0.87,
                     label: {
                         text: '0.87',
-                        position: 'topRight',
+                        position: 'top-right',
                     },
                     ...yAxisCrossLineStyle,
                 },
@@ -414,7 +414,7 @@ export const AREA_CROSSLINES: AgCartesianChartOptions = {
                     range: [800, 1000],
                     label: {
                         text: '800 - 1000',
-                        position: 'insideBottomLeft',
+                        position: 'inside-bottom-left',
                     },
                     ...yAxisCrossLineStyle,
                 },
@@ -423,7 +423,7 @@ export const AREA_CROSSLINES: AgCartesianChartOptions = {
                     value: -700,
                     label: {
                         text: '-700',
-                        position: 'topLeft',
+                        position: 'top-left',
                     },
                     ...yAxisCrossLineStyle,
                 },
@@ -605,7 +605,7 @@ export const HISTOGRAM_CROSSLINES: AgCartesianChartOptions = {
                     range: [10, 15],
                     label: {
                         text: '70 - 100',
-                        position: 'insideTopRight',
+                        position: 'inside-top-right',
                         color: 'orange',
                     },
                     ...yAxisCrossLineStyle,
@@ -615,7 +615,7 @@ export const HISTOGRAM_CROSSLINES: AgCartesianChartOptions = {
                     value: 50,
                     label: {
                         text: '50',
-                        position: 'bottomRight',
+                        position: 'bottom-right',
                         color: 'orange',
                     },
                     ...yAxisCrossLineStyle,
