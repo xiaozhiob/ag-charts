@@ -34,7 +34,7 @@ function formatBytes(value: number) {
 function memoryUsage() {
     if (!('memory' in performance)) return;
     const { totalJSHeapSize, usedJSHeapSize, jsHeapSizeLimit } = performance.memory as any;
-    let result = [];
+    const result = [];
     for (const amount of [usedJSHeapSize, totalJSHeapSize, jsHeapSizeLimit]) {
         if (typeof amount !== 'number') continue;
         result.push(formatBytes(amount));
