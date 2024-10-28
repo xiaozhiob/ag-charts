@@ -266,7 +266,7 @@ export class Zoom extends _ModuleSupport.BaseModuleInstance implements _ModuleSu
         }
     }
 
-    private onDragStart(event: _ModuleSupport.RegionEvent<'drag-start'>) {
+    private onDragStart(event: Pick<_ModuleSupport.RegionEvent, 'offsetX' | 'offsetY' | 'sourceEvent' | 'button'>) {
         const {
             enabled,
             enableAxisDragging,
@@ -306,7 +306,7 @@ export class Zoom extends _ModuleSupport.BaseModuleInstance implements _ModuleSu
         }
     }
 
-    private onDrag(event: _ModuleSupport.RegionEvent<'drag'>) {
+    private onDrag(event: _ModuleSupport.PointerOffsets) {
         const {
             anchorPointX,
             anchorPointY,
@@ -355,7 +355,7 @@ export class Zoom extends _ModuleSupport.BaseModuleInstance implements _ModuleSu
         updateService.update(ChartUpdateType.PERFORM_LAYOUT, { skipAnimations: true });
     }
 
-    private onDragEnd(_event: _ModuleSupport.RegionEvent<'drag-end'>) {
+    private onDragEnd(_event?: _ModuleSupport.RegionEvent<'drag-end'>) {
         const {
             axisDragger,
             dragState,
