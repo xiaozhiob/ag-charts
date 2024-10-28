@@ -1,7 +1,7 @@
 import { _ModuleSupport, _Scene, _Util } from 'ag-charts-community';
 
 type AxesHandlers = {
-    onDragStart: (direction: _ModuleSupport.ChartAxisDirection) => void;
+    onDragStart: (id: string, direction: _ModuleSupport.ChartAxisDirection) => void;
     onDrag: (event: _ModuleSupport.PointerOffsets) => void;
     onDragEnd: () => void;
 };
@@ -10,6 +10,11 @@ export class ZoomDOMProxy {
     private readonly hAxis: HTMLDivElement;
     private readonly vAxis: HTMLDivElement;
     private readonly destroyFns = new _Util.DestroyFns();
+
+    private readonly axisIds: {
+        [_ModuleSupport.ChartAxisDirection.X]?: string;
+        [_ModuleSupport.ChartAxisDirection.Y]?: string;
+    } = {};
 
     private dragState?: {
         direction: _ModuleSupport.ChartAxisDirection;
@@ -36,7 +41,8 @@ export class ZoomDOMProxy {
             const { button, offsetX, offsetY, clientX, clientY } = sourceEvent;
             if (button === 0) {
                 this.dragState = { direction, start: { offsetX, offsetY, clientX, clientY } };
-                handlers.onDragStart(direction);
+                const id = this.axisIds[direction] ?? 'unknown';
+                handlers.onDragStart(id, direction);
             }
         };
         const mousemove = (sourceEvent: MouseEvent) => {
@@ -93,6 +99,7 @@ export class ZoomDOMProxy {
             const bboxes = axisCtx.map((ac) => ac.getCanvasBounds()).filter((bb): bb is _Util.BBoxValues => bb != null);
             const union = _Scene.BBox.merge(bboxes);
             _ModuleSupport.setElementBBox(axis, union);
+            this.axisIds[dir] = axisCtx[0].axisId;
         }
     }
 }

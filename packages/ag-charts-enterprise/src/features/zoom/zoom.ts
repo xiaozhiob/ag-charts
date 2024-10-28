@@ -168,7 +168,7 @@ export class Zoom extends _ModuleSupport.BaseModuleInstance implements _ModuleSu
 
     // State
     private dragState = DragState.None;
-    private hoveredAxis?: { direction: _ModuleSupport.ChartAxisDirection; id: 'horizontal-axes' | 'vertical-axes' };
+    private hoveredAxis?: { direction: _ModuleSupport.ChartAxisDirection; id: string };
     private shouldFlipXY?: boolean;
     private minRatioX = 0;
     private minRatioY = 0;
@@ -202,7 +202,7 @@ export class Zoom extends _ModuleSupport.BaseModuleInstance implements _ModuleSu
         const region = ctx.regionManager.getRegion(REGIONS.SERIES);
 
         this.domProxy = new ZoomDOMProxy(ctx, {
-            onDragStart: (dir) => this.onAxisDragStart(dir),
+            onDragStart: (id, dir) => this.onAxisDragStart(id, dir),
             onDrag: (ev) => this.onDrag(ev),
             onDragEnd: () => this.onDragEnd(),
         });
@@ -480,8 +480,7 @@ export class Zoom extends _ModuleSupport.BaseModuleInstance implements _ModuleSu
         }
     }
 
-    private onAxisDragStart(direction: _ModuleSupport.ChartAxisDirection) {
-        const id = ({ x: 'horizontal-axes', y: 'vertical-axes' } as const)[direction];
+    private onAxisDragStart(id: string, direction: _ModuleSupport.ChartAxisDirection) {
         this.hoveredAxis = { id, direction };
         this.onDragStart(undefined);
     }
