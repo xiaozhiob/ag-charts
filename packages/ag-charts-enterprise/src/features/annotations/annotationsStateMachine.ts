@@ -24,6 +24,15 @@ enum States {
     TextInput = 'text-input',
 }
 
+/**
+ * - AnnotationsStateMachine (runs children in parallel, distributes properties across children)
+ *     - SnappingStateMachine (changes `snapping` property with shift key)
+ *     - UpdateStateMachine (ensures the active `node` is set after renders)
+ *     - AnnotationsMainStateMachine
+ *         - Idle (most interactions, with child machine per annotation type for creating annotations)
+ *         - Dragging (entered on `dragStart`, dragging interactions with child machine per annotation type)
+ *         - TextInput (entered on `click` of active text node, text input interactions)
+ */
 export class AnnotationsStateMachine extends ParallelStateMachine<States, AnnotationStateEvents> {
     // TODO: remove this leak
     // eslint-disable-next-line @typescript-eslint/prefer-readonly
