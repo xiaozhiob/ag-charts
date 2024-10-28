@@ -1,6 +1,6 @@
 import { identity } from '../util/function';
 import { Logger } from '../util/logger';
-import { findRangeExtent } from '../util/number';
+import { findRangeExtent, isInteger } from '../util/number';
 import { numberFormat } from '../util/numberFormat';
 import { createTicks, isDenseInterval, range } from '../util/ticks';
 import { isString } from '../util/type-guards';
@@ -103,12 +103,9 @@ export class LogScale extends ContinuousScale<number> {
             }
         }
 
-        const isBaseInteger = base % 1 === 0;
-        const isDiffLarge = p1 - p0 >= count;
-
-        if (!isBaseInteger || isDiffLarge) {
-            // Returns [10^1, 10^2, 10^3, 10^4, ...]
-            // eslint-disable-next-line prefer-const
+        // If base is a float or the difference between p1 and p0 is large,
+        // returns ticks in the format [10^1, 10^2, 10^3, 10^4, ...].
+        if (!isInteger(base) || p1 - p0 >= count) {
             return createTicks(p0, p1, Math.min(p1 - p0, count)).map(this.pow);
         }
 
@@ -137,19 +134,7 @@ export class LogScale extends ContinuousScale<number> {
         return ticks;
     }
 
-    tickFormat({
-        count,
-        ticks,
-        specifier,
-    }: {
-        count?: any;
-        ticks?: any[];
-        specifier?: string | ((x: number) => string);
-    }): (x: number) => string {
-        if (count !== Infinity && ticks == null) {
-            this.ticks();
-        }
-
+    tickFormat({ specifier }: { specifier?: string | ((x: number) => string) }): (x: number) => string {
         specifier ??= this.base === 10 ? '.0e' : ',';
         return isString(specifier) ? numberFormat(specifier) : specifier;
     }
