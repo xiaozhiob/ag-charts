@@ -171,7 +171,9 @@ export class SeriesAreaManager extends BaseManager {
 
     public setTabIndex(tabIndex: number) {
         // FIXME: Remove keyboard.tabIndex option in next major release
-        Logger.warnOnce(`Tab indices other than 0 and -1 are deprecated`);
+        if (tabIndex !== 0 && tabIndex !== -1) {
+            Logger.warnOnce(`Tab indices other than 0 and -1 are deprecated`);
+        }
         this.swapChain.setTabIndex(tabIndex as 0 | -1);
     }
 
