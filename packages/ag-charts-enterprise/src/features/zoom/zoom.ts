@@ -201,9 +201,13 @@ export class Zoom extends _ModuleSupport.BaseModuleInstance implements _ModuleSu
         const wheelableState = draggableState | Annotations | AnnotationsSelected;
         const region = ctx.regionManager.getRegion(REGIONS.SERIES);
 
-        const hoverHandler = (dir: _ModuleSupport.ChartAxisDirection) => this.onAxisHover(dir);
-        const leaveHandler = () => this.onAxisLeave();
-        this.domProxy = new ZoomDOMProxy(ctx, hoverHandler, leaveHandler);
+        this.domProxy = new ZoomDOMProxy(ctx, {
+            onEnter: (dir: _ModuleSupport.ChartAxisDirection) => this.onAxisHover(dir),
+            onLeave: () => this.onAxisLeave(),
+            onDragStart: (ev) => this.onDragStart(ev),
+            onDrag: (ev) => this.onDrag(ev),
+            onDragEnd: (ev) => this.onDragEnd(ev),
+        });
 
         const dragStartEventType = 'drag-start';
         this.destroyFns.push(
