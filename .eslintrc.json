@@ -9,8 +9,7 @@
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "sourceType": "module",
-    "allowImportExportEverywhere": true,
-    "project": "tsconfig.base.json"
+    "allowImportExportEverywhere": true
   },
   "overrides": [
     {
