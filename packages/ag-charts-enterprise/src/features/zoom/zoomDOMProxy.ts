@@ -99,7 +99,7 @@ export class ZoomDOMProxy {
             const bboxes = axisCtx.map((ac) => ac.getCanvasBounds()).filter((bb): bb is _Util.BBoxValues => bb != null);
             const union = _Scene.BBox.merge(bboxes);
             _ModuleSupport.setElementBBox(axis, union);
-            this.axisIds[dir] = axisCtx[0].axisId;
+            this.axisIds[dir] = axisCtx[0]?.axisId;
         }
     }
 }
