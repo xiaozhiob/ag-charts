@@ -1,19 +1,17 @@
 import { _ModuleSupport, _Scene, _Util } from 'ag-charts-community';
 
-type Handler<A> = (direction: A) => void;
-
 type AxesHandlers = {
-    onEnter: Handler<_ModuleSupport.ChartAxisDirection>;
-    onLeave: Handler<_ModuleSupport.ChartAxisDirection>;
-    onDragStart: Handler<Pick<_ModuleSupport.RegionEvent, 'offsetX' | 'offsetY' | 'sourceEvent' | 'button'>>;
-    onDrag: Handler<_ModuleSupport.PointerOffsets>;
-    onDragEnd: Handler<undefined>;
+    onDragStart: (direction: _ModuleSupport.ChartAxisDirection) => void;
+    onDrag: (event: _ModuleSupport.PointerOffsets) => void;
+    onDragEnd: () => void;
 };
 
 export class ZoomDOMProxy {
     private readonly hAxis: HTMLDivElement;
     private readonly vAxis: HTMLDivElement;
     private readonly destroyFns = new _Util.DestroyFns();
+
+    private draggedAxis?: _ModuleSupport.ChartAxisDirection;
 
     private initAxis(
         ctx: Pick<_ModuleSupport.ModuleContext, 'proxyInteractionService' | 'localeManager'>,
@@ -26,39 +24,32 @@ export class ZoomDOMProxy {
         const axis = ctx.proxyInteractionService.createProxyElement({ type: 'region', domManagerId, parent });
         _Util.setElementStyle(axis, 'cursor', cursor);
 
-        let dragging = false;
-        const mouseenter = () => handlers.onEnter(direction);
-        const mouseleave = () => handlers.onLeave(direction);
         const mousedown = (sourceEvent: MouseEvent) => {
-            const { button, offsetX, offsetY } = sourceEvent;
-            if (button === 0) {
-                dragging = true;
-                handlers.onDragStart({ button, offsetX, offsetY, sourceEvent });
+            if (sourceEvent.button === 0) {
+                this.draggedAxis = direction;
+                handlers.onDragStart(direction);
             }
         };
         const mousemove = (sourceEvent: MouseEvent) => {
-            if (dragging && sourceEvent.button === 0) {
+            if (this.draggedAxis !== undefined) {
                 handlers.onDrag(sourceEvent);
             }
         };
         const mouseup = (sourceEvent: MouseEvent) => {
-            if (sourceEvent.button === 0) {
-                dragging = false;
-                handlers.onDragEnd(undefined);
+            if (this.draggedAxis !== undefined && sourceEvent.button === 0) {
+                this.draggedAxis = undefined;
+                handlers.onDragEnd();
             }
         };
 
-        axis.addEventListener('mouseenter', mouseenter);
-        axis.addEventListener('mouseleave', mouseleave);
+        const window = _ModuleSupport.getWindow();
         axis.addEventListener('mousedown', mousedown);
-        axis.addEventListener('mousemove', mousemove);
-        axis.addEventListener('mouseup', mouseup);
+        window.addEventListener('mousemove', mousemove);
+        window.addEventListener('mouseup', mouseup);
         this.destroyFns.push(() => {
-            axis.removeEventListener('mouseenter', mouseenter);
-            axis.removeEventListener('mouseleave', mouseleave);
             axis.removeEventListener('mousedown', mousedown);
-            axis.removeEventListener('mousemove', mousemove);
-            axis.removeEventListener('mouseup', mouseup);
+            window.removeEventListener('mousemove', mousemove);
+            window.removeEventListener('mouseup', mouseup);
         });
 
         return axis;

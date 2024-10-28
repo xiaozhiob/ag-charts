@@ -202,11 +202,9 @@ export class Zoom extends _ModuleSupport.BaseModuleInstance implements _ModuleSu
         const region = ctx.regionManager.getRegion(REGIONS.SERIES);
 
         this.domProxy = new ZoomDOMProxy(ctx, {
-            onEnter: (dir: _ModuleSupport.ChartAxisDirection) => this.onAxisHover(dir),
-            onLeave: () => this.onAxisLeave(),
-            onDragStart: (ev) => this.onDragStart(ev),
+            onDragStart: (dir) => this.onAxisDragStart(dir),
             onDrag: (ev) => this.onDrag(ev),
-            onDragEnd: (ev) => this.onDragEnd(ev),
+            onDragEnd: () => this.onDragEnd(),
         });
 
         const dragStartEventType = 'drag-start';
@@ -270,7 +268,9 @@ export class Zoom extends _ModuleSupport.BaseModuleInstance implements _ModuleSu
         }
     }
 
-    private onDragStart(event: Pick<_ModuleSupport.RegionEvent, 'offsetX' | 'offsetY' | 'sourceEvent' | 'button'>) {
+    private onDragStart(
+        event: Pick<_ModuleSupport.RegionEvent, 'offsetX' | 'offsetY' | 'sourceEvent' | 'button'> | undefined
+    ) {
         const {
             enabled,
             enableAxisDragging,
@@ -280,7 +280,7 @@ export class Zoom extends _ModuleSupport.BaseModuleInstance implements _ModuleSu
             ctx: { cursorManager, zoomManager },
         } = this;
 
-        if (!enabled || event.button !== 0) return;
+        if (!enabled || (event !== undefined && event.button !== 0)) return;
 
         this.panner.stopInteractions();
 
@@ -289,7 +289,7 @@ export class Zoom extends _ModuleSupport.BaseModuleInstance implements _ModuleSu
 
         if (enableAxisDragging && hoveredAxis) {
             newDragState = DragState.Axis;
-        } else {
+        } else if (event != null) {
             const panKeyPressed = this.isPanningKeyPressed(event.sourceEvent as DragEvent);
             // Allow panning if either selection is disabled or the panning key is pressed.
             if (enablePanning && (!enableSelecting || panKeyPressed)) {
@@ -376,6 +376,7 @@ export class Zoom extends _ModuleSupport.BaseModuleInstance implements _ModuleSu
 
         switch (dragState) {
             case DragState.Axis:
+                this.hoveredAxis = undefined;
                 axisDragger.stop();
                 break;
 
@@ -479,14 +480,10 @@ export class Zoom extends _ModuleSupport.BaseModuleInstance implements _ModuleSu
         }
     }
 
-    private onAxisHover(direction: _ModuleSupport.ChartAxisDirection) {
-        if (!this.enabled || this.hoveredAxis) return;
+    private onAxisDragStart(direction: _ModuleSupport.ChartAxisDirection) {
         const id = ({ x: 'horizontal-axes', y: 'vertical-axes' } as const)[direction];
         this.hoveredAxis = { id, direction };
-    }
-
-    private onAxisLeave() {
-        this.hoveredAxis = undefined;
+        this.onDragStart(undefined);
     }
 
     private onPinchMove(event: PinchEvent) {
