@@ -11,7 +11,15 @@ export class ZoomDOMProxy {
     private readonly vAxis: HTMLDivElement;
     private readonly destroyFns = new _Util.DestroyFns();
 
-    private draggedAxis?: _ModuleSupport.ChartAxisDirection;
+    private dragState?: {
+        direction: _ModuleSupport.ChartAxisDirection;
+        start: {
+            offsetX: number;
+            offsetY: number;
+            clientX: number;
+            clientY: number;
+        };
+    };
 
     private initAxis(
         ctx: Pick<_ModuleSupport.ModuleContext, 'proxyInteractionService' | 'localeManager'>,
@@ -25,19 +33,27 @@ export class ZoomDOMProxy {
         _Util.setElementStyle(axis, 'cursor', cursor);
 
         const mousedown = (sourceEvent: MouseEvent) => {
-            if (sourceEvent.button === 0) {
-                this.draggedAxis = direction;
+            const { button, offsetX, offsetY, clientX, clientY } = sourceEvent;
+            if (button === 0) {
+                this.dragState = { direction, start: { offsetX, offsetY, clientX, clientY } };
                 handlers.onDragStart(direction);
             }
         };
         const mousemove = (sourceEvent: MouseEvent) => {
-            if (this.draggedAxis !== undefined) {
-                handlers.onDrag(sourceEvent);
+            if (this.dragState !== undefined) {
+                // [offsetX, offsetY] is relative to the sourceEvent.target, which can be another element
+                // such as a legend button. Therefore, calculate [offsetX, offsetY] relative to the axis
+                // element that fired the 'mousedown' event.
+                const { start } = this.dragState;
+                handlers.onDrag({
+                    offsetX: start.offsetX + (sourceEvent.clientX - start.clientX),
+                    offsetY: start.offsetY + (sourceEvent.clientY - start.clientY),
+                });
             }
         };
         const mouseup = (sourceEvent: MouseEvent) => {
-            if (this.draggedAxis !== undefined && sourceEvent.button === 0) {
-                this.draggedAxis = undefined;
+            if (this.dragState !== undefined && sourceEvent.button === 0) {
+                this.dragState = undefined;
                 handlers.onDragEnd();
             }
         };
