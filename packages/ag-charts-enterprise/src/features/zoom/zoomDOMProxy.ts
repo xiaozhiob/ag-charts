@@ -46,7 +46,7 @@ export class ZoomDOMProxy {
             }
         };
         const mousemove = (sourceEvent: MouseEvent) => {
-            if (this.dragState !== undefined) {
+            if (this.dragState?.direction === direction) {
                 // [offsetX, offsetY] is relative to the sourceEvent.target, which can be another element
                 // such as a legend button. Therefore, calculate [offsetX, offsetY] relative to the axis
                 // element that fired the 'mousedown' event.
