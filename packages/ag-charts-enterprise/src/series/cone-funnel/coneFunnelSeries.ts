@@ -70,11 +70,13 @@ export class ConeFunnelSeries extends BaseFunnelSeries<_Scene.Line> {
         barAlongX,
         yDatum,
         datum,
+        visible,
     }: {
         rect: Bounds;
         barAlongX: boolean;
         yDatum: number;
         datum: any;
+        visible: boolean;
     }): FunnelNodeLabelDatum | undefined {
         const { stageKey, valueKey, label } = this.properties;
         const { spacing, placement } = label;
@@ -130,6 +132,7 @@ export class ConeFunnelSeries extends BaseFunnelSeries<_Scene.Line> {
             itemId: valueKey,
             datum,
             series: this,
+            visible,
         };
     }
 

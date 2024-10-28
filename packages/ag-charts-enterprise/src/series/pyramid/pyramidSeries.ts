@@ -1,4 +1,5 @@
 import {
+    type AgPyramidSeriesLabelFormatterParams,
     type AgPyramidSeriesStyle,
     type AgTooltipRendererResult,
     _ModuleSupport,
@@ -19,6 +20,7 @@ export type PyramidNodeLabelDatum = Readonly<_Scene.Point> & {
     readonly text: string;
     readonly textAlign: CanvasTextAlign;
     readonly textBaseline: CanvasTextBaseline;
+    readonly visible: boolean;
 };
 
 export interface PyramidNodeDatum extends _ModuleSupport.SeriesNodeDatum, Readonly<_Scene.Point> {
@@ -69,6 +71,10 @@ export class PyramidSeries extends _ModuleSupport.DataModelSeries<
 
     public contextNodeData?: PyramidNodeDataContext;
 
+    // When a user toggles a series item (e.g. from the legend), its boolean state is recorded here.
+    public seriesItemEnabled: boolean[] = [];
+    public legendItemEnabled: boolean[] = [];
+
     constructor(moduleCtx: _ModuleSupport.ModuleContext) {
         super({
             moduleCtx,
@@ -77,6 +83,16 @@ export class PyramidSeries extends _ModuleSupport.DataModelSeries<
 
         this.itemLabelGroup.pointerEvents = PointerEvents.None;
         this.stageLabelGroup.pointerEvents = PointerEvents.None;
+    }
+
+    override addChartEventListeners(): void {
+        this.destroyFns.push(
+            this.ctx.chartEventManager?.addListener('legend-item-click', (event) => this.onLegendItemClick(event))
+        );
+    }
+
+    override get visible() {
+        return super.visible && (this.seriesItemEnabled.length === 0 || this.seriesItemEnabled.includes(true));
     }
 
     private nodeFactory(): FunnelConnector {
@@ -92,22 +108,26 @@ export class PyramidSeries extends _ModuleSupport.DataModelSeries<
             return;
         }
 
+        const { visible, seriesItemEnabled } = this;
+
         const { stageKey, valueKey } = this.properties;
 
         const xScaleType = 'band';
         const yScaleType = 'number';
 
+        const validation = (_value: unknown, _datum: unknown, index: number) => visible && seriesItemEnabled[index];
+
         const visibleProps = this.visible ? {} : { forceValue: 0 };
         await this.requestDataModel<any, any, true>(dataController, this.data, {
             props: [
                 valueProperty(stageKey, xScaleType, { id: 'xValue' }),
-                valueProperty(valueKey, yScaleType, { id: `yValue`, ...visibleProps }),
+                valueProperty(valueKey, yScaleType, { id: `yValue`, ...visibleProps, validation, invalidValue: 0 }),
             ],
         });
     }
 
     override async createNodeData(): Promise<PyramidNodeDataContext | undefined> {
-        const { id: seriesId, dataModel, processedData, properties } = this;
+        const { id: seriesId, dataModel, processedData, properties, visible, seriesItemEnabled } = this;
         const {
             stageKey,
             valueKey,
@@ -145,9 +165,10 @@ export class PyramidSeries extends _ModuleSupport.DataModelSeries<
         let maxLabelHeight = 0;
         let yTotal = 0;
 
-        processedData.data.forEach(({ datum, values }) => {
+        processedData.data.forEach(({ datum, values }, index) => {
             const xValue: string = values[xIdx];
             const yValue = Number(values[yIdx]);
+            const enabled = visible && seriesItemEnabled[index];
 
             yTotal += yValue;
 
@@ -171,6 +192,7 @@ export class PyramidSeries extends _ModuleSupport.DataModelSeries<
                 text,
                 textAlign,
                 textBaseline,
+                visible: enabled,
             });
         });
 
@@ -236,6 +258,8 @@ export class PyramidSeries extends _ModuleSupport.DataModelSeries<
             const xValue: string = values[xIdx];
             const yValue = Number(values[yIdx]);
 
+            const enabled = visible && seriesItemEnabled[index];
+
             const yEnd = yStart + yValue;
 
             const yMidRatio = (yStart + yEnd) / (2 * yTotal);
@@ -289,6 +313,7 @@ export class PyramidSeries extends _ModuleSupport.DataModelSeries<
                 text,
                 textAlign: 'center',
                 textBaseline: 'middle',
+                visible: enabled,
             };
 
             labelData.push(labelDatum);
@@ -312,6 +337,7 @@ export class PyramidSeries extends _ModuleSupport.DataModelSeries<
                 bottom,
                 left,
                 label: labelDatum,
+                enabled,
             });
 
             yStart = yEnd;
@@ -355,10 +381,13 @@ export class PyramidSeries extends _ModuleSupport.DataModelSeries<
         await this.updateDatumNodes({ datumSelection, isHighlight: false });
 
         this.labelSelection = await this.updateLabelSelection({ labelData, labelSelection });
-        await this.updateLabelNodes({ labelSelection });
+        await this.updateLabelNodes({ labelSelection, labelProperties: this.properties.label });
 
         this.stageLabelSelection = await this.updateStageLabelSelection({ stageLabelData, stageLabelSelection });
-        await this.updateStageLabelNodes({ stageLabelSelection });
+        await this.updateLabelNodes({
+            labelSelection: stageLabelSelection,
+            labelProperties: this.properties.stageLabel,
+        });
 
         this.highlightDatumSelection = await this.updateDatumSelection({
             nodeData: highlightedDatum != null ? [highlightedDatum] : [],
@@ -439,25 +468,6 @@ export class PyramidSeries extends _ModuleSupport.DataModelSeries<
         return opts.labelSelection.update(this.properties.label.enabled ? opts.labelData : []);
     }
 
-    private async updateLabelNodes(opts: { labelSelection: _Scene.Selection<_Scene.Text, PyramidNodeLabelDatum> }) {
-        const { labelSelection } = opts;
-        const { color: fill, fontSize, fontStyle, fontWeight, fontFamily } = this.properties.label;
-
-        labelSelection.each((label, { x, y, text, textAlign, textBaseline }) => {
-            label.visible = true;
-            label.x = x;
-            label.y = y;
-            label.text = text;
-            label.fill = fill;
-            label.fontStyle = fontStyle;
-            label.fontWeight = fontWeight;
-            label.fontSize = fontSize;
-            label.fontFamily = fontFamily;
-            label.textAlign = textAlign;
-            label.textBaseline = textBaseline;
-        });
-    }
-
     private async updateStageLabelSelection(opts: {
         stageLabelData: PyramidNodeLabelDatum[];
         stageLabelSelection: _Scene.Selection<_Scene.Text, PyramidNodeLabelDatum>;
@@ -465,14 +475,15 @@ export class PyramidSeries extends _ModuleSupport.DataModelSeries<
         return opts.stageLabelSelection.update(opts.stageLabelData);
     }
 
-    private async updateStageLabelNodes(opts: {
-        stageLabelSelection: _Scene.Selection<_Scene.Text, PyramidNodeLabelDatum>;
+    private async updateLabelNodes(opts: {
+        labelSelection: _Scene.Selection<_Scene.Text, PyramidNodeLabelDatum>;
+        labelProperties: _Scene.Label<AgPyramidSeriesLabelFormatterParams>;
     }) {
-        const { stageLabelSelection } = opts;
-        const { color: fill, fontSize, fontStyle, fontWeight, fontFamily } = this.properties.stageLabel;
+        const { labelSelection, labelProperties } = opts;
+        const { color: fill, fontSize, fontStyle, fontWeight, fontFamily } = labelProperties;
 
-        stageLabelSelection.each((label, { x, y, text, textAlign, textBaseline }) => {
-            label.visible = true;
+        labelSelection.each((label, { visible, x, y, text, textAlign, textBaseline }) => {
+            label.visible = visible;
             label.x = x;
             label.y = y;
             label.text = text;
@@ -578,9 +589,64 @@ export class PyramidSeries extends _ModuleSupport.DataModelSeries<
         return minDatum != null ? { datum: minDatum, distance: Math.sqrt(minDistanceSquared) } : undefined;
     }
 
-    override getLegendData(
-        _legendType: unknown
-    ): _ModuleSupport.CategoryLegendDatum[] | _ModuleSupport.GradientLegendDatum[] {
-        return [];
+    override getLegendData(legendType: _ModuleSupport.ChartLegendType): _ModuleSupport.CategoryLegendDatum[] {
+        const { processedData, dataModel, legendItemEnabled, id } = this;
+
+        if (
+            !dataModel ||
+            !processedData?.data.length ||
+            legendType !== 'category' ||
+            !this.properties.isValid() ||
+            !this.properties.showInLegend
+        ) {
+            return [];
+        }
+
+        const { fills, strokes, strokeWidth, fillOpacity, strokeOpacity, visible } = this.properties;
+
+        const legendData: _ModuleSupport.CategoryLegendDatum[] = [];
+        const stageIdx = dataModel.resolveProcessedDataIndexById(this, `xValue`);
+
+        for (let index = 0; index < processedData.data.length; index++) {
+            const { values } = processedData.data[index];
+
+            const stageValue: string = values[stageIdx];
+            const fill = fills[index % fills.length] ?? 'black';
+            const stroke = strokes[index % strokes.length] ?? 'black';
+
+            legendData.push({
+                legendType: 'category',
+                id,
+                itemId: index,
+                seriesId: id,
+                enabled: visible && legendItemEnabled[index],
+                label: { text: stageValue },
+                symbols: [{ marker: { fill, fillOpacity, stroke, strokeWidth, strokeOpacity } }],
+            });
+        }
+
+        return legendData;
+    }
+
+    onLegendItemClick(event: _ModuleSupport.LegendItemClickChartEvent) {
+        const { enabled, itemId, series } = event;
+
+        if (series.id !== this.id) {
+            return;
+        }
+
+        this.toggleSeriesItem(itemId, enabled);
+    }
+
+    protected override toggleSeriesItem(itemId: number, enabled: boolean): void {
+        this.seriesItemEnabled[itemId] = enabled;
+        this.legendItemEnabled[itemId] = enabled;
+        this.nodeDataRefresh = true;
+    }
+
+    protected override onDataChange() {
+        const { data, seriesItemEnabled, legendItemEnabled } = this;
+        this.seriesItemEnabled = data?.map((_, index) => seriesItemEnabled[index] ?? true) ?? [];
+        this.legendItemEnabled = data?.map((_, index) => legendItemEnabled[index] ?? true) ?? [];
     }
 }

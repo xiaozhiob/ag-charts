@@ -155,7 +155,7 @@ export type DatumPropertyDefinition<K> = PropertyIdentifiers & {
     missing?: MissMap;
     missingValue?: any;
     separateNegative?: boolean;
-    validation?: (value: any, datum: any) => boolean;
+    validation?: (value: any, datum: any, index: number) => boolean;
     processor?: () => ProcessorFn;
 };
 
@@ -566,7 +566,7 @@ export class DataModel<
             let keyIdx = 0;
             let key;
             for (const def of keyDefs) {
-                key = processValue(def, datum, key);
+                key = processValue(def, datum, datumIdx, key);
                 if (key === INVALID_VALUE) break;
                 if (keys) {
                     keys[keyIdx++] = key;
@@ -582,7 +582,7 @@ export class DataModel<
                     const source = sourcesById.get(scope);
                     const valueDatum = source?.data[datumIdx] ?? datum;
 
-                    value = processValue(def, valueDatum, value, scope);
+                    value = processValue(def, valueDatum, datumIdx, value, scope);
 
                     if (value === INVALID_VALUE || !values) continue;
 
@@ -863,6 +863,7 @@ export class DataModel<
         const processValue = (
             def: InternalDatumPropertyDefinition<K>,
             datum: any,
+            idx: number,
             previousDatum?: any,
             scope?: string
         ) => {
@@ -882,7 +883,7 @@ export class DataModel<
 
             if (def.forceValue != null) {
                 // Maintain sign of forceValue from actual value, this maybe significant later when
-                // we account fo the value falling into positive/negative buckets.
+                // we account for the value falling into positive/negative buckets.
                 const valueNegative = valueInDatum && isNegative(value);
                 value = valueNegative ? -1 * def.forceValue : def.forceValue;
                 valueInDatum = true;
@@ -898,7 +899,7 @@ export class DataModel<
                 initDataDomain();
             }
 
-            if (valueInDatum && def.validation?.(value, datum) === false) {
+            if (valueInDatum && def.validation?.(value, datum, idx) === false) {
                 if ('invalidValue' in def) {
                     value = def.invalidValue;
                 } else {

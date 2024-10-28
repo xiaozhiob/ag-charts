@@ -73,11 +73,13 @@ export class FunnelSeries extends BaseFunnelSeries<_Scene.Rect> {
         rect,
         yDatum,
         datum,
+        visible,
     }: {
         rect: Bounds;
         barAlongX: boolean;
         yDatum: number;
         datum: any;
+        visible: boolean;
     }): FunnelNodeLabelDatum | undefined {
         const { valueKey, stageKey, label } = this.properties;
 
@@ -92,6 +94,7 @@ export class FunnelSeries extends BaseFunnelSeries<_Scene.Rect> {
             itemId: stageKey,
             datum,
             series: this,
+            visible,
         };
     }
 
