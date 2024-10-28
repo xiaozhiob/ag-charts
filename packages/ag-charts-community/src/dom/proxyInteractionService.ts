@@ -8,9 +8,9 @@ import type { DOMManager } from './domManager';
 
 export type ListSwitch = { button: HTMLButtonElement; listitem: HTMLElement };
 
-type ElemParams<T extends ProxyElementType> = { readonly type: T } & (
-    | { readonly id?: string; readonly parent: HTMLElement }
-    | { readonly id: string; readonly parent: 'beforebegin' | 'afterend' }
+type ElemParams<T extends ProxyElementType> = { readonly type: T; readonly id?: string } & (
+    | { readonly parent: HTMLElement }
+    | { readonly domManagerId: string; readonly parent: 'beforebegin' | 'afterend' }
 );
 
 type InteractParams<T extends ProxyElementType> = ElemParams<T> & {
@@ -263,10 +263,10 @@ export class ProxyInteractionService {
     }
 
     private setParent<T extends ProxyElementType, TElem extends HTMLElement>(params: ElemParams<T>, element: TElem) {
-        const { id, parent } = params;
+        const { parent } = params;
         if (typeof parent === 'string') {
             const insert = { where: parent, query: '.ag-charts-series-area' };
-            this.domManager.addChild('canvas-proxy', id, element, insert);
+            this.domManager.addChild('canvas-proxy', params.domManagerId, element, insert);
         } else {
             parent.appendChild(element);
         }

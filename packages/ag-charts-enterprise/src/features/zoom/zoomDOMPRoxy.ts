@@ -9,14 +9,14 @@ export class ZoomDOMProxy {
 
     private initAxis(
         ctx: Pick<_ModuleSupport.ModuleContext, 'proxyInteractionService' | 'localeManager'>,
-        id: string,
+        domManagerId: string,
         onEnter: Handler,
         onLeave: Handler,
         direction: _ModuleSupport.ChartAxisDirection,
         cursor: 'ew-resize' | 'ns-resize'
     ) {
         const parent = 'afterend';
-        const axis = ctx.proxyInteractionService.createProxyElement({ type: 'region', id, parent });
+        const axis = ctx.proxyInteractionService.createProxyElement({ type: 'region', domManagerId, parent });
         _Util.setElementStyle(axis, 'cursor', cursor);
         const [mouseenter, mouseleave] = [() => onEnter(direction), () => onLeave(direction)];
         axis.addEventListener('mouseenter', mouseenter);
