@@ -155,7 +155,7 @@ export interface AgChartInstance<O extends AgChartInstanceOptions = AgChartOptio
     getImageDataURL(options?: ImageDataUrlOptions): Promise<string>;
 
     /** Returns a representation of the current state of the given `AgChartInstance`. */
-    getState(): Required<AgChartState>;
+    getState(): AgChartState;
     /** Sets the state of the given `AgChartInstance` to the state provided.*/
     setState(state: AgChartState): Promise<void>;
 

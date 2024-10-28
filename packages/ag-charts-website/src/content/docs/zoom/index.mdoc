@@ -244,6 +244,10 @@ The data returned from the `getData` function should always include the coarse d
 The `windowStart` and `windowEnd` parameters will be `undefined` if the chart does not have a time axis. They will also be `undefined` on the first call to `dataSource.getData()` if no `axis[].min` and `axis[].max` are provided on the time axis.
 {% /note %}
 
+## Save & Restore
+
+The zoom state can be saved, restored and programmatically initialised and modified, using the [Chart State API](./api-state/).
+
 ## API Reference
 
 {% tabs %}
