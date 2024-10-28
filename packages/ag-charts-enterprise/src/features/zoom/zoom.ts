@@ -12,7 +12,7 @@ import { _ModuleSupport } from 'ag-charts-community';
 import { ZoomRect } from './scenes/zoomRect';
 import { ZoomAxisDragger } from './zoomAxisDragger';
 import { ZoomContextMenu } from './zoomContextMenu';
-import { ZoomDOMProxy } from './zoomDOMPRoxy';
+import { ZoomDOMProxy } from './zoomDOMProxy';
 import { type ZoomPanUpdate, ZoomPanner } from './zoomPanner';
 import { ZoomScrollPanner } from './zoomScrollPanner';
 import { ZoomScroller } from './zoomScroller';
