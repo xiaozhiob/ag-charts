@@ -11,17 +11,12 @@ const Y_MIN = 2;
 const Y_MAX = 3;
 const AGG_SPAN = 4;
 
-interface Aggregation {
-    indexData: Int32Array;
-    valueData: Float64Array;
-}
-
 function xRatioForDatumIndex(xValue: any, d0: number, d1: number) {
     return (xValue.valueOf() - d0) / (d1 - d0);
 }
 
 function aggregationIndexForXRatio(xRatio: number, maxRange: number) {
-    return (((xRatio * (maxRange - 1)) | 0) * AGG_SPAN) | 0;
+    return (Math.min(Math.floor(xRatio * maxRange), maxRange - 1) * AGG_SPAN) | 0;
 }
 
 function createAggregationIndices(
@@ -31,7 +26,10 @@ function createAggregationIndices(
     xIdx: number,
     yIdx: number,
     maxRange: number
-): Aggregation {
+): {
+    indexData: Int32Array;
+    valueData: Float64Array;
+} {
     const indexData = new Int32Array(maxRange * AGG_SPAN).fill(-1);
     const valueData = new Float64Array(maxRange * AGG_SPAN).fill(NaN);
 
@@ -66,8 +64,7 @@ function createAggregationIndices(
     return { indexData, valueData };
 }
 
-function collapseAggregationIndices(agg: Aggregation, maxRange: number) {
-    const { indexData, valueData } = agg;
+function compactAggregationIndices(indexData: Int32Array, valueData: Float64Array, maxRange: number) {
     const nextMaxRange = (maxRange / 2) | 0;
 
     for (let i = 0; i < nextMaxRange; i += 1) {
@@ -100,11 +97,10 @@ function aggregationContainsIndex(
     d0: number,
     d1: number,
     xIdx: number,
-    agg: Aggregation,
+    indexData: Int32Array,
     maxRange: number,
     datumIndex: number
 ) {
-    const { indexData } = agg;
     const { values } = ungroupedData[datumIndex];
     const xValue = values[xIdx];
     if (xValue == null) return false;
@@ -132,11 +128,11 @@ export function aggregateData(
     const [d0, d1] = findMinMax(domain);
 
     let maxRange = (2 ** Math.ceil(Math.log2(ungroupedData.length / MAX_POINTS))) | 0;
-    const agg = createAggregationIndices(ungroupedData, d0, d1, xIdx, yIdx, maxRange);
+    const { indexData, valueData } = createAggregationIndices(ungroupedData, d0, d1, xIdx, yIdx, maxRange);
 
     let indices: number[] = [];
     for (let datumIndex = 0; datumIndex < ungroupedData.length; datumIndex += 1) {
-        if (aggregationContainsIndex(ungroupedData, d0, d1, xIdx, agg, maxRange, datumIndex)) {
+        if (aggregationContainsIndex(ungroupedData, d0, d1, xIdx, indexData, maxRange, datumIndex)) {
             indices.push(datumIndex);
         }
     }
@@ -144,8 +140,8 @@ export function aggregateData(
     const filters: _ModuleSupport.LineSeriesDataAggregationFilter[] = [{ maxRange, indices }];
 
     while (indices.length > MAX_POINTS && maxRange > 64) {
-        maxRange = collapseAggregationIndices(agg, maxRange);
-        indices = indices.filter(aggregationContainsIndex.bind(null, ungroupedData, d0, d1, xIdx, agg, maxRange));
+        maxRange = compactAggregationIndices(indexData, valueData, maxRange);
+        indices = indices.filter(aggregationContainsIndex.bind(null, ungroupedData, d0, d1, xIdx, indexData, maxRange));
 
         filters.push({ maxRange, indices });
     }
