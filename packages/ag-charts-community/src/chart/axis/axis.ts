@@ -247,6 +247,8 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
     readonly tick = new AxisTick();
     readonly gridLine = new AxisGridLine();
     readonly label = this.createLabel();
+    private readonly tempText = new TransformableText();
+    private readonly tempCaption = new Caption();
 
     protected defaultTickMinSpacing: number = Axis.defaultTickMinSpacing;
 
@@ -615,8 +617,8 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
             });
         }
 
+        const { tempText } = this;
         if (this.label.enabled) {
-            const tempText = new TransformableText();
             tickData.ticks.forEach((datum) => {
                 const labelProps = this.getTickLabelProps(datum, {
                     combinedRotation,
@@ -641,10 +643,9 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
         }
 
         if (this.title?.enabled) {
-            const caption = new Caption();
             const spacing = BBox.merge(boxes).width;
-            this.setTitleProps(caption, { spacing });
-            const titleBox = caption.node.getBBox();
+            this.setTitleProps(this.tempCaption, { spacing });
+            const titleBox = this.tempCaption.node.getBBox();
             if (titleBox) {
                 boxes.push(titleBox);
             }

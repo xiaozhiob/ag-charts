@@ -300,15 +300,17 @@ export class LineSeries extends CartesianSeries<
                 spanPoints[spanPoints.length - 1];
 
             if (yDatum != null && Number.isFinite(x)) {
-                const labelText = this.getLabelText(label, {
-                    value: yDatum,
-                    datum,
-                    xKey,
-                    yKey,
-                    xName,
-                    yName,
-                    legendItemName,
-                });
+                const labelText = label.enabled
+                    ? this.getLabelText(label, {
+                          value: yDatum,
+                          datum,
+                          xKey,
+                          yKey,
+                          xName,
+                          yName,
+                          legendItemName,
+                      })
+                    : undefined;
 
                 nodeData.push({
                     series: this,
