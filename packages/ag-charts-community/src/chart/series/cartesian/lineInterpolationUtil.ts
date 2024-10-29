@@ -458,17 +458,32 @@ function phaseAnimation(
     }
 }
 
-function resetAnimation(newData: SpanContext, oldData: SpanContext, out: SpanInterpolationResult) {
+function resetSpan(data: SpanContext, spanDatum: SpanDatum, collapseMode: CollapseMode) {
+    const { span } = spanDatum;
+    switch (collapseMode) {
+        case CollapseMode.Zero:
+            return zeroDataSpan(spanDatum, data.zeroData) ?? axisZeroSpan(span, data);
+        case CollapseMode.Split:
+            return collapseSpanToMidpoint(span);
+    }
+}
+
+function resetAnimation(
+    newData: SpanContext,
+    oldData: SpanContext,
+    collapseMode: CollapseMode,
+    out: SpanInterpolationResult
+) {
     for (const oldSpanDatum of oldData.data) {
         const oldSpan = oldSpanDatum.span;
-        const zeroSpan = zeroDataSpan(oldSpanDatum, oldData.zeroData) ?? axisZeroSpan(oldSpan, oldData);
-        out.removed.push({ from: oldSpan, to: zeroSpan });
+        const collapsedSpan = resetSpan(oldData, oldSpanDatum, collapseMode);
+        out.removed.push({ from: oldSpan, to: collapsedSpan });
     }
 
     for (const newSpanDatum of newData.data) {
         const newSpan = newSpanDatum.span;
-        const zeroSpan = zeroDataSpan(newSpanDatum, newData.zeroData) ?? axisZeroSpan(newSpan, newData);
-        out.added.push({ from: zeroSpan, to: newSpan });
+        const collapsedSpan = resetSpan(newData, newSpanDatum, collapseMode);
+        out.added.push({ from: collapsedSpan, to: newSpan });
     }
 }
 
@@ -481,7 +496,7 @@ export function pairUpSpans(newData: SpanContext, oldData: SpanContext, collapse
 
     const axisContext = getAxisValues(newData, oldData);
     if (axisContext == null) {
-        resetAnimation(newData, oldData, out);
+        resetAnimation(newData, oldData, collapseMode, out);
     } else {
         phaseAnimation(axisContext, newData, oldData, collapseMode, out);
     }
