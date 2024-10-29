@@ -169,7 +169,7 @@ export class SeriesAreaManager extends BaseManager {
     }
 
     public setTabIndex(tabIndex: number) {
-        this.swapChain.setTabIndex(tabIndex);
+        this.swapChain.setTabIndex(tabIndex as 0 | -1);
     }
 
     public seriesChanged(series: Series<SeriesNodeDatum, SeriesProperties<object>>[]) {

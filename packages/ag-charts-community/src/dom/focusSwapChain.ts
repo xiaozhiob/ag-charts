@@ -9,8 +9,8 @@ type SwapChainEventMap = { focus: FocusEvent; blur: FocusEvent; swap: HTMLElemen
  * two identical divs to accomplish this.
  */
 export class FocusSwapChain {
-    private inactiveAnnouncer: HTMLElement;
-    private activeAnnouncer: HTMLElement;
+    private inactiveAnnouncer: HTMLElement & { tabIndex: 0 | -1 };
+    private activeAnnouncer: HTMLElement & { tabIndex: 0 | -1 };
 
     private hasFocus = false;
     private skipDispatch = false;
@@ -29,7 +29,7 @@ export class FocusSwapChain {
         announcer.className = 'ag-charts-swapchain';
         announcer.addEventListener('blur', this.onBlur);
         announcer.addEventListener('focus', this.onFocus);
-        return announcer;
+        return announcer as typeof announcer & { tabIndex: 0 | -1 };
     }
 
     constructor(
@@ -45,6 +45,8 @@ export class FocusSwapChain {
 
         this.activeAnnouncer = this.createAnnouncer(announcerRole);
         this.inactiveAnnouncer = this.createAnnouncer(announcerRole);
+        this.activeAnnouncer.dataset['id'] = '1';
+        this.inactiveAnnouncer.dataset['id'] = '2';
 
         this.label2.insertAdjacentElement('afterend', this.activeAnnouncer);
         this.label2.insertAdjacentElement('afterend', this.inactiveAnnouncer);
@@ -59,7 +61,7 @@ export class FocusSwapChain {
         }
     }
 
-    setTabIndex(tabIndex: number) {
+    setTabIndex(tabIndex: 0 | -1) {
         this.activeAnnouncer.tabIndex = tabIndex;
     }
 
@@ -104,12 +106,19 @@ export class FocusSwapChain {
 
         [this.inactiveAnnouncer, this.activeAnnouncer] = [this.activeAnnouncer, this.inactiveAnnouncer];
         [this.label1, this.label2] = [this.label2, this.label1];
-        setAttributes(this.inactiveAnnouncer, { 'aria-labelledby': this.label1.id, 'aria-hidden': true, tabindex: -1 });
-        setAttributes(this.activeAnnouncer, { 'aria-labelledby': this.label1.id, 'aria-hidden': false });
+        setAttributes(this.inactiveAnnouncer, {
+            'aria-labelledby': this.label1.id,
+            'aria-hidden': true,
+            tabindex: undefined,
+        });
+        setAttributes(this.activeAnnouncer, {
+            'aria-labelledby': this.label1.id,
+            'aria-hidden': false,
+            tabindex: userTabIndex,
+        });
         setElementStyle(this.inactiveAnnouncer, 'pointer-events', 'none');
         setElementStyle(this.activeAnnouncer, 'pointer-events', undefined);
 
-        this.activeAnnouncer.tabIndex = userTabIndex;
         this.dispatch('swap', this.activeAnnouncer);
     }
 }
