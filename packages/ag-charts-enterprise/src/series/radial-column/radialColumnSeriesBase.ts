@@ -134,7 +134,7 @@ export abstract class RadialColumnSeriesBase<
         }
 
         if (animationEnabled && this.processedData) {
-            extraProps.push(diff(this.processedData));
+            extraProps.push(diff(this.id, this.processedData));
         }
         if (animationEnabled) {
             extraProps.push(animationValidation());

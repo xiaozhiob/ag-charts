@@ -210,7 +210,7 @@ export abstract class BaseFunnelSeries<
         const extraProps = [];
         if (!this.ctx.animationManager.isSkipped()) {
             if (this.processedData) {
-                extraProps.push(diff(this.processedData));
+                extraProps.push(diff(this.id, this.processedData));
             }
             extraProps.push(animationValidation());
         }

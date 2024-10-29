@@ -53,7 +53,7 @@ export type ProcessedOutputDiff = {
     moved: Map<string, any>;
 };
 
-type GroupedDataItem<D> = UngroupedDataItem<D[], any[][]> & { area?: number };
+export type GroupedDataItem<D> = UngroupedDataItem<D[], any[][]> & { area?: number };
 
 export interface ProcessedDataDef {
     index: number;
