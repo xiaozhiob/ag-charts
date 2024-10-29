@@ -171,6 +171,8 @@ export class Zoom extends _ModuleSupport.BaseModuleInstance implements _ModuleSu
     private minRatioX = 0;
     private minRatioY = 0;
 
+    private destroyContextMenuActions: (() => void) | undefined = undefined;
+
     constructor(private readonly ctx: _ModuleSupport.ModuleContext) {
         super();
 
@@ -233,18 +235,17 @@ export class Zoom extends _ModuleSupport.BaseModuleInstance implements _ModuleSu
 
     override destroy(): void {
         super.destroy();
-
-        this._destroyContextMenuActions?.();
+        this.destroyContextMenuActions?.();
     }
 
-    private _destroyContextMenuActions: (() => void) | undefined = undefined;
     private onEnabledChange(enabled: boolean) {
         if (!this.contextMenu || !this.toolbar) return;
 
+        this.ctx.zoomManager.setZoomModuleEnabled(enabled);
         const zoom = this.getZoom();
         const props = this.getModuleProperties({ enabled });
-        this._destroyContextMenuActions?.();
-        this._destroyContextMenuActions = this.contextMenu.registerActions(enabled, zoom);
+        this.destroyContextMenuActions?.();
+        this.destroyContextMenuActions = this.contextMenu.registerActions(enabled, zoom);
         this.onZoomButtonsChange(enabled);
         this.toolbar.toggle(enabled, zoom, props);
     }

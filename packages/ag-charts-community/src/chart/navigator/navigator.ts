@@ -27,7 +27,10 @@ export class Navigator extends BaseModuleInstance implements ModuleInstance {
     public miniChart: unknown = undefined;
 
     @Validate(BOOLEAN)
-    @ObserveChanges<Navigator>((target) => target.updateGroupVisibility())
+    @ObserveChanges<Navigator>((target, value) => {
+        target.ctx.zoomManager.setNavigatorEnabled(Boolean(value));
+        target.updateGroupVisibility();
+    })
     public enabled: boolean = false;
 
     public mask = new RangeMask();

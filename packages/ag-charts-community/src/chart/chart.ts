@@ -1,4 +1,4 @@
-import type { AgBaseAxisOptions, AgChartInstance, AgChartOptions, AgInitialStateOptions } from 'ag-charts-types';
+import type { AgBaseAxisOptions, AgChartInstance, AgChartOptions } from 'ag-charts-types';
 
 import type { LayoutContext } from '../module/baseModule';
 import type { LegendModule, RootModule } from '../module/coreModules';
@@ -1167,14 +1167,15 @@ export abstract class Chart extends Observable {
         this.update(updateType, { forceNodeDataRefresh, newAnimationBatch: true });
 
         if (deltaOptions.initialState || deltaOptions.theme) {
-            this.applyInitialState(newChartOptions.userOptions.initialState);
+            this.applyInitialState(newOpts);
         }
     }
 
-    private applyInitialState(initialState?: AgInitialStateOptions) {
+    private applyInitialState(options: AgChartOptions) {
         const { annotationManager, historyManager, stateManager, zoomManager } = this.ctx;
+        const { initialState } = options;
 
-        if (initialState?.annotations != null) {
+        if ('annotations' in options && options.annotations?.enabled && initialState?.annotations != null) {
             const annotations = initialState.annotations.map((annotation) => {
                 const annotationTheme = annotationManager.getAnnotationTypeStyles(annotation.type);
                 return mergeDefaults(annotation, annotationTheme);
@@ -1183,7 +1184,7 @@ export abstract class Chart extends Observable {
             stateManager.setState(annotationManager, annotations);
         }
 
-        if (initialState?.zoom != null) {
+        if ((options.navigator?.enabled || options.zoom?.enabled) && initialState?.zoom != null) {
             stateManager.setState(zoomManager, initialState.zoom);
         }
 

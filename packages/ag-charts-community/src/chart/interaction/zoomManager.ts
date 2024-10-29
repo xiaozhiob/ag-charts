@@ -1,6 +1,8 @@
 import type { AgZoomRange, AgZoomRatio } from 'ag-charts-types';
 
 import type { MementoOriginator } from '../../api/state/memento';
+import { ContinuousScale } from '../../scale/continuousScale';
+import { OrdinalTimeScale } from '../../scale/ordinalTimeScale';
 import type { BBox } from '../../scene/bbox';
 import type { BBoxValues } from '../../util/bboxinterface';
 import { deepClone } from '../../util/json';
@@ -67,7 +69,9 @@ export class ZoomManager extends BaseManager<ZoomEvents['type'], ZoomEvents> imp
     private axes?: LayoutCompleteEvent['axes'];
 
     private lastRestoredState?: AxisZoomState;
-    private enableIndependentAxes = false;
+    private independentAxes = false;
+    private navigatorModule = false;
+    private zoomModule = false;
 
     // The initial state memento can not be restored until the chart has performed its first layout. Instead save it as
     // pending and restore then delete it on the first layout.
@@ -106,7 +110,7 @@ export class ZoomManager extends BaseManager<ZoomEvents['type'], ZoomEvents> imp
     }
 
     public restoreMemento(_version: string, _mementoVersion: string, memento: ZoomMemento) {
-        const { enableIndependentAxes } = this;
+        const { independentAxes } = this;
 
         if (!this.axes) {
             this.pendingMemento = { version: _version, mementoVersion: _mementoVersion, memento };
@@ -127,18 +131,21 @@ export class ZoomManager extends BaseManager<ZoomEvents['type'], ZoomEvents> imp
             };
         }
 
-        if (memento.rangeY) {
-            zoom.y = this.rangeToRatio(memento.rangeY, ChartAxisDirection.Y) ?? { min: 0, max: 1 };
-        } else if (memento.ratioY) {
-            zoom.y = {
-                min: memento.ratioY.start ?? 0,
-                max: memento.ratioY.end ?? 1,
-            };
+        // Do not adjust the y-axis zoom if the navigator module is enabled by itself
+        if (!this.navigatorModule || this.zoomModule) {
+            if (memento.rangeY) {
+                zoom.y = this.rangeToRatio(memento.rangeY, ChartAxisDirection.Y) ?? { min: 0, max: 1 };
+            } else if (memento.ratioY) {
+                zoom.y = {
+                    min: memento.ratioY.start ?? 0,
+                    max: memento.ratioY.end ?? 1,
+                };
+            }
         }
 
         this.lastRestoredState = zoom;
 
-        if (enableIndependentAxes !== true) {
+        if (independentAxes !== true) {
             this.updateZoom('zoom-manager', zoom);
             return;
         }
@@ -167,7 +174,15 @@ export class ZoomManager extends BaseManager<ZoomEvents['type'], ZoomEvents> imp
     }
 
     public setIndependentAxes(independent = true) {
-        this.enableIndependentAxes = independent;
+        this.independentAxes = independent;
+    }
+
+    public setNavigatorEnabled(enabled = true) {
+        this.navigatorModule = enabled;
+    }
+
+    public setZoomModuleEnabled(enabled = true) {
+        this.zoomModule = enabled;
     }
 
     public updateZoom(
@@ -327,7 +342,7 @@ export class ZoomManager extends BaseManager<ZoomEvents['type'], ZoomEvents> imp
 
     private getRangeDirection(ratio: ZoomState, direction: ChartAxisDirection): AgZoomRange | undefined {
         const axis = this.getPrimaryAxis(direction);
-        if (!axis) return;
+        if (!axis || (!ContinuousScale.is(axis.scale) && !OrdinalTimeScale.is(axis.scale))) return;
 
         const extents = this.getDomainPixelExtents(axis);
         if (!extents) return;

@@ -135,25 +135,11 @@ export class AgChartInstanceProxy implements AgChartProxy {
     }
 
     getState() {
-        const {
-            factoryApi: { caretaker },
-            chart: {
-                ctx: { annotationManager, zoomManager },
-            },
-        } = this;
-
-        return caretaker.save(annotationManager, zoomManager) as Required<AgChartState>;
+        return this.factoryApi.caretaker.save(...this.getEnabledOriginators());
     }
 
     async setState(state: AgChartState) {
-        const {
-            factoryApi: { caretaker },
-            chart: {
-                ctx: { annotationManager, zoomManager },
-            },
-        } = this;
-
-        caretaker.restore(state, annotationManager, zoomManager);
+        this.factoryApi.caretaker.restore(state, ...this.getEnabledOriginators());
         await this.chart.waitForUpdate();
     }
 
@@ -227,5 +213,22 @@ export class AgChartInstanceProxy implements AgChartProxy {
         cloneProxy.chart.update(ChartUpdateType.FULL, { forceNodeDataRefresh: true });
         await cloneProxy.waitForUpdate();
         return cloneProxy;
+    }
+
+    private getEnabledOriginators() {
+        const { annotationManager, zoomManager } = this.chart.ctx;
+        const options = this.chart.chartOptions.processedOptions;
+
+        const originators = [];
+
+        if ('annotations' in options && options.annotations?.enabled) {
+            originators.push(annotationManager);
+        }
+
+        if (options.navigator?.enabled || options.zoom?.enabled) {
+            originators.push(zoomManager);
+        }
+
+        return originators;
     }
 }
