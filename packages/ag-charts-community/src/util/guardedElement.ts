@@ -1,5 +1,5 @@
 import { setAttribute } from './attributeUtil';
-import { getWindow } from './dom';
+import { getDocument, getWindow } from './dom';
 
 export class GuardedElement {
     private readonly destroyFns: (() => void)[] = [];
@@ -11,15 +11,17 @@ export class GuardedElement {
         private readonly topTabGuard: HTMLElement,
         private readonly bottomTabGuard: HTMLElement
     ) {
-        this.initTabGuard(this.topTabGuard, () => this.onTab(false));
-        this.initTabGuard(this.bottomTabGuard, () => this.onTab(true));
+        this.initTabGuard(this.topTabGuard, (el) => this.onTab(el, false));
+        this.initTabGuard(this.bottomTabGuard, (el) => this.onTab(el, true));
         this.element.addEventListener('focus', () => this.onFocus(), { capture: true });
-        this.element.addEventListener('blur', () => this.onBlur(), { capture: true });
+        this.element.addEventListener('blur', (ev) => this.onBlur(ev), { capture: true });
     }
 
     set tabIndex(index: number) {
         this.guardTabIndex = index;
-        if (!this.hasFocus) {
+        if (this.guardTabIndex === 0) {
+            this.setGuardIndices(undefined);
+        } else if (!this.hasFocus) {
             this.setGuardIndices(this.guardTabIndex);
         }
     }
@@ -29,9 +31,10 @@ export class GuardedElement {
         this.destroyFns.length = 0;
     }
 
-    private initTabGuard(guard: HTMLElement, handler: () => void) {
-        guard.addEventListener('focus', handler);
-        this.destroyFns.push(() => guard.removeEventListener('focus', handler));
+    private initTabGuard(guard: HTMLElement, handler: (el: HTMLElement) => void) {
+        const handlerBinding = () => handler(guard);
+        guard.addEventListener('focus', handlerBinding);
+        this.destroyFns.push(() => guard.removeEventListener('focus', handlerBinding));
     }
 
     private setGuardIndices(index: number | undefined) {
@@ -42,28 +45,79 @@ export class GuardedElement {
 
     private onFocus() {
         this.hasFocus = true;
-        this.setGuardIndices(undefined);
+        if (this.guardTabIndex !== 0) {
+            this.setGuardIndices(0);
+        }
     }
 
-    private onBlur() {
+    private onBlur({ relatedTarget }: FocusEvent) {
+        const { topTabGuard: top, bottomTabGuard: bot } = this;
         this.hasFocus = false;
-        this.setGuardIndices(this.guardTabIndex);
+        if (this.guardTabIndex !== 0 && relatedTarget !== top && relatedTarget !== bot) {
+            this.setGuardIndices(this.guardTabIndex);
+        }
     }
 
-    private onTab(reverse: boolean) {
-        this.getGuardedTarget(reverse)?.focus?.();
+    private onTab(guard: HTMLElement, reverse: boolean) {
+        if (this.guardTabIndex !== 0) {
+            let focusTarget;
+            if (guard.tabIndex === 0) {
+                focusTarget = this.findExitTarget(!reverse);
+                this.setGuardIndices(this.guardTabIndex);
+            } else {
+                focusTarget = this.findEnterTarget(reverse);
+            }
+            focusTarget?.focus();
+        }
     }
 
-    private getGuardedTarget(reverse: boolean): HTMLElement | undefined {
-        const window = getWindow();
-        const focusables = Array.from(this.element.querySelectorAll('[tabindex="0"]')).filter((e): e is HTMLElement => {
+    private static queryFocusable(element: Document | Element, selectors: string) {
+        const myWindow = getWindow();
+        return Array.from(element.querySelectorAll(selectors)).filter((e): e is HTMLElement => {
             if (e instanceof HTMLElement) {
-                const style = window.getComputedStyle(e);
+                const style = myWindow.getComputedStyle(e);
                 return style.display !== 'none' && style.visibility !== 'none';
             }
             return false;
         });
+    }
+
+    private findEnterTarget(reverse: boolean): HTMLElement | undefined {
+        const focusables = GuardedElement.queryFocusable(this.element, '[tabindex="0"]');
         const index = reverse ? focusables.length - 1 : 0;
         return focusables[index];
+    }
+
+    private findExitTarget(reverse: boolean): HTMLElement | undefined {
+        const focusables = GuardedElement.queryFocusable(getDocument(), '[tabindex]')
+            .filter((e) => e.tabIndex > 0)
+            .sort((a, b) => a.tabIndex - b.tabIndex);
+        const { before, after } = GuardedElement.findBeforeAndAfter(focusables, this.guardTabIndex);
+        return reverse ? before : after;
+    }
+
+    private static findBeforeAndAfter(elements: HTMLElement[], targetTabIndex: number) {
+        let left = 0;
+        let right = elements.length - 1;
+        let before = undefined;
+        let after = undefined;
+
+        // Perform a binary search
+        while (left <= right) {
+            const mid = Math.floor((left + right) / 2);
+            const currentTabIndex = elements[mid].tabIndex;
+            if (currentTabIndex === targetTabIndex) {
+                before = elements[mid - 1] || undefined;
+                after = elements[mid + 1] || undefined;
+                break;
+            } else if (currentTabIndex < targetTabIndex) {
+                before = elements[mid];
+                left = mid + 1;
+            } else {
+                after = elements[mid];
+                right = mid - 1;
+            }
+        }
+        return { before, after };
     }
 }
