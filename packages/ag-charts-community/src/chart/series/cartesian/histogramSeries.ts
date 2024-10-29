@@ -194,7 +194,7 @@ export class HistogramSeries extends CartesianSeries<Rect, HistogramSeriesProper
         };
 
         if (!this.ctx.animationManager.isSkipped() && this.processedData) {
-            props.push(diff(this.processedData, false));
+            props.push(diff(this.id, this.processedData, false));
         }
 
         await this.requestDataModel<any>(dataController, this.data, { props, groupByFn });

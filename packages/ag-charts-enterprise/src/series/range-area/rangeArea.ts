@@ -100,7 +100,7 @@ export class RangeAreaSeries extends _ModuleSupport.CartesianSeries<
         const extraProps = [];
         const animationEnabled = !this.ctx.animationManager.isSkipped();
         if (!this.ctx.animationManager.isSkipped() && this.processedData) {
-            extraProps.push(diff(this.processedData));
+            extraProps.push(diff(this.id, this.processedData));
         }
         if (animationEnabled) {
             extraProps.push(animationValidation());

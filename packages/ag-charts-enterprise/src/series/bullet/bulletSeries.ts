@@ -107,7 +107,7 @@ export class BulletSeries extends _ModuleSupport.AbstractBarSeries<
 
         if (!this.ctx.animationManager.isSkipped()) {
             if (this.processedData !== undefined) {
-                extraProps.push(diff(this.processedData));
+                extraProps.push(diff(this.id, this.processedData));
             }
             extraProps.push(animationValidation());
         }

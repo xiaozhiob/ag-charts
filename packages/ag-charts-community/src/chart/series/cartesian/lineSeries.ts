@@ -196,7 +196,7 @@ export class LineSeries extends CartesianSeries<
         if (animationEnabled) {
             props.push(animationValidation(isContinuousX ? ['xValue'] : undefined));
             if (this.processedData) {
-                props.push(diff(this.processedData));
+                props.push(diff(this.id, this.processedData));
             }
         }
 
@@ -674,7 +674,6 @@ export class LineSeries extends CartesianSeries<
             return;
         }
 
-        markerFadeInAnimation(this, animationManager, undefined, markerSelections);
         fromToMotion(this.id, 'path_properties', animationManager, [path], fns.stroke.pathProperties);
 
         if (fns.status === 'added') {
@@ -686,6 +685,7 @@ export class LineSeries extends CartesianSeries<
         }
 
         if (fns.hasMotion) {
+            markerFadeInAnimation(this, animationManager, undefined, markerSelections);
             seriesLabelFadeInAnimation(this, 'labels', animationManager, labelSelections);
             seriesLabelFadeInAnimation(this, 'annotations', animationManager, ...annotationSelections);
         }

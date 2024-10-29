@@ -143,7 +143,7 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
             );
         }
         if (animationEnabled && this.processedData) {
-            extraProps.push(diff(this.processedData));
+            extraProps.push(diff(this.id, this.processedData));
         }
         if (animationEnabled) {
             extraProps.push(animationValidation());

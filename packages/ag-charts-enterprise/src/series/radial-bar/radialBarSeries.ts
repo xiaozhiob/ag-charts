@@ -128,7 +128,7 @@ export class RadialBarSeries extends _ModuleSupport.PolarSeries<
 
         if (animationEnabled) {
             if (this.processedData) {
-                extraProps.push(diff(this.processedData));
+                extraProps.push(diff(this.id, this.processedData));
             }
             extraProps.push(animationValidation());
         }

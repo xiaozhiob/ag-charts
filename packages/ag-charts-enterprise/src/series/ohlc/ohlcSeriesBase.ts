@@ -125,7 +125,7 @@ export abstract class OhlcSeriesBase<
         const extraProps = [];
         if (animationEnabled) {
             if (this.processedData) {
-                extraProps.push(diff(this.processedData));
+                extraProps.push(diff(this.id, this.processedData));
             }
             extraProps.push(animationValidation());
         }

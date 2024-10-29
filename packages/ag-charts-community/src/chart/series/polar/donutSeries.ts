@@ -276,7 +276,7 @@ export class DonutSeries extends PolarSeries<DonutNodeDatum, DonutSeriesProperti
             );
         }
         if (animationEnabled && this.processedData && extraKeyProps.length > 0) {
-            extraProps.push(diff(this.processedData));
+            extraProps.push(diff(this.id, this.processedData));
         }
         extraProps.push(animationValidation());
 

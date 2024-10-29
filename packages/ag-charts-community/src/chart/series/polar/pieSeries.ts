@@ -269,7 +269,7 @@ export class PieSeries extends PolarSeries<PieNodeDatum, PieSeriesProperties, Se
             this.processedData?.reduced?.animationValidation?.uniqueKeys &&
             extraKeyProps.length > 0
         ) {
-            extraProps.push(diff(this.processedData));
+            extraProps.push(diff(this.id, this.processedData));
         }
         extraProps.push(animationValidation());
 

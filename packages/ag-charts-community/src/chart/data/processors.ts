@@ -428,7 +428,66 @@ export function accumulateStack(matchGroupId: string): GroupValueProcessorDefini
     };
 }
 
+function valueIndices(id: string, previousData: ProcessedData<any>, processedData: ProcessedData<any>) {
+    const prevIndices = [];
+    const previousValues = previousData.defs.values;
+    for (let i = 0; i < previousValues.length; i += 1) {
+        const value = previousValues[i];
+        if (value.scopes?.includes(id) !== true) continue;
+
+        prevIndices.push(i);
+    }
+
+    const nextIndices = [];
+    let previousIndicesIndex = 0;
+    const nextValues = processedData.defs.values;
+    for (let i = 0; i < previousValues.length; i += 1) {
+        const value = nextValues[i];
+        if (value.scopes?.includes(id) !== true) continue;
+
+        const previousIndex = prevIndices[previousIndicesIndex];
+        const previousValue = previousValues[previousIndex];
+
+        // Incompatible
+        if (value.property !== previousValue.property) return;
+
+        nextIndices.push(i);
+        previousIndicesIndex += 1;
+    }
+
+    // Incompatible
+    if (prevIndices.length !== nextIndices.length) return;
+
+    return { prevIndices, nextIndices };
+}
+
+function valuesEqual(
+    previousValues: any[],
+    nextValues: any[],
+    previousIndices: number[] | undefined,
+    nextIndices: number[] | undefined
+) {
+    if (previousIndices == null || nextIndices == null) {
+        return arraysEqual(previousValues, nextValues);
+    }
+
+    for (let i = 0; i < previousIndices.length; i += 1) {
+        const previousIndex = previousIndices[i];
+        const nextIndex = nextIndices[i];
+
+        const previousValue = previousValues[previousIndex];
+        const nextValue = nextValues[nextIndex];
+
+        if (previousValue !== nextValue) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 export function diff(
+    id: string,
     previousData: ProcessedData<any>,
     updateMovedData: boolean = true
 ): ProcessorOutputPropertyDefinition<'diff'> {
@@ -441,6 +500,11 @@ export function diff(
             const updated = new Map<string, any>();
             const removed = new Map<string, any>();
 
+            const indices = valueIndices(id, previousData, processedData);
+            if (indices == null) return;
+
+            const { prevIndices, nextIndices } = indices;
+
             const length = Math.max(previousData.data.length, processedData.data.length);
 
             for (let i = 0; i < length; i++) {
@@ -451,7 +515,7 @@ export function diff(
                 const datumId = datum ? createDatumId(datum.keys) : '';
 
                 if (datum && prev && prevId === datumId) {
-                    if (!arraysEqual(prev.values, datum.values)) {
+                    if (!valuesEqual(prev.values, datum.values, prevIndices, nextIndices)) {
                         updated.set(datumId, datum);
                     }
                     continue;
