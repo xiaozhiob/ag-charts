@@ -5,7 +5,7 @@ import type { AllHTMLAttributes, FormEventHandler, KeyboardEventHandler } from '
 import { useRef, useState } from 'react';
 import Markdown from 'react-markdown';
 
-import type { SearchDatum } from '../apiReferenceHelpers';
+import { INDEXED_SEARCH_FIELD, type SearchDatum, type SearchIndex } from '../apiReferenceHelpers';
 import styles from './OptionsNavigation.module.scss';
 
 type SelectionHandler = (data: SearchDatum) => void;
@@ -13,6 +13,7 @@ type SelectionHandler = (data: SearchDatum) => void;
 export function SearchBox({
     className,
     searchData,
+    searchDataIndex,
     placeholder = 'Search properties...',
     iconName = 'search',
     onItemClick,
@@ -21,6 +22,7 @@ export function SearchBox({
 }: AllHTMLAttributes<Element> & {
     iconName?: IconName;
     searchData: SearchDatum[];
+    searchDataIndex: SearchIndex;
     markResults?: boolean;
     onItemClick: SelectionHandler;
 }) {
@@ -28,6 +30,7 @@ export function SearchBox({
     const [inFocus, setInFocus] = useState(false);
     const { data, searchQuery, selectedIndex, handleInput, handleClick, handleKeyDown, setSelectedIndex } = useSearch(
         searchData,
+        searchDataIndex,
         (data) => {
             onItemClick(data);
             if (inputRef.current) {
@@ -92,22 +95,30 @@ export function SearchBox({
     );
 }
 
-function useSearch(searchData: SearchDatum[], onItemClick: SelectionHandler, initialValue = '') {
+function useSearch(
+    searchData: SearchDatum[],
+    searchDataIndex: SearchIndex,
+    onItemClick: SelectionHandler,
+    initialValue = ''
+) {
     const [data, setFilteredData] = useState(searchData);
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [searchQuery, setSearchQuery] = useState(initialValue);
 
     const handleInput: FormEventHandler<HTMLInputElement> = (event) => {
         const searchQuery = event.currentTarget.value.trim().toLowerCase();
-        if (searchQuery.length < 2) {
-            return;
-        }
 
-        setFilteredData(
-            searchData
-                .filter((item) => item.searchable.includes(searchQuery))
-                .sort((a, b) => a.label.toLowerCase().indexOf(searchQuery) - b.label.toLowerCase().indexOf(searchQuery))
-        );
+        const searchableEntries = searchDataIndex
+            .search(searchQuery)
+            .find(({ field }) => field === INDEXED_SEARCH_FIELD);
+
+        const dataResults =
+            searchableEntries?.result.map((id) => {
+                return searchData[id];
+            }) || [];
+
+        setFilteredData(dataResults);
+
         setSearchQuery(searchQuery);
         setSelectedIndex(0);
     };

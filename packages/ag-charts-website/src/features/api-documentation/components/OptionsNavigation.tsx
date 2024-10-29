@@ -7,10 +7,19 @@ import type {
 } from '@generate-code-reference-plugin/doc-interfaces/types';
 import { useToggle } from '@utils/hooks/useToggle';
 import classnames from 'classnames';
+import Flexsearch from 'flexsearch';
 import type { AllHTMLAttributes, CSSProperties, Dispatch, MouseEventHandler, ReactNode, SetStateAction } from 'react';
 import { createContext, useContext, useEffect, useMemo, useRef } from 'react';
 
-import { type NavigationData, type NavigationPath, isInterfaceHidden, normalizeType } from '../apiReferenceHelpers';
+import {
+    INDEXED_SEARCH_FIELD,
+    type NavigationData,
+    type NavigationPath,
+    type SearchIndex,
+    type SearchIndexDatum,
+    isInterfaceHidden,
+    normalizeType,
+} from '../apiReferenceHelpers';
 import {
     cleanupName,
     extractSearchData,
@@ -49,6 +58,25 @@ export function OptionsNavigation({
         []
     );
 
+    const searchDataIndex = useMemo<SearchIndex>(() => {
+        const index = new Flexsearch.Document<SearchIndexDatum>({
+            tokenize: 'forward',
+            document: {
+                id: 'id',
+                index: [INDEXED_SEARCH_FIELD],
+            },
+        });
+
+        searchData.forEach((entry, indexId) => {
+            index.add({
+                ...entry,
+                id: indexId,
+            });
+        });
+
+        return index;
+    }, [searchData]);
+
     const handleClick = (navData: NavigationData) => {
         if (location?.pathname === navData.pathname && location.hash.substring(1) === navData.hash) {
             scrollIntoViewById(navData.hash);
@@ -72,6 +100,7 @@ export function OptionsNavigation({
             <header>
                 <SearchBox
                     searchData={searchData}
+                    searchDataIndex={searchDataIndex}
                     onItemClick={(data) => {
                         const navData = getNavigationDataFromPath(data.navPath, config.specialTypes);
                         selection?.setSelection(navData);

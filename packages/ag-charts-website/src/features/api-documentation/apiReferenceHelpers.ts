@@ -10,10 +10,14 @@ import type {
     TypeNode,
     TypeParameterNode,
 } from '@generate-code-reference-plugin/doc-interfaces/types';
+import Flexsearch from 'flexsearch';
 
 type PossibleTypeNode = TypeNode | undefined | PossibleTypeNode[];
 
 export type SearchDatum = { label: string; searchable: string; navPath: NavigationPath[] };
+export type SearchIndexDatum = SearchDatum & { id: number };
+export type SearchIndex = Flexsearch.Document<SearchIndexDatum>;
+
 export type SpecialTypesMap = Record<string, 'InterfaceArray' | 'NestedPage'>;
 
 export interface PageTitle {
@@ -47,6 +51,8 @@ const hiddenInterfaces = [
     'DurationMs',
     'TimeInterval',
 ];
+
+export const INDEXED_SEARCH_FIELD = 'searchable';
 
 export function cleanupName(name: string) {
     return name.replaceAll("'", '');
