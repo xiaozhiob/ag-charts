@@ -20,8 +20,7 @@ export class GuardedElement {
     set tabIndex(index: number) {
         this.guardTabIndex = index;
         if (!this.hasFocus) {
-            this.topTabGuard.tabIndex = this.guardTabIndex;
-            this.bottomTabGuard.tabIndex = this.guardTabIndex;
+            this.setGuardIndices(this.guardTabIndex);
         }
     }
 
@@ -35,23 +34,27 @@ export class GuardedElement {
         this.destroyFns.push(() => guard.removeEventListener('focus', handler));
     }
 
+    private setGuardIndices(index: number | undefined) {
+        const tabindex = index as 0 | -1 | undefined;
+        setAttribute(this.topTabGuard, 'tabindex', tabindex);
+        setAttribute(this.bottomTabGuard, 'tabindex', tabindex);
+    }
+
     private onFocus() {
         this.hasFocus = true;
-        setAttribute(this.topTabGuard, 'tabindex', undefined);
-        setAttribute(this.bottomTabGuard, 'tabindex', undefined);
+        this.setGuardIndices(undefined);
     }
 
     private onBlur() {
         this.hasFocus = false;
-        this.topTabGuard.tabIndex = this.guardTabIndex;
-        this.bottomTabGuard.tabIndex = this.guardTabIndex;
+        this.setGuardIndices(this.guardTabIndex);
     }
 
     private onTab(reverse: boolean) {
-        this.getFocusableTarget(reverse)?.focus?.();
+        this.getGuardedTarget(reverse)?.focus?.();
     }
 
-    private getFocusableTarget(reverse: boolean): HTMLElement | undefined {
+    private getGuardedTarget(reverse: boolean): HTMLElement | undefined {
         const window = getWindow();
         const focusables = Array.from(this.element.querySelectorAll('[tabindex="0"]')).filter((e): e is HTMLElement => {
             if (e instanceof HTMLElement) {
