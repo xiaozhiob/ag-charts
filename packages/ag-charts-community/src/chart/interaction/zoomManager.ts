@@ -70,6 +70,8 @@ export class ZoomManager extends BaseManager<ZoomEvents['type'], ZoomEvents> imp
 
     private lastRestoredState?: AxisZoomState;
     private independentAxes = false;
+    private navigatorModule = false;
+    private zoomModule = false;
 
     // The initial state memento can not be restored until the chart has performed its first layout. Instead save it as
     // pending and restore then delete it on the first layout.
@@ -173,6 +175,14 @@ export class ZoomManager extends BaseManager<ZoomEvents['type'], ZoomEvents> imp
 
     public setIndependentAxes(independent = true) {
         this.independentAxes = independent;
+    }
+
+    public setNavigatorEnabled(enabled = true) {
+        this.navigatorModule = enabled;
+    }
+
+    public setZoomModuleEnabled(enabled = true) {
+        this.zoomModule = enabled;
     }
 
     public updateZoom(
