@@ -42,7 +42,7 @@ export interface LineNodeDatum extends CartesianSeriesNodeDatum, ErrorBoundSerie
 }
 
 export interface LineSeriesNodeDataContext extends CartesianSeriesNodeDataContext<LineNodeDatum> {
-    strokeData: LineStrokePathDatum;
+    strokeData?: LineStrokePathDatum;
     crossFiltering: boolean;
 }
 
@@ -157,6 +157,10 @@ export function prepareLinePathAnimation(
     const wasCategoryBased = oldData.scales.x?.type === 'category';
     if (isCategoryBased !== wasCategoryBased || !isScaleValid(newData.scales.x) || !isScaleValid(oldData.scales.x)) {
         // Not comparable.
+        return;
+    }
+    if (newData.strokeData == null || oldData.strokeData == null) {
+        // Line drawing fast-path - not animatable
         return;
     }
     let status: NodeUpdateState = 'updated' as NodeUpdateState;
