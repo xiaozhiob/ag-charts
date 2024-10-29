@@ -22,11 +22,13 @@ describe('Memento Caretaker', () => {
             return new TestMemento(this.data);
         }
 
-        guardMemento(blob: unknown): blob is TestMemento {
-            return isPlainObject(blob) && 'type' in blob && blob.type === 'test';
+        guardMemento(blob: unknown): blob is TestMemento | undefined {
+            return blob == null || (isPlainObject(blob) && 'type' in blob && blob.type === 'test');
         }
 
-        restoreMemento(version: string, mementoVersion: string, blob: TestMemento): void {
+        restoreMemento(version: string, mementoVersion: string, blob: TestMemento | undefined): void {
+            if (blob == null) return;
+
             if (version === mementoVersion) {
                 this.restored = blob.data;
             } else {
