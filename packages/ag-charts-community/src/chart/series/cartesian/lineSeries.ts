@@ -1,5 +1,3 @@
-import type { ExtendedPath2D } from 'packages/ag-charts-community/src/integrated-charts-scene';
-
 import type { AgErrorBoundSeriesTooltipRendererParams } from 'ag-charts-types';
 
 import type { ModuleContext } from '../../../module/moduleContext';
@@ -7,6 +5,7 @@ import { fromToMotion } from '../../../motion/fromToMotion';
 import { pathMotion } from '../../../motion/pathMotion';
 import { resetMotion } from '../../../motion/resetMotion';
 import type { BBox } from '../../../scene/bbox';
+import type { ExtendedPath2D } from '../../../scene/extendedPath2D';
 import { Group } from '../../../scene/group';
 import { PointerEvents } from '../../../scene/node';
 import type { Selection } from '../../../scene/selection';
