@@ -45,8 +45,6 @@ export class FocusSwapChain {
 
         this.activeAnnouncer = this.createAnnouncer(announcerRole);
         this.inactiveAnnouncer = this.createAnnouncer(announcerRole);
-        this.activeAnnouncer.dataset['id'] = '1';
-        this.inactiveAnnouncer.dataset['id'] = '2';
         setAttribute(this.activeAnnouncer, 'tabindex', 0);
 
         this.label2.insertAdjacentElement('afterend', this.activeAnnouncer);
