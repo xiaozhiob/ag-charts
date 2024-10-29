@@ -1,5 +1,6 @@
 const startPrice = 100;
 const maxDailyPriceChange = 5;
+const maxDailyVolume = 1000;
 const days = 1000000;
 
 function sfc32(a: number, b: number, c: number, d: number) {
@@ -32,9 +33,10 @@ export function getData() {
     return Array.from({ length: days }, (_, i) => {
         const price = currentPrice;
         currentPrice += (random() * 2 - 1) * maxDailyPriceChange;
+        const volume = maxDailyVolume * random();
 
         const timestamp = new Date(2024, 0, 1, -i);
 
-        return { timestamp, price };
+        return { timestamp, price, volume };
     }).reverse();
 }
