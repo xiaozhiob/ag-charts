@@ -6,7 +6,6 @@ import type { BBox } from '../../scene/bbox';
 import type { TranslatableGroup } from '../../scene/group';
 import { Transformable } from '../../scene/transformable';
 import { createId } from '../../util/id';
-import { Logger } from '../../util/logger';
 import { clamp } from '../../util/number';
 import type { TypedEvent } from '../../util/observable';
 import { debouncedAnimationFrame } from '../../util/render';
@@ -170,10 +169,6 @@ export class SeriesAreaManager extends BaseManager {
     }
 
     public setTabIndex(tabIndex: number) {
-        // FIXME: Remove keyboard.tabIndex option in next major release
-        if (tabIndex !== 0 && tabIndex !== -1) {
-            Logger.warnOnce(`Tab indices other than 0 and -1 are deprecated`);
-        }
         this.swapChain.setTabIndex(tabIndex as 0 | -1);
     }
 
