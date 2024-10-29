@@ -1,4 +1,5 @@
 import { setAttribute } from './attributeUtil';
+import { getWindow } from './dom';
 
 export class GuardedElement {
     private readonly destroyFns: (() => void)[] = [];
@@ -50,12 +51,16 @@ export class GuardedElement {
         this.getFocusableTarget(reverse)?.focus?.();
     }
 
-    private getFocusableTarget(reverse: boolean): (Element & { focus?: () => void }) | undefined {
-        if (reverse) {
-            const focusables = this.element.querySelectorAll('[tabindex="0"]');
-            return focusables.item(focusables.length - 1);
-        } else {
-            return this.element.querySelector('[tabindex="0"]') ?? undefined;
-        }
+    private getFocusableTarget(reverse: boolean): HTMLElement | undefined {
+        const window = getWindow();
+        const focusables = Array.from(this.element.querySelectorAll('[tabindex="0"]')).filter((e): e is HTMLElement => {
+            if (e instanceof HTMLElement) {
+                const style = window.getComputedStyle(e);
+                return style.display !== 'none' && style.visibility !== 'none';
+            }
+            return false;
+        });
+        const index = reverse ? focusables.length - 1 : 0;
+        return focusables[index];
     }
 }
