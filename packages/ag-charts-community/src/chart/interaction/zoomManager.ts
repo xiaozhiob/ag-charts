@@ -64,7 +64,6 @@ export class ZoomManager extends BaseManager<ZoomEvents['type'], ZoomEvents> imp
 
     private readonly axisZoomManagers = new Map<string, AxisZoomManager>();
     private readonly state = new StateTracker<AxisZoomState>(undefined, 'initial');
-    private readonly rejectCallbacks = new Map<string, (stateId: string) => void>();
 
     private axes?: LayoutCompleteEvent['axes'];
 
@@ -185,27 +184,11 @@ export class ZoomManager extends BaseManager<ZoomEvents['type'], ZoomEvents> imp
         this.zoomModule = enabled;
     }
 
-    public updateZoom(
-        callerId: string,
-        newZoom?: AxisZoomState,
-        canChangeInitial = true,
-        rejectCallback?: (stateId: string) => void
-    ) {
-        if (rejectCallback) {
-            this.rejectCallbacks.set(callerId, rejectCallback);
-        }
-
+    public updateZoom(callerId: string, newZoom?: AxisZoomState) {
         if (this.axisZoomManagers.size === 0) {
-            // Only update the initial zoom state if no other modules have tried or permitted. This allows us to give
-            // priority to the 'zoom' module over 'navigator' if they both attempt to set the initial zoom state.
             const stateId = this.state.stateId()!;
-            if (stateId === 'initial' || stateId === callerId || canChangeInitial) {
+            if (stateId === 'initial' || stateId === callerId) {
                 this.state.set(callerId, newZoom);
-                if (stateId !== callerId) {
-                    this.rejectCallbacks.get(stateId)?.(callerId);
-                }
-            } else {
-                rejectCallback?.(stateId);
             }
             return;
         }
