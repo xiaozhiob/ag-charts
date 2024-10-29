@@ -24,7 +24,7 @@ function toLiteral<T, F extends LiteralOrFn<T>>(v: F) {
 }
 
 export function compoundAscending<E>(a: LiteralOrFn<E>[], b: LiteralOrFn<E>[], comparator: Comparator<E>): number {
-    for (const idx in a) {
+    for (let idx = 0; idx < a.length; idx++) {
         const diff = comparator(toLiteral(a[idx]), toLiteral(b[idx]));
         if (diff !== 0) {
             return diff;
