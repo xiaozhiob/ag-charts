@@ -132,8 +132,8 @@ export class DOMManager extends BaseManager<Events['type'], Events> {
 
         this.destroyFns.push(stopPageScrolling(this.element));
 
-        const guardedElement = this.element.querySelector('.ag-charts-canvas-center');
-        if (!(guardedElement instanceof HTMLElement)) throw new Error('Error initializing tab guards');
+        const guardedElement = this.element.querySelector('.ag-charts-canvas-center') as HTMLElement | null;
+        if (guardedElement == null) throw new Error('Error initializing tab guards');
         const topGuard = createTabGuardElement(guardedElement, 'beforebegin');
         const botGuard = createTabGuardElement(guardedElement, 'afterend');
         this.tabGuards = new GuardedElement(guardedElement, topGuard, botGuard);
