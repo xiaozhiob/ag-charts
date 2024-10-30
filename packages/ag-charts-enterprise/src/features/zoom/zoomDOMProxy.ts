@@ -97,9 +97,14 @@ export class ZoomDOMProxy {
         ] as const) {
             const axisCtx = ctx.axisManager.getAxisContext(dir);
             const bboxes = axisCtx.map((ac) => ac.getCanvasBounds()).filter((bb): bb is _Util.BBoxValues => bb != null);
-            const union = _Scene.BBox.merge(bboxes);
-            _ModuleSupport.setElementBBox(axis, union);
-            this.axisIds[dir] = axisCtx[0]?.axisId;
+            if (bboxes.length === 0) {
+                _Util.setElementStyle(axis, 'display', 'none');
+            } else {
+                const union = _Scene.BBox.merge(bboxes);
+                _ModuleSupport.setElementBBox(axis, union);
+                this.axisIds[dir] = axisCtx[0]?.axisId;
+                _Util.setElementStyle(axis, 'display', undefined);
+            }
         }
     }
 }
