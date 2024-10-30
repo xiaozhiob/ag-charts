@@ -6,22 +6,31 @@ import { isFiniteNumber, isObject } from '../../util/type-guards';
 import type { ChartMode } from '../chartMode';
 import { ContinuousDomain, DiscreteDomain, type IDataDomain } from './dataDomain';
 
-export type ScopeProvider = { id: string };
+export interface ScopeProvider {
+    id: string;
+}
 
-export type UngroupedDataItem<D, V> = {
-    index: number;
+export interface DataGroup {
+    indices: number[];
+    aggregation: any[][];
+    validScopes: Set<string> | undefined;
+}
+
+export interface UngroupedDataItem<I, D, V> {
+    index: I;
     keys: any[];
     values: V;
     aggValues?: [number, number][];
     datum: D;
     validScopes?: Set<string>;
-};
+}
 
 export interface UngroupedData<D> {
     type: 'ungrouped';
     input: { count: number };
     rawData: any[];
-    data: UngroupedDataItem<D, any[]>[];
+    rawDataSources?: Map<string, any[]>;
+    data: UngroupedDataItem<number, D, any[]>[];
     keys?: string[][];
     columns?: any[][];
     domain: {
@@ -57,7 +66,7 @@ export type ProcessedOutputDiff = {
     moved: Set<string>;
 };
 
-export type GroupedDataItem<D> = UngroupedDataItem<D[], any[][]> & { area?: number };
+export type GroupedDataItem<D> = UngroupedDataItem<number[], D[], any[][]> & { area?: number };
 
 export interface ProcessedDataDef {
     index: number;
@@ -68,7 +77,9 @@ export interface GroupedData<D> {
     type: 'grouped';
     input: UngroupedData<D>['input'];
     rawData: any[];
+    rawDataSources?: Map<string, any[]>;
     data: GroupedDataItem<D>[];
+    groups: DataGroup[];
     keys?: string[][];
     columns?: any[][];
     domain: UngroupedData<D>['domain'];
@@ -116,7 +127,7 @@ export function getMissCount(scopeProvider: ScopeProvider, missMap: MissMap | un
     return missMap?.get(scopeProvider.id) ?? 0;
 }
 
-type GroupingFn<K> = (data: UngroupedDataItem<K, any[]>) => K[];
+type GroupingFn<K> = (data: UngroupedDataItem<number, K, any[]>) => K[];
 export type GroupByFn = (extractedData: UngroupedData<any>) => GroupingFn<any>;
 export type DataModelOptions<K, Grouped extends boolean | undefined> = {
     scopes?: string[];
@@ -190,6 +201,13 @@ export type AggregatePropertyDefinition<
         finalFunction?: (result: R2) => [number, number];
     };
 
+type AdjustFn<D, K extends keyof D & string> = (
+    values: D[K][],
+    indexes: number[],
+    index: number,
+    columns: any[][] | undefined
+) => void;
+
 export type GroupValueProcessorDefinition<D, K extends keyof D & string> = PropertyIdentifiers &
     PropertySelectors & {
         type: 'group-value-processor';
@@ -197,7 +215,7 @@ export type GroupValueProcessorDefinition<D, K extends keyof D & string> = Prope
          * Outer function called once per all data processing; inner function called once per group;
          * innermost called once per datum.
          */
-        adjust: () => () => (values: D[K][], indexes: number[]) => void;
+        adjust: () => () => AdjustFn<D, K>;
     };
 
 export type PropertyValueProcessorDefinition<D> = PropertyIdentifiers & {
@@ -212,7 +230,7 @@ export type ReducerOutputPropertyDefinition<P extends ReducerOutputKeys = Reduce
     type: 'reducer';
     property: P;
     initialValue?: ReducerOutputTypes[P];
-    reducer: () => (acc: ReducerOutputTypes[P], next: UngroupedDataItem<any, any>) => ReducerOutputTypes[P];
+    reducer: () => (acc: ReducerOutputTypes[P], next: UngroupedDataItem<any, any, any>) => ReducerOutputTypes[P];
 };
 
 export type ProcessorOutputPropertyDefinition<P extends ReducerOutputKeys = ReducerOutputKeys> = PropertyIdentifiers & {
@@ -645,7 +663,7 @@ export class DataModel<
             if (value === INVALID_VALUE && allScopesHaveSameDefs) continue;
             if (validScopes?.size === 0) continue;
 
-            const result: UngroupedDataItem<D, any> | undefined =
+            const result: UngroupedDataItem<number, D, any> | undefined =
                 resultData != null
                     ? {
                           index: datumIdx,
@@ -686,6 +704,7 @@ export class DataModel<
             type: 'ungrouped',
             input: { count: data.length },
             rawData: data,
+            rawDataSources: sources != null ? new Map(sources.map((s) => [s.id, s.data])) : undefined,
             data: resultData!,
             keys: keysColumn,
             columns,
@@ -706,16 +725,38 @@ export class DataModel<
     private groupData(data: UngroupedData<D>, groupingFn?: GroupingFn<D>): GroupedData<D> {
         const processedData = new Map<
             string,
-            { keys: D[K][]; values: D[K][][]; datum: D[]; validScopes?: Set<string> }
+            { index: number[]; keys: D[K][]; values: D[K][][]; datum: D[]; validScopes?: Set<string> }
         >();
+        const groups = new Map<string, { keys: D[K][]; indices: number[]; validScopes?: Set<string> }>();
 
         for (const dataEntry of data.data) {
-            const { keys, values, datum, validScopes } = dataEntry;
+            const { keys, values, index, datum, validScopes } = dataEntry;
             const group = groupingFn?.(dataEntry) ?? keys;
             const groupStr = toKeyString(group);
 
-            if (processedData.has(groupStr)) {
-                const existingData = processedData.get(groupStr)!;
+            const existingGroup = groups.get(groupStr);
+            if (existingGroup != null) {
+                existingGroup.indices.push(index);
+
+                if (validScopes != null && existingGroup.validScopes != null) {
+                    // Intersection of existing validScopes with new validScopes.
+                    for (const scope of existingGroup.validScopes) {
+                        if (!validScopes.has(scope)) {
+                            existingGroup.validScopes.delete(scope);
+                        }
+                    }
+                }
+            } else {
+                groups.set(groupStr, {
+                    keys: group,
+                    indices: [index],
+                    validScopes,
+                });
+            }
+
+            const existingData = processedData.get(groupStr);
+            if (existingData != null) {
+                existingData.index.push(index);
                 existingData.values.push(values);
                 existingData.datum.push(datum);
                 if (validScopes != null && existingData.validScopes != null) {
@@ -729,6 +770,7 @@ export class DataModel<
             } else {
                 processedData.set(groupStr, {
                     keys: group,
+                    index: [index],
                     values: [values],
                     datum: [datum],
                     validScopes,
@@ -739,14 +781,28 @@ export class DataModel<
         const resultData = new Array(processedData.size);
         const resultGroups = new Array(processedData.size);
         let dataIndex = 0;
-        for (const { keys, values, datum, validScopes } of processedData.values()) {
+        for (const { keys, index, values, datum, validScopes } of processedData.values()) {
             if (validScopes?.size === 0) continue;
 
             resultGroups[dataIndex] = keys;
             resultData[dataIndex++] = {
                 keys,
+                index,
                 values,
                 datum,
+                validScopes,
+            };
+        }
+
+        const newResultData = [];
+        dataIndex = 0;
+        for (const { keys, indices, validScopes } of groups.values()) {
+            if (validScopes?.size === 0) continue;
+
+            newResultData[dataIndex++] = {
+                keys,
+                indices,
+                aggregation: [],
                 validScopes,
             };
         }
@@ -759,6 +815,7 @@ export class DataModel<
                 ...data.domain,
                 groups: resultGroups,
             },
+            groups: newResultData,
         };
     }
 
@@ -807,7 +864,7 @@ export class DataModel<
         const affectedIndices = new Set<number>();
         const updatedDomains = new Map<number, IDataDomain>();
         const groupProcessorIndices = new Map<object, number[]>();
-        const groupProcessorInitFns = new Map<object, () => (v: any[], i: number[]) => void>();
+        const groupProcessorInitFns = new Map<object, () => AdjustFn<any, any>>();
 
         for (const processor of groupProcessors) {
             const indices = this.valueGroupIdxLookup(processor);
@@ -828,6 +885,28 @@ export class DataModel<
             }
         };
 
+        const { columns } = processedData;
+        if (columns != null && processedData.type === 'grouped') {
+            for (const group of processedData.groups) {
+                for (const processor of groupProcessors) {
+                    if (group.validScopes) continue;
+
+                    const valueIndexes = groupProcessorIndices.get(processor) ?? [];
+                    const adjustFn = groupProcessorInitFns.get(processor)?.();
+
+                    if (!adjustFn) continue;
+
+                    for (const index of group.indices) {
+                        adjustFn(undefined!, valueIndexes, index, columns);
+                    }
+                }
+
+                // for (const index of group.indices) {
+                //     updateDomains(values);
+                // }
+            }
+        }
+
         for (const group of processedData.data) {
             for (const processor of groupProcessors) {
                 if (group.validScopes) continue;
@@ -839,11 +918,11 @@ export class DataModel<
                 if (processedData.type === 'grouped') {
                     for (const values of group.values) {
                         if (values) {
-                            adjustFn(values, valueIndexes);
+                            adjustFn(values, valueIndexes, undefined!, undefined);
                         }
                     }
                 } else if (group.values) {
-                    adjustFn(group.values, valueIndexes);
+                    adjustFn(group.values, valueIndexes, group.index as any, columns);
                 }
             }
 

@@ -90,6 +90,7 @@ exports[`DataModel empty data set processing should generated the expected resul
   "keys": undefined,
   "partialValidDataCount": 0,
   "rawData": [],
+  "rawDataSources": undefined,
   "time": Any<Number>,
   "type": "ungrouped",
 }
@@ -143,6 +144,20 @@ exports[`DataModel grouped processing - calculated grouping should generated the
         {
           "curb-weight": 2765,
         },
+      ],
+      "index": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        10,
+        11,
+        12,
+        13,
       ],
       "keys": [
         2000,
@@ -215,6 +230,14 @@ exports[`DataModel grouped processing - calculated grouping should generated the
           "curb-weight": 3505,
         },
       ],
+      "index": [
+        8,
+        9,
+        14,
+        15,
+        16,
+        17,
+      ],
       "keys": [
         3000,
         4500,
@@ -255,6 +278,10 @@ exports[`DataModel grouped processing - calculated grouping should generated the
         {
           "curb-weight": 1874,
         },
+      ],
+      "index": [
+        18,
+        19,
       ],
       "keys": [
         0,
@@ -333,6 +360,58 @@ exports[`DataModel grouped processing - calculated grouping should generated the
       ],
     ],
   },
+  "groups": [
+    {
+      "aggregation": [],
+      "indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        10,
+        11,
+        12,
+        13,
+      ],
+      "keys": [
+        2000,
+        3000,
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        8,
+        9,
+        14,
+        15,
+        16,
+        17,
+      ],
+      "keys": [
+        3000,
+        4500,
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        18,
+        19,
+      ],
+      "keys": [
+        0,
+        2000,
+      ],
+      "validScopes": undefined,
+    },
+  ],
   "input": {
     "count": 20,
   },
@@ -400,6 +479,7 @@ exports[`DataModel grouped processing - calculated grouping should generated the
       "curb-weight": 1874,
     },
   ],
+  "rawDataSources": undefined,
   "reduced": {
     "sortedGroupDomain": [
       [
@@ -478,6 +558,19 @@ exports[`DataModel grouped processing - calculated grouping should generated the
           "highway-mpg": 29,
         },
       ],
+      "index": [
+        0,
+        1,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+      ],
       "keys": [
         "100 - 150",
       ],
@@ -555,6 +648,15 @@ exports[`DataModel grouped processing - calculated grouping should generated the
           "highway-mpg": 20,
         },
       ],
+      "index": [
+        2,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+      ],
       "keys": [
         ">150",
       ],
@@ -599,6 +701,10 @@ exports[`DataModel grouped processing - calculated grouping should generated the
           "engine-size": 90,
           "highway-mpg": 43,
         },
+      ],
+      "index": [
+        18,
+        19,
       ],
       "keys": [
         "<100",
@@ -683,6 +789,55 @@ exports[`DataModel grouped processing - calculated grouping should generated the
       ],
     ],
   },
+  "groups": [
+    {
+      "aggregation": [],
+      "indices": [
+        0,
+        1,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+      ],
+      "keys": [
+        "100 - 150",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        2,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+      ],
+      "keys": [
+        ">150",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        18,
+        19,
+      ],
+      "keys": [
+        "<100",
+      ],
+      "validScopes": undefined,
+    },
+  ],
   "input": {
     "count": 20,
   },
@@ -770,6 +925,7 @@ exports[`DataModel grouped processing - calculated grouping should generated the
       "highway-mpg": 43,
     },
   ],
+  "rawDataSources": undefined,
   "reduced": {
     "sortedGroupDomain": [
       [
@@ -834,6 +990,19 @@ exports[`DataModel grouped processing - calculated grouping should generated the
           "engine-size": 108,
         },
       ],
+      "index": [
+        0,
+        1,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+      ],
       "keys": [
         "100 - 150",
       ],
@@ -882,6 +1051,15 @@ exports[`DataModel grouped processing - calculated grouping should generated the
           "engine-size": 209,
         },
       ],
+      "index": [
+        2,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+      ],
       "keys": [
         ">150",
       ],
@@ -910,6 +1088,10 @@ exports[`DataModel grouped processing - calculated grouping should generated the
         {
           "engine-size": 90,
         },
+      ],
+      "index": [
+        18,
+        19,
       ],
       "keys": [
         "<100",
@@ -971,6 +1153,55 @@ exports[`DataModel grouped processing - calculated grouping should generated the
     ],
     "values": [],
   },
+  "groups": [
+    {
+      "aggregation": [],
+      "indices": [
+        0,
+        1,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+      ],
+      "keys": [
+        "100 - 150",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        2,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+      ],
+      "keys": [
+        ">150",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        18,
+        19,
+      ],
+      "keys": [
+        "<100",
+      ],
+      "validScopes": undefined,
+    },
+  ],
   "input": {
     "count": 20,
   },
@@ -1038,6 +1269,7 @@ exports[`DataModel grouped processing - calculated grouping should generated the
       "engine-size": 90,
     },
   ],
+  "rawDataSources": undefined,
   "reduced": {
     "sortedGroupDomain": [
       [
@@ -1074,6 +1306,9 @@ exports[`DataModel grouped processing - grouped example should generated the exp
           "type": "Whole economy",
         },
       ],
+      "index": [
+        0,
+      ],
       "keys": [
         "Whole economy",
       ],
@@ -1098,6 +1333,9 @@ exports[`DataModel grouped processing - grouped example should generated the exp
           "total": 3.7,
           "type": "Finance and business services",
         },
+      ],
+      "index": [
+        1,
       ],
       "keys": [
         "Finance and business services",
@@ -1124,6 +1362,9 @@ exports[`DataModel grouped processing - grouped example should generated the exp
           "type": "Public sector",
         },
       ],
+      "index": [
+        2,
+      ],
       "keys": [
         "Public sector",
       ],
@@ -1148,6 +1389,9 @@ exports[`DataModel grouped processing - grouped example should generated the exp
           "total": 3.2,
           "type": "Construction",
         },
+      ],
+      "index": [
+        3,
       ],
       "keys": [
         "Construction",
@@ -1174,6 +1418,9 @@ exports[`DataModel grouped processing - grouped example should generated the exp
           "type": "Private sector",
         },
       ],
+      "index": [
+        4,
+      ],
       "keys": [
         "Private sector",
       ],
@@ -1199,6 +1446,9 @@ exports[`DataModel grouped processing - grouped example should generated the exp
           "type": "Manufacturing",
         },
       ],
+      "index": [
+        5,
+      ],
       "keys": [
         "Manufacturing",
       ],
@@ -1223,6 +1473,9 @@ exports[`DataModel grouped processing - grouped example should generated the exp
           "total": 1.1,
           "type": "Wholesaling, retailing, hotels and restaurants",
         },
+      ],
+      "index": [
+        6,
       ],
       "keys": [
         "Wholesaling, retailing, hotels and restaurants",
@@ -1331,6 +1584,78 @@ exports[`DataModel grouped processing - grouped example should generated the exp
       ],
     ],
   },
+  "groups": [
+    {
+      "aggregation": [],
+      "indices": [
+        0,
+      ],
+      "keys": [
+        "Whole economy",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        1,
+      ],
+      "keys": [
+        "Finance and business services",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        2,
+      ],
+      "keys": [
+        "Public sector",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        3,
+      ],
+      "keys": [
+        "Construction",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        4,
+      ],
+      "keys": [
+        "Private sector",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        5,
+      ],
+      "keys": [
+        "Manufacturing",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        6,
+      ],
+      "keys": [
+        "Wholesaling, retailing, hotels and restaurants",
+      ],
+      "validScopes": undefined,
+    },
+  ],
   "input": {
     "count": 7,
   },
@@ -1373,6 +1698,7 @@ exports[`DataModel grouped processing - grouped example should generated the exp
       "type": "Wholesaling, retailing, hotels and restaurants",
     },
   ],
+  "rawDataSources": undefined,
   "time": Any<Number>,
   "type": "grouped",
 }
@@ -1400,6 +1726,9 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
           "petroleum": 5.6,
           "windSolarHydro": 0.7,
         },
+      ],
+      "index": [
+        0,
       ],
       "keys": [
         "Jan",
@@ -1435,6 +1764,9 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
           "windSolarHydro": 0.5,
         },
       ],
+      "index": [
+        1,
+      ],
       "keys": [
         "Feb",
       ],
@@ -1468,6 +1800,9 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
           "petroleum": 5.4,
           "windSolarHydro": 0.6,
         },
+      ],
+      "index": [
+        2,
       ],
       "keys": [
         "Mar",
@@ -1503,6 +1838,9 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
           "windSolarHydro": 0.5,
         },
       ],
+      "index": [
+        3,
+      ],
       "keys": [
         "Apr",
       ],
@@ -1536,6 +1874,9 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
           "petroleum": 5.6,
           "windSolarHydro": 0.5,
         },
+      ],
+      "index": [
+        4,
       ],
       "keys": [
         "May",
@@ -1571,6 +1912,9 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
           "windSolarHydro": 0.4,
         },
       ],
+      "index": [
+        5,
+      ],
       "keys": [
         "Jun",
       ],
@@ -1604,6 +1948,9 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
           "petroleum": 5.6,
           "windSolarHydro": 0.4,
         },
+      ],
+      "index": [
+        6,
       ],
       "keys": [
         "Jul",
@@ -1639,6 +1986,9 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
           "windSolarHydro": 0.4,
         },
       ],
+      "index": [
+        7,
+      ],
       "keys": [
         "Aug",
       ],
@@ -1672,6 +2022,9 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
           "petroleum": 5.8,
           "windSolarHydro": 0.6,
         },
+      ],
+      "index": [
+        8,
       ],
       "keys": [
         "Sep",
@@ -1707,6 +2060,9 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
           "windSolarHydro": 0.6,
         },
       ],
+      "index": [
+        9,
+      ],
       "keys": [
         "Oct",
       ],
@@ -1741,6 +2097,9 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
           "windSolarHydro": 0.7,
         },
       ],
+      "index": [
+        10,
+      ],
       "keys": [
         "Nov",
       ],
@@ -1774,6 +2133,9 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
           "petroleum": 5.8,
           "windSolarHydro": 0.6,
         },
+      ],
+      "index": [
+        11,
       ],
       "keys": [
         "Dec",
@@ -1974,6 +2336,128 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
       ],
     ],
   },
+  "groups": [
+    {
+      "aggregation": [],
+      "indices": [
+        0,
+      ],
+      "keys": [
+        "Jan",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        1,
+      ],
+      "keys": [
+        "Feb",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        2,
+      ],
+      "keys": [
+        "Mar",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        3,
+      ],
+      "keys": [
+        "Apr",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        4,
+      ],
+      "keys": [
+        "May",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        5,
+      ],
+      "keys": [
+        "Jun",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        6,
+      ],
+      "keys": [
+        "Jul",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        7,
+      ],
+      "keys": [
+        "Aug",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        8,
+      ],
+      "keys": [
+        "Sep",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        9,
+      ],
+      "keys": [
+        "Oct",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        10,
+      ],
+      "keys": [
+        "Nov",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        11,
+      ],
+      "keys": [
+        "Dec",
+      ],
+      "validScopes": undefined,
+    },
+  ],
   "input": {
     "count": 12,
   },
@@ -2101,6 +2585,7 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
       "windSolarHydro": 0.6,
     },
   ],
+  "rawDataSources": undefined,
   "time": Any<Number>,
   "type": "grouped",
 }
@@ -2127,6 +2612,9 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
           "type": "Nursery",
           "white": 24801,
         },
+      ],
+      "index": [
+        0,
       ],
       "keys": [
         "Nursery",
@@ -2161,6 +2649,9 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
           "white": 3475379,
         },
       ],
+      "index": [
+        1,
+      ],
       "keys": [
         "Primary",
       ],
@@ -2193,6 +2684,9 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
           "type": "Secondary",
           "white": 2436365,
         },
+      ],
+      "index": [
+        2,
       ],
       "keys": [
         "Secondary",
@@ -2227,6 +2721,9 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
           "white": 91696,
         },
       ],
+      "index": [
+        3,
+      ],
       "keys": [
         "Special",
       ],
@@ -2259,6 +2756,9 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
           "type": "Referral units",
           "white": 12347,
         },
+      ],
+      "index": [
+        4,
       ],
       "keys": [
         "Referral units",
@@ -2431,6 +2931,58 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
       ],
     ],
   },
+  "groups": [
+    {
+      "aggregation": [],
+      "indices": [
+        0,
+      ],
+      "keys": [
+        "Nursery",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        1,
+      ],
+      "keys": [
+        "Primary",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        2,
+      ],
+      "keys": [
+        "Secondary",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        3,
+      ],
+      "keys": [
+        "Special",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        4,
+      ],
+      "keys": [
+        "Referral units",
+      ],
+      "validScopes": undefined,
+    },
+  ],
   "input": {
     "count": 5,
   },
@@ -2483,6 +3035,7 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
       "white": 12347,
     },
   ],
+  "rawDataSources": undefined,
   "time": Any<Number>,
   "type": "grouped",
 }
@@ -2507,6 +3060,9 @@ exports[`DataModel grouped processing - stacked example should generated the exp
           "privateRented": 773,
           "type": "Semi-detached house",
         },
+      ],
+      "index": [
+        0,
       ],
       "keys": [
         "Semi-detached house",
@@ -2537,6 +3093,9 @@ exports[`DataModel grouped processing - stacked example should generated the exp
           "type": "Medium/large terraced house",
         },
       ],
+      "index": [
+        1,
+      ],
       "keys": [
         "Medium/large terraced house",
       ],
@@ -2565,6 +3124,9 @@ exports[`DataModel grouped processing - stacked example should generated the exp
           "privateRented": 294,
           "type": "Detached house",
         },
+      ],
+      "index": [
+        2,
       ],
       "keys": [
         "Detached house",
@@ -2595,6 +3157,9 @@ exports[`DataModel grouped processing - stacked example should generated the exp
           "type": "Purpose-built flat low rise",
         },
       ],
+      "index": [
+        3,
+      ],
       "keys": [
         "Purpose-built flat low rise",
       ],
@@ -2623,6 +3188,9 @@ exports[`DataModel grouped processing - stacked example should generated the exp
           "privateRented": 822,
           "type": "Small terraced house",
         },
+      ],
+      "index": [
+        4,
       ],
       "keys": [
         "Small terraced house",
@@ -2653,6 +3221,9 @@ exports[`DataModel grouped processing - stacked example should generated the exp
           "type": "Bungalow",
         },
       ],
+      "index": [
+        5,
+      ],
       "keys": [
         "Bungalow",
       ],
@@ -2682,6 +3253,9 @@ exports[`DataModel grouped processing - stacked example should generated the exp
           "type": "Converted flat",
         },
       ],
+      "index": [
+        6,
+      ],
       "keys": [
         "Converted flat",
       ],
@@ -2710,6 +3284,9 @@ exports[`DataModel grouped processing - stacked example should generated the exp
           "privateRented": 134,
           "type": "Purpose-built flat high rise",
         },
+      ],
+      "index": [
+        7,
       ],
       "keys": [
         "Purpose-built flat high rise",
@@ -2858,6 +3435,88 @@ exports[`DataModel grouped processing - stacked example should generated the exp
       ],
     ],
   },
+  "groups": [
+    {
+      "aggregation": [],
+      "indices": [
+        0,
+      ],
+      "keys": [
+        "Semi-detached house",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        1,
+      ],
+      "keys": [
+        "Medium/large terraced house",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        2,
+      ],
+      "keys": [
+        "Detached house",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        3,
+      ],
+      "keys": [
+        "Purpose-built flat low rise",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        4,
+      ],
+      "keys": [
+        "Small terraced house",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        5,
+      ],
+      "keys": [
+        "Bungalow",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        6,
+      ],
+      "keys": [
+        "Converted flat",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        7,
+      ],
+      "keys": [
+        "Purpose-built flat high rise",
+      ],
+      "validScopes": undefined,
+    },
+  ],
   "input": {
     "count": 8,
   },
@@ -2921,6 +3580,7 @@ exports[`DataModel grouped processing - stacked example should generated the exp
       "type": "Purpose-built flat high rise",
     },
   ],
+  "rawDataSources": undefined,
   "time": Any<Number>,
   "type": "grouped",
 }
@@ -2945,6 +3605,9 @@ exports[`DataModel grouped processing - stacked with accumulation and normalised
           "privateRented": 773,
           "type": "Semi-detached house",
         },
+      ],
+      "index": [
+        0,
       ],
       "keys": [
         "Semi-detached house",
@@ -2975,6 +3638,9 @@ exports[`DataModel grouped processing - stacked with accumulation and normalised
           "type": "Medium/large terraced house",
         },
       ],
+      "index": [
+        1,
+      ],
       "keys": [
         "Medium/large terraced house",
       ],
@@ -3003,6 +3669,9 @@ exports[`DataModel grouped processing - stacked with accumulation and normalised
           "privateRented": 294,
           "type": "Detached house",
         },
+      ],
+      "index": [
+        2,
       ],
       "keys": [
         "Detached house",
@@ -3033,6 +3702,9 @@ exports[`DataModel grouped processing - stacked with accumulation and normalised
           "type": "Purpose-built flat low rise",
         },
       ],
+      "index": [
+        3,
+      ],
       "keys": [
         "Purpose-built flat low rise",
       ],
@@ -3061,6 +3733,9 @@ exports[`DataModel grouped processing - stacked with accumulation and normalised
           "privateRented": 822,
           "type": "Small terraced house",
         },
+      ],
+      "index": [
+        4,
       ],
       "keys": [
         "Small terraced house",
@@ -3091,6 +3766,9 @@ exports[`DataModel grouped processing - stacked with accumulation and normalised
           "type": "Bungalow",
         },
       ],
+      "index": [
+        5,
+      ],
       "keys": [
         "Bungalow",
       ],
@@ -3120,6 +3798,9 @@ exports[`DataModel grouped processing - stacked with accumulation and normalised
           "type": "Converted flat",
         },
       ],
+      "index": [
+        6,
+      ],
       "keys": [
         "Converted flat",
       ],
@@ -3148,6 +3829,9 @@ exports[`DataModel grouped processing - stacked with accumulation and normalised
           "privateRented": 134,
           "type": "Purpose-built flat high rise",
         },
+      ],
+      "index": [
+        7,
       ],
       "keys": [
         "Purpose-built flat high rise",
@@ -3300,6 +3984,88 @@ exports[`DataModel grouped processing - stacked with accumulation and normalised
       ],
     ],
   },
+  "groups": [
+    {
+      "aggregation": [],
+      "indices": [
+        0,
+      ],
+      "keys": [
+        "Semi-detached house",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        1,
+      ],
+      "keys": [
+        "Medium/large terraced house",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        2,
+      ],
+      "keys": [
+        "Detached house",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        3,
+      ],
+      "keys": [
+        "Purpose-built flat low rise",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        4,
+      ],
+      "keys": [
+        "Small terraced house",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        5,
+      ],
+      "keys": [
+        "Bungalow",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        6,
+      ],
+      "keys": [
+        "Converted flat",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        7,
+      ],
+      "keys": [
+        "Purpose-built flat high rise",
+      ],
+      "validScopes": undefined,
+    },
+  ],
   "input": {
     "count": 8,
   },
@@ -3363,6 +4129,7 @@ exports[`DataModel grouped processing - stacked with accumulation and normalised
       "type": "Purpose-built flat high rise",
     },
   ],
+  "rawDataSources": undefined,
   "time": Any<Number>,
   "type": "grouped",
 }
@@ -3381,6 +4148,9 @@ exports[`DataModel grouped processing - stacked with accumulation example should
           "privateRented": 773,
           "type": "Semi-detached house",
         },
+      ],
+      "index": [
+        0,
       ],
       "keys": [
         "Semi-detached house",
@@ -3405,6 +4175,9 @@ exports[`DataModel grouped processing - stacked with accumulation example should
           "type": "Medium/large terraced house",
         },
       ],
+      "index": [
+        1,
+      ],
       "keys": [
         "Medium/large terraced house",
       ],
@@ -3427,6 +4200,9 @@ exports[`DataModel grouped processing - stacked with accumulation example should
           "privateRented": 294,
           "type": "Detached house",
         },
+      ],
+      "index": [
+        2,
       ],
       "keys": [
         "Detached house",
@@ -3451,6 +4227,9 @@ exports[`DataModel grouped processing - stacked with accumulation example should
           "type": "Purpose-built flat low rise",
         },
       ],
+      "index": [
+        3,
+      ],
       "keys": [
         "Purpose-built flat low rise",
       ],
@@ -3473,6 +4252,9 @@ exports[`DataModel grouped processing - stacked with accumulation example should
           "privateRented": 822,
           "type": "Small terraced house",
         },
+      ],
+      "index": [
+        4,
       ],
       "keys": [
         "Small terraced house",
@@ -3497,6 +4279,9 @@ exports[`DataModel grouped processing - stacked with accumulation example should
           "type": "Bungalow",
         },
       ],
+      "index": [
+        5,
+      ],
       "keys": [
         "Bungalow",
       ],
@@ -3520,6 +4305,9 @@ exports[`DataModel grouped processing - stacked with accumulation example should
           "type": "Converted flat",
         },
       ],
+      "index": [
+        6,
+      ],
       "keys": [
         "Converted flat",
       ],
@@ -3542,6 +4330,9 @@ exports[`DataModel grouped processing - stacked with accumulation example should
           "privateRented": 134,
           "type": "Purpose-built flat high rise",
         },
+      ],
+      "index": [
+        7,
       ],
       "keys": [
         "Purpose-built flat high rise",
@@ -3688,6 +4479,88 @@ exports[`DataModel grouped processing - stacked with accumulation example should
       ],
     ],
   },
+  "groups": [
+    {
+      "aggregation": [],
+      "indices": [
+        0,
+      ],
+      "keys": [
+        "Semi-detached house",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        1,
+      ],
+      "keys": [
+        "Medium/large terraced house",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        2,
+      ],
+      "keys": [
+        "Detached house",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        3,
+      ],
+      "keys": [
+        "Purpose-built flat low rise",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        4,
+      ],
+      "keys": [
+        "Small terraced house",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        5,
+      ],
+      "keys": [
+        "Bungalow",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        6,
+      ],
+      "keys": [
+        "Converted flat",
+      ],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "indices": [
+        7,
+      ],
+      "keys": [
+        "Purpose-built flat high rise",
+      ],
+      "validScopes": undefined,
+    },
+  ],
   "input": {
     "count": 8,
   },
@@ -3751,6 +4624,7 @@ exports[`DataModel grouped processing - stacked with accumulation example should
       "type": "Purpose-built flat high rise",
     },
   ],
+  "rawDataSources": undefined,
   "time": Any<Number>,
   "type": "grouped",
 }
@@ -4139,6 +5013,7 @@ exports[`DataModel missing and invalid data processing - multiple scopes should 
       "year": "2019",
     },
   ],
+  "rawDataSources": undefined,
   "time": Any<Number>,
   "type": "ungrouped",
 }
@@ -4536,6 +5411,7 @@ exports[`DataModel missing and invalid data processing should generated the expe
       "year": "2019",
     },
   ],
+  "rawDataSources": undefined,
   "time": Any<Number>,
   "type": "ungrouped",
 }
@@ -5080,6 +5956,166 @@ exports[`DataModel multiple data sources should generate the expected results 1`
       "year": "2019",
     },
   ],
+  "rawDataSources": Map {
+    "test1" => [
+      {
+        "chrome": 1.37,
+        "firefox": 26.85,
+        "ie": 64.97,
+        "safari": 2.79,
+        "year": "2009",
+      },
+      {
+        "chrome": undefined,
+        "firefox": 31.15,
+        "ie": 54.39,
+        "safari": 4.22,
+        "year": "2010",
+      },
+      {
+        "chrome": 15.01,
+        "firefox": undefined,
+        "ie": 44.03,
+        "safari": 5.94,
+        "year": "2011",
+      },
+      {
+        "chrome": 25.99,
+        "firefox": 22.69,
+        "ie": 34.27,
+        "safari": 8.09,
+        "year": "2012",
+      },
+      {
+        "chrome": 31.71,
+        "firefox": undefined,
+        "ie": 26.55,
+        "safari": undefined,
+        "year": "2013",
+      },
+      {
+        "chrome": 35.85,
+        "firefox": 14.77,
+        "ie": 17.75,
+        "safari": 12.63,
+        "year": "2014",
+      },
+      {
+        "chrome": 42.27,
+        "firefox": 11.82,
+        "ie": -13.3,
+        "safari": 13.79,
+        "year": "2015",
+      },
+      {
+        "chrome": 47.79,
+        "firefox": 8.97,
+        "ie": -8.94,
+        "safari": 12.9,
+        "year": "2016",
+      },
+      {
+        "chrome": 51.76,
+        "firefox": 6.75,
+        "ie": -4.77,
+        "safari": 14.54,
+        "year": "2017",
+      },
+      {
+        "chrome": 56.31,
+        "firefox": 5.66,
+        "ie": 3.2,
+        "safari": 14.44,
+        "year": "2018",
+      },
+      {
+        "chrome": 61.72,
+        "firefox": 4.66,
+        "ie": 2.7,
+        "safari": 15.23,
+        "year": "2019",
+      },
+    ],
+    "test2" => [
+      {
+        "chrome": 1.37,
+        "firefox": 53.7,
+        "ie": 64.97,
+        "safari": 2.79,
+        "year": "2009",
+      },
+      {
+        "chrome": undefined,
+        "firefox": 62.3,
+        "ie": 54.39,
+        "safari": 4.22,
+        "year": "2010",
+      },
+      {
+        "chrome": 15.01,
+        "firefox": undefined,
+        "ie": 44.03,
+        "safari": 5.94,
+        "year": "2011",
+      },
+      {
+        "chrome": 25.99,
+        "firefox": 45.38,
+        "ie": 34.27,
+        "safari": 8.09,
+        "year": "2012",
+      },
+      {
+        "chrome": 31.71,
+        "firefox": undefined,
+        "ie": 26.55,
+        "safari": undefined,
+        "year": "2013",
+      },
+      {
+        "chrome": 35.85,
+        "firefox": 29.54,
+        "ie": 17.75,
+        "safari": 12.63,
+        "year": "2014",
+      },
+      {
+        "chrome": 42.27,
+        "firefox": 23.64,
+        "ie": -13.3,
+        "safari": 13.79,
+        "year": "2015",
+      },
+      {
+        "chrome": 47.79,
+        "firefox": 17.94,
+        "ie": -8.94,
+        "safari": 12.9,
+        "year": "2016",
+      },
+      {
+        "chrome": 51.76,
+        "firefox": 13.5,
+        "ie": -4.77,
+        "safari": 14.54,
+        "year": "2017",
+      },
+      {
+        "chrome": 56.31,
+        "firefox": 11.32,
+        "ie": 3.2,
+        "safari": 14.44,
+        "year": "2018",
+      },
+      {
+        "chrome": 61.72,
+        "firefox": 9.32,
+        "ie": 2.7,
+        "safari": 15.23,
+        "year": "2019",
+      },
+    ],
+  },
   "time": Any<Number>,
   "type": "ungrouped",
 }
@@ -5233,6 +6269,7 @@ exports[`DataModel repeated property processing should generated the expected re
       "year": 2020,
     },
   ],
+  "rawDataSources": undefined,
   "time": Any<Number>,
   "type": "ungrouped",
 }
@@ -5452,6 +6489,7 @@ exports[`DataModel ungrouped processing - accumulated and normalised properties 
       "religion": "None",
     },
   ],
+  "rawDataSources": undefined,
   "time": Any<Number>,
   "type": "ungrouped",
 }
@@ -6568,6 +7606,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "petrol": 124.96,
     },
   ],
+  "rawDataSources": undefined,
   "time": Any<Number>,
   "type": "ungrouped",
 }

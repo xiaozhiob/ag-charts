@@ -202,6 +202,7 @@ export class DataController {
                 dataModel,
                 processedData: {
                     ...processedData,
+                    // @ts-ignore
                     data: processedData.data.filter(({ validScopes }) => validScopes?.has(scope) ?? true),
                 },
             });

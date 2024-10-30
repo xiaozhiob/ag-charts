@@ -192,10 +192,11 @@ function normaliseFnBuilder({ normaliseTo, mode }: { normaliseTo: number; mode: 
         return Math.max(-normaliseTo, result);
     };
 
-    return () => () => (values: any[], valueIndexes: number[]) => {
+    return () => () => (values: any[], valueIndexes: number[], datumIndex: number, columns?: any[][]) => {
         const valuesExtent = [0, 0];
         for (const valueIdx of valueIndexes) {
-            const value: number | number[] = values[valueIdx];
+            const column = columns?.[valueIdx];
+            const value: number | number[] = column != null ? column[datumIndex] : values[valueIdx];
             // Note - Array.isArray(new Float64Array) is false, and this type is used for stack accumulators
             const valueExtent = typeof value === 'number' ? value : Math.max(...value);
             const valIdx = valueExtent < 0 ? 0 : 1;
@@ -210,9 +211,16 @@ function normaliseFnBuilder({ normaliseTo, mode }: { normaliseTo: number; mode: 
 
         const extent = Math.max(Math.abs(valuesExtent[0]), valuesExtent[1]);
         for (const valueIdx of valueIndexes) {
-            const value: number | number[] = values[valueIdx];
-            values[valueIdx] =
-                typeof value === 'number' ? normalise(value, extent) : value.map((v) => normalise(v, extent));
+            const column = columns?.[valueIdx];
+            if (column != null) {
+                const value: number | number[] = column[datumIndex];
+                column[datumIndex] =
+                    typeof value === 'number' ? normalise(value, extent) : value.map((v) => normalise(v, extent));
+            } else {
+                const value: number | number[] = values[valueIdx];
+                values[valueIdx] =
+                    typeof value === 'number' ? normalise(value, extent) : value.map((v) => normalise(v, extent));
+            }
         }
     };
 }
@@ -339,16 +347,21 @@ export function animationValidation(valueKeyIds?: string[]): ProcessorOutputProp
 }
 
 function buildGroupAccFn({ mode, separateNegative }: { mode: 'normal' | 'trailing'; separateNegative?: boolean }) {
-    return () => () => (values: any[], valueIndexes: number[]) => {
+    return () => () => (values: any[], valueIndexes: number[], datumIndex: number, columns?: any[][]) => {
         // Datum scope.
         const acc = [0, 0];
         for (const valueIdx of valueIndexes) {
-            const currentVal = values[valueIdx];
+            const column = columns?.[valueIdx];
+            const currentVal = column != null ? column[datumIndex] : values[valueIdx];
             const accIndex = isNegative(currentVal) && separateNegative ? 0 : 1;
             if (!isFiniteNumber(currentVal)) continue;
 
             if (mode === 'normal') acc[accIndex] += currentVal;
-            values[valueIdx] = acc[accIndex];
+            if (column != null) {
+                column[datumIndex] = acc[accIndex];
+            } else {
+                values[valueIdx] = acc[accIndex];
+            }
             if (mode === 'trailing') acc[accIndex] += currentVal;
         }
     };

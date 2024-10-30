@@ -178,7 +178,12 @@ describe('Grouped Category Axis Examples', () => {
             };
 
             chart = await createChart(example.options);
-            await axisCompare();
+            try {
+                await axisCompare();
+            } catch (e) {
+                console.log(chart.getOptions());
+                throw e;
+            }
 
             if (example.extraScreenshotActions) {
                 await example.extraScreenshotActions(chart);
