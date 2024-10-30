@@ -4,7 +4,6 @@ import type { ModuleContext } from '../../module/moduleContext';
 import type { BBox } from '../../scene/bbox';
 import type { Group } from '../../scene/group';
 import type { BBoxProvider } from '../../util/bboxinterface';
-import { setElementBBox } from '../../util/dom';
 import { clamp } from '../../util/number';
 import { ObserveChanges } from '../../util/proxy';
 import { BOOLEAN, OBJECT, POSITIVE_NUMBER, Validate } from '../../util/validation';
@@ -212,12 +211,8 @@ export class Navigator extends BaseModuleInstance implements ModuleInstance {
         const { x } = event;
         if (!x) return;
 
-        this.domProxy._min = x.min;
-        this.domProxy._max = x.max;
+        this.domProxy.updateMinMax(x.min, x.max);
         this.updateNodes(x.min, x.max);
-        this.domProxy.setPanSliderValue(x.min, x.max);
-        this.domProxy.setSliderRatio(this.domProxy.proxyNavigatorElements[0], x.min);
-        this.domProxy.setSliderRatio(this.domProxy.proxyNavigatorElements[2], x.max);
     }
 
     private layoutNodes(x: number, y: number, width: number, height: number) {
@@ -240,7 +235,7 @@ export class Navigator extends BaseModuleInstance implements ModuleInstance {
         [minHandle, this.maskVisibleRange, maxHandle].forEach((node, index) => {
             const bbox = node.getBBox();
             const tbox = { x: bbox.x - x, y: bbox.y - y, height: bbox.height, width: bbox.width };
-            setElementBBox(this.domProxy.proxyNavigatorElements[index], tbox);
+            this.domProxy.updateSliderBounds(index, tbox);
         });
     }
 

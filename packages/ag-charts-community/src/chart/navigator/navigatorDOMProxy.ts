@@ -14,7 +14,7 @@ export class NavigatorDOMProxy {
     public readonly minRange = 0.001;
 
     private readonly proxyNavigatorToolbar: HTMLElement;
-    public readonly proxyNavigatorElements: [HTMLInputElement, HTMLInputElement, HTMLInputElement];
+    private readonly proxyNavigatorElements: [HTMLInputElement, HTMLInputElement, HTMLInputElement];
 
     private readonly destroyFns = new DestroyFns();
     private readonly ctx: Pick<ModuleContext, 'zoomManager' | 'localeManager'>;
@@ -93,6 +93,18 @@ export class NavigatorDOMProxy {
         setElementBBox(this.proxyNavigatorToolbar, bounds);
     }
 
+    updateSliderBounds(sliderIndex: number, bounds: BBoxValues): void {
+        setElementBBox(this.proxyNavigatorElements[sliderIndex], bounds);
+    }
+
+    updateMinMax(min: number, max: number) {
+        this._min = min;
+        this._max = max;
+        this.setPanSliderValue(min, max);
+        this.setSliderRatio(this.proxyNavigatorElements[0], min);
+        this.setSliderRatio(this.proxyNavigatorElements[2], max);
+    }
+
     private onPanSliderChange(_event: Event) {
         const ratio = this.getSliderRatio(this.proxyNavigatorElements[1]);
         const span = this._max - this._min;
@@ -113,7 +125,7 @@ export class NavigatorDOMProxy {
         this.updateZoom();
     }
 
-    setPanSliderValue(min: number, max: number) {
+    private setPanSliderValue(min: number, max: number) {
         this.proxyNavigatorElements[1].value = `${Math.round(min * 100)}`;
         this.proxyNavigatorElements[1].ariaValueText = this.ctx.localeManager.t('ariaValuePanRange', { min, max });
     }
@@ -127,7 +139,7 @@ export class NavigatorDOMProxy {
         return clampedRatio;
     }
 
-    setSliderRatio(slider: HTMLInputElement, ratio: number) {
+    private setSliderRatio(slider: HTMLInputElement, ratio: number) {
         const value = Math.round(ratio * 100);
         slider.value = `${value}`;
         slider.ariaValueText = formatPercent(value / 100);
