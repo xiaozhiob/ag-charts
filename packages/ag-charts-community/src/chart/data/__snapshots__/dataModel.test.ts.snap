@@ -4356,7 +4356,7 @@ exports[`DataModel ungrouped processing - accumulated and normalised properties 
       "values": [
         0,
         "Christian",
-        4159000,
+        6.283185307179586,
       ],
     },
     {
@@ -4368,7 +4368,7 @@ exports[`DataModel ungrouped processing - accumulated and normalised properties 
       "values": [
         0.1352271965379232,
         "Buddhist",
-        97000,
+        0,
       ],
     },
     {
@@ -4380,7 +4380,7 @@ exports[`DataModel ungrouped processing - accumulated and normalised properties 
       "values": [
         0.7709344297471291,
         "Hindu",
-        456000,
+        0.5553085980495991,
       ],
     },
     {
@@ -4392,7 +4392,7 @@ exports[`DataModel ungrouped processing - accumulated and normalised properties 
       "values": [
         1.0051423577715735,
         "Jewish",
-        168000,
+        0.10982426312401541,
       ],
     },
     {
@@ -4404,7 +4404,7 @@ exports[`DataModel ungrouped processing - accumulated and normalised properties 
       "values": [
         2.698967551519787,
         "Muslim",
-        1215000,
+        1.7293454390513978,
       ],
     },
     {
@@ -4416,7 +4416,7 @@ exports[`DataModel ungrouped processing - accumulated and normalised properties 
       "values": [
         2.8704412131091117,
         "Sikh",
-        123000,
+        0.040217335791892975,
       ],
     },
     {
@@ -4428,7 +4428,7 @@ exports[`DataModel ungrouped processing - accumulated and normalised properties 
       "values": [
         3.1130137099915722,
         "Other",
-        174000,
+        0.11910518676829843,
       ],
     },
     {
@@ -4440,7 +4440,7 @@ exports[`DataModel ungrouped processing - accumulated and normalised properties 
       "values": [
         6.283185307179586,
         "None",
-        2274000,
+        3.367428462267346,
       ],
     },
   ],
@@ -4505,8 +4505,8 @@ exports[`DataModel ungrouped processing - accumulated and normalised properties 
         "None",
       ],
       [
-        97000,
-        4159000,
+        0,
+        6.283185307179586,
       ],
     ],
   },

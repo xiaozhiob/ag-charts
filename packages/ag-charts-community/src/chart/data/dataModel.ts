@@ -547,16 +547,19 @@ export class DataModel<
             return false;
         };
 
-        const result = this.values.findIndex((def) => {
+        const result = this.values.reduce((res, def, index) => {
             const validDefScopes =
                 def.scopes == null ||
                 (noScopesToMatch && !def.scopes.length) ||
                 def.scopes.some((s) => scopes?.includes(s));
 
-            return validDefScopes && (def.property === propId || def.id === propId || hasMatchingScopeId(def));
-        });
+            if (validDefScopes && (def.property === propId || def.id === propId || hasMatchingScopeId(def))) {
+                res.push(index);
+            }
+            return res;
+        }, [] as number[]);
 
-        if (result === -1) {
+        if (result.length === 0) {
             throw new Error(
                 `AG Charts - configuration error, unknown property ${JSON.stringify(prop)} in scope(s) ${JSON.stringify(
                     scopes
@@ -858,7 +861,9 @@ export class DataModel<
 
     private postProcessProperties(processedData: ProcessedData<any>) {
         for (const { adjust, property, scopes } of this.propertyProcessors) {
-            adjust()(processedData, this.valueIdxLookup(scopes, property));
+            for (const idx of this.valueIdxLookup(scopes, property)) {
+                adjust()(processedData, idx);
+            }
         }
     }
 
