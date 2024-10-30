@@ -55,6 +55,12 @@ export type ChartAxisLike = {
 
 type ZoomEvents = ZoomChangeEvent | ZoomPanStartEvent;
 
+const expectedMementoKeys: Array<keyof ZoomMemento> = ['rangeX', 'rangeY', 'ratioX', 'ratioY'];
+
+function isZoomMementoKey(key: string): key is keyof ZoomMemento {
+    return expectedMementoKeys.includes(key as any);
+}
+
 /**
  * Manages the current zoom state for a chart. Tracks the requested zoom from distinct dependents
  * and handles conflicting zoom requests.
@@ -64,7 +70,6 @@ export class ZoomManager extends BaseManager<ZoomEvents['type'], ZoomEvents> imp
 
     private readonly axisZoomManagers = new Map<string, AxisZoomManager>();
     private readonly state = new StateTracker<AxisZoomState>(undefined, 'initial');
-    private readonly rejectCallbacks = new Map<string, (stateId: string) => void>();
 
     private axes?: LayoutCompleteEvent['axes'];
 
@@ -78,7 +83,7 @@ export class ZoomManager extends BaseManager<ZoomEvents['type'], ZoomEvents> imp
     private pendingMemento?: {
         version: string;
         mementoVersion: string;
-        memento: ZoomMemento;
+        memento: ZoomMemento | undefined;
     };
 
     public addLayoutListeners(layoutManager: LayoutManager) {
@@ -103,13 +108,20 @@ export class ZoomManager extends BaseManager<ZoomEvents['type'], ZoomEvents> imp
         };
     }
 
-    public guardMemento(blob: unknown): blob is ZoomMemento {
-        return (
-            isObject(blob) && (blob.ratioX != null || blob.ratioY != null || blob.rangeX != null || blob.rangeY != null)
-        );
+    public guardMemento(blob: unknown): blob is ZoomMemento | undefined {
+        if (blob == null) return true;
+        if (!isObject(blob)) return false;
+
+        for (const key of Object.keys(blob)) {
+            if (!isZoomMementoKey(key)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
-    public restoreMemento(_version: string, _mementoVersion: string, memento: ZoomMemento) {
+    public restoreMemento(_version: string, _mementoVersion: string, memento: ZoomMemento | undefined) {
         const { independentAxes } = this;
 
         if (!this.axes) {
@@ -122,24 +134,28 @@ export class ZoomManager extends BaseManager<ZoomEvents['type'], ZoomEvents> imp
 
         const zoom = this.getDefinedZoom();
 
-        if (memento.rangeX) {
+        if (memento?.rangeX) {
             zoom.x = this.rangeToRatio(memento.rangeX, ChartAxisDirection.X) ?? { min: 0, max: 1 };
-        } else if (memento.ratioX) {
+        } else if (memento?.ratioX) {
             zoom.x = {
                 min: memento.ratioX.start ?? 0,
                 max: memento.ratioX.end ?? 1,
             };
+        } else {
+            zoom.x = { min: 0, max: 1 };
         }
 
         // Do not adjust the y-axis zoom if the navigator module is enabled by itself
         if (!this.navigatorModule || this.zoomModule) {
-            if (memento.rangeY) {
+            if (memento?.rangeY) {
                 zoom.y = this.rangeToRatio(memento.rangeY, ChartAxisDirection.Y) ?? { min: 0, max: 1 };
-            } else if (memento.ratioY) {
+            } else if (memento?.ratioY) {
                 zoom.y = {
                     min: memento.ratioY.start ?? 0,
                     max: memento.ratioY.end ?? 1,
                 };
+            } else {
+                zoom.y = { min: 0, max: 1 };
             }
         }
 
@@ -185,27 +201,11 @@ export class ZoomManager extends BaseManager<ZoomEvents['type'], ZoomEvents> imp
         this.zoomModule = enabled;
     }
 
-    public updateZoom(
-        callerId: string,
-        newZoom?: AxisZoomState,
-        canChangeInitial = true,
-        rejectCallback?: (stateId: string) => void
-    ) {
-        if (rejectCallback) {
-            this.rejectCallbacks.set(callerId, rejectCallback);
-        }
-
+    public updateZoom(callerId: string, newZoom?: AxisZoomState) {
         if (this.axisZoomManagers.size === 0) {
-            // Only update the initial zoom state if no other modules have tried or permitted. This allows us to give
-            // priority to the 'zoom' module over 'navigator' if they both attempt to set the initial zoom state.
             const stateId = this.state.stateId()!;
-            if (stateId === 'initial' || stateId === callerId || canChangeInitial) {
+            if (stateId === 'initial' || stateId === callerId) {
                 this.state.set(callerId, newZoom);
-                if (stateId !== callerId) {
-                    this.rejectCallbacks.get(stateId)?.(callerId);
-                }
-            } else {
-                rejectCallback?.(stateId);
             }
             return;
         }
