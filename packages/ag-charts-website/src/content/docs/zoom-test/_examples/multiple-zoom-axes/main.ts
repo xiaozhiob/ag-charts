@@ -1,12 +1,12 @@
-import { AgCharts } from 'ag-charts-enterprise';
+import { AgCartesianChartOptions, AgCartesianSeriesTooltipRendererParams, AgCharts } from 'ag-charts-community';
 
 import { getData } from './data';
 
-function tooltipRenderer({ datum, xKey, yKey }) {
+function tooltipRenderer({ datum, xKey, yKey }: AgCartesianSeriesTooltipRendererParams) {
     return { content: `${datum[xKey]}: ${datum[yKey]}%` };
 }
 
-const options = {
+const options: AgCartesianChartOptions = {
     container: document.getElementById('myChart'),
     data: getData(),
     title: {
