@@ -175,6 +175,7 @@ export class ChartOptions<T extends AgChartOptions = AgChartOptions> {
         // Disable legend by default for single series cartesian charts and polar charts which display legend items per series rather than data items
         if (
             (isAgCartesianChartOptions(this.processedOptions) ||
+                isAgStandaloneChartOptions(this.processedOptions) ||
                 isAgPolarChartOptionsWithSeriesBasedLegend(this.processedOptions)) &&
             this.processedOptions.legend?.enabled == null
         ) {
