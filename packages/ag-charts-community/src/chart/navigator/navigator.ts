@@ -87,7 +87,7 @@ export class Navigator extends BaseModuleInstance implements ModuleInstance {
 
         if (this.rangeSelector == null || enabled === this.rangeSelector.visible) return;
         this.rangeSelector.visible = enabled;
-        this.domProxy.proxyNavigatorToolbar.ariaHidden = (!enabled).toString();
+        this.domProxy.updateVisibility(enabled);
 
         if (enabled) {
             this.updateZoom();
@@ -109,14 +109,12 @@ export class Navigator extends BaseModuleInstance implements ModuleInstance {
 
     onLayoutComplete(opts: LayoutCompleteEvent) {
         const { x, width } = opts.series.rect;
+        const { y, height } = this;
 
+        this.domProxy.updateVisibility(this.enabled);
         if (this.enabled) {
-            const { y, height } = this;
             this.layoutNodes(x, y, width, height);
-            setElementBBox(this.domProxy.proxyNavigatorToolbar, { x, y, width, height });
-            this.domProxy.proxyNavigatorToolbar.style.removeProperty('display');
-        } else {
-            this.domProxy.proxyNavigatorToolbar.style.display = 'none';
+            this.domProxy.updateBounds({ x, y, width, height });
         }
 
         this.x = x;

@@ -1,6 +1,8 @@
 import type { ModuleContext } from '../../module/moduleContext';
 import { setAttribute } from '../../util/attributeUtil';
+import type { BBoxValues } from '../../util/bboxinterface';
 import { DestroyFns } from '../../util/destroy';
+import { setElementBBox } from '../../util/dom';
 import { formatPercent } from '../../util/format.util';
 import { initToolbarKeyNav } from '../../util/keynavUtil';
 import { clamp } from '../../util/number';
@@ -11,7 +13,7 @@ export class NavigatorDOMProxy {
 
     public readonly minRange = 0.001;
 
-    public readonly proxyNavigatorToolbar: HTMLElement;
+    private readonly proxyNavigatorToolbar: HTMLElement;
     public readonly proxyNavigatorElements: [HTMLInputElement, HTMLInputElement, HTMLInputElement];
 
     private readonly destroyFns = new DestroyFns();
@@ -72,11 +74,23 @@ export class NavigatorDOMProxy {
         this.destroyFns.destroy();
     }
 
+    updateVisibility(visible: boolean): void {
+        if (visible) {
+            this.proxyNavigatorToolbar.style.removeProperty('display');
+        } else {
+            this.proxyNavigatorToolbar.style.display = 'none';
+        }
+    }
+
     updateZoom(): void {
         const { _min: min, _max: max } = this;
         if (min == null || max == null) return;
 
         return this.ctx.zoomManager.updateZoom('navigator', { x: { min, max } });
+    }
+
+    updateBounds(bounds: BBoxValues): void {
+        setElementBBox(this.proxyNavigatorToolbar, bounds);
     }
 
     private onPanSliderChange(_event: Event) {
