@@ -13,15 +13,15 @@ export class NavigatorDOMProxy {
 
     public readonly minRange = 0.001;
 
-    private readonly proxyNavigatorToolbar: HTMLElement;
-    private readonly proxyNavigatorElements: [HTMLInputElement, HTMLInputElement, HTMLInputElement];
+    private readonly toolbar: HTMLElement;
+    private readonly sliders: [HTMLInputElement, HTMLInputElement, HTMLInputElement];
 
     private readonly destroyFns = new DestroyFns();
     private readonly ctx: Pick<ModuleContext, 'zoomManager' | 'localeManager'>;
 
     constructor(ctx: Pick<ModuleContext, 'zoomManager' | 'proxyInteractionService' | 'localeManager'>) {
         this.ctx = ctx;
-        this.proxyNavigatorToolbar = ctx.proxyInteractionService.createProxyContainer({
+        this.toolbar = ctx.proxyInteractionService.createProxyContainer({
             type: 'toolbar',
             id: `navigator-toolbar`,
             classList: ['ag-charts-proxy-navigator-toolbar'],
@@ -29,13 +29,13 @@ export class NavigatorDOMProxy {
             ariaLabel: { id: 'ariaLabelNavigator' },
         });
 
-        this.proxyNavigatorElements = [
+        this.sliders = [
             ctx.proxyInteractionService.createProxyElement({
                 type: 'slider',
                 id: 'ag-charts-navigator-min',
                 ariaLabel: { id: 'ariaLabelNavigatorMinimum' },
                 ariaOrientation: 'horizontal',
-                parent: this.proxyNavigatorToolbar,
+                parent: this.toolbar,
                 onchange: (ev) => this.onMinSliderChange(ev),
             }),
             ctx.proxyInteractionService.createProxyElement({
@@ -43,7 +43,7 @@ export class NavigatorDOMProxy {
                 id: 'ag-charts-navigator-pan',
                 ariaLabel: { id: 'ariaLabelNavigatorRange' },
                 ariaOrientation: 'horizontal',
-                parent: this.proxyNavigatorToolbar,
+                parent: this.toolbar,
                 onchange: (ev) => this.onPanSliderChange(ev),
             }),
             ctx.proxyInteractionService.createProxyElement({
@@ -51,22 +51,22 @@ export class NavigatorDOMProxy {
                 id: 'ag-charts-navigator-max',
                 ariaLabel: { id: 'ariaLabelNavigatorMaximum' },
                 ariaOrientation: 'horizontal',
-                parent: this.proxyNavigatorToolbar,
+                parent: this.toolbar,
                 onchange: (ev) => this.onMaxSliderChange(ev),
             }),
         ];
-        this.proxyNavigatorElements.forEach((slider) => setAttribute(slider, 'data-preventdefault', false));
-        this.setSliderRatio(this.proxyNavigatorElements[0], this._min);
-        this.setSliderRatio(this.proxyNavigatorElements[2], this._max);
+        this.sliders.forEach((slider) => setAttribute(slider, 'data-preventdefault', false));
+        this.setSliderRatio(this.sliders[0], this._min);
+        this.setSliderRatio(this.sliders[2], this._max);
         this.setPanSliderValue(this._min, this._max);
         initToolbarKeyNav({
             orientation: 'vertical',
-            toolbar: this.proxyNavigatorToolbar,
-            buttons: this.proxyNavigatorElements,
+            toolbar: this.toolbar,
+            buttons: this.sliders,
         });
         this.destroyFns.push(() => {
-            this.proxyNavigatorElements.forEach((e) => e.remove());
-            this.proxyNavigatorToolbar.remove();
+            this.sliders.forEach((e) => e.remove());
+            this.toolbar.remove();
         });
     }
 
@@ -76,9 +76,9 @@ export class NavigatorDOMProxy {
 
     updateVisibility(visible: boolean): void {
         if (visible) {
-            this.proxyNavigatorToolbar.style.removeProperty('display');
+            this.toolbar.style.removeProperty('display');
         } else {
-            this.proxyNavigatorToolbar.style.display = 'none';
+            this.toolbar.style.display = 'none';
         }
     }
 
@@ -90,23 +90,23 @@ export class NavigatorDOMProxy {
     }
 
     updateBounds(bounds: BBoxValues): void {
-        setElementBBox(this.proxyNavigatorToolbar, bounds);
+        setElementBBox(this.toolbar, bounds);
     }
 
     updateSliderBounds(sliderIndex: number, bounds: BBoxValues): void {
-        setElementBBox(this.proxyNavigatorElements[sliderIndex], bounds);
+        setElementBBox(this.sliders[sliderIndex], bounds);
     }
 
     updateMinMax(min: number, max: number) {
         this._min = min;
         this._max = max;
         this.setPanSliderValue(min, max);
-        this.setSliderRatio(this.proxyNavigatorElements[0], min);
-        this.setSliderRatio(this.proxyNavigatorElements[2], max);
+        this.setSliderRatio(this.sliders[0], min);
+        this.setSliderRatio(this.sliders[2], max);
     }
 
     private onPanSliderChange(_event: Event) {
-        const ratio = this.getSliderRatio(this.proxyNavigatorElements[1]);
+        const ratio = this.getSliderRatio(this.sliders[1]);
         const span = this._max - this._min;
         this._min = clamp(0, ratio, 1 - span);
         this._max = this._min + span;
@@ -114,20 +114,20 @@ export class NavigatorDOMProxy {
     }
 
     private onMinSliderChange(_event: Event) {
-        const slider = this.proxyNavigatorElements[0];
+        const slider = this.sliders[0];
         this._min = this.setSliderRatioClamped(slider, 0, this._max - this.minRange);
         this.updateZoom();
     }
 
     private onMaxSliderChange(_event: Event) {
-        const slider = this.proxyNavigatorElements[2];
+        const slider = this.sliders[2];
         this._max = this.setSliderRatioClamped(slider, this._min + this.minRange, 1);
         this.updateZoom();
     }
 
     private setPanSliderValue(min: number, max: number) {
-        this.proxyNavigatorElements[1].value = `${Math.round(min * 100)}`;
-        this.proxyNavigatorElements[1].ariaValueText = this.ctx.localeManager.t('ariaValuePanRange', { min, max });
+        this.sliders[1].value = `${Math.round(min * 100)}`;
+        this.sliders[1].ariaValueText = this.ctx.localeManager.t('ariaValuePanRange', { min, max });
     }
 
     private setSliderRatioClamped(slider: HTMLInputElement, clampMin: number, clampMax: number) {
