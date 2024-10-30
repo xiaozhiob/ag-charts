@@ -373,7 +373,7 @@ export class InteractionManager extends InteractionStateListener<InteractionType
     }
 
     private isEventOverElement(event: SupportedEvent) {
-        return this.domManager.isEventOverElement(event);
+        return event.target instanceof HTMLElement && this.domManager.contains(event.target);
     }
 
     private static readonly NULL_COORDS: Coords = {
