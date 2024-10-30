@@ -12,7 +12,7 @@ The dynamic chart state can be saved and restored using the API.
 ```js
 function saveState() {
     const newState = chart.getState();
-    //save to database...
+    // save to database...
 }
 
 function restoreState() {
@@ -27,6 +27,8 @@ In the above example:
 -   Click the 'Restore' button to restore a saved state to the chart using `chart.setState()`. This will override the current state.
 
 ## Initial State
+
+{% chartExampleRunner title="Initial State" name="initial-state" type="generated" /%}
 
 The `initialState` chart option allows creating a chart with a saved state.
 
