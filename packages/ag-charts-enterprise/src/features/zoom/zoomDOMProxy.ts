@@ -96,7 +96,9 @@ export class ZoomDOMProxy {
             [this.vAxis, Y],
         ] as const) {
             const axisCtx = ctx.axisManager.getAxisContext(dir);
-            const bboxes = axisCtx.map((ac) => ac.getCanvasBounds()).filter((bb): bb is _Util.BBoxValues => bb != null);
+            const bboxes = axisCtx
+                .map((ac) => ac.getCanvasBounds())
+                .filter((bb): bb is _Util.BBoxValues => bb != null && bb.height > 0 && bb.width > 0);
             if (bboxes.length === 0) {
                 _Util.setElementStyle(axis, 'display', 'none');
             } else {
