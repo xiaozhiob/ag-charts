@@ -148,7 +148,7 @@ export class DataController {
 
         return {
             ...processedData,
-            data: processedData.data.map((datum) => ({
+            data: processedData.data?.map((datum) => ({
                 ...datum,
                 datum: extractDatum(datum.datum),
                 values: needsValueExtraction ? datum.values?.map(extractValues) : datum.values,
@@ -220,6 +220,8 @@ export class DataController {
             (opts.groupByData === false || group.data === data) &&
             group.opts.groupByKeys === opts.groupByKeys &&
             group.opts.groupByFn === opts.groupByFn &&
+            group.opts.formatIntoColumns === opts.formatIntoColumns &&
+            group.opts.doNotFormatIntoRows === opts.doNotFormatIntoRows &&
             keys(group.opts.props) === keys(opts.props);
     }
 

@@ -9,6 +9,7 @@ import { ContinuousDomain, DiscreteDomain, type IDataDomain } from './dataDomain
 export type ScopeProvider = { id: string };
 
 export type UngroupedDataItem<D, V> = {
+    index: number;
     keys: any[];
     values: V;
     aggValues?: [number, number][];
@@ -19,7 +20,10 @@ export type UngroupedDataItem<D, V> = {
 export interface UngroupedData<D> {
     type: 'ungrouped';
     input: { count: number };
+    rawData: any[];
     data: UngroupedDataItem<D, any[]>[];
+    keys?: string[][];
+    columns?: any[][];
     domain: {
         keys: any[][];
         values: any[][];
@@ -47,10 +51,10 @@ export interface UngroupedData<D> {
 
 export type ProcessedOutputDiff = {
     changed: boolean;
-    added: Map<string, any>;
-    updated: Map<string, any>;
-    removed: Map<string, any>;
-    moved: Map<string, any>;
+    added: Set<string>;
+    updated: Set<string>;
+    removed: Set<string>;
+    moved: Set<string>;
 };
 
 export type GroupedDataItem<D> = UngroupedDataItem<D[], any[][]> & { area?: number };
@@ -63,7 +67,10 @@ export interface ProcessedDataDef {
 export interface GroupedData<D> {
     type: 'grouped';
     input: UngroupedData<D>['input'];
+    rawData: any[];
     data: GroupedDataItem<D>[];
+    keys?: string[][];
+    columns?: any[][];
     domain: UngroupedData<D>['domain'];
     reduced?: UngroupedData<D>['reduced'];
     defs: UngroupedData<D>['defs'];
@@ -117,6 +124,8 @@ export type DataModelOptions<K, Grouped extends boolean | undefined> = {
     groupByKeys?: Grouped;
     groupByData?: Grouped;
     groupByFn?: GroupByFn;
+    formatIntoColumns?: boolean;
+    doNotFormatIntoRows?: boolean;
 };
 
 export type PropertyDefinition<K> =
@@ -383,6 +392,15 @@ export class DataModel<
         return searchIds.map((searchId) => [searchId, this.resolveProcessedDataDefById(scope, searchId)]);
     }
 
+    resolveColumnById(scope: ScopeProvider, searchId: string, processedData: UngroupedData<any> | GroupedData<any>) {
+        const index = this.resolveProcessedDataIndexById(scope, searchId);
+        const column = processedData.columns?.[index];
+        if (column == null) {
+            throw new Error(`AG Charts - didn't find column for [${searchId}, ${scope.id}]`);
+        }
+        return column;
+    }
+
     resolveProcessedDataDefsValues<T extends string>(
         defs: [T, ProcessedDataDef][],
         { keys, values }: { keys: unknown[]; values: unknown[] }
@@ -553,7 +571,11 @@ export class DataModel<
         const { dataDomain, processValue, scopes, allScopesHaveSameDefs } = this.initDataDomainProcessor();
         const sourcesById = new Map(sources?.map((s) => [s.id, s]));
         const { keys: keyDefs, values: valueDefs } = this;
-        const resultData = new Array(data.length);
+        const { formatIntoColumns, doNotFormatIntoRows } = this.opts;
+        const resultData = !doNotFormatIntoRows ? new Array(data.length) : undefined;
+
+        const keysColumn: string[][] | undefined = formatIntoColumns ? [] : undefined;
+        const columns: any[][] | undefined = formatIntoColumns ? [] : undefined;
 
         let resultDataIdx = 0;
         let partialValidDataCount = 0;
@@ -562,27 +584,38 @@ export class DataModel<
             const sourceDatums: Record<string, any> = {};
 
             const validScopes = scopes.size > 0 ? new Set(scopes) : undefined;
-            const keys = new Array(keyDefs.length);
+            const keys = !doNotFormatIntoRows ? new Array(keyDefs.length) : undefined;
             let keyIdx = 0;
             let key;
+            const keyColumn = keysColumn != null ? (keysColumn[datumIdx] ??= []) : undefined;
             for (const def of keyDefs) {
                 key = processValue(def, datum, datumIdx, key);
                 if (key === INVALID_VALUE) break;
+                const index = keyIdx++;
+                if (keyColumn != null) {
+                    keyColumn[index] = key;
+                }
                 if (keys) {
-                    keys[keyIdx++] = key;
+                    keys[index] = key;
                 }
             }
             if (key === INVALID_VALUE) continue;
 
-            const values = valueDefs.length > 0 ? new Array(valueDefs.length) : undefined;
+            const values = !doNotFormatIntoRows && valueDefs.length > 0 ? new Array(valueDefs.length) : undefined;
             let value;
 
             for (const [valueDefIdx, def] of valueDefs.entries()) {
+                const column: any[] | undefined = columns != null ? (columns[valueDefIdx] ??= []) : undefined;
+
                 for (const scope of def.scopes ?? scopes) {
                     const source = sourcesById.get(scope);
                     const valueDatum = source?.data[datumIdx] ?? datum;
 
                     value = processValue(def, valueDatum, datumIdx, value, scope);
+
+                    if (column != null) {
+                        column[datumIdx] = value !== INVALID_VALUE ? value : NaN;
+                    }
 
                     if (value === INVALID_VALUE || !values) continue;
 
@@ -607,16 +640,32 @@ export class DataModel<
             if (value === INVALID_VALUE && allScopesHaveSameDefs) continue;
             if (validScopes?.size === 0) continue;
 
-            const result: UngroupedDataItem<D, any> = { datum: { ...datum, ...sourceDatums }, keys, values };
+            const result: UngroupedDataItem<D, any> | undefined =
+                resultData != null
+                    ? {
+                          index: datumIdx,
+                          datum: { ...datum, ...sourceDatums },
+                          keys: keys!,
+                          values,
+                      }
+                    : undefined;
 
             if (!allScopesHaveSameDefs && validScopes && validScopes.size < scopes.size) {
                 partialValidDataCount++;
-                result.validScopes = new Set(validScopes);
+
+                if (result != null) {
+                    result.validScopes = new Set(validScopes);
+                }
             }
 
-            resultData[resultDataIdx++] = result;
+            if (resultData != null && result != null) {
+                resultData[resultDataIdx++] = result;
+            }
         }
-        resultData.length = resultDataIdx;
+
+        if (resultData != null) {
+            resultData.length = resultDataIdx;
+        }
 
         const propertyDomain = (def: InternalDatumPropertyDefinition<K>) => {
             const defDomain = dataDomain.get(def)!;
@@ -631,7 +680,10 @@ export class DataModel<
         return {
             type: 'ungrouped',
             input: { count: data.length },
-            data: resultData,
+            rawData: data,
+            data: resultData!,
+            keys: keysColumn,
+            columns,
             domain: {
                 keys: keyDefs.map(propertyDomain),
                 values: valueDefs.map(propertyDomain),

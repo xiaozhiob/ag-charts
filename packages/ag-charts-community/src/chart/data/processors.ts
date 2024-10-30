@@ -10,6 +10,7 @@ import type {
     DatumPropertyDefinition,
     GroupValueProcessorDefinition,
     ProcessedData,
+    ProcessedOutputDiff,
     ProcessorOutputPropertyDefinition,
     PropertyValueProcessorDefinition,
     ReducerOutputPropertyDefinition,
@@ -293,7 +294,7 @@ export function animationValidation(valueKeyIds?: string[]): ProcessorOutputProp
         property: 'animationValidation',
         calculate(result: ProcessedData<any>) {
             const { keys, values } = result.defs;
-            const { input, data } = result;
+            const { input, rawData, data, columns } = result;
             let uniqueKeys = true;
             let orderedKeys = true;
 
@@ -311,9 +312,9 @@ export function animationValidation(valueKeyIds?: string[]): ProcessorOutputProp
                     return;
                 }
 
-                let lastValue = data[0]?.[type][idx];
-                for (let d = 1; (uniqueKeys || orderedKeys) && d < data.length; d++) {
-                    const keyValue = data[d][type][idx];
+                let lastValue = columns != null ? columns[idx][0] : data[0]?.[type][idx];
+                for (let d = 1; (uniqueKeys || orderedKeys) && d < rawData.length; d++) {
+                    const keyValue = columns != null ? columns[idx][d] : data[d][type][idx];
                     orderedKeys &&= lastValue <= keyValue;
                     uniqueKeys &&= lastValue !== keyValue;
                     lastValue = keyValue;
@@ -486,6 +487,36 @@ function valuesEqual(
     return true;
 }
 
+function columnsEqual(
+    previousColumns: any[][],
+    nextColumns: any[][],
+    previousIndices: number[] | undefined,
+    nextIndices: number[] | undefined,
+    previousDatumIndex: number,
+    nextDatumIndex: number
+) {
+    if (previousIndices == null || nextIndices == null) {
+        return false;
+    }
+
+    for (let indicesIndex = 0; indicesIndex < previousIndices.length; indicesIndex += 1) {
+        const previousIndex = previousIndices[indicesIndex];
+        const nextIndex = nextIndices[indicesIndex];
+
+        const previousColumn = previousColumns[previousIndex];
+        const nextColumn = nextColumns[nextIndex];
+
+        const previousValue = previousColumn[previousDatumIndex];
+        const nextValue = nextColumn[nextDatumIndex];
+
+        if (previousValue !== nextValue) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 export function diff(
     id: string,
     previousData: ProcessedData<any>,
@@ -494,11 +525,17 @@ export function diff(
     return {
         type: 'processor',
         property: 'diff',
-        calculate: (processedData) => {
-            const moved = new Map<string, any>();
-            const added = new Map<string, any>();
-            const updated = new Map<string, any>();
-            const removed = new Map<string, any>();
+        calculate(processedData): ProcessedOutputDiff | undefined {
+            const moved = new Map<string, number>();
+            const added = new Map<string, number>();
+            const updated = new Map<string, number>();
+            const removed = new Map<string, number>();
+
+            const previousKeys = previousData.keys;
+            const keys = processedData.keys;
+
+            const previousColumns = previousData.columns;
+            const columns = processedData.columns;
 
             const indices = valueIndices(id, previousData, processedData);
             if (indices == null) return;
@@ -508,43 +545,82 @@ export function diff(
             const length = Math.max(previousData.data.length, processedData.data.length);
 
             for (let i = 0; i < length; i++) {
+                const hasPreviousDatum = i < previousData.rawData.length;
+                const hasDatum = i < processedData.rawData.length;
                 const prev = previousData.data[i];
                 const datum = processedData.data[i];
 
-                const prevId = prev ? createDatumId(prev.keys) : '';
-                const datumId = datum ? createDatumId(datum.keys) : '';
+                let prevId: string;
+                if (previousKeys != null) {
+                    prevId = createDatumId(previousKeys[i]);
+                } else {
+                    prevId = prev ? createDatumId(prev.keys) : '';
+                }
+                let datumId: string;
+                if (keys != null) {
+                    datumId = createDatumId(keys[i]);
+                } else {
+                    datumId = datum ? createDatumId(datum.keys) : '';
+                }
 
-                if (datum && prev && prevId === datumId) {
-                    if (!valuesEqual(prev.values, datum.values, prevIndices, nextIndices)) {
-                        updated.set(datumId, datum);
+                if (hasDatum && hasPreviousDatum && prevId === datumId) {
+                    const eq =
+                        previousColumns != null && columns != null
+                            ? columnsEqual(previousColumns, columns, prevIndices, nextIndices, i, i)
+                            : valuesEqual(prev.values, datum.values, prevIndices, nextIndices);
+                    if (!eq) {
+                        updated.set(datumId, i);
                     }
                     continue;
                 }
 
-                if (removed.has(datumId)) {
-                    if (updateMovedData || !arraysEqual(removed.get(datumId).values, datum.values)) {
-                        updated.set(datumId, datum);
-                        moved.set(datumId, datum);
+                const removedIndex = removed.get(datumId);
+                if (removedIndex != null) {
+                    // @todo(AG-XXXX) tidy up after removing .values
+                    const eq =
+                        previousColumns != null && columns != null
+                            ? columnsEqual(previousColumns, columns, prevIndices, nextIndices, removedIndex, i)
+                            : valuesEqual(
+                                  previousData.data[removedIndex].values,
+                                  datum.values,
+                                  prevIndices,
+                                  nextIndices
+                              );
+                    if (updateMovedData || !eq) {
+                        updated.set(datumId, i);
+                        moved.set(datumId, i);
                     }
                     removed.delete(datumId);
-                } else if (datum) {
-                    added.set(datumId, datum);
+                } else if (hasDatum) {
+                    added.set(datumId, i);
                 }
 
-                if (added.has(prevId)) {
-                    if (updateMovedData || !arraysEqual(added.get(prevId).values, prev.values)) {
-                        updated.set(prevId, prev);
-                        moved.set(prevId, prev);
+                const addedIndex = added.get(prevId);
+                if (addedIndex != null) {
+                    // @todo(AG-XXXX) tidy up after removing .values
+                    const eq =
+                        previousColumns != null && columns != null
+                            ? columnsEqual(previousColumns, columns, prevIndices, nextIndices, addedIndex, i)
+                            : valuesEqual(previousData.data[addedIndex].values, datum.values, prevIndices, nextIndices);
+                    if (updateMovedData || !eq) {
+                        updated.set(prevId, i);
+                        moved.set(prevId, i);
                     }
                     added.delete(prevId);
-                } else if (prev) {
+                } else if (hasPreviousDatum) {
                     updated.delete(prevId);
-                    removed.set(prevId, prev);
+                    removed.set(prevId, i);
                 }
             }
 
             const changed = added.size > 0 || updated.size > 0 || removed.size > 0;
-            return { changed, added, updated, removed, moved };
+            return {
+                changed,
+                added: new Set(added.keys()),
+                updated: new Set(updated.keys()),
+                removed: new Set(removed.keys()),
+                moved: new Set(moved.keys()),
+            };
         },
     };
 }

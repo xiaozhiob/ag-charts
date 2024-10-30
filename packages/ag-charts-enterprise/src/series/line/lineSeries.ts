@@ -33,10 +33,10 @@ export class LineSeries extends _ModuleSupport.LineSeries {
         const xAxis = this.axes[ChartAxisDirection.X];
         if (xAxis == null || !ContinuousScale.is(xAxis.scale)) return;
 
+        const xValues = dataModel.resolveColumnById(this, `xValue`, processedData);
+        const yValues = dataModel.resolveColumnById(this, `yValueRaw`, processedData);
         const domain = dataModel.getDomain(this, `xValue`, 'value', processedData);
-        const xIdx = dataModel.resolveProcessedDataIndexById(this, `xValue`);
-        const yIdx = dataModel.resolveProcessedDataIndexById(this, `yValueRaw`);
 
-        return aggregateData(processedData, domain, xIdx, yIdx);
+        return aggregateData(xValues, yValues, domain);
     }
 }
