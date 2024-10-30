@@ -95,7 +95,7 @@ export class AgChartInstanceProxy implements AgChartProxy {
 
     getOptions() {
         const options = deepClone(this.chart.getOptions());
-        for (const key in options) {
+        for (const key of Object.keys(options)) {
             if (key.startsWith('_')) {
                 delete (options as any)[key];
             }

@@ -5,10 +5,10 @@ import type { Intersection, PlainObject } from './types';
 type FalsyType = false | null | undefined;
 
 export function objectEqualWith<T extends PlainObject>(a: T, b: T, cmp: (a: T, b: T) => boolean): boolean {
-    for (const key in b) {
+    for (const key of Object.keys(b)) {
         if (!(key in a)) return false;
     }
-    for (const key in a) {
+    for (const key of Object.keys(a)) {
         if (!(key in b)) return false;
         if (!cmp(a[key], b[key])) return false;
     }

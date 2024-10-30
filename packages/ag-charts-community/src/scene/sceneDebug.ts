@@ -170,7 +170,7 @@ const allowedProperties = new Set([
 
 function nodeProps(node: Node) {
     const { ...allProps } = node as any;
-    for (const prop in allProps) {
+    for (const prop of Object.keys(allProps)) {
         if (allowedProperties.has(prop)) continue;
         if (typeof allProps[prop] === 'number') continue;
         if (typeof allProps[prop] === 'string') continue;
