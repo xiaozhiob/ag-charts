@@ -28,7 +28,6 @@ import { ActionOnSet, ProxyProperty } from '../util/proxy';
 import { debouncedCallback } from '../util/render';
 import { isDefined, isFiniteNumber, isFunction } from '../util/type-guards';
 import { BOOLEAN, OBJECT, UNION, Validate } from '../util/validation';
-import { CartesianAxis } from './axis/cartesianAxis';
 import { Caption } from './caption';
 import type { ChartAnimationPhase } from './chartAnimationPhase';
 import type { ChartAxis } from './chartAxis';

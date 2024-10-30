@@ -1214,6 +1214,10 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
         return this.axisGroup.getBBox();
     }
 
+    getRegionNode(): Node | undefined {
+        return undefined;
+    }
+
     initCrossLine(crossLine: CrossLine) {
         crossLine.scale = this.scale;
         crossLine.gridLength = this.gridLength;
