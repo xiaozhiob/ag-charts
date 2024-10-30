@@ -14,12 +14,12 @@ export class LineSeries extends _ModuleSupport.LineSeries {
     ): [number, number] {
         let start = findMinValue(0, length - 1, (index) => {
             const x = xFor(index);
-            return x > x0 ? index : undefined;
+            return !Number.isFinite(x) || x > x0 ? index : undefined;
         });
         start = Math.max((start ?? 0) - 1, 0);
         let end = findMaxValue(0, length - 1, (index) => {
             const x = xFor(index);
-            return x < x1 ? index : undefined;
+            return !Number.isFinite(x) || x < x1 ? index : undefined;
         });
         // Two points needed over end so the spans draw correctly
         end = Math.min((end ?? length) + 2, length);
@@ -30,6 +30,8 @@ export class LineSeries extends _ModuleSupport.LineSeries {
         dataModel: _ModuleSupport.DataModel<any, any, false>,
         processedData: _ModuleSupport.UngroupedData<any>
     ) {
+        if (processedData.rawData.length === 0) return;
+
         const xAxis = this.axes[ChartAxisDirection.X];
         if (xAxis == null || !ContinuousScale.is(xAxis.scale)) return;
 

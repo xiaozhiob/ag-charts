@@ -203,8 +203,6 @@ export class LineSeries extends CartesianSeries<
             doNotFormatIntoRows: stackCount <= 1,
         });
 
-        console.log(processedData);
-
         this.dataAggregationFilters = this.aggregateData(dataModel, processedData as any as UngroupedData<any>);
 
         this.animationState.transition('updateData');
@@ -253,7 +251,7 @@ export class LineSeries extends CartesianSeries<
         const xAxis = axes[ChartAxisDirection.X];
         const yAxis = axes[ChartAxisDirection.Y];
 
-        if (!processedData || !dataModel || !xAxis || !yAxis) {
+        if (!dataModel || !processedData || processedData.rawData.length === 0 || !xAxis || !yAxis) {
             return;
         }
 
@@ -299,9 +297,9 @@ export class LineSeries extends CartesianSeries<
             const x = xScale.convert(xDatum) + xOffset;
             const y = yScale.convert(yCumulativeDatum) + yOffset;
 
-            const validDatum = yDatum != null && Number.isFinite(x);
+            if (!Number.isFinite(x)) return;
 
-            if (validDatum) {
+            if (yDatum != null) {
                 const labelText = label.enabled
                     ? this.getLabelText(label, {
                           value: yDatum,
@@ -337,7 +335,7 @@ export class LineSeries extends CartesianSeries<
 
             const currentSpanPoints: LineSpanPointDatum[] | { skip: number } | undefined =
                 spanPoints[spanPoints.length - 1];
-            if (validDatum) {
+            if (yDatum != null) {
                 const spanPoint: LineSpanPointDatum = {
                     point: { x, y },
                     xDatum,

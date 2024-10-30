@@ -620,7 +620,7 @@ export class DataModel<
                         column[datumIdx] = value !== INVALID_VALUE ? value : NaN;
                     }
 
-                    if (value === INVALID_VALUE || !values) continue;
+                    if (value === INVALID_VALUE) continue;
 
                     if (source != null && def.includeProperty !== false) {
                         const property = def.includeProperty && def.id != null ? def.id : def.property;
@@ -628,7 +628,9 @@ export class DataModel<
                         sourceDatums[scope][property] = value;
                     }
 
-                    values[valueDefIdx] = value;
+                    if (values != null) {
+                        values[valueDefIdx] = value;
+                    }
                 }
 
                 if (value === INVALID_VALUE) {

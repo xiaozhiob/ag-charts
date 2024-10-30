@@ -298,6 +298,10 @@ export function animationValidation(valueKeyIds?: string[]): ProcessorOutputProp
             let uniqueKeys = true;
             let orderedKeys = true;
 
+            if (rawData.length === 0) {
+                return { uniqueKeys, orderedKeys };
+            }
+
             const valueKeys: [number, DatumPropertyDefinition<unknown>][] = [];
             for (let k = 0; k < values.length; k++) {
                 if (!valueKeyIds?.includes(values[k].id as string)) continue;
@@ -542,13 +546,16 @@ export function diff(
 
             const { prevIndices, nextIndices } = indices;
 
-            const length = Math.max(previousData.data.length, processedData.data.length);
+            const length =
+                columns != null
+                    ? Math.max(previousData.rawData.length, processedData.rawData.length)
+                    : Math.max(previousData.data.length, processedData.data.length);
 
             for (let i = 0; i < length; i++) {
-                const hasPreviousDatum = i < previousData.rawData.length;
-                const hasDatum = i < processedData.rawData.length;
-                const prev = previousData.data[i];
-                const datum = processedData.data[i];
+                const prev = previousData.data?.[i];
+                const datum = processedData.data?.[i];
+                const hasPreviousDatum = previousColumns != null ? i < previousData.rawData.length : prev != null;
+                const hasDatum = columns != null ? i < processedData.rawData.length : datum != null;
 
                 let prevId: string;
                 if (previousKeys != null) {
@@ -601,7 +608,7 @@ export function diff(
                     const eq =
                         previousColumns != null && columns != null
                             ? columnsEqual(previousColumns, columns, prevIndices, nextIndices, addedIndex, i)
-                            : valuesEqual(previousData.data[addedIndex].values, datum.values, prevIndices, nextIndices);
+                            : valuesEqual(previousData.data[addedIndex].values, prev.values, prevIndices, nextIndices);
                     if (updateMovedData || !eq) {
                         updated.set(prevId, i);
                         moved.set(prevId, i);
