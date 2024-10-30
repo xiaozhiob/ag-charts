@@ -1214,10 +1214,6 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
         return this.axisGroup.getBBox();
     }
 
-    getRegionNode(): Node | undefined {
-        return undefined;
-    }
-
     initCrossLine(crossLine: CrossLine) {
         crossLine.scale = this.scale;
         crossLine.gridLength = this.gridLength;
@@ -1285,8 +1281,7 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
             direction: this.direction,
             continuous: ContinuousScale.is(scale) || OrdinalTimeScale.is(scale),
             getCanvasBounds: () => {
-                const node = this.getRegionNode();
-                return node ? Transformable.toCanvas(node) : undefined;
+                return Transformable.toCanvas(this.axisGroup);
             },
             seriesKeyProperties: () =>
                 this.boundSeries.reduce((keys, series) => {
