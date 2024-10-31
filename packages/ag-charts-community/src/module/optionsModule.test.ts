@@ -380,8 +380,14 @@ const ENABLED_FALSE_OPTIONS: AgCartesianChartOptions = {
     navigator: {
         enabled: false,
         height: 229,
-        min: 0.5,
-        max: 0.8,
+    },
+    initialState: {
+        zoom: {
+            ratioX: {
+                start: 0.5,
+                end: 0.8,
+            },
+        },
     },
 };
 
