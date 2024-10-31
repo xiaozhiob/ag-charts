@@ -277,9 +277,9 @@ export class LineSeries extends CartesianSeries<
         const { rawData } = processedData;
         const xValues = dataModel.resolveColumnById(this, `xValue`, processedData);
         const yValues = dataModel.resolveColumnById(this, `yValueRaw`, processedData);
-        const yEndValues = stacked ? dataModel.resolveColumnById(this, `yValueEnd`, processedData) : undefined;
+        const yEndValues = stacked ? dataModel.resolveColumnById<number>(this, `yValueEnd`, processedData) : undefined;
         const yCumulativeValues = stacked
-            ? dataModel.resolveColumnById(this, `yValueCumulative`, processedData)
+            ? dataModel.resolveColumnById<number>(this, `yValueCumulative`, processedData)
             : yValues;
         const selectionValues =
             yFilterKey != null ? dataModel.resolveColumnById(this, `yFilterRaw`, processedData) : undefined;

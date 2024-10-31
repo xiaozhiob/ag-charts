@@ -322,30 +322,30 @@ export class DonutSeries extends PolarSeries<DonutNodeDatum, DonutSeriesProperti
     }
 
     private getProcessedDataValues(dataModel: DataModel<any>, processedData: ProcessedData<any>) {
-        const angleValues = dataModel.resolveColumnById(this, `angleValue`, processedData);
-        const angleRawValues = dataModel.resolveColumnById(this, `angleRaw`, processedData);
+        const angleValues = dataModel.resolveColumnById<number>(this, `angleValue`, processedData);
+        const angleRawValues = dataModel.resolveColumnById<number>(this, `angleRaw`, processedData);
         const angleFilterValues =
             this.properties.angleFilterKey != null
-                ? dataModel.resolveColumnById(this, `angleFilterValue`, processedData)
+                ? dataModel.resolveColumnById<number>(this, `angleFilterValue`, processedData)
                 : undefined;
         const angleFilterRawValues =
             this.properties.angleFilterKey != null
-                ? dataModel.resolveColumnById(this, `angleFilterRaw`, processedData)
+                ? dataModel.resolveColumnById<number>(this, `angleFilterRaw`, processedData)
                 : undefined;
         const radiusValues = this.properties.radiusKey
-            ? dataModel.resolveColumnById(this, `radiusValue`, processedData)
+            ? dataModel.resolveColumnById<number>(this, `radiusValue`, processedData)
             : undefined;
         const radiusRawValues = this.properties.radiusKey
-            ? dataModel.resolveColumnById(this, `radiusRaw`, processedData)
+            ? dataModel.resolveColumnById<number>(this, `radiusRaw`, processedData)
             : undefined;
         const calloutLabelValues = this.properties.calloutLabelKey
-            ? dataModel.resolveColumnById(this, `calloutLabelValue`, processedData)
+            ? dataModel.resolveColumnById<string>(this, `calloutLabelValue`, processedData)
             : undefined;
         const sectorLabelValues = this.properties.sectorLabelKey
-            ? dataModel.resolveColumnById(this, `sectorLabelValue`, processedData)
+            ? dataModel.resolveColumnById<string>(this, `sectorLabelValue`, processedData)
             : undefined;
         const legendItemValues = this.properties.legendItemKey
-            ? dataModel.resolveColumnById(this, `legendItemValue`, processedData)
+            ? dataModel.resolveColumnById<string>(this, `legendItemValue`, processedData)
             : undefined;
 
         return {
@@ -477,8 +477,8 @@ export class DonutSeries extends PolarSeries<DonutNodeDatum, DonutSeriesProperti
         midAngle: number,
         span: number,
         skipDisabled: boolean,
-        calloutLabelValue: string,
-        sectorLabelValue: string,
+        calloutLabelValue?: string,
+        sectorLabelValue?: string,
         legendItemValue?: string
     ) {
         const { calloutLabel, sectorLabel, legendItemKey } = this.properties;
@@ -1518,10 +1518,13 @@ export class DonutSeries extends PolarSeries<DonutNodeDatum, DonutSeriesProperti
             return;
         }
 
-        const legendItemIdx = this.dataModel.resolveProcessedDataIndexById(this, `legendItemValue`);
-        this.processedData?.data.forEach(({ values }, datumItemId) => {
-            if (values[legendItemIdx] === legendItemName) {
-                this.toggleSeriesItem(datumItemId, enabled);
+        const { processedData } = this;
+        if (!processedData?.rawData.length) return;
+
+        const legendItemValues = this.dataModel.resolveColumnById(this, `legendItemValue`, processedData);
+        legendItemValues.forEach((value, datumIndex) => {
+            if (value === legendItemName) {
+                this.toggleSeriesItem(datumIndex, enabled);
             }
         });
     }

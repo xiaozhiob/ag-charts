@@ -412,7 +412,11 @@ export class DataModel<
         return searchIds.map((searchId) => [searchId, this.resolveProcessedDataDefById(scope, searchId)]);
     }
 
-    resolveColumnById(scope: ScopeProvider, searchId: string, processedData: UngroupedData<any> | GroupedData<any>) {
+    resolveColumnById<T = any>(
+        scope: ScopeProvider,
+        searchId: string,
+        processedData: UngroupedData<any> | GroupedData<any>
+    ): T[] {
         const index = this.resolveProcessedDataIndexById(scope, searchId);
         const column = processedData.columns?.[index];
         if (column == null) {

@@ -140,9 +140,9 @@ export class ScatterSeries extends CartesianSeries<Group, ScatterSeriesPropertie
         const xDataValues = dataModel.resolveColumnById(this, `xValue`, processedData);
         const yDataValues = dataModel.resolveColumnById(this, `yValue`, processedData);
         const colorDataValues =
-            colorKey != null ? dataModel.resolveColumnById(this, `colorValue`, processedData) : undefined;
+            colorKey != null ? dataModel.resolveColumnById<number>(this, `colorValue`, processedData) : undefined;
         const labelDataValues =
-            labelKey != null ? dataModel.resolveColumnById(this, `labelValue`, processedData) : undefined;
+            labelKey != null ? dataModel.resolveColumnById<string>(this, `labelValue`, processedData) : undefined;
         const xFilterDataValues =
             xFilterKey != null ? dataModel.resolveColumnById(this, `xFilterValue`, processedData) : undefined;
         const yFilterDataValues =

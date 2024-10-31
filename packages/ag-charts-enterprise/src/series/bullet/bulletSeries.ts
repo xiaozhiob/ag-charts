@@ -121,6 +121,8 @@ export class BulletSeries extends _ModuleSupport.AbstractBarSeries<
                 ...extraProps,
             ],
             groupByKeys: true,
+            formatIntoColumns: true,
+            doNotFormatIntoRows: true,
         });
 
         this.animationState.transition('updateData');
@@ -171,13 +173,14 @@ export class BulletSeries extends _ModuleSupport.AbstractBarSeries<
         } = this.properties;
         const xScale = this.getCategoryAxis()?.scale;
         const yScale = this.getValueAxis()?.scale;
-        if (!valueKey || !dataModel || !processedData || !xScale || !yScale) return;
+        if (!valueKey || !dataModel || !processedData?.rawData.length || !xScale || !yScale) return;
         if (widthRatio === undefined || lengthRatio === undefined) return;
 
         const multiplier = xScale.bandwidth ?? NaN;
         const maxValue = this.getMaxValue();
-        const valueIndex = dataModel.resolveProcessedDataIndexById(this, 'value');
-        const targetIndex = targetKey === undefined ? NaN : dataModel.resolveProcessedDataIndexById(this, 'target');
+        const values = dataModel.resolveColumnById<number>(this, 'value', processedData);
+        const targets =
+            targetKey === undefined ? undefined : dataModel.resolveColumnById(this, 'target', processedData);
         const context: _ModuleSupport.CartesianSeriesNodeDataContext<BulletNodeDatum> = {
             itemId: valueKey,
             nodeData: [],
@@ -187,17 +190,20 @@ export class BulletSeries extends _ModuleSupport.AbstractBarSeries<
         };
         if (!this.visible) return context;
 
-        for (const { datum, values } of processedData.data) {
+        for (const group of processedData.data) {
+            const datumIndex = (group.index as number[])[0];
+            const datum = processedData.rawData[datumIndex];
+
             if (!Array.isArray(datum) || datum.length < 1) {
                 continue;
             }
 
-            if (values[0][valueIndex] < 0) {
+            if (values[datumIndex] < 0) {
                 _Util.Logger.warnOnce('negative values are not supported, clipping to 0.');
             }
 
             const xValue = this.properties.valueName ?? this.properties.valueKey;
-            const yValue = Math.min(maxValue, Math.max(0, values[0][valueIndex]));
+            const yValue = Math.min(maxValue, Math.max(0, values[datumIndex]));
             const y = yScale.convert(yValue);
             const barWidth = widthRatio * multiplier;
             const bottomY = yScale.convert(0);
@@ -213,13 +219,13 @@ export class BulletSeries extends _ModuleSupport.AbstractBarSeries<
             }
 
             let target;
-            if (values[0][targetIndex] < 0) {
+            if (targets?.[datumIndex] < 0) {
                 _Util.Logger.warnOnce('negative targets are not supported, ignoring.');
             }
 
-            if (this.properties.targetKey && values[0][targetIndex] >= 0) {
+            if (this.properties.targetKey && targets?.[datumIndex] >= 0) {
                 const targetLineLength = lengthRatio * multiplier;
-                const targetValue = Math.min(maxValue, values[0][targetIndex]);
+                const targetValue = Math.min(maxValue, targets?.[datumIndex]);
                 if (!isNaN(targetValue) && targetValue !== undefined) {
                     const convertedY = yScale.convert(targetValue);
                     let x1 = (multiplier * (1.0 - lengthRatio)) / 2;

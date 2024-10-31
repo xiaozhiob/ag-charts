@@ -177,9 +177,9 @@ export class BubbleSeries extends CartesianSeries<Group, BubbleSeriesProperties,
         const xDataValues = dataModel.resolveColumnById(this, `xValue`, processedData);
         const yDataValues = dataModel.resolveColumnById(this, `yValue`, processedData);
         const sizeDataValues =
-            sizeKey != null ? dataModel.resolveColumnById(this, `sizeValue`, processedData) : undefined;
+            sizeKey != null ? dataModel.resolveColumnById<number>(this, `sizeValue`, processedData) : undefined;
         const colorDataValues =
-            colorKey != null ? dataModel.resolveColumnById(this, `colorValue`, processedData) : undefined;
+            colorKey != null ? dataModel.resolveColumnById<number>(this, `colorValue`, processedData) : undefined;
         const labelDataValues =
             labelKey != null ? dataModel.resolveColumnById(this, `labelValue`, processedData) : undefined;
         const xFilterDataValues =
@@ -187,7 +187,9 @@ export class BubbleSeries extends CartesianSeries<Group, BubbleSeriesProperties,
         const yFilterDataValues =
             yFilterKey != null ? dataModel.resolveColumnById(this, `yFilterValue`, processedData) : undefined;
         const sizeFilterDataValues =
-            sizeFilterKey != null ? dataModel.resolveColumnById(this, `sizeFilterValue`, processedData) : undefined;
+            sizeFilterKey != null
+                ? dataModel.resolveColumnById<number>(this, `sizeFilterValue`, processedData)
+                : undefined;
 
         const xScale = xAxis.scale;
         const yScale = yAxis.scale;
@@ -229,7 +231,7 @@ export class BubbleSeries extends CartesianSeries<Group, BubbleSeriesProperties,
             });
 
             const size = textMeasurer.measureText(String(labelText));
-            const markerSize = sizeValue ? sizeScale.convert(sizeValue) : marker.size;
+            const markerSize = sizeValue != null ? sizeScale.convert(sizeValue) : marker.size;
             const fill = colorDataValues != null ? colorScale.convert(colorDataValues[datumIndex]) : undefined;
 
             nodeData.push({

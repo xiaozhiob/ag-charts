@@ -292,7 +292,7 @@ export class AreaSeries extends CartesianSeries<
         const yCumulativeValues = dataModel.resolveColumnById(this, `yValueCumulative`, processedData);
         const yFilterValues =
             yFilterKey != null ? dataModel.resolveColumnById(this, 'yFilterRaw', processedData) : undefined;
-        const yStackValues = dataModel.resolveColumnById(this, 'yValueStack', processedData);
+        const yStackValues = dataModel.resolveColumnById<number[]>(this, 'yValueStack', processedData);
 
         const createMarkerCoordinate = (xDatum: any, yEnd: number, rawYDatum: any): SizedPoint => {
             let currY;
@@ -410,16 +410,15 @@ export class AreaSeries extends CartesianSeries<
 
             for (const datumIndex of dataIndices) {
                 const xDatum = xValues[datumIndex][xIndex];
-                const yValueStack: number[] = yStackValues[datumIndex];
+                const yValueStack = yStackValues[datumIndex];
                 const yDatum = yValueStack[index];
 
                 const yDatumIsFinite = Number.isFinite(yDatum);
 
                 if (connectMissingData && !yDatumIsFinite) continue;
 
-                const lastYValueStack: number[] | undefined =
-                    datumIndex > 0 ? yStackValues[dataIndices[datumIndex - 1]] : undefined;
-                const nextYValueStack: number[] | undefined =
+                const lastYValueStack = datumIndex > 0 ? yStackValues[dataIndices[datumIndex - 1]] : undefined;
+                const nextYValueStack =
                     datumIndex < dataIndices.length - 1 ? yStackValues[dataIndices[datumIndex + 1]] : undefined;
 
                 let yValueEndBackwards = 0;
