@@ -45,8 +45,7 @@ export class FocusSwapChain {
 
         this.activeAnnouncer = this.createAnnouncer(announcerRole);
         this.inactiveAnnouncer = this.createAnnouncer(announcerRole);
-        this.activeAnnouncer.dataset['id'] = '1';
-        this.inactiveAnnouncer.dataset['id'] = '2';
+        setAttribute(this.activeAnnouncer, 'tabindex', 0);
 
         this.label2.insertAdjacentElement('afterend', this.activeAnnouncer);
         this.label2.insertAdjacentElement('afterend', this.inactiveAnnouncer);
@@ -59,10 +58,6 @@ export class FocusSwapChain {
             announcer.removeEventListener('focus', this.onFocus);
             announcer.remove();
         }
-    }
-
-    setTabIndex(tabIndex: 0 | -1) {
-        this.activeAnnouncer.tabIndex = tabIndex;
     }
 
     resizeContainer(dims: { width: number; height: number }) {
