@@ -151,6 +151,8 @@ export class RangeBarSeries extends _ModuleSupport.AbstractBarSeries<
                 ...extraProps,
             ],
             groupByKeys: true,
+            formatIntoColumns: true,
+            doNotFormatIntoRows: false,
         });
 
         this.smallestDataInterval = processedData.reduced?.smallestKeyInterval;
@@ -198,7 +200,7 @@ export class RangeBarSeries extends _ModuleSupport.AbstractBarSeries<
         const xAxis = this.getCategoryAxis();
         const yAxis = this.getValueAxis();
 
-        if (!(data && xAxis && yAxis && dataModel)) {
+        if (!(data && xAxis && yAxis && dataModel && processedData != null && processedData.rawData.length > 0)) {
             return;
         }
 
@@ -219,19 +221,24 @@ export class RangeBarSeries extends _ModuleSupport.AbstractBarSeries<
         };
         if (!visible) return context;
 
-        const yLowIndex = dataModel.resolveProcessedDataIndexById(this, `yLowValue`);
-        const yHighIndex = dataModel.resolveProcessedDataIndexById(this, `yHighValue`);
+        const { rawData } = processedData;
+        const keys = processedData.keys!;
         const xIndex = dataModel.resolveProcessedDataIndexById(this, `xValue`);
+        const yLowValues = dataModel.resolveColumnById(this, `yLowValue`, processedData);
+        const yHighValues = dataModel.resolveColumnById(this, `yHighValue`, processedData);
 
         const { barWidth, groupIndex } = this.updateGroupScale(xAxis);
         const barOffset = ContinuousScale.is(xScale) ? barWidth * -0.5 : 0;
-        processedData?.data.forEach(({ keys, datum, values }, dataIndex) => {
-            values.forEach((value, valueIndex) => {
-                const xDatum = keys[xIndex];
+        processedData?.data.forEach((group, groupedDataIndex) => {
+            const indices = group.index as number[];
+
+            indices.forEach((datumIndex) => {
+                const datum = rawData[datumIndex];
+                const xDatum = keys[datumIndex][xIndex];
                 const x = Math.round(xScale.convert(xDatum)) + groupScale.convert(String(groupIndex)) + barOffset;
 
-                const rawLowValue = value[yLowIndex];
-                const rawHighValue = value[yHighIndex];
+                const rawLowValue = yLowValues[datumIndex];
+                const rawHighValue = yHighValues[datumIndex];
 
                 const yLowValue = Math.min(rawLowValue, rawHighValue);
                 const yHighValue = Math.max(rawLowValue, rawHighValue);
@@ -259,16 +266,16 @@ export class RangeBarSeries extends _ModuleSupport.AbstractBarSeries<
                     barAlongX,
                     yLowValue,
                     yHighValue,
-                    datum: datum[valueIndex],
+                    datum: datum,
                     series: this,
                 });
 
                 const nodeDatum: RangeBarNodeDatum = {
-                    index: dataIndex,
-                    valueIndex,
+                    index: groupedDataIndex,
+                    valueIndex: datumIndex,
                     series: this,
                     itemId,
-                    datum: datum[valueIndex],
+                    datum: datum,
                     xValue: xDatum,
                     yLowValue: rawLowValue,
                     yHighValue: rawHighValue,

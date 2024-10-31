@@ -175,6 +175,10 @@ export class RadialBarSeries extends _ModuleSupport.PolarSeries<
                 ),
                 ...extraProps,
             ],
+            formatIntoColumns: false,
+            doNotFormatIntoRows: false,
+            // formatIntoColumns: true,
+            // doNotFormatIntoRows: false,
         });
 
         this.animationState.transition('updateData');
@@ -210,7 +214,7 @@ export class RadialBarSeries extends _ModuleSupport.PolarSeries<
     async createNodeData() {
         const { processedData, dataModel } = this;
 
-        if (!processedData || !dataModel || !this.properties.isValid()) {
+        if (!processedData || !dataModel || processedData.rawData.length === 0 || !this.properties.isValid()) {
             return;
         }
 
@@ -225,8 +229,12 @@ export class RadialBarSeries extends _ModuleSupport.PolarSeries<
 
         const angleStartIndex = dataModel.resolveProcessedDataIndexById(this, `angleValue-start`);
         const angleEndIndex = dataModel.resolveProcessedDataIndexById(this, `angleValue-end`);
-        const angleRangeIndex = dataModel.resolveProcessedDataIndexById(this, `angleValue-range`);
         const angleRawIndex = dataModel.resolveProcessedDataIndexById(this, `angleValue-raw`);
+        // const angleStartValues = dataModel.resolveColumnById(this, `angleValue-start`, processedData);
+        // const angleEndValues = dataModel.resolveColumnById(this, `angleValue-end`, processedData);
+        // const angleRawValues = dataModel.resolveColumnById(this, `angleValue-raw`, processedData);
+
+        const angleRangeIndex = dataModel.resolveProcessedDataIndexById(this, `angleValue-range`);
 
         let groupPaddingInner = 0;
         if (radiusAxis instanceof RadiusCategoryAxis) {
@@ -273,14 +281,22 @@ export class RadialBarSeries extends _ModuleSupport.PolarSeries<
         const context = { itemId: radiusKey, nodeData, labelData: nodeData };
         if (!this.visible) return context;
 
-        processedData.data.forEach((group, index) => {
-            const { datum, keys, values, aggValues } = group;
+        const { rawData } = processedData;
+        processedData.data.forEach((group) => {
+            // const { aggValues } = group;
+            const { keys, values, aggValues } = group;
+            const datumIndex = group.index as number;
+            const datum = rawData[datumIndex];
 
+            // const radiusDatum = keys![datumIndex][0];
+            // const angleDatum = angleRawValues[datumIndex];
+            // const angleStartDatum = angleStartValues[datumIndex];
+            // const angleEndDatum = angleEndValues[datumIndex];
             const radiusDatum = keys[0];
             const angleDatum = values[angleRawIndex];
-            const isPositive = angleDatum >= 0 && !Object.is(angleDatum, -0);
             const angleStartDatum = values[angleStartIndex];
             const angleEndDatum = values[angleEndIndex];
+            const isPositive = angleDatum >= 0 && !Object.is(angleDatum, -0);
             const angleRange = aggValues?.[angleRangeIndex][isPositive ? 1 : 0] ?? 0;
             const reversed = isPositive === angleAxisReversed;
 
@@ -322,7 +338,7 @@ export class RadialBarSeries extends _ModuleSupport.PolarSeries<
                 endAngle: rangeEndAngle,
                 clipSector,
                 reversed,
-                index,
+                index: datumIndex,
             });
         });
 

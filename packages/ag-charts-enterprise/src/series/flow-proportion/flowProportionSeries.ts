@@ -135,6 +135,8 @@ export abstract class FlowProportionSeries<
                               : []),
                       ],
                       groupByKeys: true,
+                      formatIntoColumns: true,
+                      doNotFormatIntoRows: true,
                   })
                 : null;
 

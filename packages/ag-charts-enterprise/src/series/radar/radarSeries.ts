@@ -136,6 +136,8 @@ export abstract class RadarSeries extends _ModuleSupport.PolarSeries<
                 valueProperty(radiusKey, radiusScaleType, { id: 'radiusValue', invalidValue: undefined }),
                 ...extraProps,
             ],
+            formatIntoColumns: true,
+            doNotFormatIntoRows: true,
         });
 
         this.animationState.transition('updateData');
@@ -171,7 +173,7 @@ export abstract class RadarSeries extends _ModuleSupport.PolarSeries<
     async createNodeData() {
         const { processedData, dataModel } = this;
 
-        if (!processedData || !dataModel || !this.properties.isValid()) {
+        if (!processedData || !dataModel || processedData.rawData.length === 0 || !this.properties.isValid()) {
             return;
         }
 
@@ -183,15 +185,13 @@ export abstract class RadarSeries extends _ModuleSupport.PolarSeries<
             return;
         }
 
-        const angleIdx = dataModel.resolveProcessedDataIndexById(this, `angleValue`);
-        const radiusIdx = dataModel.resolveProcessedDataIndexById(this, `radiusValue`);
+        const angleValues = dataModel.resolveColumnById<number | string>(this, `angleValue`, processedData);
+        const radiusValues = dataModel.resolveColumnById<number>(this, `radiusValue`, processedData);
         const axisInnerRadius = this.getAxisInnerRadius();
 
-        const nodeData = processedData.data.map((group): RadarNodeDatum => {
-            const { datum, values } = group;
-
-            const angleDatum = values[angleIdx];
-            const radiusDatum = values[radiusIdx];
+        const nodeData = processedData.rawData.map((datum, datumIndex): RadarNodeDatum => {
+            const angleDatum = angleValues[datumIndex];
+            const radiusDatum = radiusValues[datumIndex];
 
             const angle = angleScale.convert(angleDatum);
             const radius = this.radius + axisInnerRadius - radiusScale.convert(radiusDatum);

@@ -533,7 +533,11 @@ export class Annotations extends _ModuleSupport.BaseModuleInstance implements _M
             valueProperty(this.volumeKey, 'number', { id: 'volume' }),
         ];
 
-        const { dataModel, processedData } = await dataController.request('annotations', this.data, { props });
+        const { dataModel, processedData } = await dataController.request('annotations', this.data, {
+            props,
+            formatIntoColumns: false,
+            doNotFormatIntoRows: false,
+        });
         this.dataModel = dataModel;
         this.processedData = processedData;
     }

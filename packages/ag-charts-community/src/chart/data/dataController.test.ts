@@ -13,7 +13,7 @@ describe('DataController', () => {
     });
 
     it('should merge compatible requests with identical definitions', async () => {
-        const def = {
+        const def: DataModelOptions<any, any> = {
             props: [
                 {
                     id: 'keyProp1-key',
@@ -27,6 +27,8 @@ describe('DataController', () => {
                     valueType: 'range' as const,
                 },
             ],
+            formatIntoColumns: false,
+            doNotFormatIntoRows: false,
         };
         const promise1 = controller.request('test1', data, def);
         const promise2 = controller.request('test2', data, def);
@@ -54,6 +56,8 @@ describe('DataController', () => {
                     valueType: 'range',
                 },
             ],
+            formatIntoColumns: false,
+            doNotFormatIntoRows: false,
         });
 
         const promise2 = controller.request('test2', data, {
@@ -70,6 +74,8 @@ describe('DataController', () => {
                     valueType: 'range',
                 },
             ],
+            formatIntoColumns: false,
+            doNotFormatIntoRows: false,
         });
 
         await controller.execute();
@@ -95,6 +101,8 @@ describe('DataController', () => {
                     valueType: 'range',
                 },
             ],
+            formatIntoColumns: false,
+            doNotFormatIntoRows: false,
         });
 
         const promise2 = controller.request('test2', data, {
@@ -111,6 +119,8 @@ describe('DataController', () => {
                     valueType: 'range',
                 },
             ],
+            formatIntoColumns: false,
+            doNotFormatIntoRows: false,
         });
 
         await controller.execute();
@@ -148,6 +158,8 @@ describe('DataController', () => {
                     valueType: 'range',
                 },
             ],
+            formatIntoColumns: false,
+            doNotFormatIntoRows: false,
         });
 
         const promise2 = controller.request('test2', data, {
@@ -174,6 +186,8 @@ describe('DataController', () => {
                     valueType: 'range',
                 },
             ],
+            formatIntoColumns: false,
+            doNotFormatIntoRows: false,
         });
 
         await controller.execute();
@@ -245,6 +259,8 @@ describe('DataController', () => {
                     valueType: 'range',
                 },
             ],
+            formatIntoColumns: false,
+            doNotFormatIntoRows: false,
         });
 
         await controller.execute();
@@ -283,6 +299,8 @@ describe('DataController', () => {
                         valueType: 'range',
                     },
                 ],
+                formatIntoColumns: false,
+                doNotFormatIntoRows: false,
             };
 
             const promise1 = controller.request('test1', data1, def);
@@ -328,6 +346,8 @@ describe('DataController', () => {
                         valueType: 'range',
                     },
                 ],
+                formatIntoColumns: false,
+                doNotFormatIntoRows: false,
             });
 
             const promise2 = controller.request('test2', data2, {
@@ -347,6 +367,8 @@ describe('DataController', () => {
                         valueType: 'range',
                     },
                 ],
+                formatIntoColumns: false,
+                doNotFormatIntoRows: false,
             });
 
             await controller.execute();
@@ -382,6 +404,8 @@ describe('DataController', () => {
                         processor: () => (value) => `key2 ${value}`,
                     },
                 ],
+                formatIntoColumns: false,
+                doNotFormatIntoRows: false,
             });
 
             const promise2 = controller.request('test2', data2, {
@@ -403,6 +427,8 @@ describe('DataController', () => {
                         processor: () => (value) => `key2 ${value}`,
                     },
                 ],
+                formatIntoColumns: false,
+                doNotFormatIntoRows: false,
             });
 
             await controller.execute();
@@ -449,6 +475,8 @@ describe('DataController', () => {
                         processor: () => (next: number, total?: number) => next + (total ?? 0),
                     },
                 ],
+                formatIntoColumns: false,
+                doNotFormatIntoRows: false,
             };
 
             const promise1 = controller.request('test1', data1, def);

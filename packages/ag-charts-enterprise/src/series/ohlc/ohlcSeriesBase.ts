@@ -148,6 +148,8 @@ export abstract class OhlcSeriesBase<
                 ...(isContinuousX ? [SMALLEST_KEY_INTERVAL] : []),
                 ...extraProps,
             ],
+            formatIntoColumns: false,
+            doNotFormatIntoRows: false,
         });
 
         this.smallestDataInterval = processedData.reduced?.smallestKeyInterval;

@@ -197,7 +197,12 @@ export class HistogramSeries extends CartesianSeries<Rect, HistogramSeriesProper
             props.push(diff(this.id, this.processedData, false));
         }
 
-        await this.requestDataModel<any>(dataController, this.data, { props, groupByFn });
+        await this.requestDataModel<any>(dataController, this.data, {
+            props,
+            groupByFn,
+            formatIntoColumns: false,
+            doNotFormatIntoRows: false,
+        });
 
         this.animationState.transition('updateData');
     }

@@ -135,8 +135,8 @@ export type DataModelOptions<K, Grouped extends boolean | undefined> = {
     groupByKeys?: Grouped;
     groupByData?: Grouped;
     groupByFn?: GroupByFn;
-    formatIntoColumns?: boolean;
-    doNotFormatIntoRows?: boolean;
+    formatIntoColumns: boolean;
+    doNotFormatIntoRows: boolean;
 };
 
 export type PropertyDefinition<K> =

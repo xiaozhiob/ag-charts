@@ -224,6 +224,8 @@ export abstract class BaseFunnelSeries<
                 ...extraProps,
             ],
             groupByKeys: true,
+            formatIntoColumns: true,
+            doNotFormatIntoRows: false,
         });
 
         this.smallestDataInterval = processedData.reduced?.smallestKeyInterval;
@@ -260,7 +262,7 @@ export abstract class BaseFunnelSeries<
         const xAxis = this.getCategoryAxis();
         const yAxis = this.getValueAxis();
 
-        if (!(data && xAxis && yAxis && dataModel)) {
+        if (!(data && xAxis && yAxis && dataModel && processedData != null && processedData.rawData.length !== 0)) {
             return;
         }
 
@@ -286,7 +288,8 @@ export abstract class BaseFunnelSeries<
         if (!isVisible) return context;
 
         const xIndex = dataModel.resolveProcessedDataIndexById(this, `xValue`);
-        const yIndex = dataModel.resolveProcessedDataIndexById(this, `yValue`);
+        const xValues = processedData.keys;
+        const yValues = dataModel.resolveColumnById(this, `yValue`, processedData);
 
         const { barWidth, groupIndex } = this.updateGroupScale(xAxis);
         const barOffset = ContinuousScale.is(xScale) ? barWidth * -0.5 : 0;
@@ -298,14 +301,16 @@ export abstract class BaseFunnelSeries<
             stroke: string;
         }
         let previousConnection: ConnectorConfig | undefined;
-        processedData?.data.forEach(({ keys, datum, values }, dataIndex) => {
-            values.forEach((value, valueIndex) => {
+        const { rawData } = processedData;
+        processedData.data.forEach(({ index }, dataIndex) => {
+            (index as number[]).forEach((datumIndex, valueIndex) => {
+                const datum = rawData[datumIndex];
                 const visible = isVisible && seriesItemEnabled[dataIndex];
 
-                const xDatum = keys[xIndex];
+                const xDatum = xValues![datumIndex][xIndex];
                 const x = Math.round(xScale.convert(xDatum)) + groupScale.convert(String(groupIndex)) + barOffset;
 
-                const yDatum = value[yIndex];
+                const yDatum = yValues[datumIndex];
                 const yNegative = Math.round(yScale.convert(-yDatum));
                 const yPositive = Math.round(yScale.convert(yDatum));
 
@@ -327,7 +332,7 @@ export abstract class BaseFunnelSeries<
                     rect,
                     barAlongX,
                     yDatum,
-                    datum: datum[valueIndex],
+                    datum,
                     visible,
                 });
 
@@ -339,7 +344,7 @@ export abstract class BaseFunnelSeries<
                     valueIndex,
                     series: this,
                     itemId,
-                    datum: datum[valueIndex],
+                    datum,
                     xValue: xDatum,
                     yValue: yDatum,
                     xKey: stageKey,
@@ -602,7 +607,7 @@ export abstract class BaseFunnelSeries<
 
         if (
             !dataModel ||
-            !processedData?.data.length ||
+            !processedData?.rawData.length ||
             legendType !== 'category' ||
             !this.properties.isValid() ||
             !this.properties.showInLegend
@@ -614,24 +619,27 @@ export abstract class BaseFunnelSeries<
         const { fills, strokes, visible } = this.properties;
 
         const legendData: _ModuleSupport.CategoryLegendDatum[] = [];
+        const keys = processedData.keys!;
         const stageIdx = dataModel.resolveProcessedDataIndexById(this, `xValue`);
 
-        for (let index = 0; index < processedData.data.length; index++) {
-            const { keys } = processedData.data[index];
+        for (const group of processedData.data) {
+            const indices = group.index as number[];
 
-            const stageValue: string = keys[stageIdx];
-            const fill = fills[index % fills.length] ?? 'black';
-            const stroke = strokes[index % strokes.length] ?? 'black';
+            for (const datumIndex of indices) {
+                const stageValue = keys[datumIndex][stageIdx];
+                const fill = fills[datumIndex % fills.length] ?? 'black';
+                const stroke = strokes[datumIndex % strokes.length] ?? 'black';
 
-            legendData.push({
-                legendType: 'category',
-                id,
-                itemId: index,
-                seriesId: id,
-                enabled: visible && legendItemEnabled[index],
-                label: { text: stageValue },
-                symbols: [{ marker: { fill, fillOpacity, stroke, strokeWidth, strokeOpacity } }],
-            });
+                legendData.push({
+                    legendType: 'category',
+                    id,
+                    itemId: datumIndex,
+                    seriesId: id,
+                    enabled: visible && legendItemEnabled[datumIndex],
+                    label: { text: stageValue },
+                    symbols: [{ marker: { fill, fillOpacity, stroke, strokeWidth, strokeOpacity } }],
+                });
+            }
         }
 
         return legendData;

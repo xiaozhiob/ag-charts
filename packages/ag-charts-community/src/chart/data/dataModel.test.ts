@@ -96,6 +96,8 @@ describe('DataModel', () => {
             const data = examples.SIMPLE_LINE_CHART_EXAMPLE.data ?? [];
             const dataModel = new DataModel<any, any>({
                 props: [rangeKey('date'), value('petrol'), value('diesel')],
+                formatIntoColumns: false,
+                doNotFormatIntoRows: false,
             });
 
             expect(dataModel.processData(data)).toMatchSnapshot({
@@ -107,6 +109,8 @@ describe('DataModel', () => {
             describe('simple data', () => {
                 const dataModel = new DataModel<any, any>({
                     props: [rangeKey('kp'), value('vp1'), value('vp2'), SMALLEST_KEY_INTERVAL],
+                    formatIntoColumns: false,
+                    doNotFormatIntoRows: false,
                 });
                 const data = [
                     { kp: 2, vp1: 5, vp2: 7 },
@@ -156,6 +160,8 @@ describe('DataModel', () => {
                 const dataModel = new DataModel<any, any, false>({
                     props: [categoryKey('kp'), value('vp1'), value('vp2')],
                     groupByKeys: false,
+                    formatIntoColumns: false,
+                    doNotFormatIntoRows: false,
                 });
                 const data = [
                     { kp: 'Q1', vp1: 5, vp2: 7 },
@@ -191,6 +197,8 @@ describe('DataModel', () => {
                 const dataModel = new DataModel<any, any, false>({
                     props: [categoryKey('kp'), value('vp1'), value('vp2')],
                     groupByKeys: false,
+                    formatIntoColumns: false,
+                    doNotFormatIntoRows: false,
                 });
                 const data = [
                     { kp: { toString: () => 'Q1' }, vp1: 5, vp2: 7 },
@@ -234,6 +242,8 @@ describe('DataModel', () => {
                     value('population'),
                     normalisePropertyTo('population', [0, 2 * Math.PI]),
                 ],
+                formatIntoColumns: false,
+                doNotFormatIntoRows: false,
             });
 
             expect(dataModel.processData(data)).toMatchSnapshot({
@@ -251,6 +261,8 @@ describe('DataModel', () => {
                         value('vp3'),
                         normalisePropertyTo('vp1', [0, 100]),
                     ],
+                    formatIntoColumns: false,
+                    doNotFormatIntoRows: false,
                 });
                 const data = [
                     { kp: 2, vp1: 5, vp2: 7, vp3: 1 },
@@ -295,6 +307,8 @@ describe('DataModel', () => {
                 const dataModel = new DataModel<any, any, false>({
                     props: [categoryKey('kp'), value('vp1'), value('vp2')],
                     groupByKeys: false,
+                    formatIntoColumns: false,
+                    doNotFormatIntoRows: false,
                 });
                 const data = [
                     { kp: 'Q1', vp1: 5, vp2: 7 },
@@ -334,6 +348,8 @@ describe('DataModel', () => {
             const dataModel = new DataModel<any, any, true>({
                 props: [categoryKey('type'), value('total', 'all'), value('regular', 'all'), sum('all')],
                 groupByKeys: true,
+                formatIntoColumns: false,
+                doNotFormatIntoRows: false,
             });
 
             expect(dataModel.processData(data)).toMatchSnapshot({
@@ -345,6 +361,8 @@ describe('DataModel', () => {
             const dataModel = new DataModel<any, any, true>({
                 props: [categoryKey('kp'), value('vp1'), value('vp2')],
                 groupByKeys: true,
+                formatIntoColumns: false,
+                doNotFormatIntoRows: false,
             });
             const data = [
                 { kp: 'Q1', vp1: 5, vp2: 7 },
@@ -399,6 +417,8 @@ describe('DataModel', () => {
                 const dataModel2 = new DataModel<any, any, true>({
                     props: [categoryKey('kp'), value('vp1', 'all'), value('vp2', 'all'), sum('all')],
                     groupByKeys: true,
+                    formatIntoColumns: false,
+                    doNotFormatIntoRows: false,
                 });
                 const data2 = [
                     { kp: 'Q1', vp1: 5, vp2: 7 },
@@ -421,6 +441,8 @@ describe('DataModel', () => {
             const dataModel = new DataModel<any, any, true>({
                 props: [categoryKey('kp'), value('vp1'), value('vp2')],
                 groupByKeys: true,
+                formatIntoColumns: false,
+                doNotFormatIntoRows: false,
             });
             const data = [
                 { kp: { id: 1, q: 'Q1' }, vp1: 5, vp2: 7 },
@@ -470,6 +492,8 @@ describe('DataModel', () => {
             const dataModel = new DataModel<any, any, true>({
                 props: [{ ...rangeKey('kp'), validation: (v) => v instanceof Date }, value('vp1'), value('vp2')],
                 groupByKeys: true,
+                formatIntoColumns: false,
+                doNotFormatIntoRows: false,
             });
             const data = [
                 { kp: new Date('2023-01-01T00:00:00.000Z'), vp1: 5, vp2: 7 },
@@ -555,6 +579,8 @@ describe('DataModel', () => {
                 const dataModel2 = new DataModel<any, any, true>({
                     props: [categoryKey('kp'), value('vp1', 'all'), value('vp2', 'all'), sum('all')],
                     groupByKeys: true,
+                    formatIntoColumns: false,
+                    doNotFormatIntoRows: false,
                 });
                 const data2 = [
                     { kp: 'Q1', vp1: 5, vp2: 7 },
@@ -585,6 +611,8 @@ describe('DataModel', () => {
                     sum('all'),
                 ],
                 groupByKeys: true,
+                formatIntoColumns: false,
+                doNotFormatIntoRows: false,
             });
 
             expect(dataModel.processData(data)).toMatchSnapshot({
@@ -604,6 +632,8 @@ describe('DataModel', () => {
                     sum('group2'),
                 ],
                 groupByKeys: true,
+                formatIntoColumns: false,
+                doNotFormatIntoRows: false,
             });
             const data = [
                 { kp: 'Q1', vp1: 5, vp2: 7, vp3: 1, vp4: 5 },
@@ -682,6 +712,8 @@ describe('DataModel', () => {
                     accumulatedGroupValue('housingAssociation'),
                 ],
                 groupByKeys: true,
+                formatIntoColumns: false,
+                doNotFormatIntoRows: false,
             });
 
             expect(dataModel.processData(data)).toMatchSnapshot({
@@ -699,6 +731,8 @@ describe('DataModel', () => {
                     accumulatedGroupValue('vp4'),
                 ],
                 groupByKeys: true,
+                formatIntoColumns: false,
+                doNotFormatIntoRows: false,
             });
             const data = [
                 { kp: 'Q1', vp1: 5, vp2: 7, vp3: 1, vp4: 5 },
@@ -762,6 +796,8 @@ describe('DataModel', () => {
                     normaliseGroupTo('all', 100),
                 ],
                 groupByKeys: true,
+                formatIntoColumns: false,
+                doNotFormatIntoRows: false,
             });
 
             expect(dataModel.processData(data)).toMatchSnapshot({
@@ -784,6 +820,8 @@ describe('DataModel', () => {
                     normaliseGroupTo('all', 100),
                 ],
                 groupByKeys: true,
+                formatIntoColumns: false,
+                doNotFormatIntoRows: false,
             });
 
             const result = dataModel.processData(data);
@@ -807,6 +845,8 @@ describe('DataModel', () => {
                     normaliseGroupTo('group2', 100),
                 ],
                 groupByKeys: true,
+                formatIntoColumns: false,
+                doNotFormatIntoRows: false,
             });
             const data = [
                 { kp: 'Q1', vp1: 5, vp2: 7, vp3: 1, vp4: 5 },
@@ -861,6 +901,8 @@ describe('DataModel', () => {
                     normaliseGroupTo('all', 100, 'range'),
                 ],
                 groupByKeys: true,
+                formatIntoColumns: false,
+                doNotFormatIntoRows: false,
             });
 
             expect(dataModel.processData(data)).toMatchSnapshot({
@@ -880,6 +922,8 @@ describe('DataModel', () => {
                     normaliseGroupTo('all', 100, 'range'),
                 ],
                 groupByKeys: true,
+                formatIntoColumns: false,
+                doNotFormatIntoRows: false,
             });
             const data = [
                 { kp: 'Q1', vp1: 5, vp2: 7, vp3: 1, vp4: 5 },
@@ -944,6 +988,8 @@ describe('DataModel', () => {
             const dataModel = new DataModel<any, any, true>({
                 props: [categoryKey('engine-size'), groupCount(), SORT_DOMAIN_GROUPS],
                 groupByFn,
+                formatIntoColumns: false,
+                doNotFormatIntoRows: false,
             });
 
             expect(dataModel.processData(data)).toMatchSnapshot({
@@ -961,6 +1007,8 @@ describe('DataModel', () => {
                     SORT_DOMAIN_GROUPS,
                 ],
                 groupByFn,
+                formatIntoColumns: false,
+                doNotFormatIntoRows: false,
             });
 
             expect(dataModel.processData(data)).toMatchSnapshot({
@@ -987,6 +1035,8 @@ describe('DataModel', () => {
                         return [3000, 4500];
                     };
                 },
+                formatIntoColumns: false,
+                doNotFormatIntoRows: false,
             });
 
             expect(dataModel.processData(data)).toMatchSnapshot({
@@ -1011,6 +1061,8 @@ describe('DataModel', () => {
                     { ...DEFAULTS, ...value('firefox') },
                     { ...DEFAULTS, ...value('safari') },
                 ],
+                formatIntoColumns: false,
+                doNotFormatIntoRows: false,
             });
             data.forEach((datum, idx) => {
                 delete (datum as any)[['ie', 'chrome', 'firefox', 'safari'][idx % 4]];
@@ -1036,6 +1088,8 @@ describe('DataModel', () => {
                     sum('group1'),
                 ],
                 groupByKeys: true,
+                formatIntoColumns: false,
+                doNotFormatIntoRows: false,
             });
             const data = [
                 { kp: 'Q1', /* vp1: 5,*/ vp2: 7, vp3: 1 },
@@ -1074,6 +1128,8 @@ describe('DataModel', () => {
                     { ...DEFAULTS, ...scopedValue('series-b', 'firefox') },
                     { ...DEFAULTS, ...scopedValue('series-c', 'safari') },
                 ],
+                formatIntoColumns: false,
+                doNotFormatIntoRows: false,
             });
             data.forEach((datum, idx) => {
                 delete (datum as any)[['ie', 'chrome', 'firefox', 'safari'][idx % 4]];
@@ -1126,6 +1182,8 @@ describe('DataModel', () => {
                     scopedSum(['scope-1'], 'group1'),
                 ],
                 groupByKeys: true,
+                formatIntoColumns: false,
+                doNotFormatIntoRows: false,
             });
             const data = [
                 { kp: 'Q1', vp1: 'illegal value', vp2: 7, vp3: 1 },
@@ -1182,6 +1240,8 @@ describe('DataModel', () => {
         it('should generated the expected results', () => {
             const dataModel = new DataModel<any, any>({
                 props: [categoryKey('year'), value('ie'), value('chrome'), value('firefox'), value('safari')],
+                formatIntoColumns: false,
+                doNotFormatIntoRows: false,
             });
 
             expect(dataModel.processData([])).toMatchSnapshot({
@@ -1192,6 +1252,8 @@ describe('DataModel', () => {
         describe('property tests', () => {
             const dataModel = new DataModel<any, any>({
                 props: [categoryKey('year'), value('ie'), value('chrome'), value('firefox'), value('safari')],
+                formatIntoColumns: false,
+                doNotFormatIntoRows: false,
             });
 
             it('should not generate data extracts', () => {
@@ -1225,6 +1287,8 @@ describe('DataModel', () => {
                     },
                     normalisePropertyTo({ id: 'angle' }, [0, 1]),
                 ],
+                formatIntoColumns: false,
+                doNotFormatIntoRows: false,
             });
 
             expect(dataModel.processData(data)).toMatchSnapshot({
@@ -1248,6 +1312,8 @@ describe('DataModel', () => {
                     scopedValue(['test1', 'test2'], 'firefox'),
                     scopedValue(['test1', 'test2'], 'safari'),
                 ],
+                formatIntoColumns: false,
+                doNotFormatIntoRows: false,
             });
 
             const data1 = DATA_BROWSER_MARKET_SHARE.map((d) => d);
