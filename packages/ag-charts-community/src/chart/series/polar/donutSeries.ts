@@ -1518,10 +1518,13 @@ export class DonutSeries extends PolarSeries<DonutNodeDatum, DonutSeriesProperti
             return;
         }
 
-        const legendItemIdx = this.dataModel.resolveProcessedDataIndexById(this, `legendItemValue`);
-        this.processedData?.data.forEach(({ values }, datumItemId) => {
-            if (values[legendItemIdx] === legendItemName) {
-                this.toggleSeriesItem(datumItemId, enabled);
+        const { processedData } = this;
+        if (!processedData?.rawData.length) return;
+
+        const legendItemValues = this.dataModel.resolveColumnById(this, `legendItemValue`, processedData);
+        legendItemValues.forEach((value, datumIndex) => {
+            if (value === legendItemName) {
+                this.toggleSeriesItem(datumIndex, enabled);
             }
         });
     }
