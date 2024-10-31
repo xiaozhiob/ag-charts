@@ -6,9 +6,14 @@ type AxesHandlers = {
     onDragEnd: () => void;
 };
 
+type ProxyAxis = {
+    axisId: string;
+    div: HTMLDivElement;
+    destroy(): void;
+};
+
 export class ZoomDOMProxy {
-    private axes: { axisId: string; div: HTMLDivElement }[] = [];
-    private readonly destroyFns = new _Util.DestroyFns();
+    private axes: ProxyAxis[] = [];
 
     private dragState?: {
         direction: _ModuleSupport.ChartAxisDirection;
@@ -25,12 +30,12 @@ export class ZoomDOMProxy {
         axisId: string,
         handlers: AxesHandlers,
         direction: _ModuleSupport.ChartAxisDirection
-    ) {
+    ): ProxyAxis {
         const { X, Y } = _ModuleSupport.ChartAxisDirection;
         const cursor = ({ [X]: 'ew-resize', [Y]: 'ns-resize' } as const)[direction];
         const parent = 'afterend';
-        const axis = ctx.proxyInteractionService.createProxyElement({ type: 'region', domManagerId: axisId, parent });
-        _Util.setElementStyle(axis, 'cursor', cursor);
+        const div = ctx.proxyInteractionService.createProxyElement({ type: 'region', domManagerId: axisId, parent });
+        _Util.setElementStyle(div, 'cursor', cursor);
 
         const mousedown = (sourceEvent: MouseEvent) => {
             const { button, offsetX, offsetY, pageX, pageY } = sourceEvent;
@@ -59,22 +64,26 @@ export class ZoomDOMProxy {
         };
 
         const window = _ModuleSupport.getWindow();
-        axis.addEventListener('mousedown', mousedown);
+        div.addEventListener('mousedown', mousedown);
         window.addEventListener('mousemove', mousemove);
         window.addEventListener('mouseup', mouseup);
-        this.destroyFns.push(() => {
-            axis.removeEventListener('mousedown', mousedown);
-            window.removeEventListener('mousemove', mousemove);
-            window.removeEventListener('mouseup', mouseup);
-        });
 
-        return axis;
+        return {
+            axisId,
+            div,
+            destroy: () => {
+                div.remove();
+                div.removeEventListener('mousedown', mousedown);
+                window.removeEventListener('mousemove', mousemove);
+                window.removeEventListener('mouseup', mouseup);
+            },
+        };
     }
 
     constructor(private readonly axesHandlers: AxesHandlers) {}
 
     destroy() {
-        this.destroyFns.destroy();
+        this.axes.forEach((a) => a.destroy());
     }
 
     update(ctx: _ModuleSupport.ModuleContext) {
@@ -85,7 +94,7 @@ export class ZoomDOMProxy {
         if (removed.length > 0) {
             this.axes = this.axes.filter((entry) => {
                 if (removed.includes(entry.axisId)) {
-                    entry.div.remove();
+                    entry.destroy();
                     return false;
                 }
                 return true;
@@ -94,8 +103,7 @@ export class ZoomDOMProxy {
 
         for (const newAxisCtx of added) {
             const { axisId, direction } = newAxisCtx;
-            const div = this.initAxis(ctx, axisId, this.axesHandlers, direction);
-            this.axes.push({ axisId, div });
+            this.axes.push(this.initAxis(ctx, axisId, this.axesHandlers, direction));
         }
 
         for (const axis of this.axes) {
