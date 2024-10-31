@@ -201,7 +201,7 @@ export type AggregatePropertyDefinition<
         finalFunction?: (result: R2) => [number, number];
     };
 
-type AdjustFn<D, K extends keyof D & string> = (
+type GroupValueAdjustFn<D, K extends keyof D & string> = (
     values: D[K][],
     indexes: number[],
     index: number,
@@ -215,13 +215,15 @@ export type GroupValueProcessorDefinition<D, K extends keyof D & string> = Prope
          * Outer function called once per all data processing; inner function called once per group;
          * innermost called once per datum.
          */
-        adjust: () => () => AdjustFn<D, K>;
+        adjust: () => () => GroupValueAdjustFn<D, K>;
     };
+
+type PropertyValueAdjustFn<D> = (processedData: ProcessedData<D>, valueIndex: number) => void;
 
 export type PropertyValueProcessorDefinition<D> = PropertyIdentifiers & {
     type: 'property-value-processor';
     property: string;
-    adjust: () => (processedData: ProcessedData<D>, valueIndex: number) => void;
+    adjust: () => PropertyValueAdjustFn<D>;
 };
 
 type ReducerOutputTypes = NonNullable<UngroupedData<any>['reduced']>;
@@ -864,7 +866,7 @@ export class DataModel<
         const affectedIndices = new Set<number>();
         const updatedDomains = new Map<number, IDataDomain>();
         const groupProcessorIndices = new Map<object, number[]>();
-        const groupProcessorInitFns = new Map<object, () => AdjustFn<any, any>>();
+        const groupProcessorInitFns = new Map<object, () => GroupValueAdjustFn<any, any>>();
 
         for (const processor of groupProcessors) {
             const indices = this.valueGroupIdxLookup(processor);

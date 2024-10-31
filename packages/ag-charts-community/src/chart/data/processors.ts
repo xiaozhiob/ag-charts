@@ -270,13 +270,23 @@ function normalisePropertyFnBuilder({
 
         pData.domain.values[pIdx] = [normaliseTo[0], normaliseTo[1]];
 
-        for (const group of pData.data) {
-            let groupValues = group.values;
-            if (pData.type === 'ungrouped') {
-                groupValues = [groupValues];
+        if (pData.columns != null) {
+            const { rawData } = pData;
+            const column = pData.columns[pIdx];
+            for (let datumIndex = 0; datumIndex < rawData.length; datumIndex += 1) {
+                column[datumIndex] = normalise(column[datumIndex], start, span);
             }
-            for (const values of groupValues) {
-                values[pIdx] = normalise(values[pIdx], start, span);
+        }
+
+        if (pData.data != null) {
+            for (const group of pData.data) {
+                let groupValues = group.values;
+                if (pData.type === 'ungrouped') {
+                    groupValues = [groupValues];
+                }
+                for (const values of groupValues) {
+                    values[pIdx] = normalise(values[pIdx], start, span);
+                }
             }
         }
     };
