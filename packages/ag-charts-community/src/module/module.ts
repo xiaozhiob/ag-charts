@@ -1,7 +1,7 @@
 import type { AxisModule } from './axisModule';
+import type { AxisOptionModule } from './axisOptionModule';
 import type { ModuleInstance } from './baseModule';
 import type { LegendModule, RootModule, SeriesModule } from './coreModules';
-import type { AxisOptionModule } from './optionsModule';
 import type { SeriesOptionModule } from './optionsModuleTypes';
 
 export type Module<M extends ModuleInstance = ModuleInstance> =

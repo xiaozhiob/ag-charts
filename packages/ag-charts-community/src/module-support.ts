@@ -26,6 +26,7 @@ export * from './util/vector';
 export * from './util/vector4';
 export * from './module/theme';
 export * from './module/axisModule';
+export * from './module/axisOptionModule';
 export * from './module/baseModule';
 export * from './module/coreModules';
 export * from './module/optionsModule';

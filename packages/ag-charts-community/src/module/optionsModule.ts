@@ -37,21 +37,9 @@ import { deepClone, jsonDiff, jsonWalk } from '../util/json';
 import { Logger } from '../util/logger';
 import { mergeArrayDefaults, mergeDefaults } from '../util/object';
 import { isEnumValue, isFiniteNumber, isObject, isPlainObject, isString, isSymbol } from '../util/type-guards';
-import type { AxisContext } from './axisContext';
-import type { BaseModule, ModuleInstance } from './baseModule';
 import { type PaletteType, paletteType } from './coreModulesTypes';
 import { enterpriseModule } from './enterpriseModule';
-import type { ModuleContextWithParent } from './moduleContext';
 import type { SeriesType } from './optionsModuleTypes';
-
-type AxisType = 'category' | 'number' | 'log' | 'time' | 'ordinal-time';
-
-export interface AxisOptionModule<M extends ModuleInstance = ModuleInstance> extends BaseModule {
-    type: 'axis-option';
-    axisTypes: AxisType[];
-    moduleFactory: (ctx: ModuleContextWithParent<AxisContext>) => M;
-    themeTemplate: {};
-}
 
 export interface ChartSpecialOverrides {
     document: Document;
