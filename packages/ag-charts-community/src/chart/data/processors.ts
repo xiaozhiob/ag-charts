@@ -384,24 +384,33 @@ function buildGroupWindowAccFn({ mode, sum }: { mode: 'normal' | 'trailing'; sum
         let firstRow = true;
         return () => {
             // Group scope.
-            return (values: any[], valueIndexes: number[]) => {
+            return (values: any[], valueIndexes: number[], datumIndex: number, columns?: any[][]) => {
                 // Datum scope.
                 let acc = 0;
                 for (const valueIdx of valueIndexes) {
-                    const currentVal = values[valueIdx];
+                    const column = columns?.[valueIdx];
+                    const currentVal = column != null ? column[datumIndex] : values[valueIdx];
                     const lastValue = firstRow && sum === 'current' ? 0 : lastValues[valueIdx];
                     lastValues[valueIdx] = currentVal;
 
                     const sumValue = sum === 'current' ? currentVal : lastValue;
                     if (!isFiniteNumber(currentVal) || !isFiniteNumber(lastValue)) {
-                        values[valueIdx] = acc;
+                        if (column != null) {
+                            column[datumIndex] = acc;
+                        } else {
+                            values[valueIdx] = acc;
+                        }
                         continue;
                     }
 
                     if (mode === 'normal') {
                         acc += sumValue;
                     }
-                    values[valueIdx] = acc;
+                    if (column != null) {
+                        column[datumIndex] = acc;
+                    } else {
+                        values[valueIdx] = acc;
+                    }
                     if (mode === 'trailing') {
                         acc += sumValue;
                     }
@@ -435,15 +444,20 @@ export function accumulateGroup(
 }
 
 function groupStackAccFn() {
-    return () => (values: any[], valueIndexes: number[]) => {
+    return () => (values: any[], valueIndexes: number[], datumIndex: number, columns?: any[][]) => {
         // Datum scope.
         const acc = new Float64Array(32);
         let stackCount = 0;
         for (const valueIdx of valueIndexes) {
-            const currentValue = values[valueIdx];
+            const column = columns?.[valueIdx];
+            const currentValue = column != null ? column[datumIndex] : values[valueIdx];
             acc[stackCount] = Number.isFinite(currentValue) ? currentValue : NaN;
             stackCount += 1;
-            values[valueIdx] = acc.subarray(0, stackCount);
+            if (column != null) {
+                column[datumIndex] = acc.subarray(0, stackCount);
+            } else {
+                values[valueIdx] = acc.subarray(0, stackCount);
+            }
         }
     };
 }

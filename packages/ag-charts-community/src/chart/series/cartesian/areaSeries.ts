@@ -228,6 +228,7 @@ export class AreaSeries extends CartesianSeries<
             ],
             groupByKeys: true,
             groupByData: false,
+            formatIntoColumns: true,
         });
 
         this.animationState.transition('updateData');
@@ -257,12 +258,12 @@ export class AreaSeries extends CartesianSeries<
     }
 
     async createNodeData() {
-        const { axes, data, processedData: { data: groupedData } = {}, dataModel } = this;
+        const { axes, data, processedData, dataModel } = this;
 
         const xAxis = axes[ChartAxisDirection.X];
         const yAxis = axes[ChartAxisDirection.Y];
 
-        if (!xAxis || !yAxis || !data || !dataModel || !this.properties.isValid()) {
+        if (!xAxis || !yAxis || !data || !dataModel || !processedData?.rawData.length || !this.properties.isValid()) {
             return;
         }
 
@@ -284,10 +285,14 @@ export class AreaSeries extends CartesianSeries<
 
         const xOffset = (xScale.bandwidth ?? 0) / 2;
 
-        const defs = dataModel.resolveProcessedDataDefsByIds(this, [`yValueEnd`, `yValueRaw`, `yValueCumulative`]);
-        const yFilterIndex =
-            yFilterKey != null ? dataModel.resolveProcessedDataIndexById(this, 'yFilterRaw') : undefined;
-        const yValueStackIndex = dataModel.resolveProcessedDataIndexById(this, 'yValueStack');
+        const xValues = processedData.keys!;
+        const xIndex = dataModel.resolveProcessedDataIndexById(this, `xValue`);
+        const yEndValues = dataModel.resolveColumnById(this, `yValueEnd`, processedData);
+        const yRawValues = dataModel.resolveColumnById(this, `yValueRaw`, processedData);
+        const yCumulativeValues = dataModel.resolveColumnById(this, `yValueCumulative`, processedData);
+        const yFilterValues =
+            yFilterKey != null ? dataModel.resolveColumnById(this, 'yFilterRaw', processedData) : undefined;
+        const yStackValues = dataModel.resolveColumnById(this, 'yValueStack', processedData);
 
         const createMarkerCoordinate = (xDatum: any, yEnd: number, rawYDatum: any): SizedPoint => {
             let currY;
@@ -313,36 +318,29 @@ export class AreaSeries extends CartesianSeries<
         const markerData: MarkerSelectionDatum[] = [];
         const { visibleSameStackCount } = this.ctx.seriesStateManager.getVisiblePeerGroupIndex(this);
 
-        let datumIdx = -1;
         let crossFiltering = false;
-        groupedData?.forEach((datumGroup) => {
-            const {
-                keys,
-                keys: [xDatum],
-                datum: datumArray,
-                values: valuesArray,
-            } = datumGroup;
-
-            valuesArray.forEach((values, valueIdx) => {
-                datumIdx++;
-
-                const seriesDatum = datumArray[valueIdx];
-                const dataValues = dataModel.resolveProcessedDataDefsValues(defs, { keys, values });
-                const { yValueRaw: yDatum, yValueCumulative, yValueEnd } = dataValues;
+        const { rawData } = processedData;
+        processedData.data.forEach(({ index: indices }) => {
+            (indices as number[]).forEach((datumIndex) => {
+                const xDatum = xValues[datumIndex][xIndex];
+                const seriesDatum = rawData[datumIndex];
+                const yDatum = yRawValues[datumIndex];
+                const yValueCumulative = yCumulativeValues[datumIndex];
+                const yValueEnd = yEndValues[datumIndex];
 
                 const validPoint = Number.isFinite(yDatum);
 
                 // marker data
                 const point = createMarkerCoordinate(xDatum, +yValueCumulative, yDatum);
 
-                const selected = yFilterIndex != null ? values[yFilterIndex] === yDatum : undefined;
+                const selected = yFilterValues != null ? yFilterValues[datumIndex] === yDatum : undefined;
                 if (selected === false) {
                     crossFiltering = true;
                 }
 
                 if (validPoint && marker) {
                     markerData.push({
-                        index: datumIdx,
+                        index: datumIndex,
                         series: this,
                         itemId,
                         datum: seriesDatum,
@@ -372,7 +370,7 @@ export class AreaSeries extends CartesianSeries<
                     });
 
                     labelData.push({
-                        index: datumIdx,
+                        index: datumIndex,
                         series: this,
                         itemId: yKey,
                         datum: seriesDatum,
@@ -390,12 +388,12 @@ export class AreaSeries extends CartesianSeries<
             });
         };
 
-        const dataValues = groupedData?.flatMap((datumGroup) => {
-            const {
-                keys: [xDatum],
-                values: valuesArray,
-            } = datumGroup;
-            return valuesArray.map((values) => ({ xDatum, values }));
+        const dataIndices = processedData.data.flatMap((datumGroup) => {
+            const indices = datumGroup.index as any as number[];
+            return indices.filter((datumIndex) => {
+                const xDatum = xValues[datumIndex][xIndex];
+                return xDatum != null;
+            });
         });
 
         const createPoint = (xDatum: any, yDatum: any): LineSpanPointDatum => ({
@@ -410,19 +408,19 @@ export class AreaSeries extends CartesianSeries<
         const getSeriesSpans = (index: number) => {
             const points: Array<LineSpanPointDatum[] | { skip: number }> = [];
 
-            if (dataValues == null) return [];
-
-            for (let i = 0; i < dataValues.length; i += 1) {
-                const { xDatum, values } = dataValues[i];
-                const yValueStack: number[] = values[yValueStackIndex];
+            for (const datumIndex of dataIndices) {
+                const xDatum = xValues[datumIndex][xIndex];
+                const yValueStack: number[] = yStackValues[datumIndex];
                 const yDatum = yValueStack[index];
 
                 const yDatumIsFinite = Number.isFinite(yDatum);
 
                 if (connectMissingData && !yDatumIsFinite) continue;
 
-                const lastYValueStack: number[] | undefined = dataValues[i - 1]?.values[yValueStackIndex];
-                const nextYValueStack: number[] | undefined = dataValues[i + 1]?.values[yValueStackIndex];
+                const lastYValueStack: number[] | undefined =
+                    datumIndex > 0 ? yStackValues[dataIndices[datumIndex - 1]] : undefined;
+                const nextYValueStack: number[] | undefined =
+                    datumIndex < dataIndices.length - 1 ? yStackValues[dataIndices[datumIndex + 1]] : undefined;
 
                 let yValueEndBackwards = 0;
                 let yValueEndForwards = 0;
@@ -478,10 +476,10 @@ export class AreaSeries extends CartesianSeries<
         const stackIndex = this.seriesGrouping?.stackIndex ?? 0;
 
         const getAxisSpans = () => {
-            if (dataValues == null) return [];
-            const yValueZeroPoints = dataValues
-                .map<LineSpanPointDatum | undefined>(({ xDatum, values }) => {
-                    const yValueStack: number[] = values[yValueStackIndex];
+            const yValueZeroPoints = dataIndices
+                .map<LineSpanPointDatum | undefined>((datumIndex) => {
+                    const xDatum = xValues[datumIndex][xIndex];
+                    const yValueStack: number[] = yStackValues[datumIndex];
                     const yDatum = yValueStack[stackIndex];
 
                     if (connectMissingData && !Number.isFinite(yDatum)) return;
