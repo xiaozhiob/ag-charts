@@ -15,12 +15,14 @@ const fs = require('fs-extra');
 const { JSDOM } = require('jsdom');
 const algoliasearch = require('algoliasearch');
 const commander = require('commander');
+const path = require('path');
 
 const menu = require('./src/content/docs-nav/docsNav.json');
 const supportedFrameworks = ['javascript', 'react', 'angular', 'vue'];
 const puppeteer = require('puppeteer-core');
 const assert = require('node:assert/strict');
 
+const outputDir = './search-output';
 const options = commander
     .option(
         '-d, --debug',
@@ -301,10 +303,11 @@ const processIndexForFramework = async (framework) => {
         await iterateItems(item);
     }
 
-    assert.equal(records.length > 0, true, 'Algolia search index should not be empty');
+    assert(records.length > 0, 'Algolia search index should not be empty');
 
     if (debug) {
-        const fileName = `algolia-${indexName}.json`;
+        fs.mkdir(outputDir, { recursive: true });
+        const fileName = path.join(outputDir, `algolia-${indexName}.json`);
         fs.writeFileSync(fileName, JSON.stringify(records, null, 2));
 
         console.log(`Wrote Algolia records for ${indexName} to ${fileName}`);
