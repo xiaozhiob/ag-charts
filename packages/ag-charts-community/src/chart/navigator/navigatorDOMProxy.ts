@@ -7,6 +7,13 @@ import { formatPercent } from '../../util/format.util';
 import { initToolbarKeyNav } from '../../util/keynavUtil';
 import { clamp } from '../../util/number';
 
+export type NavigatorButtonType = 'min' | 'max' | 'pan';
+
+type SliderDragHandlers = {
+    onDragStart(type: NavigatorButtonType, event: { offsetX: number }): void;
+    onDrag(type: NavigatorButtonType, event: { offsetX: number }): void;
+};
+
 export class NavigatorDOMProxy {
     public _min = 0;
     public _max = 1;
@@ -19,7 +26,10 @@ export class NavigatorDOMProxy {
     private readonly destroyFns = new DestroyFns();
     private readonly ctx: Pick<ModuleContext, 'zoomManager' | 'localeManager'>;
 
-    constructor(ctx: Pick<ModuleContext, 'zoomManager' | 'proxyInteractionService' | 'localeManager'>) {
+    constructor(
+        ctx: Pick<ModuleContext, 'zoomManager' | 'proxyInteractionService' | 'localeManager'>,
+        sliderHandlers: SliderDragHandlers
+    ) {
         this.ctx = ctx;
         this.toolbar = ctx.proxyInteractionService.createProxyContainer({
             type: 'toolbar',
@@ -55,7 +65,15 @@ export class NavigatorDOMProxy {
                 onchange: (ev) => this.onMaxSliderChange(ev),
             }),
         ];
-        this.sliders.forEach((slider) => setAttribute(slider, 'data-preventdefault', false));
+        for (const [index, key] of (['min', 'pan', 'max'] as const).entries()) {
+            const slider = this.sliders[index];
+            setAttribute(slider, 'data-preventdefault', false);
+            ctx.proxyInteractionService.createDragListeners({
+                element: slider,
+                onDragStart: (ev) => sliderHandlers.onDragStart(key, ev),
+                onDrag: (ev) => sliderHandlers.onDrag(key, ev),
+            });
+        }
         this.setSliderRatio(this.sliders[0], this._min);
         this.setSliderRatio(this.sliders[2], this._max);
         this.setPanSliderValue(this._min, this._max);
