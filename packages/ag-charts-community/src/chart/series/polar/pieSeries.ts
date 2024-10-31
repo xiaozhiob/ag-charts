@@ -366,7 +366,7 @@ export class PieSeries extends PolarSeries<PieNodeDatum, PieSeriesProperties, Se
         const { id: seriesId, processedData, dataModel, angleScale } = this;
         const { rotation } = this.properties;
 
-        if (!processedData || !processedData.rawData.length || !dataModel || processedData.type !== 'ungrouped') return;
+        if (!processedData?.rawData.length || !dataModel || processedData.type !== 'ungrouped') return;
 
         const {
             angleValues,

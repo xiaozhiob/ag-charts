@@ -372,7 +372,7 @@ export class DonutSeries extends PolarSeries<DonutNodeDatum, DonutSeriesProperti
             return { itemId: seriesId, nodeData: [], labelData: [] };
         }
 
-        if (!processedData || !processedData.rawData.length || !dataModel || processedData.type !== 'ungrouped') return;
+        if (!processedData?.rawData.length || !dataModel || processedData.type !== 'ungrouped') return;
 
         const {
             angleValues,
