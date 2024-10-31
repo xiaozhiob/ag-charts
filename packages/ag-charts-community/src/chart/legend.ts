@@ -345,11 +345,12 @@ export class Legend extends BaseProperties {
         } = this;
         const { formatter } = this.item.label;
         if (formatter) {
+            const seriesDatum = datum.datum;
             return callbackCache.call(formatter, {
                 itemId: datum.itemId,
-                datum: datum.datum,
                 value: datum.label.text,
                 seriesId: datum.seriesId,
+                ...(seriesDatum && { datum: seriesDatum }),
             });
         }
         return datum.label.text;

@@ -19,6 +19,7 @@ const commander = require('commander');
 const menu = require('./src/content/docs-nav/docsNav.json');
 const supportedFrameworks = ['javascript', 'react', 'angular', 'vue'];
 const puppeteer = require('puppeteer-core');
+const assert = require('node:assert/strict');
 
 const options = commander
     .option(
@@ -299,6 +300,8 @@ const processIndexForFramework = async (framework) => {
 
         await iterateItems(item);
     }
+
+    assert.equal(records.length > 0, true, 'Algolia search index should not be empty');
 
     if (debug) {
         const fileName = `algolia-${indexName}.json`;

@@ -91,7 +91,7 @@ export class MementoCaretaker {
 
     private encodeTypes(this: any, key: any, value: any) {
         if (isDate(this[key])) {
-            return { __type: 'date', value: String(this[key]) };
+            return { __type: 'date', value: this[key].toISOString() };
         }
         return value;
     }

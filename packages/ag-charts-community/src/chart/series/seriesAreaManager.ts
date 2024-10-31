@@ -168,10 +168,6 @@ export class SeriesAreaManager extends BaseManager {
         this.chart.ctx.updateService.update(type, opts);
     }
 
-    public setTabIndex(tabIndex: number) {
-        this.swapChain.setTabIndex(tabIndex as 0 | -1);
-    }
-
     public seriesChanged(series: Series<SeriesNodeDatum, SeriesProperties<object>>[]) {
         this.focus.sortedSeries = [...series].sort((a, b) => {
             let fpA = a.properties.focusPriority ?? Infinity;
