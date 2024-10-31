@@ -31,6 +31,7 @@ export class DragStateMachine<
     @StateMachineProperty()
     protected node?: Node;
 
+    // eslint-disable-next-line @typescript-eslint/prefer-readonly
     private offset?: _ModuleSupport.Vec2;
 
     constructor(ctx: AnnotationsStateMachineContext) {
