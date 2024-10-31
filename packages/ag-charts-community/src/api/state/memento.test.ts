@@ -76,12 +76,34 @@ describe('Memento Caretaker', () => {
             test: {
                 data: {
                     hello: 'world',
-                    time: { __type: 'date', value: 'Mon Jan 01 2024 00:00:00 GMT+0000 (Greenwich Mean Time)' },
+                    time: { __type: 'date', value: '2024-01-01T00:00:00.000Z' },
                 },
                 type: 'test',
             },
         });
         expect(originator.restored).toStrictEqual({ hello: 'world', time: new Date(2024, 0, 1) });
+
+        const blobDateTypes = {
+            version: '10.0.0',
+            test: {
+                data: {
+                    longString: {
+                        __type: 'date',
+                        value: 'Mon Jan 01 2024 00:00:00 GMT+0000 (Greenwich Mean Time)',
+                    },
+                    isoString: { __type: 'date', value: '2024-01-01T00:00:00.000Z' },
+                    timestamp: { __type: 'date', value: 1704067200000 },
+                },
+                type: 'test',
+            },
+        };
+
+        caretaker.restore(blobDateTypes, originator);
+        expect(originator.restored).toStrictEqual({
+            longString: new Date(2024, 0, 1),
+            isoString: new Date(2024, 0, 1),
+            timestamp: new Date(2024, 0, 1),
+        });
     });
 
     it('should migrate older versioned mementos', () => {
