@@ -1637,16 +1637,8 @@ describe('ChartOptions', () => {
             expect(preparedOptions.tooltip?.enabled).toBe(false);
             expect(preparedOptions.tooltip?.range).toBe(theme.config.line.tooltip.range);
 
-            expect(preparedOptions.legend?.enabled).toBe(false);
-            expect(preparedOptions.legend?.maxHeight).toBe(theme.config.line.legend.maxHeight);
-            expect(preparedOptions.legend?.maxWidth).toBe(theme.config.line.legend.maxWidth);
-            expect(preparedOptions.legend?.orientation).toBe(theme.config.line.legend.orientation);
-            expect(preparedOptions.legend?.spacing).toBe(theme.config.line.legend.spacing);
-            expect(preparedOptions.legend?.reverseOrder).toBe(theme.config.line.legend.reverseOrder);
-            expect(preparedOptions.legend?.pagination!.marker!.shape).toBe(
-                theme.config.line.legend.pagination.marker.shape
-            );
-            expect(preparedOptions.legend?.item!.label!.maxLength).toBe(theme.config.line.legend.item.label.maxLength);
+            // AG-13304 - Disabled modules should not have any options object.
+            expect(preparedOptions.legend).toBeUndefined();
         });
     });
 });
