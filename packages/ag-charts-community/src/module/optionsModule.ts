@@ -13,7 +13,7 @@ import { PRESETS } from '../api/preset/presets';
 import { axisRegistry } from '../chart/factory/axisRegistry';
 import { publicChartTypes } from '../chart/factory/chartTypes';
 import { isEnterpriseSeriesType } from '../chart/factory/expectedEnterpriseModules';
-import { removeUsedEnterpriseOptions } from '../chart/factory/processEnterpriseOptions';
+import { removeUnusedEnterpriseOptions, removeUsedEnterpriseOptions } from '../chart/factory/processEnterpriseOptions';
 import { seriesRegistry } from '../chart/factory/seriesRegistry';
 import { getChartTheme } from '../chart/mapping/themes';
 import {
@@ -186,6 +186,7 @@ export class ChartOptions<T extends AgChartOptions = AgChartOptions> {
 
         this.enableConfiguredOptions(this.processedOptions, options);
 
+        removeUnusedEnterpriseOptions(this.processedOptions);
         if (!enterpriseModule.isEnterprise) {
             removeUsedEnterpriseOptions(this.processedOptions, true);
         }
