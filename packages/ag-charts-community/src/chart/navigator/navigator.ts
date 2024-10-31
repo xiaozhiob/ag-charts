@@ -76,6 +76,7 @@ export class Navigator extends BaseModuleInstance implements ModuleInstance {
             region.addListener('drag', (event) => this.onDrag(event), dragStates),
             region.addListener('drag-end', (event) => this.onDragEnd(event), dragStates),
             region.addListener('leave', (event) => this.onLeave(event), dragStates),
+            () => ctx.regionManager.removeRegion('navigator'),
             this.ctx.localeManager.addListener('locale-changed', () => this.updateZoom()),
             this.ctx.layoutManager.registerElement(LayoutElement.Navigator, (e) => this.onLayoutStart(e)),
             this.ctx.layoutManager.addListener('layout:complete', (e) => this.onLayoutComplete(e)),
