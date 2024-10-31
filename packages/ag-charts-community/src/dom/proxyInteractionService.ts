@@ -1,17 +1,18 @@
 import type { Direction } from 'ag-charts-types';
 
 import type { LocaleManager } from '../locale/localeManager';
-import { setAttribute } from '../util/attributeUtil';
+import { type BaseStyleTypeMap, setAttribute, setElementStyle } from '../util/attributeUtil';
 import { createElement, getWindow } from '../util/dom';
 import { BoundedText } from './boundedText';
 import type { DOMManager } from './domManager';
 
 export type ListSwitch = { button: HTMLButtonElement; listitem: HTMLElement };
 
-type ElemParams<T extends ProxyElementType> = { readonly type: T; readonly id?: string } & (
-    | { readonly parent: HTMLElement }
-    | { readonly domManagerId: string; readonly parent: 'beforebegin' | 'afterend' }
-);
+type ElemParams<T extends ProxyElementType> = {
+    readonly type: T;
+    readonly id?: string;
+    readonly cursor?: BaseStyleTypeMap['cursor'];
+} & ({ readonly parent: HTMLElement } | { readonly domManagerId: string; readonly parent: 'beforebegin' | 'afterend' });
 
 type InteractParams<T extends ProxyElementType> = ElemParams<T> & {
     readonly tabIndex?: number;
@@ -285,6 +286,7 @@ export class ProxyInteractionService {
 
     private initElement<T extends ProxyElementType, TElem extends HTMLElement>(params: ElemParams<T>, element: TElem) {
         setAttribute(element, 'id', params.id);
+        setElementStyle(element, 'cursor', params.cursor);
         element.classList.toggle('ag-charts-proxy-elem', true);
     }
 

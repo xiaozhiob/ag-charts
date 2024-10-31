@@ -46,6 +46,7 @@ export class NavigatorDOMProxy {
                 ariaLabel: { id: 'ariaLabelNavigatorMinimum' },
                 ariaOrientation: 'horizontal',
                 parent: this.toolbar,
+                cursor: 'ew-resize',
                 onchange: (ev) => this.onMinSliderChange(ev),
             }),
             ctx.proxyInteractionService.createProxyElement({
@@ -54,6 +55,7 @@ export class NavigatorDOMProxy {
                 ariaLabel: { id: 'ariaLabelNavigatorRange' },
                 ariaOrientation: 'horizontal',
                 parent: this.toolbar,
+                cursor: 'grab',
                 onchange: (ev) => this.onPanSliderChange(ev),
             }),
             ctx.proxyInteractionService.createProxyElement({
@@ -62,6 +64,7 @@ export class NavigatorDOMProxy {
                 ariaLabel: { id: 'ariaLabelNavigatorMaximum' },
                 ariaOrientation: 'horizontal',
                 parent: this.toolbar,
+                cursor: 'ew-resize',
                 onchange: (ev) => this.onMaxSliderChange(ev),
             }),
         ];
