@@ -167,7 +167,6 @@ export class ProxyInteractionService {
         if (checkType('button', meta)) {
             const { params, result: button } = meta;
             this.initInteract(params, button);
-            button.style.pointerEvents = 'auto'; // TODO(olegat) this should be part of CSS once all element types support pointer events.
 
             if (typeof params.textContent === 'string') {
                 button.textContent = params.textContent;
@@ -211,7 +210,6 @@ export class ProxyInteractionService {
             button.textContent = params.textContent;
             button.role = 'switch';
             button.ariaChecked = params.ariaChecked.toString();
-            button.style.pointerEvents = 'auto'; // TODO(olegat) this should be part of CSS once all element types support pointer events.
             button.setAttribute('aria-describedby', params.ariaDescribedBy);
 
             listitem.role = 'listitem';
@@ -224,7 +222,6 @@ export class ProxyInteractionService {
             const { params, result: region } = meta;
             this.initInteract(params, region);
             region.role = 'region';
-            region.style.pointerEvents = 'auto'; // TODO(olegat) this should be part of CSS once all element types support pointer events.
             this.setParent(params, region);
         }
 
