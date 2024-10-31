@@ -13,9 +13,6 @@ import type {
 import { AgCharts } from '../../api/agCharts';
 import { type IAnimation, PHASE_METADATA } from '../../motion/animation';
 import { BBox } from '../../scene/bbox';
-import type { Group } from '../../scene/group';
-import { Selection } from '../../scene/selection';
-import { Transformable } from '../../scene/transformable';
 import { getDocument } from '../../util/dom';
 import {
     CANVAS_HEIGHT,
@@ -29,7 +26,6 @@ import type { Chart } from '../chart';
 import type { AgChartProxy } from '../chartProxy';
 import { AnimationManager } from '../interaction/animationManager';
 import type { PointerOffsets } from '../interaction/interactionManager';
-import { LegendMarkerLabel } from '../legendMarkerLabel';
 
 export type { Chart } from '../chart';
 export type { AgChartProxy } from '../chartProxy';
@@ -304,19 +300,16 @@ const checkTargetValid = (target: HTMLElement) => {
     if (!target.isConnected) throw new Error('Chart must be configured with a container for event testing to work');
 };
 
+type TestTarget = { target: HTMLElement; x: number; y: number };
+type TestModuleFns = { testFindTarget: (canvasX: number, canvasY: number) => TestTarget | undefined };
+
 function findTarget(chart: Chart, canvasX: number, canvasY: number): { target: HTMLElement; x: number; y: number } {
-    const legendGroup: Group = chart.modulesManager.getModule<any>('legend').group;
-    for (const node of Selection.selectByClass(legendGroup, LegendMarkerLabel)) {
-        const bbox = Transformable.toCanvas(node);
-        if (bbox.containsPoint(canvasX, canvasY)) {
-            const { x, y } = Transformable.fromCanvasPoint(node, canvasX, canvasY);
-            return { target: node.proxyButton?.button!, x, y };
+    for (const moduleName of ['legend', 'zoom']) {
+        const mod = chart.modulesManager.getModule<TestModuleFns>(moduleName);
+        const modTarget = mod?.testFindTarget(canvasX, canvasY);
+        if (modTarget) {
+            return modTarget;
         }
-    }
-    const zoomModule = chart.modulesManager.getModule<any>('zoom');
-    const zoomTarget = zoomModule?.testFindTarget(canvasX, canvasY);
-    if (zoomTarget) {
-        return zoomTarget;
     }
     return { target: chart.ctx.scene.canvas.element, x: canvasX, y: canvasY };
 }

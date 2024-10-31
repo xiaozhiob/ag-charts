@@ -1204,4 +1204,14 @@ export class Legend extends BaseProperties {
 
         return [legendWidth, legendHeight];
     }
+
+    testFindTarget(canvasX: number, canvasY: number): { target: HTMLElement; x: number; y: number } | undefined {
+        for (const node of Selection.selectByClass(this.group, LegendMarkerLabel)) {
+            const bbox = Transformable.toCanvas(node);
+            if (bbox.containsPoint(canvasX, canvasY)) {
+                const { x, y } = Transformable.fromCanvasPoint(node, canvasX, canvasY);
+                return { target: node.proxyButton?.button!, x, y };
+            }
+        }
+    }
 }
