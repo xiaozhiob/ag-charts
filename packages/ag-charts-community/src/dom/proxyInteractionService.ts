@@ -233,47 +233,56 @@ export class ProxyInteractionService {
 
     createDragListeners(args: {
         element: HTMLElement;
-        onDragStart: DragHandler;
-        onDrag: DragHandler;
-        onDragEnd: DragHandler;
+        onDragStart?: DragHandler;
+        onDrag?: DragHandler;
+        onDragEnd?: DragHandler;
     }): () => void {
         const { element, onDragStart, onDrag, onDragEnd } = args;
-        const mousedown = (sourceEvent: MouseEvent) => {
-            const { button, offsetX, offsetY, pageX, pageY } = sourceEvent;
-            if (button === 0) {
-                this.dragState = { target: element, start: { offsetX, offsetY, pageX, pageY } };
-                onDragStart({ offsetX, offsetY });
-            }
-        };
-        const mousemove = (sourceEvent: MouseEvent) => {
-            if (this.dragState?.target === sourceEvent.target) {
-                // [offsetX, offsetY] is relative to the sourceEvent.target, which can be another element
-                // such as a legend button. Therefore, calculate [offsetX, offsetY] relative to the axis
-                // element that fired the 'mousedown' event.
-                const { start } = this.dragState;
-                onDrag({
-                    offsetX: start.offsetX + (sourceEvent.pageX - start.pageX),
-                    offsetY: start.offsetY + (sourceEvent.pageY - start.pageY),
-                });
-            }
-        };
-        const mouseup = ({ button, offsetX, offsetY }: MouseEvent) => {
-            if (this.dragState !== undefined && button === 0) {
-                this.dragState = undefined;
-                onDragEnd({ offsetX, offsetY });
-            }
-        };
+
+        const mousedown = onDragStart
+            ? (sourceEvent: MouseEvent) => {
+                  const { button, offsetX, offsetY, pageX, pageY } = sourceEvent;
+                  if (button === 0) {
+                      this.dragState = { target: element, start: { offsetX, offsetY, pageX, pageY } };
+                      onDragStart({ offsetX, offsetY });
+                  }
+              }
+            : undefined;
+
+        const mousemove = onDrag
+            ? (sourceEvent: MouseEvent) => {
+                  if (this.dragState?.target === sourceEvent.target) {
+                      // [offsetX, offsetY] is relative to the sourceEvent.target, which can be another element
+                      // such as a legend button. Therefore, calculate [offsetX, offsetY] relative to the axis
+                      // element that fired the 'mousedown' event.
+                      const { start } = this.dragState;
+                      onDrag({
+                          offsetX: start.offsetX + (sourceEvent.pageX - start.pageX),
+                          offsetY: start.offsetY + (sourceEvent.pageY - start.pageY),
+                      });
+                  }
+              }
+            : undefined;
+
+        const mouseup = onDragEnd
+            ? ({ button, offsetX, offsetY }: MouseEvent) => {
+                  if (this.dragState !== undefined && button === 0) {
+                      this.dragState = undefined;
+                      onDragEnd({ offsetX, offsetY });
+                  }
+              }
+            : onDragEnd;
 
         // TODO: We only need 1 window listener. Not one per draggable element.
         const window = getWindow();
-        element.addEventListener('mousedown', mousedown);
-        window.addEventListener('mousemove', mousemove);
-        window.addEventListener('mouseup', mouseup);
+        if (mousedown) element.addEventListener('mousedown', mousedown);
+        if (mousemove) window.addEventListener('mousemove', mousemove);
+        if (mouseup) window.addEventListener('mouseup', mouseup);
 
         return () => {
-            element.removeEventListener('mousedown', mousedown);
-            window.removeEventListener('mousemove', mousemove);
-            window.removeEventListener('mouseup', mouseup);
+            if (mousedown) element.removeEventListener('mousedown', mousedown);
+            if (mousemove) window.removeEventListener('mousemove', mousemove);
+            if (mouseup) window.removeEventListener('mouseup', mouseup);
         };
     }
 
