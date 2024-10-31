@@ -366,7 +366,7 @@ export class PieSeries extends PolarSeries<PieNodeDatum, PieSeriesProperties, Se
         const { id: seriesId, processedData, dataModel, angleScale } = this;
         const { rotation } = this.properties;
 
-        if (!processedData || !dataModel || processedData.type !== 'ungrouped') return;
+        if (!processedData || !processedData.rawData.length || !dataModel || processedData.type !== 'ungrouped') return;
 
         const {
             angleValues,
@@ -403,7 +403,7 @@ export class PieSeries extends PolarSeries<PieNodeDatum, PieSeriesProperties, Se
             const span = Math.abs(endAngle - startAngle);
             const midAngle = startAngle + span / 2;
 
-            const angleValue = angleValues[datumIndex];
+            const angleValue = angleRawValues[datumIndex];
             const radiusRaw = radiusValues?.[datumIndex] ?? 1;
             const radius = radiusRaw * crossFilterScale;
             const radiusValue = radiusRawValues?.[datumIndex];

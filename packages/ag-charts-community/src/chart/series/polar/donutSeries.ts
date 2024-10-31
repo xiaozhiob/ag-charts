@@ -372,7 +372,7 @@ export class DonutSeries extends PolarSeries<DonutNodeDatum, DonutSeriesProperti
             return { itemId: seriesId, nodeData: [], labelData: [] };
         }
 
-        if (!processedData || !dataModel || processedData.type !== 'ungrouped') return;
+        if (!processedData || !processedData.rawData.length || !dataModel || processedData.type !== 'ungrouped') return;
 
         const {
             angleValues,
@@ -409,7 +409,7 @@ export class DonutSeries extends PolarSeries<DonutNodeDatum, DonutSeriesProperti
             const span = Math.abs(endAngle - startAngle);
             const midAngle = startAngle + span / 2;
 
-            const angleValue = angleValues[datumIndex];
+            const angleValue = angleRawValues[datumIndex];
             const radiusRaw = radiusValues?.[datumIndex] ?? 1;
             const radius = radiusRaw * crossFilterScale;
             const radiusValue = radiusRawValues?.[datumIndex];
