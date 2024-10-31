@@ -178,6 +178,8 @@ export class ChartOptions<T extends AgChartOptions = AgChartOptions> {
         if (!enterpriseModule.isEnterprise) {
             removeUsedEnterpriseOptions(this.processedOptions, true);
         }
+
+        this.debug('AgCharts.createOrUpdate() - processed options', this.processedOptions);
     }
 
     getOptions() {
