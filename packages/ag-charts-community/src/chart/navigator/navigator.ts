@@ -177,7 +177,8 @@ export class Navigator extends BaseModuleInstance implements ModuleInstance {
         if (!this.enabled || this.dragging == null) return;
 
         const { dragging, panStart, x, width } = this;
-        let { minRange, _min: min, _max: max } = this.domProxy;
+        const { minRange } = this.domProxy;
+        let { _min: min, _max: max } = this.domProxy;
         const { regionOffsetX } = event;
 
         const ratio = (regionOffsetX - x) / width;
