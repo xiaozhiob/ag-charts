@@ -15,16 +15,6 @@ type ProxyAxis = {
 export class ZoomDOMProxy {
     private axes: ProxyAxis[] = [];
 
-    private dragState?: {
-        direction: _ModuleSupport.ChartAxisDirection;
-        start: {
-            offsetX: number;
-            offsetY: number;
-            pageX: number;
-            pageY: number;
-        };
-    };
-
     private initAxis(
         ctx: Pick<_ModuleSupport.ModuleContext, 'proxyInteractionService' | 'localeManager'>,
         axisId: string,
@@ -37,47 +27,17 @@ export class ZoomDOMProxy {
         const div = ctx.proxyInteractionService.createProxyElement({ type: 'region', domManagerId: axisId, parent });
         _Util.setElementStyle(div, 'cursor', cursor);
 
-        const mousedown = (sourceEvent: MouseEvent) => {
-            const { button, offsetX, offsetY, pageX, pageY } = sourceEvent;
-            if (button === 0) {
-                this.dragState = { direction, start: { offsetX, offsetY, pageX, pageY } };
-                handlers.onDragStart(axisId, direction);
-            }
+        const removeListeners = ctx.proxyInteractionService.createDragListeners({
+            element: div,
+            onDragStart: () => handlers.onDragStart(axisId, direction),
+            onDrag: handlers.onDrag,
+            onDragEnd: handlers.onDragEnd,
+        });
+        const destroy = () => {
+            div.remove();
+            removeListeners();
         };
-        const mousemove = (sourceEvent: MouseEvent) => {
-            if (this.dragState?.direction === direction) {
-                // [offsetX, offsetY] is relative to the sourceEvent.target, which can be another element
-                // such as a legend button. Therefore, calculate [offsetX, offsetY] relative to the axis
-                // element that fired the 'mousedown' event.
-                const { start } = this.dragState;
-                handlers.onDrag({
-                    offsetX: start.offsetX + (sourceEvent.pageX - start.pageX),
-                    offsetY: start.offsetY + (sourceEvent.pageY - start.pageY),
-                });
-            }
-        };
-        const mouseup = (sourceEvent: MouseEvent) => {
-            if (this.dragState !== undefined && sourceEvent.button === 0) {
-                this.dragState = undefined;
-                handlers.onDragEnd();
-            }
-        };
-
-        const window = _ModuleSupport.getWindow();
-        div.addEventListener('mousedown', mousedown);
-        window.addEventListener('mousemove', mousemove);
-        window.addEventListener('mouseup', mouseup);
-
-        return {
-            axisId,
-            div,
-            destroy: () => {
-                div.remove();
-                div.removeEventListener('mousedown', mousedown);
-                window.removeEventListener('mousemove', mousemove);
-                window.removeEventListener('mouseup', mouseup);
-            },
-        };
+        return { axisId, div, destroy };
     }
 
     constructor(private readonly axesHandlers: AxesHandlers) {}

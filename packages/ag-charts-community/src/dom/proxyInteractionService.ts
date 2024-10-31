@@ -2,7 +2,7 @@ import type { Direction } from 'ag-charts-types';
 
 import type { LocaleManager } from '../locale/localeManager';
 import { setAttribute } from '../util/attributeUtil';
-import { createElement } from '../util/dom';
+import { createElement, getWindow } from '../util/dom';
 import { BoundedText } from './boundedText';
 import type { DOMManager } from './domManager';
 
@@ -81,6 +81,8 @@ type ProxyMeta = {
 type ProxyElementType = 'button' | 'slider' | 'text' | 'listswitch' | 'region';
 type ProxyContainerType = 'toolbar' | 'group' | 'list';
 
+type DragHandler = (event: { offsetX: number; offsetY: number }) => void;
+
 function checkType<T extends keyof ProxyMeta>(type: T, meta: ProxyMeta[keyof ProxyMeta]): meta is ProxyMeta[T] {
     return meta.params?.type === type;
 }
@@ -109,6 +111,16 @@ function allocateMeta<T extends keyof ProxyMeta>(params: ProxyMeta[T]['params'])
 
 export class ProxyInteractionService {
     private readonly destroyFns: Array<() => void> = [];
+
+    private dragState?: {
+        target: HTMLElement;
+        start: {
+            offsetX: number;
+            offsetY: number;
+            pageX: number;
+            pageY: number;
+        };
+    };
 
     constructor(
         private readonly localeManager: LocaleManager,
@@ -217,6 +229,52 @@ export class ProxyInteractionService {
         }
 
         return meta.result;
+    }
+
+    createDragListeners(args: {
+        element: HTMLElement;
+        onDragStart: DragHandler;
+        onDrag: DragHandler;
+        onDragEnd: DragHandler;
+    }): () => void {
+        const { element, onDragStart, onDrag, onDragEnd } = args;
+        const mousedown = (sourceEvent: MouseEvent) => {
+            const { button, offsetX, offsetY, pageX, pageY } = sourceEvent;
+            if (button === 0) {
+                this.dragState = { target: element, start: { offsetX, offsetY, pageX, pageY } };
+                onDragStart({ offsetX, offsetY });
+            }
+        };
+        const mousemove = (sourceEvent: MouseEvent) => {
+            if (this.dragState?.target === sourceEvent.target) {
+                // [offsetX, offsetY] is relative to the sourceEvent.target, which can be another element
+                // such as a legend button. Therefore, calculate [offsetX, offsetY] relative to the axis
+                // element that fired the 'mousedown' event.
+                const { start } = this.dragState;
+                onDrag({
+                    offsetX: start.offsetX + (sourceEvent.pageX - start.pageX),
+                    offsetY: start.offsetY + (sourceEvent.pageY - start.pageY),
+                });
+            }
+        };
+        const mouseup = ({ button, offsetX, offsetY }: MouseEvent) => {
+            if (this.dragState !== undefined && button === 0) {
+                this.dragState = undefined;
+                onDragEnd({ offsetX, offsetY });
+            }
+        };
+
+        // TODO: We only need 1 window listener. Not one per draggable element.
+        const window = getWindow();
+        element.addEventListener('mousedown', mousedown);
+        window.addEventListener('mousemove', mousemove);
+        window.addEventListener('mouseup', mouseup);
+
+        return () => {
+            element.removeEventListener('mousedown', mousedown);
+            window.removeEventListener('mousemove', mousemove);
+            window.removeEventListener('mouseup', mouseup);
+        };
     }
 
     private initElement<T extends ProxyElementType, TElem extends HTMLElement>(params: ElemParams<T>, element: TElem) {
