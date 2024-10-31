@@ -93,8 +93,9 @@ export function removeUnusedEnterpriseOptions<T extends Partial<AgChartOptions>>
     for (const module of moduleRegistry.byType<RootModule | LegendModule>('root', 'legend')) {
         const moduleOptions = options[module.optionsKey as keyof AgChartOptions] as { enabled?: boolean };
         const isPresentAndDisabled = moduleOptions != null && moduleOptions.enabled === false;
+        const removable = !('removable' in module) || module.removable !== false;
 
-        if (isPresentAndDisabled) {
+        if (isPresentAndDisabled && removable) {
             delete options[module.optionsKey as keyof AgChartOptions];
         }
     }

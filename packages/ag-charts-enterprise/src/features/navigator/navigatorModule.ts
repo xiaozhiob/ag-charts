@@ -8,6 +8,7 @@ export const NavigatorModule: _ModuleSupport.RootModule = {
     packageType: 'enterprise',
     chartTypes: ['cartesian'],
     moduleFactory: (ctx) => new Navigator(ctx),
+    removable: false, // Toggling this module causes zoom state flakiness.
     themeTemplate: {
         ..._ModuleSupport.NavigatorModule.themeTemplate,
         navigator: {
