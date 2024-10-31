@@ -976,7 +976,10 @@ export class Legend extends BaseProperties {
             highlightManager.updateHighlight(this.id);
         }
 
-        this.ctx.updateService.update(ChartUpdateType.PROCESS_DATA, { forceNodeDataRefresh: true });
+        this.ctx.updateService.update(ChartUpdateType.PROCESS_DATA, {
+            forceNodeDataRefresh: true,
+            skipAnimations: datum.skipAnimations ?? false,
+        });
 
         return true;
     }

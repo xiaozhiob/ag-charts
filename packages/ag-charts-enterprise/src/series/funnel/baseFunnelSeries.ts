@@ -631,6 +631,7 @@ export abstract class BaseFunnelSeries<
                 enabled: visible && legendItemEnabled[index],
                 label: { text: stageValue },
                 symbols: [{ marker: { fill, fillOpacity, stroke, strokeWidth, strokeOpacity } }],
+                skipAnimations: true,
             });
         }
 
