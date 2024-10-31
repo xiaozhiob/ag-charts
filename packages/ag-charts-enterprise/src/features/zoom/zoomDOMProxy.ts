@@ -15,8 +15,8 @@ export class ZoomDOMProxy {
         start: {
             offsetX: number;
             offsetY: number;
-            clientX: number;
-            clientY: number;
+            pageX: number;
+            pageY: number;
         };
     };
 
@@ -33,9 +33,9 @@ export class ZoomDOMProxy {
         _Util.setElementStyle(axis, 'cursor', cursor);
 
         const mousedown = (sourceEvent: MouseEvent) => {
-            const { button, offsetX, offsetY, clientX, clientY } = sourceEvent;
+            const { button, offsetX, offsetY, pageX, pageY } = sourceEvent;
             if (button === 0) {
-                this.dragState = { direction, start: { offsetX, offsetY, clientX, clientY } };
+                this.dragState = { direction, start: { offsetX, offsetY, pageX, pageY } };
                 handlers.onDragStart(axisId, direction);
             }
         };
@@ -46,8 +46,8 @@ export class ZoomDOMProxy {
                 // element that fired the 'mousedown' event.
                 const { start } = this.dragState;
                 handlers.onDrag({
-                    offsetX: start.offsetX + (sourceEvent.clientX - start.clientX),
-                    offsetY: start.offsetY + (sourceEvent.clientY - start.clientY),
+                    offsetX: start.offsetX + (sourceEvent.pageX - start.pageX),
+                    offsetY: start.offsetY + (sourceEvent.pageY - start.pageY),
                 });
             }
         };
@@ -107,6 +107,19 @@ export class ZoomDOMProxy {
                 _Util.setElementStyle(axis.div, 'display', undefined);
             }
         }
+    }
+
+    testFindTarget(canvasX: number, canvasY: number): { target: HTMLElement; x: number; y: number } | undefined {
+        for (const axis of this.axes) {
+            const bbox = _ModuleSupport.getElementBBox(axis.div);
+            const display = axis.div.style.display;
+            if (display !== 'none' && _Util.BBoxValues.containsPoint(bbox, canvasX, canvasY)) {
+                const x = canvasX - bbox.x;
+                const y = canvasY - bbox.y;
+                return { target: axis.div, x, y };
+            }
+        }
+        return undefined;
     }
 
     private diffAxisIds(axisCtx: _ModuleSupport.AxisContext[]) {

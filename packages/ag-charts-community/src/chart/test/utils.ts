@@ -313,6 +313,11 @@ function findTarget(chart: Chart, canvasX: number, canvasY: number): { target: H
             return { target: node.proxyButton?.button!, x, y };
         }
     }
+    const zoomModule = chart.modulesManager.getModule<any>('zoom');
+    const zoomTarget = zoomModule?.testFindTarget(canvasX, canvasY);
+    if (zoomTarget) {
+        return zoomTarget;
+    }
     return { target: chart.ctx.scene.canvas.element, x: canvasX, y: canvasY };
 }
 
