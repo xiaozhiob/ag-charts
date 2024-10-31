@@ -13,7 +13,7 @@ import { PRESETS } from '../api/preset/presets';
 import { axisRegistry } from '../chart/factory/axisRegistry';
 import { publicChartTypes } from '../chart/factory/chartTypes';
 import { isEnterpriseSeriesType } from '../chart/factory/expectedEnterpriseModules';
-import { removeUsedEnterpriseOptions } from '../chart/factory/processEnterpriseOptions';
+import { removeUnusedEnterpriseOptions, removeUsedEnterpriseOptions } from '../chart/factory/processEnterpriseOptions';
 import { seriesRegistry } from '../chart/factory/seriesRegistry';
 import { getChartTheme } from '../chart/mapping/themes';
 import {
@@ -37,21 +37,9 @@ import { deepClone, jsonDiff, jsonWalk } from '../util/json';
 import { Logger } from '../util/logger';
 import { mergeArrayDefaults, mergeDefaults } from '../util/object';
 import { isEnumValue, isFiniteNumber, isObject, isPlainObject, isString, isSymbol } from '../util/type-guards';
-import type { AxisContext } from './axisContext';
-import type { BaseModule, ModuleInstance } from './baseModule';
 import { type PaletteType, paletteType } from './coreModulesTypes';
 import { enterpriseModule } from './enterpriseModule';
-import type { ModuleContextWithParent } from './moduleContext';
 import type { SeriesType } from './optionsModuleTypes';
-
-type AxisType = 'category' | 'number' | 'log' | 'time' | 'ordinal-time';
-
-export interface AxisOptionModule<M extends ModuleInstance = ModuleInstance> extends BaseModule {
-    type: 'axis-option';
-    axisTypes: AxisType[];
-    moduleFactory: (ctx: ModuleContextWithParent<AxisContext>) => M;
-    themeTemplate: {};
-}
 
 export interface ChartSpecialOverrides {
     document: Document;
@@ -123,12 +111,13 @@ export class ChartOptions<T extends AgChartOptions = AgChartOptions> {
 
             const presetConstructor: PresetConstructor | undefined = (PRESETS as any)[presetType];
 
-            const presetParams = options as any as AgPresetOptions;
+            const presetParams = userOptions as any as AgPresetOptions;
 
             // Note financial charts defines the theme in its returned options
             // so we need to get the theme before and after applying the preset
             const presetSubType = (options as any).type as keyof AgPresetOverrides | undefined;
-            const presetTheme = presetSubType != null ? getChartTheme(options.theme).presets[presetSubType] : undefined;
+            const presetTheme =
+                presetSubType != null ? getChartTheme(userOptions.theme).presets[presetSubType] : undefined;
 
             this.debug('>>> AgCharts.createOrUpdate() - applying preset', presetParams);
             options = presetConstructor?.(presetParams, presetTheme, () => this.activeTheme) ?? options;
@@ -185,9 +174,12 @@ export class ChartOptions<T extends AgChartOptions = AgChartOptions> {
 
         this.enableConfiguredOptions(this.processedOptions, options);
 
+        removeUnusedEnterpriseOptions(this.processedOptions);
         if (!enterpriseModule.isEnterprise) {
             removeUsedEnterpriseOptions(this.processedOptions, true);
         }
+
+        this.debug('AgCharts.createOrUpdate() - processed options', this.processedOptions);
     }
 
     getOptions() {

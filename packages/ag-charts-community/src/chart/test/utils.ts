@@ -305,12 +305,14 @@ const checkTargetValid = (target: HTMLElement) => {
 };
 
 function findTarget(chart: Chart, canvasX: number, canvasY: number): { target: HTMLElement; x: number; y: number } {
-    const legendGroup: Group = chart.modulesManager.getModule<any>('legend').group;
-    for (const node of Selection.selectByClass(legendGroup, LegendMarkerLabel)) {
-        const bbox = Transformable.toCanvas(node);
-        if (bbox.containsPoint(canvasX, canvasY)) {
-            const { x, y } = Transformable.fromCanvasPoint(node, canvasX, canvasY);
-            return { target: node.proxyButton?.button!, x, y };
+    const legendGroup: Group = chart.modulesManager.getModule<any>('legend')?.group;
+    if (legendGroup) {
+        for (const node of Selection.selectByClass(legendGroup, LegendMarkerLabel)) {
+            const bbox = Transformable.toCanvas(node);
+            if (bbox.containsPoint(canvasX, canvasY)) {
+                const { x, y } = Transformable.fromCanvasPoint(node, canvasX, canvasY);
+                return { target: node.proxyButton?.button!, x, y };
+            }
         }
     }
     return { target: chart.ctx.scene.canvas.element, x: canvasX, y: canvasY };
