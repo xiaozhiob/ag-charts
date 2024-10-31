@@ -602,7 +602,7 @@ export abstract class Chart extends Observable {
                 extraDebugStats['updateShortcutCount'] = this.updateShortcutCount;
                 await ctx.scene.render({ debugSplitTimes: splits, extraDebugStats, seriesRect: this.seriesRect });
                 this.extraDebugStats = {};
-                for (const key in splits) {
+                for (const key of Object.keys(splits)) {
                     delete splits[key];
                 }
 
@@ -659,7 +659,7 @@ export abstract class Chart extends Observable {
         this.updateThemeClassName();
 
         const { enabled, tabIndex } = this.keyboard;
-        this.seriesAreaManager.setTabIndex(enabled ? tabIndex ?? 0 : -1);
+        this.ctx.domManager.setTabGuardIndex(enabled ? tabIndex ?? 0 : -1);
     }
 
     private updateAriaLabels() {

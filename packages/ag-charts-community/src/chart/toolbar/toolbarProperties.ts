@@ -87,7 +87,7 @@ export class ToolbarGroupProperties extends BaseProperties {
             this.buttonOverrides.set(id, overrides);
         }
 
-        for (const key in options) {
+        for (const key of Object.keys(options)) {
             const value = (options as any)[key];
             if (value == null) {
                 delete overrides[key];

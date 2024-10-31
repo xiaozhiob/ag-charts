@@ -8,10 +8,9 @@ import type { BBoxProvider } from '../../util/bboxinterface';
 import { setElementBBox } from '../../util/dom';
 import { formatPercent } from '../../util/format.util';
 import { initToolbarKeyNav } from '../../util/keynavUtil';
-import { Logger } from '../../util/logger';
 import { clamp } from '../../util/number';
-import { ActionOnSet, ObserveChanges } from '../../util/proxy';
-import { AND, BOOLEAN, GREATER_THAN, LESS_THAN, OBJECT, POSITIVE_NUMBER, RATIO, Validate } from '../../util/validation';
+import { ObserveChanges } from '../../util/proxy';
+import { BOOLEAN, OBJECT, POSITIVE_NUMBER, Validate } from '../../util/validation';
 import { InteractionState, type PointerInteractionEvent } from '../interaction/interactionManager';
 import type { RegionEvent } from '../interaction/regionManager';
 import type { ZoomChangeEvent } from '../interaction/zoomManager';
@@ -48,24 +47,6 @@ export class Navigator extends BaseModuleInstance implements ModuleInstance {
 
     @Validate(POSITIVE_NUMBER)
     public spacing: number = 10;
-
-    @ActionOnSet<Navigator>({
-        newValue(min) {
-            this._min = min;
-            this.updateZoom();
-        },
-    })
-    @Validate(AND(RATIO, LESS_THAN('max')), { optional: true })
-    public min?: number;
-
-    @ActionOnSet<Navigator>({
-        newValue(max) {
-            this._max = max;
-            this.updateZoom();
-        },
-    })
-    @Validate(AND(RATIO, GREATER_THAN('min')), { optional: true })
-    public max?: number;
 
     protected x = 0;
     protected y = 0;
@@ -371,13 +352,6 @@ export class Navigator extends BaseModuleInstance implements ModuleInstance {
         const { _min: min, _max: max } = this;
         if (min == null || max == null) return;
 
-        const warnOnConflict = (stateId: string) => {
-            if (this.min == null && this.max == null) return;
-            Logger.warnOnce(
-                `Could not apply [navigator.min] or [navigator.max] as [${stateId}] has modified the initial zoom state.`
-            );
-        };
-
-        return this.ctx.zoomManager.updateZoom('navigator', { x: { min, max } }, false, warnOnConflict);
+        return this.ctx.zoomManager.updateZoom('navigator', { x: { min, max } });
     }
 }

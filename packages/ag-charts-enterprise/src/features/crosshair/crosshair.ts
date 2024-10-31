@@ -80,6 +80,14 @@ export class Crosshair extends _ModuleSupport.BaseModuleInstance implements _Mod
 
         this.hideCrosshairs();
 
+        ctx.domManager.addEventListener('focusin', ({ target }) => {
+            const isSeriesAreaChild = target instanceof HTMLElement && ctx.domManager.contains(target, 'series-area');
+            if (this.crosshairGroup.visible && !isSeriesAreaChild) {
+                this.hideCrosshairs();
+                this.ctx.updateService.update(_ModuleSupport.ChartUpdateType.PERFORM_LAYOUT);
+            }
+        });
+
         this.destroyFns.push(
             ctx.scene.attachNode(this.crosshairGroup),
             seriesRegion.addListener('hover', (event) => this.onMouseMove(event), mouseMoveStates),
@@ -385,7 +393,7 @@ export class Crosshair extends _ModuleSupport.BaseModuleInstance implements _Mod
 
     private hideCrosshairs() {
         this.crosshairGroup.visible = false;
-        for (const key in this.labels) {
+        for (const key of Object.keys(this.labels)) {
             this.hideLabel(key);
         }
     }

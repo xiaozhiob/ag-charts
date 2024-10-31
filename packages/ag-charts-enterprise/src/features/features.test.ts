@@ -5,7 +5,6 @@ import {
     clickAction,
     contextMenuAction,
     dragAction,
-    expectWarningsCalls,
     extractImageData,
     hoverAction,
     scrollAction,
@@ -68,20 +67,12 @@ describe('Feature Combinations', () => {
         let cx: number = 0;
         let cy: number = 0;
 
-        async function prepareChart(
-            navigator?: AgChartOptions['navigator'],
-            zoom?: AgChartOptions['zoom'],
-            baseOptions = EXAMPLE_OPTIONS
-        ) {
+        async function prepareChart(initialState?: AgChartOptions['initialState'], baseOptions = EXAMPLE_OPTIONS) {
             const options: AgChartOptions = {
                 ...baseOptions,
-                navigator: {
-                    ...baseOptions.navigator,
-                    ...(navigator ?? {}),
-                },
-                zoom: {
-                    ...baseOptions.zoom,
-                    ...(zoom ?? {}),
+                initialState: {
+                    ...baseOptions.initialState,
+                    ...(initialState ?? {}),
                 },
             };
             prepareEnterpriseTestOptions(options);
@@ -121,10 +112,9 @@ describe('Feature Combinations', () => {
             await compare();
         });
 
-        it('should init with navigator min/max', async () => {
-            await prepareChart({ min: 0.1, max: 0.3 });
+        it('should init with initial zoom state', async () => {
+            await prepareChart({ zoom: { ratioX: { start: 0.1, end: 0.3 } } });
             await compare();
-            expectWarningsCalls().toMatchInlineSnapshot(`[]`);
         });
     });
 
