@@ -225,9 +225,12 @@ export class DonutSeries extends PolarSeries<DonutNodeDatum, DonutSeriesProperti
             return;
         }
 
-        let { data } = this;
         const { visible, seriesItemEnabled } = this;
         const { angleKey, angleFilterKey, radiusKey, calloutLabelKey, sectorLabelKey, legendItemKey } = this.properties;
+
+        const validSector = (_value: unknown, _datum: unknown, index: number) => {
+            return visible && seriesItemEnabled[index];
+        };
 
         const animationEnabled = !this.ctx.animationManager.isSkipped();
         const extraKeyProps = [];
@@ -243,7 +246,7 @@ export class DonutSeries extends PolarSeries<DonutNodeDatum, DonutSeriesProperti
         }
 
         const radiusScaleType = this.radiusScale.type;
-        const angleScaleType = this.radiusScale.type;
+        const angleScaleType = this.angleScale.type;
 
         if (radiusKey) {
             extraProps.push(
@@ -270,6 +273,8 @@ export class DonutSeries extends PolarSeries<DonutNodeDatum, DonutSeriesProperti
                 accumulativeValueProperty(angleFilterKey, angleScaleType, {
                     id: `angleFilterValue`,
                     onlyPositive: true,
+                    validation: validSector,
+                    invalidValue: 0,
                 }),
                 valueProperty(angleFilterKey, angleScaleType, { id: `angleFilterRaw` }),
                 normalisePropertyTo('angleFilterValue', [0, 1], 0, 0)
@@ -280,12 +285,15 @@ export class DonutSeries extends PolarSeries<DonutNodeDatum, DonutSeriesProperti
         }
         extraProps.push(animationValidation());
 
-        data = data.map((d, idx) => (visible && seriesItemEnabled[idx] ? d : { ...d, [angleKey]: 0 }));
-
-        await this.requestDataModel<any, any, true>(dataController, data, {
+        await this.requestDataModel<any, any, true>(dataController, this.data, {
             props: [
                 ...extraKeyProps,
-                accumulativeValueProperty(angleKey, angleScaleType, { id: `angleValue`, onlyPositive: true }),
+                accumulativeValueProperty(angleKey, angleScaleType, {
+                    id: `angleValue`,
+                    onlyPositive: true,
+                    validation: validSector,
+                    invalidValue: 0,
+                }),
                 valueProperty(angleKey, angleScaleType, { id: `angleRaw` }), // Raw value pass-through.
                 normalisePropertyTo('angleValue', [0, 1], 0, 0),
                 ...extraProps,
@@ -1417,13 +1425,19 @@ export class DonutSeries extends PolarSeries<DonutNodeDatum, DonutSeriesProperti
         )
             return [];
 
-        const { calloutLabelIdx, sectorLabelIdx, legendItemIdx } = this.getProcessedDataIndexes(dataModel);
+        const { calloutLabelIdx, sectorLabelIdx, legendItemIdx, angleRawIdx } = this.getProcessedDataIndexes(dataModel);
 
         const titleText = this.properties.title?.showInLegend && this.properties.title.text;
         const legendData: CategoryLegendDatum[] = [];
 
+        const hideZeros = this.properties.hideZeroValueSectorsInLegend;
         for (let index = 0; index < processedData.data.length; index++) {
             const { datum, values } = processedData.data[index];
+            const angleRawValue = values[angleRawIdx];
+
+            if (hideZeros && angleRawValue === 0) {
+                continue;
+            }
 
             const labelParts = [];
             if (titleText) {
