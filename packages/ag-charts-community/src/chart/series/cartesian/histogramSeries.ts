@@ -200,7 +200,7 @@ export class HistogramSeries extends CartesianSeries<Rect, HistogramSeriesProper
         await this.requestDataModel<any>(dataController, this.data, {
             props,
             groupByFn,
-            formatIntoColumns: false,
+            formatIntoColumns: true,
             doNotFormatIntoRows: false,
         });
 
@@ -251,16 +251,23 @@ export class HistogramSeries extends CartesianSeries<Rect, HistogramSeriesProper
             animationValid: true,
             visible: this.visible,
         };
-        if (!this.visible || !processedData || processedData.type !== 'grouped') return context;
+        if (
+            !this.visible ||
+            processedData == null ||
+            processedData.rawData.length === 0 ||
+            processedData.type !== 'grouped'
+        )
+            return context;
 
+        const { rawData } = processedData;
         processedData.data.forEach((group) => {
             const {
                 aggValues: [[negativeAgg, positiveAgg]] = [[0, 0]],
-                datum,
                 datum: { length: frequency },
                 keys: domain,
                 keys: [xDomainMin, xDomainMax],
             } = group;
+            const datum = group.index.map((datumIndex) => rawData[datumIndex]);
 
             const xMinPx = xScale.convert(xDomainMin);
             const xMaxPx = xScale.convert(xDomainMax);

@@ -535,8 +535,8 @@ export class Annotations extends _ModuleSupport.BaseModuleInstance implements _M
 
         const { dataModel, processedData } = await dataController.request('annotations', this.data, {
             props,
-            formatIntoColumns: false,
-            doNotFormatIntoRows: false,
+            formatIntoColumns: true,
+            doNotFormatIntoRows: true,
         });
         this.dataModel = dataModel;
         this.processedData = processedData;
@@ -599,19 +599,22 @@ export class Annotations extends _ModuleSupport.BaseModuleInstance implements _M
     }
 
     private getDatumRangeVolume(from: Point['x'], to: Point['x']) {
-        if (!isValidDate(from) || !isValidDate(to) || !this.dataModel || !this.processedData) return;
+        const { dataModel, processedData } = this;
+
+        if (!isValidDate(from) || !isValidDate(to) || !dataModel || !processedData) return;
 
         if (from > to) {
             [from, to] = [to, from];
         }
 
-        const dateDef = this.dataModel.resolveProcessedDataDefById({ id: 'annotations' }, 'date');
-        const volumeDef = this.dataModel.resolveProcessedDataDefById({ id: 'annotations' }, 'volume');
+        const { keys } = processedData;
+        const dateIndex = dataModel.resolveProcessedDataIndexById({ id: 'annotations' }, 'date');
+        const volumeValues = dataModel.resolveColumnById({ id: 'annotations' }, 'volume', processedData);
 
-        return this.processedData.data.reduce((sum, datum) => {
-            const key = datum.keys[dateDef.index];
+        return processedData.rawData.reduce((sum, _datum, datumIndex) => {
+            const key = keys![datumIndex][dateIndex];
             if (isValidDate(key) && key >= from && key <= to) {
-                return sum + datum.values[volumeDef.index];
+                return sum + volumeValues[datumIndex];
             }
             return sum;
         }, 0);
