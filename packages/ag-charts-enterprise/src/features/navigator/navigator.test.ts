@@ -102,9 +102,15 @@ const NAVIGATOR_MINICHART_EXAMPLES: Record<string, CartesianTestCase> = {
                 },
             ],
             navigator: {
-                min: 0.2,
-                max: 0.7,
                 miniChart: {},
+            },
+            initialState: {
+                zoom: {
+                    ratioX: {
+                        start: 0.2,
+                        end: 0.7,
+                    },
+                },
             },
         },
         assertions: cartesianChartAssertions({ axisTypes: ['number', 'category'], seriesTypes: ['line', 'area'] }),

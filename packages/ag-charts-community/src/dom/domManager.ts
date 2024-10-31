@@ -331,9 +331,9 @@ export class DOMManager extends BaseManager<Events['type'], Events> {
         return search != null && el.contains(search);
     }
 
-    isEventOverElement(event: Event | MouseEvent | TouchEvent) {
-        const element = event.target as HTMLElement | null;
-        return element != null && this.element.contains(element);
+    contains(element: HTMLElement, domElementClass?: DOMElementClass) {
+        if (domElementClass == null) return this.element.contains(element);
+        return this.rootElements[domElementClass].element.contains(element);
     }
 
     addStyles(id: string, styles: string) {

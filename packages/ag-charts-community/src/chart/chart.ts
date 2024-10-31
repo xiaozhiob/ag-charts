@@ -602,7 +602,7 @@ export abstract class Chart extends Observable {
                 extraDebugStats['updateShortcutCount'] = this.updateShortcutCount;
                 await ctx.scene.render({ debugSplitTimes: splits, extraDebugStats, seriesRect: this.seriesRect });
                 this.extraDebugStats = {};
-                for (const key in splits) {
+                for (const key of Object.keys(splits)) {
                     delete splits[key];
                 }
 

@@ -38,6 +38,11 @@ export class AxisButton extends BaseModuleInstance implements _ModuleSupport.Mod
         const mouseMoveStates =
             InteractionState.Default | InteractionState.Annotations | InteractionState.AnnotationsSelected;
 
+        ctx.domManager.addEventListener('focusin', ({ target }) => {
+            const isSeriesAreaChild = target instanceof HTMLElement && ctx.domManager.contains(target, 'series-area');
+            if (!isSeriesAreaChild) this.hide();
+        });
+
         this.destroyFns.push(
             seriesRegion.addListener('hover', (event) => this.show(event), mouseMoveStates),
             seriesRegion.addListener(

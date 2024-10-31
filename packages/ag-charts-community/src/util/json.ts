@@ -171,13 +171,13 @@ export function jsonApply<Target extends object, Source extends DeepPartial<Targ
 
     const targetAny = target as any;
     const targetType = classify(target);
-    for (const property in source) {
+    for (const property of Object.keys(source)) {
         if (SKIP_JS_BUILTINS.has(property)) continue;
 
         const propertyMatcherPath = `${matcherPath ? matcherPath + '.' : ''}${property}`;
         if (skip.includes(propertyMatcherPath)) continue;
 
-        const newValue = source[property];
+        const newValue = (source as any)[property];
         const propertyPath = `${path ? path + '.' : ''}${property}`;
         const targetClass = targetAny.constructor;
         const currentValue = targetAny[property];
