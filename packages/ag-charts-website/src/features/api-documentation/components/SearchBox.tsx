@@ -3,9 +3,9 @@ import { Icon } from '@ag-website-shared/components/icon/Icon';
 import classnames from 'classnames';
 import type { AllHTMLAttributes, FormEventHandler, KeyboardEventHandler } from 'react';
 import { useRef, useState } from 'react';
-import Markdown from 'react-markdown';
 
 import { INDEXED_SEARCH_FIELD, type SearchDatum, type SearchIndex } from '../apiReferenceHelpers';
+import { HighlightText } from './HighlightText';
 import styles from './OptionsNavigation.module.scss';
 
 type SelectionHandler = (data: SearchDatum) => void;
@@ -75,7 +75,7 @@ export function SearchBox({
                                     onMouseEnter={() => setSelectedIndex(index)}
                                 >
                                     {markResults && searchQuery ? (
-                                        <Markdown>{data.label.replace(searchRegexp, `**$1**`)}</Markdown>
+                                        <HighlightText text={data.label} searchTerm={searchQuery} />
                                     ) : (
                                         data.label
                                     )}
