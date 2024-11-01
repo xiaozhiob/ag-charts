@@ -249,7 +249,7 @@ export class ProxyInteractionService {
 
         const mousemove = onDrag
             ? (sourceEvent: MouseEvent) => {
-                  if (this.dragState?.target === sourceEvent.target) {
+                  if (this.dragState?.target === element) {
                       // [offsetX, offsetY] is relative to the sourceEvent.target, which can be another element
                       // such as a legend button. Therefore, calculate [offsetX, offsetY] relative to the axis
                       // element that fired the 'mousedown' event.
