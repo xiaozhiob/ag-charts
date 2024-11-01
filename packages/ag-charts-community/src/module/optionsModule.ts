@@ -96,7 +96,7 @@ export class ChartOptions<T extends AgChartOptions = AgChartOptions> {
         this.optionMetadata = metadata ?? {};
         this.processedOverrides = processedOverrides ?? {};
 
-        const cloneOptions = { shallow: ['data'] };
+        const cloneOptions = new Set(['data', 'container']);
         this.userOptions = deepClone(userOptions, cloneOptions);
 
         let options = deepClone(userOptions, cloneOptions);
@@ -128,11 +128,8 @@ export class ChartOptions<T extends AgChartOptions = AgChartOptions> {
         }
 
         this.activeTheme = getChartTheme(options.theme);
-        if (presetType) {
-            options = this.activeTheme.templateTheme(options);
-        }
 
-        this.sanityCheckAndCleanup(options);
+        this.sanityCheck(options);
         this.defaultAxes = this.getDefaultAxes(options);
         this.specialOverrides = this.specialOverridesDefaults({ ...specialOverrides });
 
@@ -174,6 +171,8 @@ export class ChartOptions<T extends AgChartOptions = AgChartOptions> {
 
         this.enableConfiguredOptions(this.processedOptions, options);
 
+        this.activeTheme.templateTheme(this.processedOptions, false);
+        this.removeDisabledOptions(options);
         removeUnusedEnterpriseOptions(this.processedOptions);
         if (!enterpriseModule.isEnterprise) {
             removeUsedEnterpriseOptions(this.processedOptions, true);
@@ -191,9 +190,7 @@ export class ChartOptions<T extends AgChartOptions = AgChartOptions> {
     }
 
     protected getSeriesThemeConfig(seriesType: string) {
-        const themeConfig = deepClone(this.activeTheme?.config[seriesType] ?? {});
-        this.removeLeftoverSymbols(themeConfig);
-        return themeConfig;
+        return this.activeTheme?.config[seriesType] ?? {};
     }
 
     protected getDefaultAxes(options: T) {
@@ -206,13 +203,11 @@ export class ChartOptions<T extends AgChartOptions = AgChartOptions> {
         return options.series?.[0]?.type ?? 'line';
     }
 
-    protected sanityCheckAndCleanup(options: Partial<T>) {
+    protected sanityCheck(options: Partial<T>) {
         // output warnings and correct options when required
         this.axesTypeIntegrity(options);
         this.seriesTypeIntegrity(options);
         this.soloSeriesIntegrity(options);
-        this.removeDisabledOptions(options);
-        this.removeLeftoverSymbols(options);
     }
 
     protected processAxesOptions(options: T, axesThemes: any) {
@@ -272,7 +267,7 @@ export class ChartOptions<T extends AgChartOptions = AgChartOptions> {
                 seriesOptions.innerLabels = mergeArrayDefaults(seriesOptions.innerLabels, innerLabelsTheme);
             }
 
-            return this.activeTheme.templateTheme(seriesOptions);
+            return seriesOptions;
         });
 
         options.series = this.setSeriesGroupingOptions(processedSeries ?? []);
@@ -296,7 +291,7 @@ export class ChartOptions<T extends AgChartOptions = AgChartOptions> {
                 seriesTheme,
                 this.getSeriesPalette(series.type, paletteOptions)
             );
-            return this.activeTheme.templateTheme(seriesOptions);
+            return seriesOptions;
         });
         options.navigator!.miniChart!.series = this.setSeriesGroupingOptions(miniChartSeries) as any;
     }
@@ -526,66 +521,44 @@ export class ChartOptions<T extends AgChartOptions = AgChartOptions> {
         }
     }
 
+    private enableConfiguredOptionFn(visitingUserOpts: any, visitingMergedOpts: any) {
+        if (
+            visitingMergedOpts &&
+            'enabled' in visitingMergedOpts &&
+            !visitingMergedOpts._enabledFromTheme &&
+            visitingUserOpts.enabled == null
+        ) {
+            visitingMergedOpts.enabled = true;
+        }
+    }
+
+    private enableConfiguredOptionFromThemeFn(visitingMergedOpts: any) {
+        if (visitingMergedOpts._enabledFromTheme != null) {
+            // Do not apply special handling, base enablement on theme.
+            delete visitingMergedOpts._enabledFromTheme;
+        }
+    }
+
     private enableConfiguredOptions(options: T, userOptions: T) {
         // Set `enabled: true` for all option objects where the user has provided values.
-        jsonWalk<any>(
-            userOptions,
-            (visitingUserOpts, visitingMergedOpts) => {
-                if (
-                    visitingMergedOpts &&
-                    'enabled' in visitingMergedOpts &&
-                    !visitingMergedOpts._enabledFromTheme &&
-                    visitingUserOpts.enabled == null
-                ) {
-                    visitingMergedOpts.enabled = true;
-                }
-            },
-            { skip: ['data', 'theme'] },
-            options
-        );
+        jsonWalk(userOptions, this.enableConfiguredOptionFn, new Set(['data', 'theme']), options);
 
         // Cleanup any special properties.
-        jsonWalk<any>(
-            options,
-            (visitingMergedOpts) => {
-                if (visitingMergedOpts._enabledFromTheme != null) {
-                    // Do not apply special handling, base enablement on theme.
-                    delete visitingMergedOpts._enabledFromTheme;
-                }
-            },
-            { skip: ['data', 'theme'] }
-        );
+        jsonWalk(options, this.enableConfiguredOptionFromThemeFn, new Set(['data', 'theme']));
+    }
+
+    private removeDisabledOptionsFn(optionsNode: any) {
+        if ('enabled' in optionsNode && optionsNode.enabled === false) {
+            Object.keys(optionsNode).forEach((key) => {
+                if (key === 'enabled') return;
+                delete optionsNode[key as keyof T];
+            });
+        }
     }
 
     private removeDisabledOptions(options: Partial<T>) {
         // Remove configurations from all option objects with a `false` value for the `enabled` property.
-        jsonWalk(
-            options,
-            (optionsNode) => {
-                if ('enabled' in optionsNode && optionsNode.enabled === false) {
-                    Object.keys(optionsNode).forEach((key) => {
-                        if (key === 'enabled') return;
-                        delete optionsNode[key as keyof T];
-                    });
-                }
-            },
-            { skip: ['data', 'theme'] }
-        );
-    }
-
-    private removeLeftoverSymbols(options: Partial<T>) {
-        jsonWalk(
-            options,
-            (optionsNode) => {
-                if (!optionsNode || !isObject(optionsNode)) return;
-                for (const [key, value] of Object.entries(optionsNode)) {
-                    if (isSymbol(value)) {
-                        delete optionsNode[key as keyof T];
-                    }
-                }
-            },
-            { skip: ['data'] }
-        );
+        jsonWalk(options, this.removeDisabledOptionsFn, new Set(['data', 'theme']));
     }
 
     private specialOverridesDefaults(options: Partial<ChartSpecialOverrides>) {

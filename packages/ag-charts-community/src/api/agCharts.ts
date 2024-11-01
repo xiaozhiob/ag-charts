@@ -251,7 +251,7 @@ class AgChartsInternal {
     }
 
     static updateUserDelta(proxy: AgChartInstanceProxy, deltaOptions: DeepPartial<AgChartOptions>) {
-        deltaOptions = deepClone(deltaOptions, { shallow: ['data'] });
+        deltaOptions = deepClone(deltaOptions, new Set(['data']));
 
         jsonWalk(
             deltaOptions,
@@ -263,7 +263,7 @@ class AgChartsInternal {
                     }
                 }
             },
-            { skip: ['data'] }
+            new Set('data')
         );
 
         const { chart } = proxy;
