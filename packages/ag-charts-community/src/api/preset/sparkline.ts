@@ -17,6 +17,7 @@ import {
 } from 'ag-charts-types';
 
 import { IS_ENTERPRISE } from '../../chart/themes/symbols';
+import { simpleMemorize } from '../../util/memo';
 import { IGNORED_PROP, assertEmpty, pickProps } from './presetUtils';
 
 const commonAxisProperties = {
@@ -74,6 +75,7 @@ const SPARKLINE_THEME: AgChartTheme = {
             animation: {
                 enabled: false,
             },
+            toolbar: { enabled: false },
             padding: {
                 top: 0,
                 right: 0,
@@ -147,7 +149,9 @@ const SPARKLINE_THEME: AgChartTheme = {
     },
 };
 
-function setInitialBaseTheme(
+const setInitialBaseTheme = simpleMemorize(createInitialBaseTheme);
+
+function createInitialBaseTheme(
     baseTheme: AgChartTheme | AgChartThemeName | undefined,
     initialBaseTheme: AgChartTheme
 ): AgChartTheme {

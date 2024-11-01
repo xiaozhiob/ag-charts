@@ -1,10 +1,10 @@
 import type { AgAxisBoundSeries, CssColor, FontFamily, FontSize, FontStyle, FontWeight } from 'ag-charts-types';
 
 import type { AxisContext } from '../../module/axisContext';
+import type { AxisOptionModule } from '../../module/axisOptionModule';
 import type { ModuleInstance } from '../../module/baseModule';
 import type { ModuleContext, ModuleContextWithParent } from '../../module/moduleContext';
 import { ModuleMap } from '../../module/moduleMap';
-import type { AxisOptionModule } from '../../module/optionsModule';
 import type { FromToDiff } from '../../motion/fromToMotion';
 import { fromToMotion } from '../../motion/fromToMotion';
 import { resetMotion } from '../../motion/resetMotion';
@@ -19,7 +19,7 @@ import type { Node } from '../../scene/node';
 import { Selection } from '../../scene/selection';
 import { Line } from '../../scene/shape/line';
 import { type TextSizeProperties, TransformableText } from '../../scene/shape/text';
-import { Translatable } from '../../scene/transformable';
+import { Transformable, Translatable } from '../../scene/transformable';
 import type { PlacedLabelDatum } from '../../scene/util/labelPlacement';
 import { axisLabelsOverlap } from '../../scene/util/labelPlacement';
 import { normalizeAngle360, toRadians } from '../../util/angle';
@@ -1280,6 +1280,9 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
             scale: this.scale,
             direction: this.direction,
             continuous: ContinuousScale.is(scale) || OrdinalTimeScale.is(scale),
+            getCanvasBounds: () => {
+                return Transformable.toCanvas(this.axisGroup);
+            },
             seriesKeyProperties: () =>
                 this.boundSeries.reduce((keys, series) => {
                     const seriesKeys = series.getKeyProperties(this.direction);

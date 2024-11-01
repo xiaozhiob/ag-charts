@@ -29,6 +29,9 @@ export interface RootModule<M extends ModuleInstance = ModuleInstance> extends B
     moduleFactory: ModuleInstanceFactory<M>;
 
     themeTemplate?: {};
+
+    /** Force whether this is a removable module or not, depending on user options. */
+    removable?: boolean;
 }
 
 export interface LegendModule extends BaseModule {

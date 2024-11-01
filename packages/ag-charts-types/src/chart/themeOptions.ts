@@ -1,3 +1,4 @@
+import type { AgInitialStateThemeableOptions } from '../api/initialStateOptions';
 import type { AgLinearGaugeTarget, AgLinearGaugeThemeableOptions } from '../presets/gauge/linearGaugeOptions';
 import type { AgRadialGaugeTarget, AgRadialGaugeThemeableOptions } from '../presets/gauge/radialGaugeOptions';
 import type { AgAreaSeriesThemeableOptions } from '../series/cartesian/areaOptions';
@@ -227,6 +228,7 @@ export interface AgCommonThemeableAxisOptions extends AgCartesianAxesTheme, AgPo
 export interface AgCommonThemeableChartOptions extends AgBaseThemeableChartOptions {
     axes?: AgCommonThemeableAxisOptions;
     annotations?: AgAnnotationsThemeableOptions;
+    initialState?: AgInitialStateThemeableOptions;
     locale?: AgLocaleThemeableOptions;
 }
 

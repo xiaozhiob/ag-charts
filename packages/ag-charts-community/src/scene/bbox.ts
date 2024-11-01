@@ -1,4 +1,5 @@
-import type { BBoxContainsTester, BBoxValues } from '../util/bboxinterface';
+import type { BBoxContainsTester } from '../util/bboxinterface';
+import { BBoxValues } from '../util/bboxinterface';
 import { type Interpolating, interpolate } from '../util/interpolating';
 import type { DistantObject, NearestResult } from '../util/nearest';
 import { nearestSquared } from '../util/nearest';
@@ -29,7 +30,7 @@ export class BBox implements BBoxValues, BBoxContainsTester, DistantObject, Inte
         return new BBox(x, y, width, height);
     }
 
-    static merge(boxes: Iterable<BBox>) {
+    static merge(boxes: Iterable<BBoxValues>) {
         let left = Infinity;
         let top = Infinity;
         let right = -Infinity;
@@ -88,7 +89,7 @@ export class BBox implements BBoxValues, BBoxContainsTester, DistantObject, Inte
     }
 
     containsPoint(x: number, y: number): boolean {
-        return x >= this.x && x <= this.x + this.width && y >= this.y && y <= this.y + this.height;
+        return BBoxValues.containsPoint(this, x, y);
     }
 
     containsBBox(other: BBoxValues) {

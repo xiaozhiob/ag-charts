@@ -19,8 +19,9 @@ export class DisjointChannelScene extends ChannelScene<DisjointChannelProperties
 
     type = 'disjoint-channel';
 
-    override activeHandle?: ChannelHandle;
+    protected override ignoreYBounds: boolean = true;
 
+    override activeHandle?: ChannelHandle;
     override handles = {
         topLeft: new DivariantHandle(),
         topRight: new DivariantHandle(),

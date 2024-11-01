@@ -1,19 +1,19 @@
 import type { AgBaseAxisOptions, AgChartInstance, AgChartOptions } from 'ag-charts-types';
 
+import type { AxisOptionModule } from '../module/axisOptionModule';
 import type { LayoutContext } from '../module/baseModule';
 import type { LegendModule, RootModule } from '../module/coreModules';
 import { moduleRegistry } from '../module/module';
 import type { ModuleContext } from '../module/moduleContext';
-import type { AxisOptionModule, ChartOptions } from '../module/optionsModule';
+import type { ChartOptions } from '../module/optionsModule';
 import type { SeriesOptionModule } from '../module/optionsModuleTypes';
 import { BBox } from '../scene/bbox';
 import { Group, TranslatableGroup } from '../scene/group';
-import type { Node } from '../scene/node';
 import type { Scene } from '../scene/scene';
 import type { PlacedLabel, PointLabelDatum } from '../scene/util/labelPlacement';
 import { isPointLabelDatum, placeLabels } from '../scene/util/labelPlacement';
 import { groupBy } from '../util/array';
-import { sleep } from '../util/async';
+import { AsyncAwaitQueue } from '../util/async';
 import { Debug } from '../util/debug';
 import { createId } from '../util/id';
 import { jsonApply, jsonDiff } from '../util/json';
@@ -28,7 +28,6 @@ import { ActionOnSet, ProxyProperty } from '../util/proxy';
 import { debouncedCallback } from '../util/render';
 import { isDefined, isFiniteNumber, isFunction } from '../util/type-guards';
 import { BOOLEAN, OBJECT, UNION, Validate } from '../util/validation';
-import { CartesianAxis } from './axis/cartesianAxis';
 import { Caption } from './caption';
 import type { ChartAnimationPhase } from './chartAnimationPhase';
 import type { ChartAxis } from './chartAxis';
@@ -308,8 +307,6 @@ export abstract class Chart extends Observable {
             new SimpleRegionBBoxProvider(this.seriesRoot, () => this.seriesRect ?? BBox.zero),
             this.ctx.axisManager.axisGridGroup
         );
-        ctx.regionManager.addRegion(REGIONS.HORIZONTAL_AXES);
-        ctx.regionManager.addRegion(REGIONS.VERTICAL_AXES);
         ctx.regionManager.addRegion('root', root);
 
         // The 'data-animating' is used by e2e tests to wait for the animation to end before starting kbm interactions
@@ -461,6 +458,7 @@ export abstract class Chart extends Observable {
     private _pendingFactoryUpdatesCount = 0;
     private _performUpdateNoRenderCount = 0;
     private _performUpdateSkipAnimations: boolean = false;
+    private readonly _performUpdateNotify = new AsyncAwaitQueue();
     private performUpdateType: ChartUpdateType = ChartUpdateType.NONE;
 
     private updateShortcutCount = 0;
@@ -620,6 +618,7 @@ export abstract class Chart extends Observable {
         if (!updateDeferred) {
             ctx.updateService.dispatchUpdateComplete(this.getMinRects());
             this.ctx.domManager.setDataBoolean('updatePending', false);
+            this._performUpdateNotify.notify();
         }
 
         const end = performance.now();
@@ -1032,7 +1031,7 @@ export abstract class Chart extends Observable {
                     Logger.warnOnce(message);
                 }
             }
-            await sleep(50);
+            await this._performUpdateNotify.await();
         }
 
         // wait until any remaining updates are flushed through.
@@ -1120,7 +1119,7 @@ export abstract class Chart extends Observable {
         if (seriesStatus === 'replaced') {
             this.resetAnimations();
         }
-        if (this.applyAxes(this, newOpts, oldOpts, seriesStatus, [], true)) {
+        if (this.applyAxes(this, newOpts, oldOpts, seriesStatus, [])) {
             forceNodeDataRefresh = true;
         }
 
@@ -1388,8 +1387,7 @@ export abstract class Chart extends Observable {
         options: AgChartOptions,
         oldOpts: AgChartOptions,
         seriesStatus: SeriesChangeType,
-        skip: string[] = [],
-        registerRegions = false
+        skip: string[] = []
     ) {
         if (!('axes' in options) || !options.axes) {
             return false;
@@ -1418,23 +1416,6 @@ export abstract class Chart extends Observable {
 
         debug(`Chart.applyAxes() - creating new axes instances; seriesStatus: ${seriesStatus}`);
         chart.axes = this.createAxis(axes, skip);
-
-        if (registerRegions) {
-            const axisGroups: { [Key in ChartAxisDirection]: { id: string; node: Node }[] } = {
-                [ChartAxisDirection.X]: [],
-                [ChartAxisDirection.Y]: [],
-            };
-
-            for (const axis of chart.axes) {
-                if (axis instanceof CartesianAxis) {
-                    axisGroups[axis.direction].push({ id: axis.id, node: axis.axisGroup });
-                }
-            }
-
-            this.ctx.regionManager.updateRegion(REGIONS.HORIZONTAL_AXES, ...axisGroups[ChartAxisDirection.X]);
-            this.ctx.regionManager.updateRegion(REGIONS.VERTICAL_AXES, ...axisGroups[ChartAxisDirection.Y]);
-        }
-
         return true;
     }
 
