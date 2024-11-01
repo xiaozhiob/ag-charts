@@ -182,8 +182,8 @@ export abstract class RadialColumnSeriesBase<
                 ),
                 ...extraProps,
             ],
-            formatIntoColumns: false,
-            doNotFormatIntoRows: false,
+            formatIntoColumns: true,
+            doNotFormatIntoRows: true,
         });
 
         this.animationState.transition('updateData');
@@ -223,7 +223,13 @@ export abstract class RadialColumnSeriesBase<
     async createNodeData() {
         const { processedData, dataModel, groupScale } = this;
 
-        if (!processedData || !dataModel || !this.properties.isValid()) {
+        if (
+            !dataModel ||
+            !processedData ||
+            processedData.type !== 'ungrouped' ||
+            processedData.rawData.length === 0 ||
+            !this.properties.isValid()
+        ) {
             return;
         }
 
@@ -236,10 +242,10 @@ export abstract class RadialColumnSeriesBase<
             return;
         }
 
-        const radiusStartIndex = dataModel.resolveProcessedDataIndexById(this, `radiusValue-start`);
-        const radiusEndIndex = dataModel.resolveProcessedDataIndexById(this, `radiusValue-end`);
+        const radiusStartValues = dataModel.resolveColumnById(this, `radiusValue-start`, processedData);
+        const radiusEndValues = dataModel.resolveColumnById(this, `radiusValue-end`, processedData);
+        const radiusRawValues = dataModel.resolveColumnById(this, `radiusValue-raw`, processedData);
         const radiusRangeIndex = dataModel.resolveProcessedDataIndexById(this, `radiusValue-range`);
-        const radiusRawIndex = dataModel.resolveProcessedDataIndexById(this, `radiusValue-raw`);
 
         let groupPaddingInner = 0;
         let groupPaddingOuter = 0;
@@ -288,15 +294,15 @@ export abstract class RadialColumnSeriesBase<
         const context = { itemId: radiusKey, nodeData, labelData: nodeData };
         if (!this.visible) return context;
 
-        processedData.data.forEach((group, index, data) => {
-            const { datum, keys, values, aggValues } = group;
-
-            const angleDatum = keys[0];
-            const radiusDatum = values[radiusRawIndex];
+        const { keys, rawData } = processedData;
+        processedData.ungroups.forEach(({ aggregation }, datumIndex) => {
+            const datum = rawData[datumIndex];
+            const angleDatum = keys![datumIndex][0];
+            const radiusDatum = radiusRawValues[datumIndex];
             const isPositive = radiusDatum >= 0 && !Object.is(radiusDatum, -0);
-            const innerRadiusDatum = values[radiusStartIndex];
-            const outerRadiusDatum = values[radiusEndIndex];
-            const radiusRange = aggValues?.[radiusRangeIndex][isPositive ? 1 : 0] ?? 0;
+            const innerRadiusDatum = radiusStartValues[datumIndex];
+            const outerRadiusDatum = radiusEndValues[datumIndex];
+            const radiusRange = aggregation[radiusRangeIndex][isPositive ? 1 : 0] ?? 0;
             const negative = isPositive === radiusAxisReversed;
             if (innerRadiusDatum === undefined || outerRadiusDatum === undefined) {
                 return;
@@ -304,7 +310,7 @@ export abstract class RadialColumnSeriesBase<
 
             let startAngle: number;
             let endAngle: number;
-            if (data.length === 1) {
+            if (rawData.length === 1) {
                 startAngle = -0.5 * Math.PI;
                 endAngle = 1.5 * Math.PI;
             } else {
@@ -348,7 +354,7 @@ export abstract class RadialColumnSeriesBase<
                 axisInnerRadius,
                 axisOuterRadius,
                 columnWidth,
-                index,
+                index: datumIndex,
             });
         });
 
