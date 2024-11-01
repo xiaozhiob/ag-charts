@@ -23,7 +23,6 @@ import {
     STRING,
     Validate,
 } from '../util/validation';
-import type { TickDatum } from './axis/axis';
 import type { ChartAxisLabelFlipFlag } from './chartAxis';
 
 export class Label<TParams = never, TDatum = any>
@@ -130,7 +129,7 @@ export function getTextAlign(
 }
 
 export function createLabelData(
-    tickData: TickDatum[],
+    tickData: { tickLabel: string; translationY: number }[],
     labelX: number,
     labelMatrix: Matrix,
     textMeasurer: TextMeasurer

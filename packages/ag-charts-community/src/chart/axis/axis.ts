@@ -95,7 +95,7 @@ export type TickDatum = {
     translationY: number;
 };
 
-export type LabelNodeDatum = {
+type LabelNodeDatum = {
     tickId: string;
     fill?: CssColor;
     fontFamily?: FontFamily;
@@ -136,7 +136,7 @@ interface TickGenerationResult {
 type AxisAnimationState = 'empty' | 'ready';
 type AxisAnimationEvent = { reset: undefined; resize: undefined; update: FromToDiff };
 
-export type AxisModuleMap = ModuleMap<AxisOptionModule, ModuleInstance, ModuleContextWithParent<AxisContext>>;
+type AxisModuleMap = ModuleMap<AxisOptionModule, ModuleInstance, ModuleContextWithParent<AxisContext>>;
 
 class TranslatableLine extends Translatable(Line) {}
 
