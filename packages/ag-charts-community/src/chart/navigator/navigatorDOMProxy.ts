@@ -36,7 +36,7 @@ export class NavigatorDOMProxy {
         this.ctx = ctx;
         this.toolbar = ctx.proxyInteractionService.createProxyContainer({
             type: 'toolbar',
-            id: `navigator-toolbar`,
+            domManagerId: `navigator-toolbar`,
             classList: ['ag-charts-proxy-navigator-toolbar'],
             ariaOrientation: 'vertical',
             ariaLabel: { id: 'ariaLabelNavigator' },
