@@ -36,7 +36,7 @@ import { setDocument, setWindow } from '../util/dom';
 import { deepClone, jsonDiff, jsonWalk } from '../util/json';
 import { Logger } from '../util/logger';
 import { mergeArrayDefaults, mergeDefaults } from '../util/object';
-import { isEnumValue, isFiniteNumber, isObject, isPlainObject, isString, isSymbol } from '../util/type-guards';
+import { isEnumValue, isFiniteNumber, isObject, isPlainObject, isString } from '../util/type-guards';
 import { type PaletteType, paletteType } from './coreModulesTypes';
 import { enterpriseModule } from './enterpriseModule';
 import type { SeriesType } from './optionsModuleTypes';
@@ -285,13 +285,12 @@ export class ChartOptions<T extends AgChartOptions = AgChartOptions> {
         miniChartSeries = miniChartSeries.map((series) => {
             series.type ??= 'line';
             const { innerLabels: _, ...seriesTheme } = this.getSeriesThemeConfig(series.type).series ?? {};
-            const seriesOptions = mergeDefaults(
+            return mergeDefaults(
                 this.getSeriesGroupingOptions(series),
                 series,
                 seriesTheme,
                 this.getSeriesPalette(series.type, paletteOptions)
             );
-            return seriesOptions;
         });
         options.navigator!.miniChart!.series = this.setSeriesGroupingOptions(miniChartSeries) as any;
     }
