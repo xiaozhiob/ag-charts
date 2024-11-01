@@ -45,7 +45,6 @@ export class NavigatorDOMProxy {
         this.sliders = [
             ctx.proxyInteractionService.createProxyElement({
                 type: 'slider',
-                id: 'ag-charts-navigator-min',
                 ariaLabel: { id: 'ariaLabelNavigatorMinimum' },
                 ariaOrientation: 'horizontal',
                 parent: this.toolbar,
@@ -54,7 +53,6 @@ export class NavigatorDOMProxy {
             }),
             ctx.proxyInteractionService.createProxyElement({
                 type: 'slider',
-                id: 'ag-charts-navigator-pan',
                 ariaLabel: { id: 'ariaLabelNavigatorRange' },
                 ariaOrientation: 'horizontal',
                 parent: this.toolbar,
@@ -63,7 +61,6 @@ export class NavigatorDOMProxy {
             }),
             ctx.proxyInteractionService.createProxyElement({
                 type: 'slider',
-                id: 'ag-charts-navigator-max',
                 ariaLabel: { id: 'ariaLabelNavigatorMaximum' },
                 ariaOrientation: 'horizontal',
                 parent: this.toolbar,
