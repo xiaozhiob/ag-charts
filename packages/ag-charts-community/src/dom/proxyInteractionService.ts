@@ -1,17 +1,17 @@
 import type { Direction } from 'ag-charts-types';
 
 import type { LocaleManager } from '../locale/localeManager';
+import { setAttribute } from '../util/attributeUtil';
 import { createElement } from '../util/dom';
 import { BoundedText } from './boundedText';
 import type { DOMManager } from './domManager';
 
 export type ListSwitch = { button: HTMLButtonElement; listitem: HTMLElement };
 
-type ElemParams<T extends ProxyElementType> = {
-    readonly type: T;
-    readonly id: string;
-    readonly parent: HTMLElement | 'beforebegin' | 'afterend';
-};
+type ElemParams<T extends ProxyElementType> = { readonly type: T; readonly id?: string } & (
+    | { readonly parent: HTMLElement }
+    | { readonly domManagerId: string; readonly parent: 'beforebegin' | 'afterend' }
+);
 
 type InteractParams<T extends ProxyElementType> = ElemParams<T> & {
     readonly tabIndex?: number;
@@ -58,6 +58,10 @@ type ProxyMeta = {
         };
         result: ListSwitch;
     };
+    region: {
+        params: ElemParams<'region'>;
+        result: HTMLDivElement;
+    };
 
     // Containers
     toolbar: {
@@ -74,7 +78,7 @@ type ProxyMeta = {
     };
 };
 
-type ProxyElementType = 'button' | 'slider' | 'text' | 'listswitch';
+type ProxyElementType = 'button' | 'slider' | 'text' | 'listswitch' | 'region';
 type ProxyContainerType = 'toolbar' | 'group' | 'list';
 
 function checkType<T extends keyof ProxyMeta>(type: T, meta: ProxyMeta[keyof ProxyMeta]): meta is ProxyMeta[T] {
@@ -86,7 +90,7 @@ function allocateResult<T extends keyof ProxyMeta>(type: T): ProxyMeta[T]['resul
         return createElement('button');
     } else if ('slider' === type) {
         return createElement('input');
-    } else if (['toolbar', 'group', 'list'].includes(type)) {
+    } else if (['toolbar', 'group', 'list', 'region'].includes(type)) {
         return createElement('div');
     } else if ('text' === type) {
         return new BoundedText();
@@ -204,12 +208,19 @@ export class ProxyInteractionService {
             this.setParent(params, listitem);
         }
 
+        if (checkType('region', meta)) {
+            const { params, result: region } = meta;
+            this.initInteract(params, region);
+            region.role = 'region';
+            region.style.pointerEvents = 'auto'; // TODO(olegat) this should be part of CSS once all element types support pointer events.
+            this.setParent(params, region);
+        }
+
         return meta.result;
     }
 
     private initElement<T extends ProxyElementType, TElem extends HTMLElement>(params: ElemParams<T>, element: TElem) {
-        const { id } = params;
-        element.id = id;
+        setAttribute(element, 'id', params.id);
         element.classList.toggle('ag-charts-proxy-elem', true);
     }
 
@@ -252,10 +263,10 @@ export class ProxyInteractionService {
     }
 
     private setParent<T extends ProxyElementType, TElem extends HTMLElement>(params: ElemParams<T>, element: TElem) {
-        const { id, parent } = params;
+        const { parent } = params;
         if (typeof parent === 'string') {
             const insert = { where: parent, query: '.ag-charts-series-area' };
-            this.domManager.addChild('canvas-proxy', id, element, insert);
+            this.domManager.addChild('canvas-proxy', params.domManagerId, element, insert);
         } else {
             parent.appendChild(element);
         }

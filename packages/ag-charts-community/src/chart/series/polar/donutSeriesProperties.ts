@@ -188,6 +188,9 @@ export class DonutSeriesProperties extends SeriesProperties<AgDonutSeriesOptions
     @Validate(NUMBER)
     sectorSpacing: number = 0;
 
+    @Validate(BOOLEAN)
+    hideZeroValueSectorsInLegend = false;
+
     @Validate(OBJECT_ARRAY)
     readonly innerLabels = new PropertiesArray(DonutInnerLabel);
 

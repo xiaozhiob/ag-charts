@@ -96,8 +96,6 @@ export class SeriesAreaManager extends BaseManager {
         super();
 
         const seriesRegion = chart.ctx.regionManager.getRegion(REGIONS.SERIES);
-        const horizontalAxesRegion = chart.ctx.regionManager.getRegion(REGIONS.HORIZONTAL_AXES);
-        const verticalAxesRegion = chart.ctx.regionManager.getRegion(REGIONS.VERTICAL_AXES);
         const mouseMoveStates =
             InteractionState.Default | InteractionState.Annotations | InteractionState.AnnotationsSelected;
         const keyState = InteractionState.Default | InteractionState.Animation;
@@ -120,10 +118,6 @@ export class SeriesAreaManager extends BaseManager {
             seriesRegion.addListener('drag', (event) => this.onHoverLikeEvent(event), mouseMoveStates),
             seriesRegion.addListener('hover', (event) => this.onHover(event), mouseMoveStates),
             seriesRegion.addListener('leave', () => this.onLeave(), mouseMoveStates),
-            horizontalAxesRegion.addListener('hover', (event) => this.onHover(event), mouseMoveStates),
-            horizontalAxesRegion.addListener('leave', () => this.onLeave()),
-            verticalAxesRegion.addListener('hover', (event) => this.onHover(event), mouseMoveStates),
-            verticalAxesRegion.addListener('leave', () => this.onLeave()),
             chart.ctx.animationManager.addListener('animation-start', () => this.clearAll()),
             chart.ctx.domManager.addListener('resize', () => this.clearAll()),
             chart.ctx.highlightManager.addListener('highlight-change', (event) => this.changeHighlightDatum(event)),

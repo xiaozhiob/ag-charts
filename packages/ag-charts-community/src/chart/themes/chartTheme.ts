@@ -12,7 +12,7 @@ import type {
 import { type PaletteType, paletteType } from '../../module/coreModulesTypes';
 import { enterpriseModule } from '../../module/enterpriseModule';
 import { deepClone, jsonWalk } from '../../util/json';
-import { mergeDefaults } from '../../util/object';
+import { deepFreeze, mergeDefaults } from '../../util/object';
 import { isArray } from '../../util/type-guards';
 import { axisRegistry } from '../factory/axisRegistry';
 import { type ChartType, chartDefaults, chartTypes } from '../factory/chartTypes';
@@ -303,15 +303,17 @@ export class ChartTheme {
         }
 
         const { fills, strokes, ...otherColors } = this.getDefaultColors();
-        this.palette = mergeDefaults(palette, {
-            fills: Object.values(fills),
-            strokes: Object.values(strokes),
-            ...otherColors,
-        });
+        this.palette = deepFreeze(
+            mergeDefaults(palette, {
+                fills: Object.values(fills),
+                strokes: Object.values(strokes),
+                ...otherColors,
+            })
+        );
         this.paletteType = paletteType(palette);
 
-        this.config = Object.freeze(this.templateTheme(defaults));
-        this.presets = presets;
+        this.config = deepFreeze(this.templateTheme(defaults));
+        this.presets = deepFreeze(presets);
     }
 
     private mergeOverrides(defaults: AgChartThemeOverrides, presets: AgPresetOverrides, overrides: AgThemeOverrides) {

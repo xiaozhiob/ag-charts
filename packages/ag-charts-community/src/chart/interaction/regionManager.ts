@@ -80,18 +80,24 @@ type EventUpcast<K extends keyof HTMLElement> = PointerInteractionEvent & {
     sourceEvent: RegionEvent['sourceEvent'] & { target: (EventTarget & { [P in K]?: unknown }) | null };
 };
 
-function shouldIgnore(event: EventUpcast<'id' | 'className' | 'classList' | 'ariaHidden'>): 'none' | 'leave' | 'wait' {
+function shouldIgnore(
+    event: EventUpcast<'id' | 'className' | 'classList' | 'ariaHidden' | 'role'>
+): 'none' | 'leave' | 'wait' {
     const { type, sourceEvent } = event;
-    const { id, className, classList, ariaHidden } = sourceEvent?.target ?? {};
+    const { id, className, classList, ariaHidden, role } = sourceEvent?.target ?? {};
     if (!(classList instanceof DOMTokenList)) return 'leave';
 
     const dragTypes: readonly string[] = DRAG_INTERACTION_TYPES;
+    if (className === 'ag-charts-proxy-elem') {
+        if (id?.toString().startsWith('ag-charts-legend-item-')) return 'leave'; // legend <buttons>
+        if (role === 'region') return 'leave'; // axes zoom draggers
+        return 'none'; // navigator sliders
+    }
     if (
         // Handle drag event on the axis 'add horizontal line annotation' button as canvas events.
         (classList.contains('ag-charts-annotations__axis-button-icon') && !dragTypes.includes(type)) ||
         className === 'ag-charts-swapchain' ||
         className === 'ag-charts-canvas-proxy' ||
-        (className === 'ag-charts-proxy-elem' && !id?.toString().startsWith('ag-charts-legend-item-')) || // legend <buttons>
         sourceEvent?.target instanceof HTMLCanvasElement // This case is for nodeCanvas tests
     ) {
         return 'none';
@@ -154,6 +160,10 @@ export class RegionManager {
         } else {
             throw new Error('AG Charts - unknown region: ' + name);
         }
+    }
+
+    public removeRegion(region: RegionName): void {
+        this.regions.delete(region);
     }
 
     public getRegion(name: RegionName) {

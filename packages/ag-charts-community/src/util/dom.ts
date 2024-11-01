@@ -92,6 +92,14 @@ export function setElementBBox(element: HTMLElement | undefined, bbox: BBoxValue
     }
 }
 
+export function getElementBBox(element: HTMLElement): BBoxValues {
+    const width = parseFloat(element.style.width) || 0;
+    const height = parseFloat(element.style.height) || 0;
+    const x = parseFloat(element.style.left) || 0;
+    const y = parseFloat(element.style.top) || 0;
+    return { x, y, width, height };
+}
+
 export function focusCursorAtEnd(element: HTMLElement) {
     element.focus({ preventScroll: true });
 

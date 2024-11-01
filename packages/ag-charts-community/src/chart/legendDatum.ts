@@ -52,6 +52,7 @@ export interface CategoryLegendDatum extends BaseChartLegendDatum {
     label: {
         text: string; // display name for the sub-component
     };
+    skipAnimations?: boolean;
 }
 
 export interface GradientLegendDatum extends BaseChartLegendDatum {

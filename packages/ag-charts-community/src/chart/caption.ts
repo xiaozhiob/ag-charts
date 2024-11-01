@@ -119,8 +119,8 @@ export class Caption extends BaseProperties implements CaptionLike {
         if (this.enabled && this.text) {
             const bbox = Transformable.toCanvas(this.node);
             if (bbox) {
-                const { id } = this;
-                this.proxyText ??= proxyService.createProxyElement({ type: 'text', id, parent: where });
+                const { id: domManagerId } = this;
+                this.proxyText ??= proxyService.createProxyElement({ type: 'text', domManagerId, parent: where });
                 this.proxyText.textContent = this.text;
                 this.proxyText.updateBounds(bbox);
             }

@@ -7,8 +7,6 @@ export enum REGIONS {
     NAVIGATOR = 'navigator',
     ROOT = 'root',
     SERIES = 'series',
-    HORIZONTAL_AXES = 'horizontal-axes',
-    VERTICAL_AXES = 'vertical-axes',
 }
 
 export type RegionName = `${REGIONS}`;
