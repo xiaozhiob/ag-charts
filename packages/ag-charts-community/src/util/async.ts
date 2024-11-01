@@ -17,7 +17,7 @@ export class AsyncAwaitQueue {
                 const queueIndex = this.queue.findIndex(successFn);
                 if (queueIndex < 0) return;
 
-                this.queue.splice(this.queue.findIndex(successFn), 1);
+                this.queue.splice(queueIndex, 1);
                 resolve(false);
             };
             const timeoutHandle = setTimeout(timeoutFn, timeout);
