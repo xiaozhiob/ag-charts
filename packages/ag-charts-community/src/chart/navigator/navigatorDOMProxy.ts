@@ -201,4 +201,15 @@ export class NavigatorDOMProxy {
     private getSliderRatio(slider: HTMLInputElement) {
         return parseFloat(slider.value) / 100;
     }
+
+    testFindTarget(
+        type: NavigatorButtonType,
+        canvasX: number,
+        canvasY: number
+    ): { target: HTMLElement; x: number; y: number } {
+        const target = this.sliders[{ min: 0, pan: 1, max: 2 }[type]];
+        const x = canvasX - parseFloat(target.style.left) - parseFloat(this.toolbar.style.left);
+        const y = canvasY - parseFloat(target.style.top) - parseFloat(this.toolbar.style.top);
+        return { target, x, y };
+    }
 }
