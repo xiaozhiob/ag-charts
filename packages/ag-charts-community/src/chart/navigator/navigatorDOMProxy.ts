@@ -78,6 +78,7 @@ export class NavigatorDOMProxy {
                 element: slider,
                 onDragStart: (ev) => this.onDragStart(ev, key, slider, sliderHandlers),
                 onDrag: (ev) => this.onDrag(ev, key, sliderHandlers),
+                onDragEnd: () => this.updateSliderRatios(),
             });
         }
         this.setSliderRatio(this.sliders[0], this._min);
@@ -124,9 +125,13 @@ export class NavigatorDOMProxy {
     updateMinMax(min: number, max: number) {
         this._min = min;
         this._max = max;
-        this.setPanSliderValue(min, max);
-        this.setSliderRatio(this.sliders[0], min);
-        this.setSliderRatio(this.sliders[2], max);
+        this.updateSliderRatios();
+    }
+
+    private updateSliderRatios() {
+        this.setPanSliderValue(this._min, this._max);
+        this.setSliderRatio(this.sliders[0], this._min);
+        this.setSliderRatio(this.sliders[2], this._max);
     }
 
     private toCanvasOffsets(event: ProxyDragHandlerEvent): { offsetX: number } {
