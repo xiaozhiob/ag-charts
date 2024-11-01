@@ -1,3 +1,4 @@
+import type { ProxyDragHandlerEvent } from '../../dom/proxyInteractionService';
 import type { ModuleContext } from '../../module/moduleContext';
 import { setAttribute } from '../../util/attributeUtil';
 import type { BBoxValues } from '../../util/bboxinterface';
@@ -19,6 +20,8 @@ export class NavigatorDOMProxy {
     public _max = 1;
 
     public readonly minRange = 0.001;
+
+    private dragStartX = 0;
 
     private readonly toolbar: HTMLElement;
     private readonly sliders: [HTMLInputElement, HTMLInputElement, HTMLInputElement];
@@ -73,8 +76,8 @@ export class NavigatorDOMProxy {
             setAttribute(slider, 'data-preventdefault', false);
             ctx.proxyInteractionService.createDragListeners({
                 element: slider,
-                onDragStart: (ev) => sliderHandlers.onDragStart(key, ev),
-                onDrag: (ev) => sliderHandlers.onDrag(key, ev),
+                onDragStart: (ev) => this.onDragStart(ev, key, slider, sliderHandlers),
+                onDrag: (ev) => this.onDrag(ev, key, sliderHandlers),
             });
         }
         this.setSliderRatio(this.sliders[0], this._min);
@@ -124,6 +127,30 @@ export class NavigatorDOMProxy {
         this.setPanSliderValue(min, max);
         this.setSliderRatio(this.sliders[0], min);
         this.setSliderRatio(this.sliders[2], max);
+    }
+
+    private toCanvasOffsets(event: ProxyDragHandlerEvent): { offsetX: number } {
+        return { offsetX: this.dragStartX + event.originDeltaX };
+    }
+
+    private onDragStart(
+        event: ProxyDragHandlerEvent,
+        key: NavigatorButtonType,
+        slider: HTMLInputElement,
+        sliderHandlers: Pick<SliderDragHandlers, 'onDragStart'>
+    ) {
+        const toolbarLeft = parseFloat(this.toolbar.style.left);
+        const sliderLeft = parseFloat(slider.style.left);
+        this.dragStartX = toolbarLeft + sliderLeft + event.offsetX;
+        sliderHandlers.onDragStart(key, this.toCanvasOffsets(event));
+    }
+
+    private onDrag(
+        event: ProxyDragHandlerEvent,
+        key: NavigatorButtonType,
+        sliderHandlers: Pick<SliderDragHandlers, 'onDrag'>
+    ) {
+        sliderHandlers.onDrag(key, this.toCanvasOffsets(event));
     }
 
     private onPanSliderChange(_event: Event) {
