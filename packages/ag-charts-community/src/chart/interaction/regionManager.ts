@@ -162,6 +162,10 @@ export class RegionManager {
         }
     }
 
+    public removeRegion(region: RegionName): void {
+        this.regions.delete(region);
+    }
+
     public getRegion(name: RegionName) {
         return this.makeObserver(this.regions.get(name));
     }
