@@ -182,6 +182,7 @@ export function priceVolume(
         animation: { enabled: false },
         legend: { enabled: false },
         series: [...volumeSeries, ...priceSeries],
+        seriesArea: { clip: true },
         axes: [
             {
                 type: 'number',
