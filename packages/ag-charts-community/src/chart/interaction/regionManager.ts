@@ -83,14 +83,13 @@ type EventUpcast<K extends keyof HTMLElement> = PointerInteractionEvent & {
 function shouldIgnore(event: EventUpcast<'className' | 'classList' | 'ariaHidden'>): 'none' | 'leave' | 'wait' {
     const { type, sourceEvent } = event;
     const { className, classList, ariaHidden } = sourceEvent?.target ?? {};
-    if (!(classList instanceof DOMTokenList)) return 'leave';
+    if (className === 'ag-charts-proxy-elem' || !(classList instanceof DOMTokenList)) return 'leave';
 
     const dragTypes: readonly string[] = DRAG_INTERACTION_TYPES;
     if (
         // Handle drag event on the axis 'add horizontal line annotation' button as canvas events.
         (classList.contains('ag-charts-annotations__axis-button-icon') && !dragTypes.includes(type)) ||
         className === 'ag-charts-swapchain' ||
-        className === 'ag-charts-proxy-elem' ||
         className === 'ag-charts-canvas-proxy' ||
         sourceEvent?.target instanceof HTMLCanvasElement // This case is for nodeCanvas tests
     ) {
@@ -276,14 +275,14 @@ export class RegionManager {
     }
 
     private processPointerEvent(event: PointerInteractionEvent) {
-        if (this.handleDragging(event)) {
+        const ignore = shouldIgnore(event);
+        if (ignore === 'none' && this.handleDragging(event)) {
             // We are current dragging, so do not send leave/enter events until dragging is done.
             return;
         }
 
         const { current } = this;
 
-        const ignore = shouldIgnore(event);
         let newCurrent: ReturnType<RegionManager['pickRegion']>;
         switch (ignore) {
             case 'wait':
