@@ -91,6 +91,7 @@ export class NavigatorDOMProxy {
             this.sliders.forEach((e) => e.remove());
             this.toolbar.remove();
         });
+        this.updateVisibility(false);
     }
 
     destroy() {
