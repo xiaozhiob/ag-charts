@@ -871,7 +871,7 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
         return strategies;
     }
 
-    createTickData(
+    private createTickData(
         tickGenerationType: TickGenerationType,
         index: number,
         tickData: TickData,
@@ -1181,45 +1181,60 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
     }
 
     // For formatting (nice rounded) tick values.
-    formatTick(datum: any, fractionDigits: number, index: number): string {
-        return String(this.getFormatter(index, true)(datum, fractionDigits));
-    }
-
-    // For formatting arbitrary values between the ticks.
-    formatDatum(datum: any): string {
-        return String(this.getFormatter()(datum));
-    }
-
-    getFormatter(index: number = 0, isTickLabel?: boolean): (datum: any, fractionDigits?: number) => string {
+    private formatTick(datum: any, fractionDigits: number, index: number): string {
         const {
             labelFormatter,
-            datumFormatter,
             label: { formatter },
             moduleCtx: { callbackCache },
         } = this;
 
+        let result: string | undefined;
         if (formatter) {
-            return (datum, fractionDigits) =>
-                callbackCache.call(formatter, { value: datum, index, fractionDigits }) ?? String(datum);
-        } else if (!isTickLabel && datumFormatter) {
-            return (datum) => callbackCache.call(datumFormatter, datum) ?? String(datum);
+            result = callbackCache.call(formatter, { value: datum, index, fractionDigits });
         } else if (labelFormatter) {
-            return (datum) => callbackCache.call(labelFormatter, datum) ?? String(datum);
+            result = callbackCache.call(labelFormatter, datum);
         }
-        // The axis is using a logScale or the`datum` is an integer, a string or an object
-        return String;
+        return result ?? String(datum);
+    }
+
+    // For formatting arbitrary values between the ticks.
+    formatDatum(datum: any): string {
+        const {
+            label: { formatter },
+            moduleCtx: { callbackCache },
+            datumFormatter: valueFormatter = this.labelFormatter,
+        } = this;
+
+        let result: string | undefined;
+        if (formatter) {
+            result = callbackCache.call(formatter, { value: datum, index: NaN });
+        } else if (valueFormatter) {
+            result = callbackCache.call(valueFormatter, datum);
+        }
+        return result ?? String(datum);
+    }
+
+    private getScaleValueFormatter(format?: string): (datum: any) => string {
+        if (format && this.scale.tickFormat) {
+            try {
+                return this.scale.tickFormat({ specifier: format });
+            } catch (e) {
+                Logger.warnOnce(`the format string ${format} is invalid, ignoring.`);
+            }
+        }
+        return (datum) => this.formatDatum(datum);
     }
 
     getBBox(): BBox {
         return this.axisGroup.getBBox();
     }
 
-    initCrossLine(crossLine: CrossLine) {
+    private initCrossLine(crossLine: CrossLine) {
         crossLine.scale = this.scale;
         crossLine.gridLength = this.gridLength;
     }
 
-    isAnySeriesActive() {
+    private isAnySeriesActive() {
         return this.boundSeries.some((s) => this.includeInvisibleDomains || s.isEnabled());
     }
 
@@ -1244,7 +1259,7 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
         return { direction, boundSeries, defaultValue: this.title?.text };
     }
 
-    normaliseDataDomain(d: D[]): { domain: D[]; clipped: boolean } {
+    protected normaliseDataDomain(d: D[]): { domain: D[]; clipped: boolean } {
         return { domain: [...d], clipped: false };
     }
 
@@ -1305,18 +1320,7 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
         };
     }
 
-    private getScaleValueFormatter(format?: string) {
-        if (format && this.scale.tickFormat) {
-            try {
-                return this.scale.tickFormat({ specifier: format });
-            } catch (e) {
-                Logger.warnOnce(`the format string ${format} is invalid, ignoring.`);
-            }
-        }
-        return this.getFormatter();
-    }
-
-    animateReadyUpdate(diff: FromToDiff) {
+    private animateReadyUpdate(diff: FromToDiff) {
         const { animationManager } = this.moduleCtx;
         const selectionCtx = prepareAxisAnimationContext(this);
         const fns = prepareAxisAnimationFunctions(selectionCtx);

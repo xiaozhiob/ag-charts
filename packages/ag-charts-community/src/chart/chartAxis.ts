@@ -58,7 +58,6 @@ export interface ChartAxis {
     resetAnimation(chartAnimationPhase: ChartAnimationPhase): unknown;
     setCrossLinesVisible(visible: boolean): void;
     update(animated?: boolean): void;
-    updatePosition(): void;
     boundSeries: ISeries<unknown, unknown>[];
     crossLines?: CrossLine[];
     dataDomain: { domain: any[]; clipped: boolean };
