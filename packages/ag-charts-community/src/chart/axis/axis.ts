@@ -33,7 +33,7 @@ import { countFractionDigits, findMinMax, findRangeExtent, round } from '../../u
 import { ObserveChanges } from '../../util/proxy';
 import { StateMachine } from '../../util/stateMachine';
 import { createIdsGenerator } from '../../util/tempUtils';
-import { CachedTextMeasurerPool, type TextMeasurer, TextUtils } from '../../util/textMeasurer';
+import { CachedTextMeasurerPool, TextUtils } from '../../util/textMeasurer';
 import { estimateTickCount } from '../../util/ticks';
 import { BOOLEAN, OBJECT, STRING_ARRAY, Validate } from '../../util/validation';
 import { Caption } from '../caption';
@@ -43,7 +43,7 @@ import { ChartAxisDirection } from '../chartAxisDirection';
 import { CartesianCrossLine } from '../crossline/cartesianCrossLine';
 import type { CrossLine } from '../crossline/crossLine';
 import type { AnimationManager } from '../interaction/animationManager';
-import { calculateLabelBBox, calculateLabelRotation, getLabelSpacing, getTextAlign, getTextBaseline } from '../label';
+import { calculateLabelRotation, createLabelData, getLabelSpacing, getTextAlign, getTextBaseline } from '../label';
 import type { AxisLayout } from '../layout/layoutManager';
 import type { ISeries } from '../series/seriesTypes';
 import { ZIndexMap } from '../zIndexMap';
@@ -807,7 +807,7 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
                 Matrix.updateTransformMatrix(labelMatrix, 1, 1, labelRotation, 0, 0);
 
                 textAlign = getTextAlign(parallel, configuredRotation, autoRotation, sideFlag, regularFlipFlag);
-                labelData = this.createLabelData(tickData.ticks, labelX, labelMatrix, textMeasurer);
+                labelData = createLabelData(tickData.ticks, labelX, labelMatrix, textMeasurer);
                 labelOverlap = this.label.avoidCollisions ? axisLabelsOverlap(labelData, labelSpacing) : false;
             }
         }
@@ -913,26 +913,6 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
         terminate ||= step != null || values != null;
 
         return { tickData, index, autoRotation: 0, terminate };
-    }
-
-    private createLabelData(
-        tickData: TickDatum[],
-        labelX: number,
-        labelMatrix: Matrix,
-        textMeasurer: TextMeasurer
-    ): PlacedLabelDatum[] {
-        const labelData: PlacedLabelDatum[] = [];
-        for (const { tickLabel, translationY } of tickData) {
-            if (!tickLabel) continue;
-
-            const { width, height } = textMeasurer.measureLines(tickLabel);
-            const bbox = new BBox(labelX, translationY, width, height);
-            const labelDatum = calculateLabelBBox(tickLabel, bbox, labelMatrix);
-
-            labelData.push(labelDatum);
-        }
-
-        return labelData;
     }
 
     private getTicks({
