@@ -13,7 +13,7 @@ import type { Scene } from '../scene/scene';
 import type { PlacedLabel, PointLabelDatum } from '../scene/util/labelPlacement';
 import { isPointLabelDatum, placeLabels } from '../scene/util/labelPlacement';
 import { groupBy } from '../util/array';
-import { sleep } from '../util/async';
+import { AsyncAwaitQueue } from '../util/async';
 import { Debug } from '../util/debug';
 import { createId } from '../util/id';
 import { jsonApply, jsonDiff } from '../util/json';
@@ -177,6 +177,7 @@ export abstract class Chart extends Observable {
 
     private _lastAutoSize?: [number, number];
     private _firstAutoSize = true;
+    private readonly _autoSizeNotify = new AsyncAwaitQueue();
 
     download(fileName?: string, fileFormat?: string) {
         this.ctx.scene.download(fileName, fileFormat);
@@ -456,9 +457,10 @@ export abstract class Chart extends Observable {
     }
 
     private _pendingFactoryUpdatesCount = 0;
-    private _performUpdateNoRenderCount = 0;
     private _performUpdateSkipAnimations: boolean = false;
+    private readonly _performUpdateNotify = new AsyncAwaitQueue();
     private performUpdateType: ChartUpdateType = ChartUpdateType.NONE;
+    private runningUpdateType: ChartUpdateType = ChartUpdateType.NONE;
 
     private updateShortcutCount = 0;
     private readonly seriesToUpdate: Set<ISeries<any, any>> = new Set();
@@ -524,6 +526,7 @@ export abstract class Chart extends Observable {
         // Clear state immediately so that side effects can be detected prior to SCENE_RENDER.
         this.performUpdateType = ChartUpdateType.NONE;
         this.seriesToUpdate.clear();
+        this.runningUpdateType = performUpdateType;
 
         if (this.updateShortcutCount === 0 && performUpdateType < ChartUpdateType.SCENE_RENDER) {
             ctx.animationManager.startBatch(this._performUpdateSkipAnimations);
@@ -539,30 +542,32 @@ export abstract class Chart extends Observable {
             previousSplit = performance.now();
         };
 
-        let updateDeferred = false;
         switch (performUpdateType) {
             case ChartUpdateType.FULL:
+                if (this.checkUpdateShortcut(ChartUpdateType.FULL)) break;
+
                 this.ctx.updateService.dispatchPreDomUpdate();
                 this.updateDOM();
             // fallthrough
 
             case ChartUpdateType.UPDATE_DATA:
+                if (this.checkUpdateShortcut(ChartUpdateType.UPDATE_DATA)) break;
+
                 await this.updateData();
                 updateSplits('⬇️');
             // fallthrough
 
             case ChartUpdateType.PROCESS_DATA:
+                if (this.checkUpdateShortcut(ChartUpdateType.PROCESS_DATA)) break;
+
                 await this.processData();
                 this.seriesAreaManager.dataChanged();
                 updateSplits('🏭');
             // fallthrough
 
             case ChartUpdateType.PERFORM_LAYOUT:
+                await this.checkFirstAutoSize();
                 if (this.checkUpdateShortcut(ChartUpdateType.PERFORM_LAYOUT)) break;
-                if (!this.checkFirstAutoSize(seriesToUpdate)) {
-                    updateDeferred = true;
-                    break;
-                }
 
                 await this.processLayout();
                 updateSplits('⌖');
@@ -614,10 +619,12 @@ export abstract class Chart extends Observable {
                 ctx.animationManager.endBatch();
         }
 
-        if (!updateDeferred) {
+        if (!this.destroyed) {
             ctx.updateService.dispatchUpdateComplete(this.getMinRects());
             this.ctx.domManager.setDataBoolean('updatePending', false);
+            this.runningUpdateType = ChartUpdateType.NONE;
         }
+        this._performUpdateNotify.notify();
 
         const end = performance.now();
         this.debug('Chart.performUpdate() - end', {
@@ -666,6 +673,8 @@ export abstract class Chart extends Observable {
     private checkUpdateShortcut(checkUpdateType: ChartUpdateType) {
         const maxShortcuts = 3;
 
+        if (this.destroyed) return true;
+
         if (this.updateShortcutCount > maxShortcuts) {
             Logger.warn(
                 `exceeded the maximum number of simultaneous updates (${
@@ -685,29 +694,19 @@ export abstract class Chart extends Observable {
         return false;
     }
 
-    private checkFirstAutoSize(seriesToUpdate: ISeries<any, any>[]) {
+    private async checkFirstAutoSize() {
         if (this.width != null && this.height != null) {
             // Auto-size isn't in use in this case, don't wait for it.
         } else if (!this._lastAutoSize) {
-            const count = this._performUpdateNoRenderCount++;
-            const backOffMs = (count + 1) ** 2 * 40;
+            const success = await this._autoSizeNotify.await(500);
 
-            if (count < 8) {
-                // Reschedule if canvas size hasn't been set yet to avoid a race.
-                this.update(ChartUpdateType.PERFORM_LAYOUT, { seriesToUpdate, backOffMs });
-
-                this.debug('Chart.checkFirstAutoSize() - backing off until first size update', backOffMs);
-                return false;
+            if (!success) {
+                // After several failed passes, continue and accept there maybe a redundant
+                // render. Sometimes this case happens when we already have the correct
+                // width/height, and we end up never rendering the chart in that scenario.
+                this.debug('Chart.checkFirstAutoSize() - timeout for first size update.');
             }
-
-            // After several failed passes, continue and accept there maybe a redundant
-            // render. Sometimes this case happens when we already have the correct
-            // width/height, and we end up never rendering the chart in that scenario.
-            this.debug('Chart.checkFirstAutoSize() - timeout for first size update.');
         }
-        this._performUpdateNoRenderCount = 0;
-
-        return true;
     }
 
     @ActionOnSet<Chart>({
@@ -872,6 +871,7 @@ export abstract class Chart extends Observable {
             }
 
             this.update(ChartUpdateType.PERFORM_LAYOUT, { forceNodeDataRefresh: true, skipAnimations });
+            this._autoSizeNotify.notify();
         }
     }
 
@@ -1015,12 +1015,20 @@ export abstract class Chart extends Observable {
     async waitForUpdate(timeoutMs = 10_000, failOnTimeout = false): Promise<void> {
         const start = performance.now();
 
-        if (this._pendingFactoryUpdatesCount > 0) {
-            // wait until any pending updates are flushed through.
-            await this.updateMutex.waitForClearAcquireQueue();
-        }
+        while (
+            this._pendingFactoryUpdatesCount > 0 ||
+            this.performUpdateType !== ChartUpdateType.NONE ||
+            this.runningUpdateType !== ChartUpdateType.NONE
+        ) {
+            if (this._pendingFactoryUpdatesCount > 0) {
+                // wait until any pending updates are flushed through.
+                await this.updateMutex.waitForClearAcquireQueue();
+            }
 
-        while (this.performUpdateType !== ChartUpdateType.NONE) {
+            if (this.performUpdateType !== ChartUpdateType.NONE || this.runningUpdateType !== ChartUpdateType.NONE) {
+                await this._performUpdateNotify.await();
+            }
+
             if (performance.now() - start > timeoutMs) {
                 const message = `Chart.waitForUpdate() timeout of ${timeoutMs} reached - first chart update taking too long.`;
                 if (failOnTimeout) {
@@ -1029,11 +1037,7 @@ export abstract class Chart extends Observable {
                     Logger.warnOnce(message);
                 }
             }
-            await sleep(50);
         }
-
-        // wait until any remaining updates are flushed through.
-        await this.updateMutex.waitForClearAcquireQueue();
     }
 
     protected getMinRects() {

@@ -213,15 +213,6 @@ export class ChartOptions<T extends AgChartOptions = AgChartOptions> {
         this.soloSeriesIntegrity(options);
         this.removeDisabledOptions(options);
         this.removeLeftoverSymbols(options);
-
-        if (
-            options.series?.some((s) => s.type === 'bullet') &&
-            options.sync != null &&
-            options.sync.enabled !== false
-        ) {
-            Logger.warnOnce('bullet series cannot be synced, disabling synchronization.');
-            delete options.sync;
-        }
     }
 
     protected processAxesOptions(options: T, axesThemes: any) {
