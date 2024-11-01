@@ -13,7 +13,7 @@ import type { Scene } from '../scene/scene';
 import type { PlacedLabel, PointLabelDatum } from '../scene/util/labelPlacement';
 import { isPointLabelDatum, placeLabels } from '../scene/util/labelPlacement';
 import { groupBy } from '../util/array';
-import { sleep } from '../util/async';
+import { AsyncAwaitQueue } from '../util/async';
 import { Debug } from '../util/debug';
 import { createId } from '../util/id';
 import { jsonApply, jsonDiff } from '../util/json';
@@ -458,6 +458,7 @@ export abstract class Chart extends Observable {
     private _pendingFactoryUpdatesCount = 0;
     private _performUpdateNoRenderCount = 0;
     private _performUpdateSkipAnimations: boolean = false;
+    private readonly _performUpdateNotify = new AsyncAwaitQueue();
     private performUpdateType: ChartUpdateType = ChartUpdateType.NONE;
 
     private updateShortcutCount = 0;
@@ -617,6 +618,7 @@ export abstract class Chart extends Observable {
         if (!updateDeferred) {
             ctx.updateService.dispatchUpdateComplete(this.getMinRects());
             this.ctx.domManager.setDataBoolean('updatePending', false);
+            this._performUpdateNotify.notify();
         }
 
         const end = performance.now();
@@ -1029,7 +1031,7 @@ export abstract class Chart extends Observable {
                     Logger.warnOnce(message);
                 }
             }
-            await sleep(50);
+            await this._performUpdateNotify.await();
         }
 
         // wait until any remaining updates are flushed through.
