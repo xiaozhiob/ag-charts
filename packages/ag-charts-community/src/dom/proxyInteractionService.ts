@@ -82,8 +82,8 @@ type ProxyMeta = {
 type ProxyElementType = 'button' | 'slider' | 'text' | 'listswitch' | 'region';
 type ProxyContainerType = 'toolbar' | 'group' | 'list';
 
-type DragHandlerEvent = { offsetX: number; offsetY: number };
-type DragHandler = (event: DragHandlerEvent) => void;
+type ProxyDragHandlerEvent = { offsetX: number; offsetY: number };
+type ProxyDragHandler = (event: ProxyDragHandlerEvent) => void;
 
 function checkType<T extends keyof ProxyMeta>(type: T, meta: ProxyMeta[keyof ProxyMeta]): meta is ProxyMeta[T] {
     return meta.params?.type === type;
@@ -232,9 +232,9 @@ export class ProxyInteractionService {
 
     createDragListeners(args: {
         element: HTMLElement;
-        onDragStart?: DragHandler;
-        onDrag?: DragHandler;
-        onDragEnd?: DragHandler;
+        onDragStart?: ProxyDragHandler;
+        onDrag?: ProxyDragHandler;
+        onDragEnd?: ProxyDragHandler;
     }): () => void {
         const { element, onDragStart, onDrag, onDragEnd } = args;
 
@@ -273,7 +273,7 @@ export class ProxyInteractionService {
     private static makeDragEvent(
         { start }: NonNullable<ProxyInteractionService['dragState']>,
         sourceEvent: MouseEvent
-    ): DragHandlerEvent {
+    ): ProxyDragHandlerEvent {
         // [offsetX, offsetY] is relative to the sourceEvent.target, which can be another element
         // such as a legend button. Therefore, calculate [offsetX, offsetY] relative to the axis
         // element that fired the 'mousedown' event.
