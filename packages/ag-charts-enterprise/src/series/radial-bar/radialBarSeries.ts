@@ -175,10 +175,8 @@ export class RadialBarSeries extends _ModuleSupport.PolarSeries<
                 ),
                 ...extraProps,
             ],
-            formatIntoColumns: false,
-            doNotFormatIntoRows: false,
-            // formatIntoColumns: true,
-            // doNotFormatIntoRows: false,
+            formatIntoColumns: true,
+            doNotFormatIntoRows: true,
         });
 
         this.animationState.transition('updateData');
@@ -214,7 +212,13 @@ export class RadialBarSeries extends _ModuleSupport.PolarSeries<
     async createNodeData() {
         const { processedData, dataModel } = this;
 
-        if (!processedData || !dataModel || processedData.rawData.length === 0 || !this.properties.isValid()) {
+        if (
+            !dataModel ||
+            !processedData ||
+            processedData.type !== 'ungrouped' ||
+            processedData.rawData.length === 0 ||
+            !this.properties.isValid()
+        ) {
             return;
         }
 
@@ -227,12 +231,9 @@ export class RadialBarSeries extends _ModuleSupport.PolarSeries<
             return;
         }
 
-        const angleStartIndex = dataModel.resolveProcessedDataIndexById(this, `angleValue-start`);
-        const angleEndIndex = dataModel.resolveProcessedDataIndexById(this, `angleValue-end`);
-        const angleRawIndex = dataModel.resolveProcessedDataIndexById(this, `angleValue-raw`);
-        // const angleStartValues = dataModel.resolveColumnById(this, `angleValue-start`, processedData);
-        // const angleEndValues = dataModel.resolveColumnById(this, `angleValue-end`, processedData);
-        // const angleRawValues = dataModel.resolveColumnById(this, `angleValue-raw`, processedData);
+        const angleStartValues = dataModel.resolveColumnById(this, `angleValue-start`, processedData);
+        const angleEndValues = dataModel.resolveColumnById(this, `angleValue-end`, processedData);
+        const angleRawValues = dataModel.resolveColumnById(this, `angleValue-raw`, processedData);
 
         const angleRangeIndex = dataModel.resolveProcessedDataIndexById(this, `angleValue-range`);
 
@@ -281,23 +282,16 @@ export class RadialBarSeries extends _ModuleSupport.PolarSeries<
         const context = { itemId: radiusKey, nodeData, labelData: nodeData };
         if (!this.visible) return context;
 
-        const { rawData } = processedData;
-        processedData.data.forEach((group) => {
-            // const { aggValues } = group;
-            const { keys, values, aggValues } = group;
-            const datumIndex = group.index as number;
+        const { rawData, keys } = processedData;
+        processedData.ungroups!.forEach(({ aggregation }, datumIndex) => {
             const datum = rawData[datumIndex];
 
-            // const radiusDatum = keys![datumIndex][0];
-            // const angleDatum = angleRawValues[datumIndex];
-            // const angleStartDatum = angleStartValues[datumIndex];
-            // const angleEndDatum = angleEndValues[datumIndex];
-            const radiusDatum = keys[0];
-            const angleDatum = values[angleRawIndex];
-            const angleStartDatum = values[angleStartIndex];
-            const angleEndDatum = values[angleEndIndex];
+            const radiusDatum = keys![datumIndex][0];
+            const angleDatum = angleRawValues[datumIndex];
+            const angleStartDatum = angleStartValues[datumIndex];
+            const angleEndDatum = angleEndValues[datumIndex];
             const isPositive = angleDatum >= 0 && !Object.is(angleDatum, -0);
-            const angleRange = aggValues?.[angleRangeIndex][isPositive ? 1 : 0] ?? 0;
+            const angleRange = aggregation[angleRangeIndex][isPositive ? 1 : 0];
             const reversed = isPositive === angleAxisReversed;
 
             let startAngle = angleScale.convert(angleStartDatum, true);

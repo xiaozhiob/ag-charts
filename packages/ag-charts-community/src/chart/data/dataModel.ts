@@ -16,6 +16,11 @@ export interface DataGroup {
     validScopes: Set<string> | undefined;
 }
 
+export interface DataUngroup {
+    aggregation: any[][];
+    validScopes: Set<string> | undefined;
+}
+
 export interface UngroupedDataItem<I, D, V> {
     index: I;
     keys: any[];
@@ -31,6 +36,7 @@ export interface UngroupedData<D> {
     rawData: any[];
     rawDataSources?: Map<string, any[]>;
     data: UngroupedDataItem<number, D, any[]>[];
+    ungroups: DataUngroup[];
     keys?: string[][];
     columns?: any[][];
     domain: {
@@ -600,11 +606,13 @@ export class DataModel<
         const { keys: keyDefs, values: valueDefs } = this;
         const { formatIntoColumns, doNotFormatIntoRows } = this.opts;
         const resultData = !doNotFormatIntoRows ? new Array(data.length) : undefined;
+        const ungroups: DataUngroup[] = [];
 
         const keysColumn: string[][] | undefined = formatIntoColumns ? [] : undefined;
         const columns: any[][] | undefined = formatIntoColumns ? [] : undefined;
 
         let resultDataIdx = 0;
+        let ungroupDataIdx = 0;
         let partialValidDataCount = 0;
 
         for (const [datumIdx, datum] of data.entries()) {
@@ -679,6 +687,10 @@ export class DataModel<
                           validScopes: undefined,
                       }
                     : undefined;
+            const ungroup: DataUngroup = {
+                aggregation: [],
+                validScopes: undefined,
+            };
 
             if (!allScopesHaveSameDefs && validScopes && validScopes.size < scopes.size) {
                 partialValidDataCount++;
@@ -686,11 +698,14 @@ export class DataModel<
                 if (result != null) {
                     result.validScopes = new Set(validScopes);
                 }
+                ungroup.validScopes = new Set(validScopes);
             }
 
             if (resultData != null && result != null) {
                 resultData[resultDataIdx++] = result;
             }
+
+            ungroups[ungroupDataIdx++] = ungroup;
         }
 
         if (resultData != null) {
@@ -713,6 +728,7 @@ export class DataModel<
             rawData: data,
             rawDataSources: sources != null ? new Map(sources.map((s) => [s.id, s.data])) : undefined,
             data: resultData!,
+            ungroups,
             keys: keysColumn,
             columns,
             domain: {
@@ -898,15 +914,17 @@ export class DataModel<
             const indices = this.valueGroupIdxLookup(def);
             const domain: [number, number] = [Infinity, -Infinity];
 
-            if (processedData.data == null && !isUngrouped) {
+            if (processedData.data == null) {
                 const { keys, columns } = processedData;
-                for (const group of processedData.groups) {
-                    group.aggregation ??= [];
+                if (isUngrouped) {
+                    const { ungroups } = processedData;
+                    for (let datumIndex = 0; datumIndex < ungroups.length; datumIndex += 1) {
+                        const group = ungroups[datumIndex];
+                        group.aggregation ??= [];
 
-                    if (group.validScopes != null) continue;
+                        if (group.validScopes != null) continue;
 
-                    let groupAggValues = def.groupAggregateFunction?.() ?? [Infinity, -Infinity];
-                    for (const datumIndex of group.datumIndices) {
+                        let groupAggValues = def.groupAggregateFunction?.() ?? [Infinity, -Infinity];
                         const valuesToAgg = indices.map((columnIndex) => columns![columnIndex][datumIndex] as D[K]);
                         const datumKeys: any[] = keys![datumIndex];
                         const valuesAgg = def.aggregateFunction(valuesToAgg, datumKeys);
@@ -915,14 +933,39 @@ export class DataModel<
                                 def.groupAggregateFunction?.(valuesAgg, groupAggValues) ??
                                 ContinuousDomain.extendDomain(valuesAgg, groupAggValues);
                         }
+
+                        const finalValues = (def.finalFunction?.(groupAggValues) ?? groupAggValues).map((v) =>
+                            round(v)
+                        ) as [number, number];
+
+                        group.aggregation[index] = finalValues;
+                        ContinuousDomain.extendDomain(finalValues, domain);
                     }
+                } else {
+                    for (const group of processedData.groups) {
+                        group.aggregation ??= [];
 
-                    const finalValues = (def.finalFunction?.(groupAggValues) ?? groupAggValues).map((v) =>
-                        round(v)
-                    ) as [number, number];
+                        if (group.validScopes != null) continue;
 
-                    group.aggregation[index] = finalValues;
-                    ContinuousDomain.extendDomain(finalValues, domain);
+                        let groupAggValues = def.groupAggregateFunction?.() ?? [Infinity, -Infinity];
+                        for (const datumIndex of group.datumIndices) {
+                            const valuesToAgg = indices.map((columnIndex) => columns![columnIndex][datumIndex] as D[K]);
+                            const datumKeys: any[] = keys![datumIndex];
+                            const valuesAgg = def.aggregateFunction(valuesToAgg, datumKeys);
+                            if (valuesAgg) {
+                                groupAggValues =
+                                    def.groupAggregateFunction?.(valuesAgg, groupAggValues) ??
+                                    ContinuousDomain.extendDomain(valuesAgg, groupAggValues);
+                            }
+                        }
+
+                        const finalValues = (def.finalFunction?.(groupAggValues) ?? groupAggValues).map((v) =>
+                            round(v)
+                        ) as [number, number];
+
+                        group.aggregation[index] = finalValues;
+                        ContinuousDomain.extendDomain(finalValues, domain);
+                    }
                 }
             } else {
                 for (const datum of processedData.data) {
@@ -983,25 +1026,48 @@ export class DataModel<
         };
 
         const { columns } = processedData;
-        if (columns != null && processedData.type === 'grouped') {
-            for (const group of processedData.groups) {
-                for (const processor of groupProcessors) {
-                    if (group.validScopes) continue;
+        if (columns != null) {
+            if (processedData.type === 'ungrouped') {
+                const { ungroups } = processedData;
+                for (let datumIndex = 0; datumIndex < ungroups.length; datumIndex += 1) {
+                    const group = ungroups[datumIndex];
 
-                    const valueIndexes = groupProcessorIndices.get(processor) ?? [];
-                    const adjustFn = groupProcessorInitFns.get(processor)?.();
+                    for (const processor of groupProcessors) {
+                        if (group.validScopes) continue;
 
-                    if (!adjustFn) continue;
+                        const valueIndexes = groupProcessorIndices.get(processor) ?? [];
+                        const adjustFn = groupProcessorInitFns.get(processor)?.();
 
-                    for (const index of group.datumIndices) {
-                        adjustFn(undefined!, valueIndexes, index, columns);
+                        if (!adjustFn) continue;
+
+                        adjustFn(undefined!, valueIndexes, datumIndex, columns);
+                    }
+
+                    for (const valueIndex of affectedIndices) {
+                        const column = columns[valueIndex];
+                        updatedDomains.get(valueIndex)?.extend(column[datumIndex]);
                     }
                 }
+            } else {
+                for (const group of processedData.groups) {
+                    for (const processor of groupProcessors) {
+                        if (group.validScopes) continue;
 
-                for (const valueIndex of affectedIndices) {
-                    const column = columns[valueIndex];
-                    for (const datumIndex of group.datumIndices) {
-                        updatedDomains.get(valueIndex)?.extend(column[datumIndex]);
+                        const valueIndexes = groupProcessorIndices.get(processor) ?? [];
+                        const adjustFn = groupProcessorInitFns.get(processor)?.();
+
+                        if (!adjustFn) continue;
+
+                        for (const datumIndex of group.datumIndices) {
+                            adjustFn(undefined!, valueIndexes, datumIndex, columns);
+                        }
+                    }
+
+                    for (const valueIndex of affectedIndices) {
+                        const column = columns[valueIndex];
+                        for (const datumIndex of group.datumIndices) {
+                            updatedDomains.get(valueIndex)?.extend(column[datumIndex]);
+                        }
                     }
                 }
             }

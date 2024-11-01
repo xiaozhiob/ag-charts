@@ -93,6 +93,7 @@ exports[`DataModel empty data set processing should generated the expected resul
   "rawDataSources": undefined,
   "time": Any<Number>,
   "type": "ungrouped",
+  "ungroups": [],
 }
 `;
 
@@ -498,6 +499,88 @@ exports[`DataModel grouped processing - calculated grouping should generated the
   },
   "time": Any<Number>,
   "type": "grouped",
+  "ungroups": [
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+  ],
 }
 `;
 
@@ -941,6 +1024,88 @@ exports[`DataModel grouped processing - calculated grouping should generated the
   },
   "time": Any<Number>,
   "type": "grouped",
+  "ungroups": [
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+  ],
 }
 `;
 
@@ -1285,6 +1450,88 @@ exports[`DataModel grouped processing - calculated grouping should generated the
   },
   "time": Any<Number>,
   "type": "grouped",
+  "ungroups": [
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+  ],
 }
 `;
 
@@ -1701,6 +1948,36 @@ exports[`DataModel grouped processing - grouped example should generated the exp
   "rawDataSources": undefined,
   "time": Any<Number>,
   "type": "grouped",
+  "ungroups": [
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+  ],
 }
 `;
 
@@ -2588,6 +2865,56 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
   "rawDataSources": undefined,
   "time": Any<Number>,
   "type": "grouped",
+  "ungroups": [
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+  ],
 }
 `;
 
@@ -3038,6 +3365,28 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
   "rawDataSources": undefined,
   "time": Any<Number>,
   "type": "grouped",
+  "ungroups": [
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+  ],
 }
 `;
 
@@ -3583,6 +3932,40 @@ exports[`DataModel grouped processing - stacked example should generated the exp
   "rawDataSources": undefined,
   "time": Any<Number>,
   "type": "grouped",
+  "ungroups": [
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+  ],
 }
 `;
 
@@ -4132,6 +4515,40 @@ exports[`DataModel grouped processing - stacked with accumulation and normalised
   "rawDataSources": undefined,
   "time": Any<Number>,
   "type": "grouped",
+  "ungroups": [
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+  ],
 }
 `;
 
@@ -4627,6 +5044,40 @@ exports[`DataModel grouped processing - stacked with accumulation example should
   "rawDataSources": undefined,
   "time": Any<Number>,
   "type": "grouped",
+  "ungroups": [
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+  ],
 }
 `;
 
@@ -5022,6 +5473,59 @@ exports[`DataModel missing and invalid data processing - multiple scopes should 
   "rawDataSources": undefined,
   "time": Any<Number>,
   "type": "ungrouped",
+  "ungroups": [
+    {
+      "aggregation": [],
+      "validScopes": Set {
+        "series-b",
+        "series-c",
+      },
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": Set {
+        "series-a",
+      },
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": Set {
+        "series-a",
+        "series-b",
+      },
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": Set {
+        "series-a",
+        "series-c",
+      },
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+  ],
 }
 `;
 
@@ -5431,6 +5935,52 @@ exports[`DataModel missing and invalid data processing should generated the expe
   "rawDataSources": undefined,
   "time": Any<Number>,
   "type": "ungrouped",
+  "ungroups": [
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+  ],
 }
 `;
 
@@ -6146,6 +6696,52 @@ exports[`DataModel multiple data sources should generate the expected results 1`
   },
   "time": Any<Number>,
   "type": "ungrouped",
+  "ungroups": [
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+  ],
 }
 `;
 
@@ -6305,6 +6901,28 @@ exports[`DataModel repeated property processing should generated the expected re
   "rawDataSources": undefined,
   "time": Any<Number>,
   "type": "ungrouped",
+  "ungroups": [
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+  ],
 }
 `;
 
@@ -6533,6 +7151,40 @@ exports[`DataModel ungrouped processing - accumulated and normalised properties 
   "rawDataSources": undefined,
   "time": Any<Number>,
   "type": "ungrouped",
+  "ungroups": [
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+  ],
 }
 `;
 
@@ -7702,5 +8354,215 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
   "rawDataSources": undefined,
   "time": Any<Number>,
   "type": "ungrouped",
+  "ungroups": [
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+    {
+      "aggregation": [],
+      "validScopes": undefined,
+    },
+  ],
 }
 `;
