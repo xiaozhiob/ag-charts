@@ -73,6 +73,7 @@ export class NavigatorDOMProxy {
         ];
         for (const [index, key] of (['min', 'pan', 'max'] as const).entries()) {
             const slider = this.sliders[index];
+            slider.step = '0.01';
             setAttribute(slider, 'data-preventdefault', false);
             ctx.proxyInteractionService.createDragListeners({
                 element: slider,
@@ -179,7 +180,8 @@ export class NavigatorDOMProxy {
     }
 
     private setPanSliderValue(min: number, max: number) {
-        this.sliders[1].value = `${Math.round(min * 100)}`;
+        const value = Math.round(min * 10000) / 100;
+        this.sliders[1].value = `${value}`;
         this.sliders[1].ariaValueText = this.ctx.localeManager.t('ariaValuePanRange', { min, max });
     }
 
@@ -193,7 +195,7 @@ export class NavigatorDOMProxy {
     }
 
     private setSliderRatio(slider: HTMLInputElement, ratio: number) {
-        const value = Math.round(ratio * 100);
+        const value = Math.round(ratio * 10000) / 100;
         slider.value = `${value}`;
         slider.ariaValueText = formatPercent(value / 100);
     }
