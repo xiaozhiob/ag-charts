@@ -544,24 +544,30 @@ export abstract class Chart extends Observable {
 
         switch (performUpdateType) {
             case ChartUpdateType.FULL:
+                if (this.checkUpdateShortcut(ChartUpdateType.FULL)) break;
+
                 this.ctx.updateService.dispatchPreDomUpdate();
                 this.updateDOM();
             // fallthrough
 
             case ChartUpdateType.UPDATE_DATA:
+                if (this.checkUpdateShortcut(ChartUpdateType.UPDATE_DATA)) break;
+
                 await this.updateData();
                 updateSplits('⬇️');
             // fallthrough
 
             case ChartUpdateType.PROCESS_DATA:
+                if (this.checkUpdateShortcut(ChartUpdateType.PROCESS_DATA)) break;
+
                 await this.processData();
                 this.seriesAreaManager.dataChanged();
                 updateSplits('🏭');
             // fallthrough
 
             case ChartUpdateType.PERFORM_LAYOUT:
-                if (this.checkUpdateShortcut(ChartUpdateType.PERFORM_LAYOUT)) break;
                 await this.checkFirstAutoSize();
+                if (this.checkUpdateShortcut(ChartUpdateType.PERFORM_LAYOUT)) break;
 
                 await this.processLayout();
                 updateSplits('⌖');
@@ -613,10 +619,12 @@ export abstract class Chart extends Observable {
                 ctx.animationManager.endBatch();
         }
 
-        ctx.updateService.dispatchUpdateComplete(this.getMinRects());
-        this.ctx.domManager.setDataBoolean('updatePending', false);
+        if (!this.destroyed) {
+            ctx.updateService.dispatchUpdateComplete(this.getMinRects());
+            this.ctx.domManager.setDataBoolean('updatePending', false);
+            this.runningUpdateType = ChartUpdateType.NONE;
+        }
         this._performUpdateNotify.notify();
-        this.runningUpdateType = ChartUpdateType.NONE;
 
         const end = performance.now();
         this.debug('Chart.performUpdate() - end', {
@@ -664,6 +672,8 @@ export abstract class Chart extends Observable {
 
     private checkUpdateShortcut(checkUpdateType: ChartUpdateType) {
         const maxShortcuts = 3;
+
+        if (this.destroyed) return true;
 
         if (this.updateShortcutCount > maxShortcuts) {
             Logger.warn(
