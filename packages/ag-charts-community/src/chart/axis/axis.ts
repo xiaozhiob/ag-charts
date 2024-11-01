@@ -624,7 +624,7 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
         const sideFlag = this.label.getSideFlag();
         const labelX = sideFlag * (this.getTickSize() + this.label.padding + this.seriesAreaPadding);
 
-        const ticksEnabled = this.label.enabled || this.tick.enabled;
+        const ticksEnabled = this.label.enabled || this.tick.enabled || this.gridLine.enabled;
         const tickGenerationResult = ticksEnabled
             ? this.generateTicks({
                   primaryTickCount,
