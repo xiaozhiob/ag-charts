@@ -22,7 +22,6 @@ import { GradientLegendModule } from './gradient-legend/gradientLegendModule';
 import { LicenseManager } from './license/licenseManager';
 import { injectWatermark } from './license/watermark';
 import { BoxPlotModule } from './series/box-plot/main';
-import { BulletModule } from './series/bullet/bulletModule';
 import { CandlestickModule } from './series/candlestick/main';
 import { ChordModule } from './series/chord/main';
 import { ConeFunnelModule } from './series/cone-funnel/coneFunnelModule';
@@ -65,7 +64,6 @@ export function setupEnterpriseModules() {
         ConeFunnelModule,
         FunnelModule,
         OhlcModule,
-        BulletModule,
         ChartToolbarModule,
         ContextMenuModule,
         CrosshairModule,
