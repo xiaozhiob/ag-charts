@@ -5,24 +5,20 @@ import { getData } from './data';
 const data = getData();
 const seasons = ['Spring', 'Summer', 'Autumn', 'Winter'];
 
-class RainDrop extends Marker {
-    updatePath() {
-        const { x, y, path, size } = this;
+function rainDrop({ x, y, path, size }) {
+    path.clear();
 
-        path.clear();
+    const halfSize = size / 2;
+    const quarterSize = size / 4;
+    const startX = x;
+    const startY = y - quarterSize;
 
-        const halfSize = size / 2;
-        const quarterSize = size / 4;
-        const startX = x;
-        const startY = y - quarterSize;
+    path.moveTo(startX, startY);
 
-        path.moveTo(startX, startY);
+    path.cubicCurveTo(startX, y, x - halfSize, y + halfSize, x, y + quarterSize + halfSize);
+    path.cubicCurveTo(x + halfSize, y + halfSize, x, y, startX, startY);
 
-        path.cubicCurveTo(startX, y, x - halfSize, y + halfSize, x, y + quarterSize + halfSize);
-        path.cubicCurveTo(x + halfSize, y + halfSize, x, y, startX, startY);
-
-        path.closePath();
-    }
+    path.closePath();
 }
 
 const formatNumber = (value: number) => {
@@ -57,7 +53,7 @@ const options: AgChartOptions = {
             sizeKey: 'y',
             size: 3,
             maxSize: 25,
-            shape: RainDrop,
+            shape: (params) => rainDrop(params),
             tooltip,
         },
     ],
