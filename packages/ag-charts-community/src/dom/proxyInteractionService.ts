@@ -82,7 +82,8 @@ type ProxyMeta = {
 type ProxyElementType = 'button' | 'slider' | 'text' | 'listswitch' | 'region';
 type ProxyContainerType = 'toolbar' | 'group' | 'list';
 
-type DragHandler = (event: { offsetX: number; offsetY: number }) => void;
+type DragHandlerEvent = { offsetX: number; offsetY: number };
+type DragHandler = (event: DragHandlerEvent) => void;
 
 function checkType<T extends keyof ProxyMeta>(type: T, meta: ProxyMeta[keyof ProxyMeta]): meta is ProxyMeta[T] {
     return meta.params?.type === type;
@@ -246,20 +247,13 @@ export class ProxyInteractionService {
         };
         const mousemove = (sourceEvent: MouseEvent) => {
             if (this.dragState?.target === element) {
-                // [offsetX, offsetY] is relative to the sourceEvent.target, which can be another element
-                // such as a legend button. Therefore, calculate [offsetX, offsetY] relative to the axis
-                // element that fired the 'mousedown' event.
-                const { start } = this.dragState;
-                onDrag?.({
-                    offsetX: start.offsetX + (sourceEvent.pageX - start.pageX),
-                    offsetY: start.offsetY + (sourceEvent.pageY - start.pageY),
-                });
+                onDrag?.(ProxyInteractionService.makeDragEvent(this.dragState, sourceEvent));
             }
         };
-        const mouseup = ({ button, offsetX, offsetY }: MouseEvent) => {
-            if (this.dragState !== undefined && button === 0) {
+        const mouseup = (sourceEvent: MouseEvent) => {
+            if (this.dragState?.target === element && sourceEvent.button === 0) {
+                onDragEnd?.(ProxyInteractionService.makeDragEvent(this.dragState, sourceEvent));
                 this.dragState = undefined;
-                onDragEnd?.({ offsetX, offsetY });
             }
         };
 
@@ -273,6 +267,19 @@ export class ProxyInteractionService {
             element.removeEventListener('mousedown', mousedown);
             window.removeEventListener('mousemove', mousemove);
             window.removeEventListener('mouseup', mouseup);
+        };
+    }
+
+    private static makeDragEvent(
+        { start }: NonNullable<ProxyInteractionService['dragState']>,
+        sourceEvent: MouseEvent
+    ): DragHandlerEvent {
+        // [offsetX, offsetY] is relative to the sourceEvent.target, which can be another element
+        // such as a legend button. Therefore, calculate [offsetX, offsetY] relative to the axis
+        // element that fired the 'mousedown' event.
+        return {
+            offsetX: start.offsetX + (sourceEvent.pageX - start.pageX),
+            offsetY: start.offsetY + (sourceEvent.pageY - start.pageY),
         };
     }
 
