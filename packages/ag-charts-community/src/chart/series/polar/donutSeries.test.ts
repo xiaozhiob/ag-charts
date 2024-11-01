@@ -185,19 +185,19 @@ describe('DonutSeries', () => {
                 innerRadiusRatio: 0.6,
             },
         ];
-        const options = prepareTestOptions({
+        const opts = prepareTestOptions({
             data,
             series,
         });
 
         it('should display legend item for zero value sectors when `hideZeroValueSectorsInLegend` is not supplied in the options', async () => {
-            chart = await createChart(options);
+            chart = await createChart(opts);
             await compare();
         });
         it('should hide legend item for zero value sectors when `hideZeroValueSectorsInLegend` is set to `true`', async () => {
-            options.series[0] = { ...series[0], hideZeroValueSectorsInLegend: true };
+            opts.series[0] = { ...series[0], hideZeroValueSectorsInLegend: true };
 
-            chart = await createChart(options);
+            chart = await createChart(opts);
             await compare();
         });
     });
