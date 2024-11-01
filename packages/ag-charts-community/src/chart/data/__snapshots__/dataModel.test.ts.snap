@@ -363,7 +363,7 @@ exports[`DataModel grouped processing - calculated grouping should generated the
   "groups": [
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         0,
         1,
         2,
@@ -385,7 +385,7 @@ exports[`DataModel grouped processing - calculated grouping should generated the
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         8,
         9,
         14,
@@ -401,7 +401,7 @@ exports[`DataModel grouped processing - calculated grouping should generated the
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         18,
         19,
       ],
@@ -792,7 +792,7 @@ exports[`DataModel grouped processing - calculated grouping should generated the
   "groups": [
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         0,
         1,
         3,
@@ -812,7 +812,7 @@ exports[`DataModel grouped processing - calculated grouping should generated the
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         2,
         12,
         13,
@@ -828,7 +828,7 @@ exports[`DataModel grouped processing - calculated grouping should generated the
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         18,
         19,
       ],
@@ -1156,7 +1156,7 @@ exports[`DataModel grouped processing - calculated grouping should generated the
   "groups": [
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         0,
         1,
         3,
@@ -1176,7 +1176,7 @@ exports[`DataModel grouped processing - calculated grouping should generated the
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         2,
         12,
         13,
@@ -1192,7 +1192,7 @@ exports[`DataModel grouped processing - calculated grouping should generated the
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         18,
         19,
       ],
@@ -1587,7 +1587,7 @@ exports[`DataModel grouped processing - grouped example should generated the exp
   "groups": [
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         0,
       ],
       "keys": [
@@ -1597,7 +1597,7 @@ exports[`DataModel grouped processing - grouped example should generated the exp
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         1,
       ],
       "keys": [
@@ -1607,7 +1607,7 @@ exports[`DataModel grouped processing - grouped example should generated the exp
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         2,
       ],
       "keys": [
@@ -1617,7 +1617,7 @@ exports[`DataModel grouped processing - grouped example should generated the exp
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         3,
       ],
       "keys": [
@@ -1627,7 +1627,7 @@ exports[`DataModel grouped processing - grouped example should generated the exp
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         4,
       ],
       "keys": [
@@ -1637,7 +1637,7 @@ exports[`DataModel grouped processing - grouped example should generated the exp
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         5,
       ],
       "keys": [
@@ -1647,7 +1647,7 @@ exports[`DataModel grouped processing - grouped example should generated the exp
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         6,
       ],
       "keys": [
@@ -2339,7 +2339,7 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
   "groups": [
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         0,
       ],
       "keys": [
@@ -2349,7 +2349,7 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         1,
       ],
       "keys": [
@@ -2359,7 +2359,7 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         2,
       ],
       "keys": [
@@ -2369,7 +2369,7 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         3,
       ],
       "keys": [
@@ -2379,7 +2379,7 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         4,
       ],
       "keys": [
@@ -2389,7 +2389,7 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         5,
       ],
       "keys": [
@@ -2399,7 +2399,7 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         6,
       ],
       "keys": [
@@ -2409,7 +2409,7 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         7,
       ],
       "keys": [
@@ -2419,7 +2419,7 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         8,
       ],
       "keys": [
@@ -2429,7 +2429,7 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         9,
       ],
       "keys": [
@@ -2439,7 +2439,7 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         10,
       ],
       "keys": [
@@ -2449,7 +2449,7 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         11,
       ],
       "keys": [
@@ -2934,7 +2934,7 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
   "groups": [
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         0,
       ],
       "keys": [
@@ -2944,7 +2944,7 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         1,
       ],
       "keys": [
@@ -2954,7 +2954,7 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         2,
       ],
       "keys": [
@@ -2964,7 +2964,7 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         3,
       ],
       "keys": [
@@ -2974,7 +2974,7 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         4,
       ],
       "keys": [
@@ -3438,7 +3438,7 @@ exports[`DataModel grouped processing - stacked example should generated the exp
   "groups": [
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         0,
       ],
       "keys": [
@@ -3448,7 +3448,7 @@ exports[`DataModel grouped processing - stacked example should generated the exp
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         1,
       ],
       "keys": [
@@ -3458,7 +3458,7 @@ exports[`DataModel grouped processing - stacked example should generated the exp
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         2,
       ],
       "keys": [
@@ -3468,7 +3468,7 @@ exports[`DataModel grouped processing - stacked example should generated the exp
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         3,
       ],
       "keys": [
@@ -3478,7 +3478,7 @@ exports[`DataModel grouped processing - stacked example should generated the exp
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         4,
       ],
       "keys": [
@@ -3488,7 +3488,7 @@ exports[`DataModel grouped processing - stacked example should generated the exp
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         5,
       ],
       "keys": [
@@ -3498,7 +3498,7 @@ exports[`DataModel grouped processing - stacked example should generated the exp
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         6,
       ],
       "keys": [
@@ -3508,7 +3508,7 @@ exports[`DataModel grouped processing - stacked example should generated the exp
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         7,
       ],
       "keys": [
@@ -3987,7 +3987,7 @@ exports[`DataModel grouped processing - stacked with accumulation and normalised
   "groups": [
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         0,
       ],
       "keys": [
@@ -3997,7 +3997,7 @@ exports[`DataModel grouped processing - stacked with accumulation and normalised
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         1,
       ],
       "keys": [
@@ -4007,7 +4007,7 @@ exports[`DataModel grouped processing - stacked with accumulation and normalised
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         2,
       ],
       "keys": [
@@ -4017,7 +4017,7 @@ exports[`DataModel grouped processing - stacked with accumulation and normalised
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         3,
       ],
       "keys": [
@@ -4027,7 +4027,7 @@ exports[`DataModel grouped processing - stacked with accumulation and normalised
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         4,
       ],
       "keys": [
@@ -4037,7 +4037,7 @@ exports[`DataModel grouped processing - stacked with accumulation and normalised
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         5,
       ],
       "keys": [
@@ -4047,7 +4047,7 @@ exports[`DataModel grouped processing - stacked with accumulation and normalised
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         6,
       ],
       "keys": [
@@ -4057,7 +4057,7 @@ exports[`DataModel grouped processing - stacked with accumulation and normalised
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         7,
       ],
       "keys": [
@@ -4482,7 +4482,7 @@ exports[`DataModel grouped processing - stacked with accumulation example should
   "groups": [
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         0,
       ],
       "keys": [
@@ -4492,7 +4492,7 @@ exports[`DataModel grouped processing - stacked with accumulation example should
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         1,
       ],
       "keys": [
@@ -4502,7 +4502,7 @@ exports[`DataModel grouped processing - stacked with accumulation example should
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         2,
       ],
       "keys": [
@@ -4512,7 +4512,7 @@ exports[`DataModel grouped processing - stacked with accumulation example should
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         3,
       ],
       "keys": [
@@ -4522,7 +4522,7 @@ exports[`DataModel grouped processing - stacked with accumulation example should
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         4,
       ],
       "keys": [
@@ -4532,7 +4532,7 @@ exports[`DataModel grouped processing - stacked with accumulation example should
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         5,
       ],
       "keys": [
@@ -4542,7 +4542,7 @@ exports[`DataModel grouped processing - stacked with accumulation example should
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         6,
       ],
       "keys": [
@@ -4552,7 +4552,7 @@ exports[`DataModel grouped processing - stacked with accumulation example should
     },
     {
       "aggregation": [],
-      "indices": [
+      "datumIndices": [
         7,
       ],
       "keys": [
@@ -4667,6 +4667,7 @@ exports[`DataModel missing and invalid data processing - multiple scopes should 
       "keys": [
         "2010",
       ],
+      "validScopes": undefined,
       "values": [
         54.39,
         null,
@@ -4685,6 +4686,7 @@ exports[`DataModel missing and invalid data processing - multiple scopes should 
       "keys": [
         "2011",
       ],
+      "validScopes": undefined,
       "values": [
         44.03,
         15.01,
@@ -4724,6 +4726,7 @@ exports[`DataModel missing and invalid data processing - multiple scopes should 
       "keys": [
         "2014",
       ],
+      "validScopes": undefined,
       "values": [
         17.75,
         null,
@@ -4764,6 +4767,7 @@ exports[`DataModel missing and invalid data processing - multiple scopes should 
       "keys": [
         "2016",
       ],
+      "validScopes": undefined,
       "values": [
         -8.94,
         47.79,
@@ -4782,6 +4786,7 @@ exports[`DataModel missing and invalid data processing - multiple scopes should 
       "keys": [
         "2017",
       ],
+      "validScopes": undefined,
       "values": [
         null,
         51.76,
@@ -4822,6 +4827,7 @@ exports[`DataModel missing and invalid data processing - multiple scopes should 
       "keys": [
         "2019",
       ],
+      "validScopes": undefined,
       "values": [
         2.7,
         61.72,
@@ -5034,6 +5040,7 @@ exports[`DataModel missing and invalid data processing should generated the expe
       "keys": [
         "2009",
       ],
+      "validScopes": undefined,
       "values": [
         null,
         NaN,
@@ -5052,6 +5059,7 @@ exports[`DataModel missing and invalid data processing should generated the expe
       "keys": [
         "2010",
       ],
+      "validScopes": undefined,
       "values": [
         54.39,
         null,
@@ -5070,6 +5078,7 @@ exports[`DataModel missing and invalid data processing should generated the expe
       "keys": [
         "2011",
       ],
+      "validScopes": undefined,
       "values": [
         44.03,
         15.01,
@@ -5088,6 +5097,7 @@ exports[`DataModel missing and invalid data processing should generated the expe
       "keys": [
         "2012",
       ],
+      "validScopes": undefined,
       "values": [
         NaN,
         25.99,
@@ -5106,6 +5116,7 @@ exports[`DataModel missing and invalid data processing should generated the expe
       "keys": [
         "2013",
       ],
+      "validScopes": undefined,
       "values": [
         null,
         31.71,
@@ -5124,6 +5135,7 @@ exports[`DataModel missing and invalid data processing should generated the expe
       "keys": [
         "2014",
       ],
+      "validScopes": undefined,
       "values": [
         17.75,
         null,
@@ -5142,6 +5154,7 @@ exports[`DataModel missing and invalid data processing should generated the expe
       "keys": [
         "2015",
       ],
+      "validScopes": undefined,
       "values": [
         -13.3,
         42.27,
@@ -5160,6 +5173,7 @@ exports[`DataModel missing and invalid data processing should generated the expe
       "keys": [
         "2016",
       ],
+      "validScopes": undefined,
       "values": [
         -8.94,
         47.79,
@@ -5178,6 +5192,7 @@ exports[`DataModel missing and invalid data processing should generated the expe
       "keys": [
         "2017",
       ],
+      "validScopes": undefined,
       "values": [
         null,
         51.76,
@@ -5196,6 +5211,7 @@ exports[`DataModel missing and invalid data processing should generated the expe
       "keys": [
         "2018",
       ],
+      "validScopes": undefined,
       "values": [
         3.2,
         null,
@@ -5214,6 +5230,7 @@ exports[`DataModel missing and invalid data processing should generated the expe
       "keys": [
         "2019",
       ],
+      "validScopes": undefined,
       "values": [
         2.7,
         61.72,
@@ -5445,6 +5462,7 @@ exports[`DataModel multiple data sources should generate the expected results 1`
       "keys": [
         "2009",
       ],
+      "validScopes": undefined,
       "values": [
         64.97,
         1.37,
@@ -5476,6 +5494,7 @@ exports[`DataModel multiple data sources should generate the expected results 1`
       "keys": [
         "2010",
       ],
+      "validScopes": undefined,
       "values": [
         54.39,
         undefined,
@@ -5507,6 +5526,7 @@ exports[`DataModel multiple data sources should generate the expected results 1`
       "keys": [
         "2011",
       ],
+      "validScopes": undefined,
       "values": [
         44.03,
         15.01,
@@ -5538,6 +5558,7 @@ exports[`DataModel multiple data sources should generate the expected results 1`
       "keys": [
         "2012",
       ],
+      "validScopes": undefined,
       "values": [
         34.27,
         25.99,
@@ -5569,6 +5590,7 @@ exports[`DataModel multiple data sources should generate the expected results 1`
       "keys": [
         "2013",
       ],
+      "validScopes": undefined,
       "values": [
         26.55,
         31.71,
@@ -5600,6 +5622,7 @@ exports[`DataModel multiple data sources should generate the expected results 1`
       "keys": [
         "2014",
       ],
+      "validScopes": undefined,
       "values": [
         17.75,
         35.85,
@@ -5631,6 +5654,7 @@ exports[`DataModel multiple data sources should generate the expected results 1`
       "keys": [
         "2015",
       ],
+      "validScopes": undefined,
       "values": [
         -13.3,
         42.27,
@@ -5662,6 +5686,7 @@ exports[`DataModel multiple data sources should generate the expected results 1`
       "keys": [
         "2016",
       ],
+      "validScopes": undefined,
       "values": [
         -8.94,
         47.79,
@@ -5693,6 +5718,7 @@ exports[`DataModel multiple data sources should generate the expected results 1`
       "keys": [
         "2017",
       ],
+      "validScopes": undefined,
       "values": [
         -4.77,
         51.76,
@@ -5724,6 +5750,7 @@ exports[`DataModel multiple data sources should generate the expected results 1`
       "keys": [
         "2018",
       ],
+      "validScopes": undefined,
       "values": [
         3.2,
         56.31,
@@ -5755,6 +5782,7 @@ exports[`DataModel multiple data sources should generate the expected results 1`
       "keys": [
         "2019",
       ],
+      "validScopes": undefined,
       "values": [
         2.7,
         61.72,
@@ -6133,6 +6161,7 @@ exports[`DataModel repeated property processing should generated the expected re
       },
       "index": 0,
       "keys": [],
+      "validScopes": undefined,
       "values": [
         0,
         0.6869,
@@ -6146,6 +6175,7 @@ exports[`DataModel repeated property processing should generated the expected re
       },
       "index": 1,
       "keys": [],
+      "validScopes": undefined,
       "values": [
         0.1478760779303737,
         0.05,
@@ -6159,6 +6189,7 @@ exports[`DataModel repeated property processing should generated the expected re
       },
       "index": 2,
       "keys": [],
+      "validScopes": undefined,
       "values": [
         0.4257425742574256,
         0.087,
@@ -6172,6 +6203,7 @@ exports[`DataModel repeated property processing should generated the expected re
       },
       "index": 3,
       "keys": [],
+      "validScopes": undefined,
       "values": [
         0.7307569466624081,
         0.0955,
@@ -6185,6 +6217,7 @@ exports[`DataModel repeated property processing should generated the expected re
       },
       "index": 4,
       "keys": [],
+      "validScopes": undefined,
       "values": [
         1,
         0.0843,
@@ -6286,6 +6319,7 @@ exports[`DataModel ungrouped processing - accumulated and normalised properties 
       },
       "index": 0,
       "keys": [],
+      "validScopes": undefined,
       "values": [
         0,
         "Christian",
@@ -6299,6 +6333,7 @@ exports[`DataModel ungrouped processing - accumulated and normalised properties 
       },
       "index": 1,
       "keys": [],
+      "validScopes": undefined,
       "values": [
         0.1352271965379232,
         "Buddhist",
@@ -6312,6 +6347,7 @@ exports[`DataModel ungrouped processing - accumulated and normalised properties 
       },
       "index": 2,
       "keys": [],
+      "validScopes": undefined,
       "values": [
         0.7709344297471291,
         "Hindu",
@@ -6325,6 +6361,7 @@ exports[`DataModel ungrouped processing - accumulated and normalised properties 
       },
       "index": 3,
       "keys": [],
+      "validScopes": undefined,
       "values": [
         1.0051423577715735,
         "Jewish",
@@ -6338,6 +6375,7 @@ exports[`DataModel ungrouped processing - accumulated and normalised properties 
       },
       "index": 4,
       "keys": [],
+      "validScopes": undefined,
       "values": [
         2.698967551519787,
         "Muslim",
@@ -6351,6 +6389,7 @@ exports[`DataModel ungrouped processing - accumulated and normalised properties 
       },
       "index": 5,
       "keys": [],
+      "validScopes": undefined,
       "values": [
         2.8704412131091117,
         "Sikh",
@@ -6364,6 +6403,7 @@ exports[`DataModel ungrouped processing - accumulated and normalised properties 
       },
       "index": 6,
       "keys": [],
+      "validScopes": undefined,
       "values": [
         3.1130137099915722,
         "Other",
@@ -6377,6 +6417,7 @@ exports[`DataModel ungrouped processing - accumulated and normalised properties 
       },
       "index": 7,
       "keys": [],
+      "validScopes": undefined,
       "values": [
         6.283185307179586,
         "None",
@@ -6509,6 +6550,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-01-07T00:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         120.27,
         130.33,
@@ -6524,6 +6566,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-01-14T00:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         119.53,
         129.47,
@@ -6539,6 +6582,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-01-21T00:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         119.12,
         128.92,
@@ -6554,6 +6598,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-01-28T00:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         119.29,
         129.1,
@@ -6569,6 +6614,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-02-04T00:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         119.13,
         129.13,
@@ -6584,6 +6630,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-02-11T00:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         118.97,
         129.17,
@@ -6599,6 +6646,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-02-18T00:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         119.05,
         129.23,
@@ -6614,6 +6662,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-02-25T00:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         119.22,
         129.66,
@@ -6629,6 +6678,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-03-04T00:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         119.72,
         130.25,
@@ -6644,6 +6694,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-03-11T00:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         120.1,
         130.59,
@@ -6659,6 +6710,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-03-18T00:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         120.48,
         130.85,
@@ -6674,6 +6726,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-03-25T00:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         120.83,
         131.15,
@@ -6689,6 +6742,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-03-31T23:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         121.7,
         131.48,
@@ -6704,6 +6758,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-04-07T23:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         122.75,
         132.08,
@@ -6719,6 +6774,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-04-14T23:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         124.06,
         132.96,
@@ -6734,6 +6790,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-04-21T23:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         125.43,
         133.99,
@@ -6749,6 +6806,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-04-28T23:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         126.36,
         134.6,
@@ -6764,6 +6822,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-05-05T23:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         127.5,
         135.41,
@@ -6779,6 +6838,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-05-12T23:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         127.97,
         135.36,
@@ -6794,6 +6854,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-05-19T23:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         128.51,
         135.82,
@@ -6809,6 +6870,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-05-26T23:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         129.14,
         136.45,
@@ -6824,6 +6886,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-06-02T23:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         129.41,
         136.39,
@@ -6839,6 +6902,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-06-09T23:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         128.89,
         135.4,
@@ -6854,6 +6918,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-06-16T23:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         127.66,
         133.76,
@@ -6869,6 +6934,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-06-23T23:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         126.66,
         131.81,
@@ -6884,6 +6950,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-06-30T23:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         126.49,
         131.55,
@@ -6899,6 +6966,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-07-07T23:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         126.86,
         131.68,
@@ -6914,6 +6982,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-07-14T23:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         127.13,
         131.86,
@@ -6929,6 +6998,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-07-21T23:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         127.81,
         132.21,
@@ -6944,6 +7014,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-07-28T23:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         128.03,
         132.6,
@@ -6959,6 +7030,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-08-04T23:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         128.37,
         132.61,
@@ -6974,6 +7046,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-08-11T23:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         128.36,
         132.59,
@@ -6989,6 +7062,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-08-18T23:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         128.17,
         132.6,
@@ -7004,6 +7078,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-08-25T23:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         128.22,
         132.51,
@@ -7019,6 +7094,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-09-01T23:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         127.86,
         132.29,
@@ -7034,6 +7110,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-09-08T23:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         127.79,
         131.89,
@@ -7049,6 +7126,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-09-15T23:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         126.92,
         131.35,
@@ -7064,6 +7142,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-09-22T23:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         126.78,
         131.52,
@@ -7079,6 +7158,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-09-29T23:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         126.92,
         131.83,
@@ -7094,6 +7174,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-10-06T23:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         126.87,
         131.82,
@@ -7109,6 +7190,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-10-13T23:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         126.91,
         131.89,
@@ -7124,6 +7206,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-10-20T23:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         126.4,
         131.28,
@@ -7139,6 +7222,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-10-28T00:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         125.77,
         130.6,
@@ -7154,6 +7238,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-11-04T00:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         125.56,
         130.38,
@@ -7169,6 +7254,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-11-11T00:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         125.59,
         130.42,
@@ -7184,6 +7270,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-11-18T00:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         125.58,
         130.35,
@@ -7199,6 +7286,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-11-25T00:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         125.32,
         130.08,
@@ -7214,6 +7302,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-12-02T00:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         124.81,
         129.79,
@@ -7229,6 +7318,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-12-09T00:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         124.75,
         129.79,
@@ -7244,6 +7334,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-12-16T00:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         124.33,
         129.56,
@@ -7259,6 +7350,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-12-23T00:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         124.16,
         129.81,
@@ -7274,6 +7366,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       "keys": [
         2019-12-30T00:00:00.000Z,
       ],
+      "validScopes": undefined,
       "values": [
         124.96,
         130.54,

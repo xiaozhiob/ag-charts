@@ -198,7 +198,7 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
             groupByKeys: true,
             groupByData: false,
             formatIntoColumns: true,
-            doNotFormatIntoRows: false,
+            doNotFormatIntoRows: true,
         });
 
         this.smallestDataInterval = processedData.reduced?.smallestKeyInterval;
@@ -244,7 +244,16 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
         const xAxis = this.getCategoryAxis();
         const yAxis = this.getValueAxis();
 
-        if (!dataModel || !processedData || !xAxis || !yAxis || !this.properties.isValid()) return;
+        if (
+            !dataModel ||
+            !processedData ||
+            processedData.type !== 'grouped' ||
+            !xAxis ||
+            !yAxis ||
+            !this.properties.isValid()
+        ) {
+            return;
+        }
 
         const rawData = processedData.rawDataSources?.get(this.id) ?? processedData.rawData;
         if (rawData == null || rawData.length === 0) return;
@@ -382,15 +391,17 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
         const nodes: BarNodeDatum[] = [];
         const labels: BarNodeDatum[] = [];
 
-        processedData?.data.forEach(({ index: indices, aggValues }) => {
-            (indices as number[]).forEach((datumIndex, valueIndex) => {
+        processedData?.groups.forEach(({ datumIndices, aggregation }) => {
+            const yRanges = aggregation[yRangeIndex];
+
+            datumIndices.forEach((datumIndex, valueIndex) => {
                 const xValue = xValues[datumIndex][xIndex];
                 const yRawValue = yRawValues[datumIndex];
                 const yStart = Number(yStartValues[datumIndex]);
                 const yFilterValue = yFilterValues != null ? Number(yFilterValues[datumIndex]) : undefined;
                 const yEnd = Number(yEndValues[datumIndex]);
                 const isPositive = yRawValue >= 0 && !Object.is(yRawValue, -0);
-                const yRange = aggValues?.[yRangeIndex][isPositive ? 1 : 0] ?? 0;
+                const yRange = yRanges[isPositive ? 1 : 0] ?? 0;
 
                 if (!Number.isFinite(yEnd)) return;
                 if (yFilterValue != null && !Number.isFinite(yFilterValue)) return;
