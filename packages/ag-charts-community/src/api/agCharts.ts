@@ -263,7 +263,7 @@ class AgChartsInternal {
                     }
                 }
             },
-            new Set('data')
+            new Set(['data'])
         );
 
         const { chart } = proxy;
