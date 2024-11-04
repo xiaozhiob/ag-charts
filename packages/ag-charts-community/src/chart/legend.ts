@@ -12,6 +12,7 @@ import type {
 } from 'ag-charts-types';
 
 import type { ListSwitch } from '../dom/proxyInteractionService';
+import type { ProxyElementWidget } from '../dom/proxyWidgets';
 import type { LayoutContext } from '../module/baseModule';
 import type { ModuleContext } from '../module/moduleContext';
 import { BBox } from '../scene/bbox';
@@ -874,7 +875,10 @@ export class Legend extends BaseProperties {
         return actualBBox;
     }
 
-    private findNode(params: AgChartLegendContextMenuEvent): { datum: CategoryLegendDatum; proxyButton: ListSwitch } {
+    private findNode(params: AgChartLegendContextMenuEvent): {
+        datum: CategoryLegendDatum;
+        proxyButton: ProxyElementWidget<ListSwitch>;
+    } {
         const { datum, proxyButton } =
             this.itemSelection.select((ml): ml is LegendMarkerLabel => ml.datum?.itemId === params.itemId)[0] ?? {};
         if (datum === undefined || proxyButton === undefined) {
@@ -885,7 +889,7 @@ export class Legend extends BaseProperties {
 
     private contextToggleVisibility(params: AgChartLegendContextMenuEvent) {
         const { datum, proxyButton } = this.findNode(params);
-        this.doClick(params.event, datum, proxyButton.button);
+        this.doClick(params.event, datum, proxyButton.remover.button);
     }
 
     private contextToggleOtherSeries(params: AgChartLegendContextMenuEvent) {
@@ -1213,7 +1217,7 @@ export class Legend extends BaseProperties {
             const bbox = Transformable.toCanvas(node);
             if (bbox.containsPoint(canvasX, canvasY)) {
                 const { x, y } = Transformable.fromCanvasPoint(node, canvasX, canvasY);
-                return { target: node.proxyButton?.button!, x, y };
+                return { target: node.proxyButton?.remover.button!, x, y };
             }
         }
     }

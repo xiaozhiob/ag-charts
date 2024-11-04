@@ -1,8 +1,8 @@
-import { setElementStyle } from '../util/attributeUtil';
+import { type BaseStyleTypeMap, setElementStyle } from '../util/attributeUtil';
 import type { BBoxValues } from '../util/bboxinterface';
 import { setElementBBox } from '../util/dom';
 
-export interface IWidget<TElement extends HTMLElement> {
+interface IWidget<TElement extends HTMLElement> {
     destroy(): void;
     getElement(): TElement;
 }
@@ -35,6 +35,10 @@ export abstract class Widget<
 
     setBounds(bounds: BBoxValues): void {
         setElementBBox(this.elem, bounds);
+    }
+
+    setCursor(cursor: BaseStyleTypeMap['cursor'] | undefined) {
+        setElementStyle(this.elem, 'cursor', cursor);
     }
 
     cssLeft(): number {

@@ -2,6 +2,7 @@ import type { FontStyle, FontWeight, TextAlign, TextWrap } from 'ag-charts-types
 
 import type { BoundedText } from '../dom/boundedText';
 import type { ProxyInteractionService } from '../dom/proxyInteractionService';
+import type { ProxyElementWidget } from '../dom/proxyWidgets';
 import type { ModuleContext } from '../module/moduleContext';
 import { PointerEvents } from '../scene/node';
 import { RotatableText } from '../scene/shape/text';
@@ -88,7 +89,7 @@ export class Caption extends BaseProperties implements CaptionLike {
     layoutStyle: 'block' | 'overlay' = 'block';
 
     private truncated = false;
-    private proxyText?: BoundedText;
+    private proxyText?: ProxyElementWidget<BoundedText>;
 
     registerInteraction(moduleCtx: ModuleContext, where: 'beforebegin' | 'afterend') {
         const { regionManager, proxyInteractionService, layoutManager } = moduleCtx;
@@ -121,11 +122,11 @@ export class Caption extends BaseProperties implements CaptionLike {
             if (bbox) {
                 const { id: domManagerId } = this;
                 this.proxyText ??= proxyService.createProxyElement({ type: 'text', domManagerId, parent: where });
-                this.proxyText.textContent = this.text;
-                this.proxyText.updateBounds(bbox);
+                this.proxyText.remover.textContent = this.text;
+                this.proxyText.remover.updateBounds(bbox);
             }
         } else {
-            this.proxyText?.remove();
+            this.proxyText?.remover.remove();
             this.proxyText = undefined;
         }
     }

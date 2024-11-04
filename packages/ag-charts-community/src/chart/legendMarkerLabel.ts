@@ -1,6 +1,7 @@
 import type { FontStyle, FontWeight } from 'ag-charts-types';
 
 import type { ListSwitch } from '../dom/proxyInteractionService';
+import type { ProxyElementWidget } from '../dom/proxyWidgets';
 import { BBox } from '../scene/bbox';
 import { Group } from '../scene/group';
 import { Image } from '../scene/image';
@@ -49,12 +50,12 @@ export class LegendMarkerLabel extends Translatable(Group) {
     }
 
     destroyProxyButton() {
-        this.proxyButton?.button.remove();
-        this.proxyButton?.listitem.remove();
+        this.proxyButton?.remover.button.remove();
+        this.proxyButton?.remover.listitem.remove();
         this.proxyButton = undefined;
     }
 
-    proxyButton?: ListSwitch;
+    proxyButton?: ProxyElementWidget<ListSwitch>;
 
     pageIndex: number = NaN;
 

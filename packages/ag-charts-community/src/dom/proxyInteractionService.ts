@@ -3,10 +3,10 @@ import type { Direction } from 'ag-charts-types';
 import type { LocaleManager } from '../locale/localeManager';
 import { type BaseStyleTypeMap, setAttribute, setElementStyle } from '../util/attributeUtil';
 import { createElement, getWindow } from '../util/dom';
+import type { Widget } from '../widget/widget';
 import { BoundedText } from './boundedText';
 import type { DOMManager } from './domManager';
 import { ProxyContainerWidget, ProxyElementWidget } from './proxyWidgets';
-import type { IWidget } from '../widget/widget';
 
 export type ListSwitch = { button: HTMLButtonElement; listitem: HTMLElement; remove(): void };
 
@@ -350,7 +350,7 @@ export class ProxyInteractionService {
         }
     }
 
-    private setParent<T extends ProxyElementType>(params: ElemParams<T>, element: IWidget<HTMLElement>) {
+    private setParent<T extends ProxyElementType>(params: ElemParams<T>, element: Widget<HTMLElement>) {
         const { parent } = params;
         if (typeof parent === 'string') {
             const insert = { where: parent, query: '.ag-charts-series-area' };

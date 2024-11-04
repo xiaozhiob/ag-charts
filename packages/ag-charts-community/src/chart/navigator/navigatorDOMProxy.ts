@@ -1,10 +1,9 @@
-import type { ProxyContainerWidget } from '../../dom/proxyContainerWidget';
 import type { ProxyDragHandlerEvent } from '../../dom/proxyInteractionService';
+import type { ProxyContainerWidget, ProxyElementWidget } from '../../dom/proxyWidgets';
 import type { ModuleContext } from '../../module/moduleContext';
 import { setAttribute } from '../../util/attributeUtil';
 import type { BBoxValues } from '../../util/bboxinterface';
 import { DestroyFns } from '../../util/destroy';
-import { setElementBBox } from '../../util/dom';
 import { formatPercent } from '../../util/format.util';
 import { initToolbarKeyNav } from '../../util/keynavUtil';
 import { clamp } from '../../util/number';
@@ -25,7 +24,11 @@ export class NavigatorDOMProxy {
     private dragStartX = 0;
 
     private readonly toolbar: ProxyContainerWidget;
-    private readonly sliders: [HTMLInputElement, HTMLInputElement, HTMLInputElement];
+    private readonly sliders: [
+        ProxyElementWidget<HTMLInputElement>,
+        ProxyElementWidget<HTMLInputElement>,
+        ProxyElementWidget<HTMLInputElement>,
+    ];
 
     private readonly destroyFns = new DestroyFns();
 
@@ -75,12 +78,12 @@ export class NavigatorDOMProxy {
         this.setPanSliderValue(this._min, this._max);
         initToolbarKeyNav({
             orientation: 'vertical',
-            toolbar: this.toolbar,
-            buttons: this.sliders,
+            toolbar: this.toolbar.getElement(),
+            buttons: this.sliders.map((widget) => widget.getElement()),
         });
         this.destroyFns.push(() => {
-            this.sliders.forEach((e) => e.remove());
-            this.toolbar.remove();
+            this.sliders.forEach((e) => e.destroy());
+            this.toolbar.destroy();
         });
         this.updateVisibility(false);
     }
@@ -93,7 +96,7 @@ export class NavigatorDOMProxy {
         if (this.destroyDragListeners != null) return;
 
         for (const [index, key] of (['min', 'pan', 'max'] as const).entries()) {
-            const slider = this.sliders[index];
+            const slider = this.sliders[index].getElement();
             slider.step = '0.01';
             setAttribute(slider, 'data-preventdefault', false);
             this.destroyDragListeners = this.ctx.proxyInteractionService.createDragListeners({
@@ -127,7 +130,7 @@ export class NavigatorDOMProxy {
     }
 
     updateSliderBounds(sliderIndex: number, bounds: BBoxValues): void {
-        setElementBBox(this.sliders[sliderIndex], bounds);
+        this.sliders[sliderIndex].setBounds(bounds);
     }
 
     updateMinMax(min: number, max: number) {
@@ -179,11 +182,12 @@ export class NavigatorDOMProxy {
 
     private setPanSliderValue(min: number, max: number) {
         const value = Math.round(min * 10000) / 100;
-        this.sliders[1].value = `${value}`;
-        this.sliders[1].ariaValueText = this.ctx.localeManager.t('ariaValuePanRange', { min, max });
+        const slider = this.sliders[1].getElement();
+        slider.value = `${value}`;
+        slider.ariaValueText = this.ctx.localeManager.t('ariaValuePanRange', { min, max });
     }
 
-    private setSliderRatioClamped(slider: HTMLInputElement, clampMin: number, clampMax: number) {
+    private setSliderRatioClamped(slider: ProxyElementWidget<HTMLInputElement>, clampMin: number, clampMax: number) {
         const ratio = this.getSliderRatio(slider);
         const clampedRatio = clamp(clampMin, ratio, clampMax);
         if (clampedRatio !== ratio) {
@@ -192,14 +196,15 @@ export class NavigatorDOMProxy {
         return clampedRatio;
     }
 
-    private setSliderRatio(slider: HTMLInputElement, ratio: number) {
+    private setSliderRatio(widget: ProxyElementWidget<HTMLInputElement>, ratio: number) {
+        const slider = widget.getElement();
         const value = Math.round(ratio * 10000) / 100;
         slider.value = `${value}`;
         slider.ariaValueText = formatPercent(value / 100);
     }
 
-    private getSliderRatio(slider: HTMLInputElement) {
-        return parseFloat(slider.value) / 100;
+    private getSliderRatio(widget: ProxyElementWidget<HTMLInputElement>) {
+        return parseFloat(widget.getElement().value) / 100;
     }
 
     testFindTarget(
@@ -207,9 +212,10 @@ export class NavigatorDOMProxy {
         canvasX: number,
         canvasY: number
     ): { target: HTMLElement; x: number; y: number } {
-        const target = this.sliders[{ min: 0, pan: 1, max: 2 }[type]];
-        const x = canvasX - parseFloat(target.style.left) - this.toolbar.cssLeft();
-        const y = canvasY - parseFloat(target.style.top) - this.toolbar.cssTop();
+        const targetWidth = this.sliders[{ min: 0, pan: 1, max: 2 }[type]];
+        const x = canvasX - targetWidth.cssLeft() - this.toolbar.cssLeft();
+        const y = canvasY - targetWidth.cssTop() - this.toolbar.cssTop();
+        const target = targetWidth.getElement();
         return { target, x, y };
     }
 }

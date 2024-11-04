@@ -1,5 +1,5 @@
 import { getDocument } from '../util/dom';
-import { type IWidget, Widget } from '../widget/widget';
+import { Widget } from '../widget/widget';
 
 export class ProxyContainerWidget extends Widget<HTMLDivElement> {
     constructor() {
@@ -14,19 +14,16 @@ export class ProxyContainerWidget extends Widget<HTMLDivElement> {
 export class ProxyElementWidget<
     R extends { remove(): void },
     T extends HTMLElement = R extends HTMLElement ? R : HTMLElement,
-> implements IWidget<T>
-{
+> extends Widget<T> {
     constructor(
         public readonly remover: R,
         public readonly nativeElement: T
-    ) {}
-
-    public destroy() {
-        this.remover.remove();
+    ) {
+        super(nativeElement);
     }
 
-    public getElement() {
-        return this.nativeElement;
+    protected destructor() {
+        this.remover.remove();
     }
 
     public static fromHTML<T extends HTMLElement>(nativeElement: T): ProxyElementWidget<T, T> {

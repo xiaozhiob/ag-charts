@@ -1,4 +1,4 @@
-import type { ProxyContainerWidget } from '../dom/proxyContainerWidget';
+import type { ProxyContainerWidget, ProxyElementWidget } from '../dom/proxyWidgets';
 import type { LocaleManager } from '../locale/localeManager';
 import type { ModuleContext } from '../module/moduleContext';
 import type { Node } from '../scene/node';
@@ -51,8 +51,8 @@ export class LegendDOMProxy {
     private readonly itemDescription: HTMLParagraphElement;
     private readonly paginationGroup: ProxyContainerWidget;
     private readonly destroyFns: DestroyFns = new DestroyFns();
-    private prevButton?: HTMLButtonElement;
-    private nextButton?: HTMLButtonElement;
+    private prevButton?: ProxyElementWidget<HTMLButtonElement>;
+    private nextButton?: ProxyElementWidget<HTMLButtonElement>;
 
     public constructor(
         ctx: Pick<ModuleContext, 'proxyInteractionService' | 'localeManager'>,
@@ -77,7 +77,7 @@ export class LegendDOMProxy {
         this.itemDescription.style.display = 'none';
         this.itemDescription.id = `${idPrefix}-ariaDescription`;
         this.itemDescription.textContent = this.getItemAriaDescription(ctx.localeManager);
-        this.itemList.append(this.itemDescription);
+        this.itemList.getElement().append(this.itemDescription);
     }
 
     public destroy() {
@@ -103,7 +103,7 @@ export class LegendDOMProxy {
                 // Retrieve the datum from the node rather than from the method parameter.
                 // The method parameter `datum` gets destroyed when the data is refreshed
                 // using Series.getLegendData(). But the scene node will stay the same.
-                onclick: (ev) => itemListener.onClick(ev, markerLabel.datum, markerLabel.proxyButton!.button),
+                onclick: (ev) => itemListener.onClick(ev, markerLabel.datum, markerLabel.proxyButton!.remover.button),
                 ondblclick: (ev) => itemListener.onDoubleClick(ev, markerLabel.datum),
                 onmouseenter: (ev) => itemListener.onHover(ev, markerLabel),
                 onmouseleave: () => itemListener.onLeave(),
@@ -115,7 +115,7 @@ export class LegendDOMProxy {
 
         const buttons: HTMLButtonElement[] = itemSelection
             .nodes()
-            .map((markerLabel) => markerLabel.proxyButton?.button)
+            .map((markerLabel) => markerLabel.proxyButton?.remover.button)
             .filter(isDefined);
         this.destroyFns.setFns([
             ...initRovingTabIndex({ orientation: 'horizontal', buttons }),
@@ -146,7 +146,7 @@ export class LegendDOMProxy {
         const maxHeight = Math.max(...itemSelection.nodes().map((l) => l.getBBox().height));
         itemSelection.each((l) => {
             if (l.proxyButton) {
-                const { listitem, button } = l.proxyButton;
+                const { listitem, button } = l.proxyButton.remover;
                 const visible = l.pageIndex === pagination.currentPage;
 
                 const { x, y, height, width } = Transformable.toCanvas(l);
@@ -191,8 +191,8 @@ export class LegendDOMProxy {
                     onmouseleave: () => pagination.onMouseHover(undefined),
                 });
             } else {
-                this.nextButton?.remove();
-                this.prevButton?.remove();
+                this.nextButton?.destroy();
+                this.prevButton?.destroy();
                 this.nextButton = undefined;
                 this.prevButton = undefined;
             }
@@ -200,14 +200,14 @@ export class LegendDOMProxy {
 
         const { prev, next } = pagination.computeCSSBounds();
 
-        setElementBBox(this.prevButton, prev);
-        setElementBBox(this.nextButton, next);
+        this.prevButton?.setBounds(prev);
+        this.nextButton?.setBounds(next);
         this.updatePaginationCursors(params);
     }
 
     private updatePaginationCursors({ pagination }: LegendDOMProxyPageChangeParams) {
-        setElementStyle(this.nextButton, 'cursor', pagination.getCursor('next'));
-        setElementStyle(this.prevButton, 'cursor', pagination.getCursor('previous'));
+        this.nextButton?.setCursor(pagination.getCursor('next'));
+        this.prevButton?.setCursor(pagination.getCursor('previous'));
     }
 
     public onDataUpdate(oldData: CategoryLegendDatum[], newData: CategoryLegendDatum[]) {
@@ -226,9 +226,9 @@ export class LegendDOMProxy {
     ) {
         const count = itemSelection.length;
         itemSelection.each(({ proxyButton }, datum, index) => {
-            if (proxyButton?.button != null) {
+            if (proxyButton?.remover.button != null) {
                 const label = datumReader.getItemLabel(datum);
-                proxyButton.button.textContent = this.getItemAriaText(localeManager, label, index, count);
+                proxyButton.remover.button.textContent = this.getItemAriaText(localeManager, label, index, count);
             }
         });
         this.itemDescription.textContent = this.getItemAriaDescription(localeManager);
