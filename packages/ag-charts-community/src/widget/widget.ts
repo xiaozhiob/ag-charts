@@ -2,33 +2,31 @@ import { setElementStyle } from '../util/attributeUtil';
 import type { BBoxValues } from '../util/bboxinterface';
 import { setElementBBox } from '../util/dom';
 
-type Destroyable = { destroy(): void };
-
-class DestroyableArray<T extends Destroyable> implements Destroyable {
-    private array: T[] = [];
-
-    destroy(): void {
-        this.array.forEach((e) => e.destroy());
-        this.array.length = 0;
-    }
-}
-
-interface IWidget extends Destroyable {
+interface IWidget<TElement extends HTMLElement> {
     destroy(): void;
+    getElement(): TElement;
 }
 
-export abstract class Widget<TElement extends HTMLElement = HTMLElement, TChild extends IWidget = IWidget>
-    implements IWidget
+export abstract class Widget<
+    TElement extends HTMLElement = HTMLElement,
+    TChildElement extends HTMLElement = HTMLElement,
+    TChildWidget extends IWidget<TChildElement> = IWidget<TChildElement>,
+> implements IWidget<TElement>
 {
-    private readonly children = new DestroyableArray<TChild>();
+    private readonly children: TChildWidget[] = [];
 
-    constructor(protected readonly elem: TElement) {}
+    constructor(private readonly elem: TElement) {}
 
     protected abstract destructor(): void;
 
+    getElement(): TElement {
+        return this.elem;
+    }
+
     destroy(): void {
-        this.children.destroy();
+        this.children.forEach((child) => child.destroy());
         this.destructor();
+        this.elem.remove();
     }
 
     setHidden(hidden: boolean): void {
@@ -44,5 +42,10 @@ export abstract class Widget<TElement extends HTMLElement = HTMLElement, TChild 
     }
     cssTop(): number {
         return parseFloat(this.elem.style.top);
+    }
+
+    appendChild(child: TChildWidget) {
+        this.elem.appendChild(child.getElement());
+        this.children.push(child);
     }
 }
