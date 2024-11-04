@@ -6,6 +6,7 @@ import { createElement, getWindow } from '../util/dom';
 import { BoundedText } from './boundedText';
 import type { DOMManager } from './domManager';
 import { ProxyContainerWidget, ProxyElementWidget } from './proxyWidgets';
+import type { IWidget } from '../widget/widget';
 
 export type ListSwitch = { button: HTMLButtonElement; listitem: HTMLElement; remove(): void };
 
@@ -349,7 +350,7 @@ export class ProxyInteractionService {
         }
     }
 
-    private setParent<T extends ProxyElementType>(params: ElemParams<T>, element: ProxyElementWidget<HTMLElement>) {
+    private setParent<T extends ProxyElementType>(params: ElemParams<T>, element: IWidget<HTMLElement>) {
         const { parent } = params;
         if (typeof parent === 'string') {
             const insert = { where: parent, query: '.ag-charts-series-area' };
