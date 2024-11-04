@@ -1,6 +1,6 @@
 import type {
     AgAreaSeriesLabelFormatterParams,
-    AgAreaSeriesOptionsKeys,
+    AgAreaSeriesMarkerParams,
     AgCartesianSeriesTooltipRendererParams,
     AgSeriesAreaOptions,
 } from 'ag-charts-types';
@@ -69,7 +69,7 @@ export class AreaSeriesProperties extends CartesianSeriesProperties<AgSeriesArea
     readonly shadow = new DropShadow();
 
     @Validate(OBJECT)
-    readonly marker = new SeriesMarker<AgAreaSeriesOptionsKeys>();
+    readonly marker = new SeriesMarker<AgAreaSeriesMarkerParams>();
 
     @Validate(OBJECT)
     readonly label = new Label<AgAreaSeriesLabelFormatterParams>();
