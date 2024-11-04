@@ -1197,7 +1197,7 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
         } else if (labelFormatter) {
             result = callbackCache.call(labelFormatter, datum);
         }
-        return result ?? String(datum);
+        return String(result ?? datum);
     }
 
     // For formatting arbitrary values between the ticks.
@@ -1214,7 +1214,7 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
         } else if (valueFormatter) {
             result = callbackCache.call(valueFormatter, datum);
         }
-        return result ?? String(datum);
+        return String(result ?? datum);
     }
 
     private getScaleValueFormatter(format?: string): (datum: any) => string {
