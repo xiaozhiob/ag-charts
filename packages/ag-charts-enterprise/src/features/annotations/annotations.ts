@@ -1,4 +1,10 @@
-import { type AgAnnotationLineStyleType, type Direction, _ModuleSupport, _Scene } from 'ag-charts-community';
+import {
+    type AgAnnotation,
+    type AgAnnotationLineStyleType,
+    type Direction,
+    _ModuleSupport,
+    _Scene,
+} from 'ag-charts-community';
 
 import { TextInput } from '../text-input/textInput';
 import { AxesButtons } from './annotationAxesButtons';
@@ -644,7 +650,7 @@ export class Annotations extends _ModuleSupport.BaseModuleInstance implements _M
         );
     }
 
-    private onRestoreAnnotations(event: { annotations?: any }) {
+    private onRestoreAnnotations(event: { annotations: Array<AgAnnotation> }) {
         if (!this.enabled) return;
 
         this.clear();
