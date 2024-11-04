@@ -34,7 +34,6 @@ const exampleOptions: Record<string, Record<string, ExampleOverrides>> = {
         'simple-bubble': { status: '404' },
         'scatter-series-error-bars': { status: '404' },
         'reversed-horizontal-bar': { status: '404' },
-        'reversed-bullet': { status: '404' },
         'reversed-bar': { status: '404' },
         'per-marker-customisation': { status: '404' },
         'log-axis': { status: '404' },
@@ -51,7 +50,6 @@ const exampleOptions: Record<string, Record<string, ExampleOverrides>> = {
         'bar-series-error-bars': { status: '404' },
         '100--stacked-column': { status: '404' },
         '100--stacked-bar': { status: '404' },
-        'horizontal-bullet': { status: '404' },
     },
 
     animation: {

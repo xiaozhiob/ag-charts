@@ -133,6 +133,14 @@ interface TickGenerationResult {
     labelData: PlacedLabelDatum[];
 }
 
+const NO_LABELS_AND_TICKS: TickGenerationResult = Object.freeze({
+    tickData: { ticks: [], rawTicks: [], labelCount: 0, fractionDigits: 0 },
+    combinedRotation: 0,
+    textAlign: 'center',
+    textBaseline: 'bottom',
+    labelData: [],
+});
+
 type AxisAnimationState = 'empty' | 'ready';
 type AxisAnimationEvent = { reset: undefined; resize: undefined; update: FromToDiff };
 
@@ -582,19 +590,52 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
     calculateLayout(domain?: any[], primaryTickCount?: number): { primaryTickCount: number | undefined; bbox: BBox } {
         const { rotation, parallelFlipRotation, regularFlipRotation } = this.calculateRotations();
         const sideFlag = this.label.getSideFlag();
-        const labelX = sideFlag * (this.getTickSize() + this.label.padding + this.seriesAreaPadding);
 
         this.updateScale(domain);
+        const tickResult = this.processTicks(primaryTickCount, parallelFlipRotation, regularFlipRotation);
+        this.tickGenerationResult = tickResult.tickGenerationResult;
 
-        this.tickGenerationResult = this.generateTicks({
-            primaryTickCount,
-            parallelFlipRotation,
-            regularFlipRotation,
-            labelX,
-            sideFlag,
+        const bbox = BBox.merge(tickResult.boxes);
+        const transformedBBox = this.getTransformBox(bbox);
+        const anySeriesActive = this.isAnySeriesActive();
+
+        this.crossLines.forEach((crossLine) => {
+            crossLine.sideFlag = -sideFlag as ChartAxisLabelFlipFlag;
+            crossLine.direction = rotation === -Math.PI / 2 ? ChartAxisDirection.X : ChartAxisDirection.Y;
+            if (crossLine instanceof CartesianCrossLine) {
+                crossLine.label.parallel ??= this.label.parallel;
+            }
+            crossLine.parallelFlipRotation = parallelFlipRotation;
+            crossLine.regularFlipRotation = regularFlipRotation;
+            crossLine.calculateLayout?.(anySeriesActive, this.reverse);
         });
 
-        const { tickData, combinedRotation, textBaseline, textAlign, ...ticksResult } = this.tickGenerationResult;
+        return {
+            primaryTickCount: tickResult.tickGenerationResult?.primaryTickCount ?? primaryTickCount,
+            bbox: transformedBBox,
+        };
+    }
+
+    private processTicks(
+        primaryTickCount: number | undefined,
+        parallelFlipRotation: number,
+        regularFlipRotation: number
+    ) {
+        const sideFlag = this.label.getSideFlag();
+        const labelX = sideFlag * (this.getTickSize() + this.label.padding + this.seriesAreaPadding);
+
+        const ticksEnabled = this.label.enabled || this.tick.enabled || this.gridLine.enabled;
+        const tickGenerationResult = ticksEnabled
+            ? this.generateTicks({
+                  primaryTickCount,
+                  parallelFlipRotation,
+                  regularFlipRotation,
+                  labelX,
+                  sideFlag,
+              })
+            : NO_LABELS_AND_TICKS;
+
+        const { tickData, combinedRotation, textBaseline, textAlign } = tickGenerationResult;
 
         this.updateLayoutState(tickData.fractionDigits);
 
@@ -651,25 +692,7 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
             }
         }
 
-        const bbox = BBox.merge(boxes);
-        const transformedBBox = this.getTransformBox(bbox);
-        const anySeriesActive = this.isAnySeriesActive();
-
-        this.crossLines.forEach((crossLine) => {
-            crossLine.sideFlag = -sideFlag as ChartAxisLabelFlipFlag;
-            crossLine.direction = rotation === -Math.PI / 2 ? ChartAxisDirection.X : ChartAxisDirection.Y;
-            if (crossLine instanceof CartesianCrossLine) {
-                crossLine.label.parallel ??= this.label.parallel;
-            }
-            crossLine.parallelFlipRotation = parallelFlipRotation;
-            crossLine.regularFlipRotation = regularFlipRotation;
-            crossLine.calculateLayout?.(anySeriesActive, this.reverse);
-        });
-
-        return {
-            primaryTickCount: ticksResult.primaryTickCount,
-            bbox: transformedBBox,
-        };
+        return { tickGenerationResult, boxes };
     }
 
     private updateLayoutState(fractionDigits: number) {
