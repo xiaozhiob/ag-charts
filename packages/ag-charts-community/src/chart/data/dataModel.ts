@@ -11,6 +11,7 @@ export interface ScopeProvider {
 }
 
 export interface DataGroup {
+    keys: any[];
     datumIndices: number[];
     aggregation: any[][];
     validScopes: Set<string> | undefined;
@@ -891,8 +892,8 @@ export class DataModel<
             if (validScopes?.size === 0) continue;
 
             newResultData[dataIndex++] = {
-                keys,
                 datumIndices,
+                keys,
                 aggregation: [],
                 validScopes,
             };

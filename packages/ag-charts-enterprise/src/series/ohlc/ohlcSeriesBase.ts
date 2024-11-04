@@ -148,7 +148,7 @@ export abstract class OhlcSeriesBase<
                 ...extraProps,
             ],
             formatIntoColumns: true,
-            doNotFormatIntoRows: false,
+            doNotFormatIntoRows: true,
         });
 
         this.smallestDataInterval = processedData.reduced?.smallestKeyInterval;

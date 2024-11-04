@@ -152,7 +152,7 @@ export class RangeBarSeries extends _ModuleSupport.AbstractBarSeries<
             ],
             groupByKeys: true,
             formatIntoColumns: true,
-            doNotFormatIntoRows: false,
+            doNotFormatIntoRows: true,
         });
 
         this.smallestDataInterval = processedData.reduced?.smallestKeyInterval;
@@ -200,7 +200,16 @@ export class RangeBarSeries extends _ModuleSupport.AbstractBarSeries<
         const xAxis = this.getCategoryAxis();
         const yAxis = this.getValueAxis();
 
-        if (!(data && xAxis && yAxis && dataModel && processedData != null && processedData.rawData.length > 0)) {
+        if (
+            !(
+                data &&
+                xAxis &&
+                yAxis &&
+                dataModel &&
+                processedData?.type === 'grouped' &&
+                processedData.rawData.length > 0
+            )
+        ) {
             return;
         }
 
@@ -229,10 +238,8 @@ export class RangeBarSeries extends _ModuleSupport.AbstractBarSeries<
 
         const { barWidth, groupIndex } = this.updateGroupScale(xAxis);
         const barOffset = ContinuousScale.is(xScale) ? barWidth * -0.5 : 0;
-        processedData?.data.forEach((group, groupedDataIndex) => {
-            const indices = group.index as number[];
-
-            indices.forEach((datumIndex) => {
+        processedData.groups.forEach(({ datumIndices }, groupedDataIndex) => {
+            datumIndices.forEach((datumIndex) => {
                 const datum = rawData[datumIndex];
                 const xDatum = keys[datumIndex][xIndex];
                 const x = Math.round(xScale.convert(xDatum)) + groupScale.convert(String(groupIndex)) + barOffset;

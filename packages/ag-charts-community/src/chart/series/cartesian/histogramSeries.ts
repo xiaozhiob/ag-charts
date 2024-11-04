@@ -201,7 +201,7 @@ export class HistogramSeries extends CartesianSeries<Rect, HistogramSeriesProper
             props,
             groupByFn,
             formatIntoColumns: true,
-            doNotFormatIntoRows: false,
+            doNotFormatIntoRows: true,
         });
 
         this.animationState.transition('updateData');
@@ -256,18 +256,17 @@ export class HistogramSeries extends CartesianSeries<Rect, HistogramSeriesProper
             processedData == null ||
             processedData.rawData.length === 0 ||
             processedData.type !== 'grouped'
-        )
+        ) {
             return context;
+        }
 
         const { rawData } = processedData;
-        processedData.data.forEach((group) => {
-            const {
-                aggValues: [[negativeAgg, positiveAgg]] = [[0, 0]],
-                datum: { length: frequency },
-                keys: domain,
-                keys: [xDomainMin, xDomainMax],
-            } = group;
-            const datum = group.index.map((datumIndex) => rawData[datumIndex]);
+        processedData.groups.forEach(({ keys, datumIndices, aggregation }) => {
+            const [[negativeAgg, positiveAgg] = [0, 0]] = aggregation;
+            const frequency = datumIndices.length;
+            const domain = keys;
+            const [xDomainMin, xDomainMax] = domain;
+            const datum = datumIndices.map((datumIndex) => rawData[datumIndex]);
 
             const xMinPx = xScale.convert(xDomainMin);
             const xMaxPx = xScale.convert(xDomainMax);
@@ -313,7 +312,7 @@ export class HistogramSeries extends CartesianSeries<Rect, HistogramSeriesProper
                 // since each selection is an aggregation of multiple data.
                 aggregatedValue: total,
                 frequency,
-                domain: domain as [number, number],
+                domain: domain as any[] as [number, number],
                 yKey,
                 xKey,
                 x,
