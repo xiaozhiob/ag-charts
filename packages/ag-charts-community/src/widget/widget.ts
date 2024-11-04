@@ -1,4 +1,6 @@
-class DestroyableArray<T extends { destroy(): void }> {
+type Destroyable = { destroy(): void };
+
+class DestroyableArray<T extends Destroyable> {
     private array: T[] = [];
 
     destroy() {
@@ -7,10 +9,14 @@ class DestroyableArray<T extends { destroy(): void }> {
     }
 }
 
-export abstract class Widget {
-    private children = new DestroyableArray<Widget>();
+interface IWidget extends Destroyable {
+    destroy(): void;
+}
 
-    constructor() {}
+export abstract class Widget<TChild extends IWidget = IWidget> implements IWidget {
+    private readonly children = new DestroyableArray<TChild>();
+
+    public constructor(protected readonly elem: Element & ElementCSSInlineStyle) {}
 
     protected abstract destructor(): void;
 
