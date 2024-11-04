@@ -282,7 +282,6 @@ export class MiniChart extends _ModuleSupport.BaseModuleInstance implements _Mod
             }
 
             axis.calculateLayout();
-            axis.updatePosition();
             axis.update(animated);
         });
 
