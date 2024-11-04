@@ -1,6 +1,6 @@
 import { type BaseStyleTypeMap, setElementStyle } from '../util/attributeUtil';
 import type { BBoxValues } from '../util/bboxinterface';
-import { setElementBBox } from '../util/dom';
+import { getElementBBox, getWindow, setElementBBox } from '../util/dom';
 
 interface IWidget<TElement extends HTMLElement> {
     destroy(): void;
@@ -33,8 +33,16 @@ export abstract class Widget<
         setElementStyle(this.elem, 'display', hidden ? 'none' : undefined);
     }
 
+    isHidden(): boolean {
+        return getWindow()?.getComputedStyle?.(this.elem).display === 'none';
+    }
+
     setBounds(bounds: BBoxValues): void {
         setElementBBox(this.elem, bounds);
+    }
+
+    getBounds(): BBoxValues {
+        return getElementBBox(this.elem);
     }
 
     setCursor(cursor: BaseStyleTypeMap['cursor'] | undefined) {
