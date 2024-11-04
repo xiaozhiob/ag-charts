@@ -105,6 +105,28 @@ function getAxisIndices({ data }: SpanContext, values: any[]): SpanIndices[] {
     }));
 }
 
+function validateCategorySorting(newData: SpanContext, oldData: SpanContext) {
+    const oldScale = oldData.scales.x;
+    const newScale = newData.scales.x;
+
+    if (oldScale?.type !== 'category' || newScale?.type !== 'category') return true;
+
+    let x0 = -Infinity;
+    for (const oldValue of oldScale.domain) {
+        const x = scale(oldValue, newScale);
+        if (!Number.isFinite(x)) {
+            continue;
+        } else if (x < x0) {
+            // Unsorted
+            return false;
+        } else {
+            x0 = x;
+        }
+    }
+
+    return true;
+}
+
 function validateAxisEntriesOrder(axisValues: ValueEntry[], data: SpanContext) {
     let x0 = -Infinity;
     for (const axisValue of axisValues) {
@@ -123,6 +145,8 @@ function validateAxisEntriesOrder(axisValues: ValueEntry[], data: SpanContext) {
 }
 
 function getAxisValues(newData: SpanContext, oldData: SpanContext): AxisContext | undefined {
+    if (!validateCategorySorting(newData, oldData)) return;
+
     // Old and new axis values might not be directly comparable
     // Array.sort does not handle this case
     const allAxisEntries = new Map<AxisValue, any>();
