@@ -2,16 +2,12 @@ import { getDocument } from '../util/dom';
 import { type IWidget, Widget } from '../widget/widget';
 
 export class ProxyContainerWidget extends Widget<HTMLDivElement> {
-    public get div(): HTMLDivElement {
-        return this.getElement();
-    }
-
     constructor() {
         super(getDocument().createElement('div'));
     }
 
     protected override destructor() {
-        this.div.remove();
+        this.getElement().remove();
     }
 }
 

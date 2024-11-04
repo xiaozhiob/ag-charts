@@ -53,7 +53,7 @@ type ProxyMeta = {
     };
     text: {
         params: ElemParams<'text'>;
-        result: ProxyElementWidget<BoundedText>;
+        result: ProxyElementWidget<BoundedText, HTMLElement>;
     };
     listswitch: {
         params: InteractParams<'listswitch'> & {
@@ -61,7 +61,7 @@ type ProxyMeta = {
             readonly ariaChecked: boolean;
             readonly ariaDescribedBy: string;
         };
-        result: ProxyElementWidget<ListSwitch>;
+        result: ProxyElementWidget<ListSwitch, HTMLElement>;
     };
     region: {
         params: ElemParams<'region'>;
@@ -164,7 +164,7 @@ export class ProxyInteractionService {
     ): ProxyMeta[T]['result'] {
         const meta: ProxyMeta[T] = allocateMeta(args);
         const { params, result } = meta;
-        const { div } = result;
+        const div = result.getElement();
 
         this.domManager.addChild('canvas-proxy', params.domManagerId, div);
         div.classList.add(...params.classList, 'ag-charts-proxy-container');
