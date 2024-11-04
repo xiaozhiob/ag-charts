@@ -1,6 +1,6 @@
 import type {
     AgLineSeriesLabelFormatterParams,
-    AgLineSeriesMarkerParams,
+    AgLineSeriesMarkerItemStylerParams,
     AgLineSeriesOptions,
     AgLineSeriesTooltipRendererParams,
 } from 'ag-charts-types';
@@ -65,7 +65,7 @@ export class LineSeriesProperties extends CartesianSeriesProperties<AgLineSeries
     interpolation: InterpolationProperties = new InterpolationProperties();
 
     @Validate(OBJECT)
-    readonly marker = new SeriesMarker<AgLineSeriesMarkerParams>();
+    readonly marker = new SeriesMarker<AgLineSeriesMarkerItemStylerParams>();
 
     @Validate(OBJECT)
     readonly label = new Label<AgLineSeriesLabelFormatterParams>();

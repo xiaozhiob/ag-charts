@@ -1,5 +1,3 @@
-import type { AgSeriesMarkerStyle, AgSeriesMarkerStylerParams, ISeriesMarker } from 'ag-charts-types';
-
 import type { AnimationValue } from '../../../motion/animation';
 import { resetMotion } from '../../../motion/resetMotion';
 import { ContinuousScale } from '../../../scale/continuousScale';
