@@ -6,9 +6,6 @@ export enum FONT_SIZE {
 
 export enum FONT_WEIGHT {
     NORMAL = 'normal',
-    BOLD = 'bold',
-    BOLDER = 'bolder',
-    LIGHTER = 'lighter',
 }
 
 export enum CARTESIAN_POSITION {

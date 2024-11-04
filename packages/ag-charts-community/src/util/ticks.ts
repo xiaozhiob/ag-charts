@@ -52,7 +52,7 @@ export const TickIntervals = [
     tInterval(timeYear, durationYear, 1),
 ];
 
-export const TickMultipliers = [1, 2, 5, 10];
+const TickMultipliers = [1, 2, 5, 10];
 
 function isCloseToInteger(n: number, delta: number) {
     return Math.abs(Math.round(n) - n) < delta;

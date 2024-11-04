@@ -73,6 +73,7 @@ const SPARKLINE_THEME: AgChartTheme = {
             animation: {
                 enabled: false,
             },
+            contextMenu: { enabled: false },
             toolbar: { enabled: false },
             padding: {
                 top: 0,
@@ -240,14 +241,11 @@ function axisPreset(
 
 function gridLinePreset(opts: AgSparklineAxisOptions | undefined, defaultEnabled: boolean): AgAxisGridLineOptions {
     const gridLineOpts: AgAxisGridLineOptions = {};
-    gridLineOpts.enabled = opts?.visible;
     if (opts?.stroke != null) {
         gridLineOpts.style = [{ stroke: opts?.stroke }];
-        gridLineOpts.enabled ??= true;
     }
     if (opts?.strokeWidth != null) {
         gridLineOpts.width = opts?.strokeWidth;
-        gridLineOpts.enabled ??= true;
     }
     gridLineOpts.enabled ??= defaultEnabled;
     return gridLineOpts;
