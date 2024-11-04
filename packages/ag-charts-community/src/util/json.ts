@@ -130,8 +130,9 @@ export function jsonWalk<T, C>(
     if (isArray(json)) {
         visit(json, parallelJson, ctx);
         let index = 0;
-        for (let node of json) {
-            jsonWalk(node, visit, skip, (parallelJson as any[])?.[index++], ctx);
+        for (const node of json) {
+            jsonWalk(node, visit, skip, (parallelJson as any[])?.[index], ctx);
+            index++;
         }
     } else if (isPlainObject(json)) {
         visit(json, parallelJson, ctx);
@@ -140,9 +141,7 @@ export function jsonWalk<T, C>(
                 continue;
             }
             const value = json[key as keyof T] as T;
-            if (isArray(value) || isPlainObject(value)) {
-                jsonWalk(value, visit, skip, (parallelJson as any)?.[key], ctx);
-            }
+            jsonWalk(value, visit, skip, (parallelJson as any)?.[key], ctx);
         }
     }
 }
