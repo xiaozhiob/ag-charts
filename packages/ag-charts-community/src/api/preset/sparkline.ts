@@ -75,6 +75,7 @@ const SPARKLINE_THEME: AgChartTheme = {
             animation: {
                 enabled: false,
             },
+            contextMenu: { enabled: false },
             toolbar: { enabled: false },
             padding: {
                 top: 0,
@@ -286,14 +287,11 @@ function axis(
 
 function gridLine(opts: AgSparklineAxisOptions | undefined, defaultEnabled: boolean): AgAxisGridLineOptions {
     const gridLineOpts: AgAxisGridLineOptions = {};
-    gridLineOpts.enabled = opts?.visible;
     if (opts?.stroke != null) {
         gridLineOpts.style = [{ stroke: opts?.stroke }];
-        gridLineOpts.enabled ??= true;
     }
     if (opts?.strokeWidth != null) {
         gridLineOpts.width = opts?.strokeWidth;
-        gridLineOpts.enabled ??= true;
     }
     gridLineOpts.enabled ??= defaultEnabled;
     return gridLineOpts;
@@ -350,7 +348,7 @@ export function sparkline(opts: AgSparklineOptions): AgCartesianChartOptions {
     };
     const yAxisBase: AgCartesianAxisOptions = {
         ...axis(yAxis, 'number'),
-        gridLine: gridLine(xAxis, true),
+        gridLine: gridLine(xAxis, false),
         position: yAxisPosition,
     };
 

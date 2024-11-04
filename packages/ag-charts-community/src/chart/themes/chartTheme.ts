@@ -396,28 +396,30 @@ export class ChartTheme {
         );
     }
 
-    templateTheme<T>(themeTemplate: T): T {
-        const themeInstance = deepClone(themeTemplate);
-        const params = this.getTemplateParameters();
-
-        jsonWalk(themeInstance, (node: any) => {
-            if (isArray(node)) {
-                for (let i = 0; i < node.length; i++) {
-                    const symbol = node[i];
-                    if (params.has(symbol)) {
-                        node[i] = params.get(symbol);
-                    }
-                }
-            } else {
-                for (const [name, value] of Object.entries(node)) {
-                    if (params.has(value)) {
-                        node[name] = params.get(value);
-                    }
+    private static applyTemplateTheme(node: any, _other: any, params?: Map<any, any>) {
+        if (isArray(node)) {
+            for (let i = 0; i < node.length; i++) {
+                const symbol = node[i];
+                if (typeof symbol === 'symbol' && params?.has(symbol)) {
+                    node[i] = params.get(symbol);
                 }
             }
-        });
+        } else {
+            for (const [name, value] of Object.entries(node)) {
+                if (typeof value === 'symbol' && params?.has(value)) {
+                    node[name] = params.get(value);
+                }
+            }
+        }
+    }
 
-        return deepClone(themeInstance);
+    templateTheme<T>(themeTemplate: T, clone = true): T {
+        const themeInstance = clone ? deepClone(themeTemplate) : themeTemplate;
+        const params = this.getTemplateParameters();
+
+        jsonWalk(themeInstance, ChartTheme.applyTemplateTheme, undefined, undefined, params);
+
+        return themeInstance;
     }
 
     protected getDefaultColors(): DefaultColors {
