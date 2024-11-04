@@ -1,3 +1,4 @@
+import type { ProxyContainerWidget } from '../../dom/proxyContainerWidget';
 import type { ProxyDragHandlerEvent } from '../../dom/proxyInteractionService';
 import type { ModuleContext } from '../../module/moduleContext';
 import { setAttribute } from '../../util/attributeUtil';
@@ -23,7 +24,7 @@ export class NavigatorDOMProxy {
 
     private dragStartX = 0;
 
-    private readonly toolbar: HTMLElement;
+    private readonly toolbar: ProxyContainerWidget;
     private readonly sliders: [HTMLInputElement, HTMLInputElement, HTMLInputElement];
 
     private readonly destroyFns = new DestroyFns();

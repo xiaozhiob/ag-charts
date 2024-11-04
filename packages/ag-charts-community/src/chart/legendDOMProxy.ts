@@ -1,3 +1,4 @@
+import type { ProxyContainerWidget } from '../dom/proxyContainerWidget';
 import type { LocaleManager } from '../locale/localeManager';
 import type { ModuleContext } from '../module/moduleContext';
 import type { Node } from '../scene/node';
@@ -46,9 +47,9 @@ type LegendDOMProxyPageChangeParams = Pick<
 export class LegendDOMProxy {
     private dirty = true;
 
-    private readonly itemList: HTMLDivElement;
+    private readonly itemList: ProxyContainerWidget;
     private readonly itemDescription: HTMLParagraphElement;
-    private readonly paginationGroup: HTMLDivElement;
+    private readonly paginationGroup: ProxyContainerWidget;
     private readonly destroyFns: DestroyFns = new DestroyFns();
     private prevButton?: HTMLButtonElement;
     private nextButton?: HTMLButtonElement;

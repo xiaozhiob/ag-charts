@@ -5,6 +5,7 @@ import { type BaseStyleTypeMap, setAttribute, setElementStyle } from '../util/at
 import { createElement, getWindow } from '../util/dom';
 import { BoundedText } from './boundedText';
 import type { DOMManager } from './domManager';
+import { ProxyContainerWidget } from './proxyContainerWidget';
 
 export type ListSwitch = { button: HTMLButtonElement; listitem: HTMLElement };
 
@@ -12,7 +13,10 @@ type ElemParams<T extends ProxyElementType> = {
     readonly type: T;
     readonly id?: string;
     readonly cursor?: BaseStyleTypeMap['cursor'];
-} & ({ readonly parent: HTMLElement } | { readonly domManagerId: string; readonly parent: 'beforebegin' | 'afterend' });
+} & (
+    | { readonly parent: ProxyContainerWidget }
+    | { readonly domManagerId: string; readonly parent: 'beforebegin' | 'afterend' }
+);
 
 type InteractParams<T extends ProxyElementType> = ElemParams<T> & {
     readonly tabIndex?: number;
@@ -67,15 +71,15 @@ type ProxyMeta = {
     // Containers
     toolbar: {
         params: ContainerParams<'toolbar'>;
-        result: HTMLDivElement;
+        result: ProxyContainerWidget;
     };
     group: {
         params: ContainerParams<'group'>;
-        result: HTMLDivElement;
+        result: ProxyContainerWidget;
     };
     list: {
         params: Omit<ContainerParams<'list'>, 'ariaOrientation'>;
-        result: HTMLDivElement;
+        result: ProxyContainerWidget;
     };
 };
 
@@ -102,6 +106,8 @@ function allocateResult<T extends keyof ProxyMeta>(type: T): ProxyMeta[T]['resul
     } else if ('slider' === type) {
         return createElement('input');
     } else if (['toolbar', 'group', 'list', 'region'].includes(type)) {
+        return new ProxyContainerWidget();
+    } else if ('region' === type) {
         return createElement('div');
     } else if ('text' === type) {
         return new BoundedText();
@@ -150,7 +156,8 @@ export class ProxyInteractionService {
         args: { type: T } & ProxyMeta[T]['params']
     ): ProxyMeta[T]['result'] {
         const meta: ProxyMeta[T] = allocateMeta(args);
-        const { params, result: div } = meta;
+        const { params, result } = meta;
+        const { div } = result;
 
         this.domManager.addChild('canvas-proxy', params.domManagerId, div);
         div.classList.add(...params.classList, 'ag-charts-proxy-container');
@@ -167,7 +174,7 @@ export class ProxyInteractionService {
             div.ariaLabel = this.localeManager.t(params.ariaLabel.id, params.ariaLabel.params);
         });
 
-        return div;
+        return result;
     }
 
     createProxyElement<T extends ProxyElementType>(args: { type: T } & ProxyMeta[T]['params']): ProxyMeta[T]['result'] {
