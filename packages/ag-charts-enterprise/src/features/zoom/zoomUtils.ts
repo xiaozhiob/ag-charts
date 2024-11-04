@@ -1,4 +1,4 @@
-import { type AgZoomAnchorPoint, _ModuleSupport, _Scene } from 'ag-charts-community';
+import { type AgZoomAnchorPoint, _ModuleSupport, type _Scene } from 'ag-charts-community';
 
 import type { DefinedZoomState } from './zoomTypes';
 

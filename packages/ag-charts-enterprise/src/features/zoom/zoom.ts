@@ -176,7 +176,7 @@ export class Zoom extends _ModuleSupport.BaseModuleInstance implements _ModuleSu
     private destroyContextMenuActions: (() => void) | undefined = undefined;
 
     private isFirstWheelEvent = true;
-    private debouncedWheelReset = _ModuleSupport.debounce(() => {
+    private readonly debouncedWheelReset = _ModuleSupport.debounce(() => {
         this.isFirstWheelEvent = true;
     }, 100);
 
@@ -219,7 +219,7 @@ export class Zoom extends _ModuleSupport.BaseModuleInstance implements _ModuleSu
             ctx.keyNavManager.addListener('nav-zoom', (event) => this.onNavZoom(event)),
             region.addListener('drag', (event) => this.onDrag(event), draggableState),
             region.addListener(dragStartEventType, (event) => this.onDragStart(event), draggableState),
-            region.addListener('drag-end', (event) => this.onDragEnd(event), draggableState),
+            region.addListener('drag-end', () => this.onDragEnd(), draggableState),
             region.addListener('wheel', (event) => this.onWheel(event), wheelableState),
             ctx.gestureDetector.addListener('pinch-move', (event) => this.onPinchMove(event as PinchEvent)),
             ctx.toolbarManager.addListener('button-pressed', (event) =>
@@ -364,7 +364,7 @@ export class Zoom extends _ModuleSupport.BaseModuleInstance implements _ModuleSu
         updateService.update(ChartUpdateType.PERFORM_LAYOUT, { skipAnimations: true });
     }
 
-    private onDragEnd(_event?: _ModuleSupport.RegionEvent<'drag-end'>) {
+    private onDragEnd() {
         const {
             axisDragger,
             dragState,
