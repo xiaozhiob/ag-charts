@@ -1,8 +1,13 @@
-import { AgCartesianSeriesTooltipRendererParams, AgChartOptions, AgCharts, Marker } from 'ag-charts-enterprise';
+import {
+    AgCartesianSeriesTooltipRendererParams,
+    AgChartOptions,
+    AgCharts,
+    AgMarkerShapeFnParams,
+} from 'ag-charts-enterprise';
 
 import { getData } from './data';
 
-function aGChartsLogo({ path }) {
+function aGChartsLogo({ path }: AgMarkerShapeFnParams) {
     const pathData = [
         'M58,10l-17,0l-8,8l25,0l0,-8Z',
         'M43,30l0,-7.995l-14,0l-8.008,7.995l22.008,0Z',
@@ -14,7 +19,7 @@ function aGChartsLogo({ path }) {
     updatePath(pathData, path, 0.4, 12, 10);
 }
 
-function npmLogo({ path }) {
+function npmLogo({ path }: AgMarkerShapeFnParams) {
     const pathData = ['M5.8,21.75l7.86,0l0,-11.77l3.92,0l0,11.78l3.93,0l0,-15.7l-15.7,0l0,15.69'];
     updatePath(pathData, path, 0.75, 5, 11);
 }

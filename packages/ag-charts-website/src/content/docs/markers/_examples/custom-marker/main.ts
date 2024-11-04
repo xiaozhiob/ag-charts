@@ -1,4 +1,4 @@
-import { AgChartOptions, AgCharts } from 'ag-charts-community';
+import { AgChartOptions, AgCharts, AgMarkerShapeFnParams } from 'ag-charts-community';
 
 import { getData } from './data';
 
@@ -6,7 +6,7 @@ const rad = (degree: number) => {
     return (degree / 180) * Math.PI;
 };
 
-const heart = ({ x, y, path, size }) => {
+const heart = ({ x, y, path, size }: AgMarkerShapeFnParams) => {
     const r = size / 4;
     const yCoord = y + r / 2;
 

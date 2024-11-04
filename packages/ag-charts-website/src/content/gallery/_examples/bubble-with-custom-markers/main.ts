@@ -1,11 +1,16 @@
-import { AgCartesianSeriesTooltipRendererParams, AgChartOptions, AgCharts, Marker } from 'ag-charts-enterprise';
+import {
+    AgCartesianSeriesTooltipRendererParams,
+    AgChartOptions,
+    AgCharts,
+    AgMarkerShapeFnParams,
+} from 'ag-charts-enterprise';
 
 import { getData } from './data';
 
 const data = getData();
 const seasons = ['Spring', 'Summer', 'Autumn', 'Winter'];
 
-function rainDrop({ x, y, path, size }) {
+function rainDrop({ x, y, path, size }: AgMarkerShapeFnParams) {
     path.clear();
 
     const halfSize = size / 2;
