@@ -1,3 +1,5 @@
+import { setElementStyle } from '../util/attributeUtil';
+
 type Destroyable = { destroy(): void };
 
 class DestroyableArray<T extends Destroyable> {
@@ -23,5 +25,9 @@ export abstract class Widget<TChild extends IWidget = IWidget> implements IWidge
     destroy() {
         this.children.destroy();
         this.destructor();
+    }
+
+    setHidden(hidden: boolean) {
+        setElementStyle(this.elem, 'display', hidden ? 'none' : undefined);
     }
 }

@@ -121,7 +121,7 @@ export class LegendDOMProxy {
             ...initRovingTabIndex({ orientation: 'horizontal', buttons }),
             ...initRovingTabIndex({ orientation: 'vertical', buttons }),
         ]);
-        this.itemList.ariaHidden = (buttons.length === 0).toString();
+        this.itemList.setHidden(buttons.length === 0);
         this.dirty = false;
     }
 
@@ -135,7 +135,7 @@ export class LegendDOMProxy {
     }
 
     private updateVisibility(visible: boolean) {
-        setElementStyle(this.itemList, 'display', visible ? undefined : 'none');
+        this.itemList.setHidden(!visible);
     }
 
     private updateItemProxyButtons({ itemSelection, group, pagination, interactive }: LegendDOMProxyPageChangeParams) {
@@ -163,7 +163,7 @@ export class LegendDOMProxy {
 
     private updatePaginationProxyButtons(params: LegendDOMProxyUpdateParams) {
         const { ctx, pagination, oldPages, newPages } = params;
-        this.paginationGroup.style.display = pagination.visible ? 'absolute' : 'none';
+        this.paginationGroup.setHidden(!pagination.visible);
 
         const oldNeedsButtons = (oldPages?.length ?? newPages.length) > 1;
         const newNeedsButtons = newPages.length > 1;
@@ -190,13 +190,11 @@ export class LegendDOMProxy {
                     onmouseenter: () => pagination.onMouseHover('next'),
                     onmouseleave: () => pagination.onMouseHover(undefined),
                 });
-                this.paginationGroup.ariaHidden = 'false';
             } else {
                 this.nextButton?.remove();
                 this.prevButton?.remove();
                 this.nextButton = undefined;
                 this.prevButton = undefined;
-                this.paginationGroup.ariaHidden = 'true';
             }
         }
 

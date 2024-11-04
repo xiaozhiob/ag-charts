@@ -106,11 +106,10 @@ export class NavigatorDOMProxy {
     }
 
     updateVisibility(visible: boolean): void {
+        this.toolbar.setHidden(!visible);
         if (visible) {
-            this.toolbar.style.removeProperty('display');
             this.initDragListeners();
         } else {
-            this.toolbar.style.display = 'none';
             this.destroyDragListeners?.();
             this.destroyDragListeners = undefined;
         }
