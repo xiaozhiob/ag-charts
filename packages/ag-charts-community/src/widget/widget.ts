@@ -17,10 +17,12 @@ interface IWidget extends Destroyable {
     destroy(): void;
 }
 
-export abstract class Widget<TChild extends IWidget = IWidget> implements IWidget {
+export abstract class Widget<TElement extends HTMLElement = HTMLElement, TChild extends IWidget = IWidget>
+    implements IWidget
+{
     private readonly children = new DestroyableArray<TChild>();
 
-    public constructor(protected readonly elem: HTMLElement) {}
+    constructor(protected readonly elem: TElement) {}
 
     protected abstract destructor(): void;
 

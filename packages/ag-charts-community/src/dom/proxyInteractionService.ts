@@ -105,7 +105,7 @@ function allocateResult<T extends keyof ProxyMeta>(type: T): ProxyMeta[T]['resul
         return createElement('button');
     } else if ('slider' === type) {
         return createElement('input');
-    } else if (['toolbar', 'group', 'list', 'region'].includes(type)) {
+    } else if (['toolbar', 'group', 'list'].includes(type)) {
         return new ProxyContainerWidget();
     } else if ('region' === type) {
         return createElement('div');
