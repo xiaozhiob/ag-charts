@@ -140,7 +140,7 @@ export class LegendDOMProxy {
 
     private updateItemProxyButtons({ itemSelection, group, pagination, interactive }: LegendDOMProxyPageChangeParams) {
         const groupBBox = Transformable.toCanvas(group);
-        setElementBBox(this.itemList, groupBBox);
+        this.itemList.setBounds(groupBBox);
 
         const pointer = interactive ? 'pointer' : undefined;
         const maxHeight = Math.max(...itemSelection.nodes().map((l) => l.getBBox().height));

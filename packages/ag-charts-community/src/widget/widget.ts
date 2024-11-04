@@ -1,11 +1,13 @@
 import { setElementStyle } from '../util/attributeUtil';
+import type { BBoxValues } from '../util/bboxinterface';
+import { setElementBBox } from '../util/dom';
 
 type Destroyable = { destroy(): void };
 
-class DestroyableArray<T extends Destroyable> {
+class DestroyableArray<T extends Destroyable> implements Destroyable {
     private array: T[] = [];
 
-    destroy() {
+    destroy(): void {
         this.array.forEach((e) => e.destroy());
         this.array.length = 0;
     }
@@ -18,16 +20,27 @@ interface IWidget extends Destroyable {
 export abstract class Widget<TChild extends IWidget = IWidget> implements IWidget {
     private readonly children = new DestroyableArray<TChild>();
 
-    public constructor(protected readonly elem: Element & ElementCSSInlineStyle) {}
+    public constructor(protected readonly elem: HTMLElement) {}
 
     protected abstract destructor(): void;
 
-    destroy() {
+    destroy(): void {
         this.children.destroy();
         this.destructor();
     }
 
-    setHidden(hidden: boolean) {
+    setHidden(hidden: boolean): void {
         setElementStyle(this.elem, 'display', hidden ? 'none' : undefined);
+    }
+
+    setBounds(bounds: BBoxValues): void {
+        setElementBBox(this.elem, bounds);
+    }
+
+    cssLeft(): number {
+        return parseFloat(this.elem.style.left);
+    }
+    cssTop(): number {
+        return parseFloat(this.elem.style.top);
     }
 }

@@ -123,7 +123,7 @@ export class NavigatorDOMProxy {
     }
 
     updateBounds(bounds: BBoxValues): void {
-        setElementBBox(this.toolbar, bounds);
+        this.toolbar.setBounds(bounds);
     }
 
     updateSliderBounds(sliderIndex: number, bounds: BBoxValues): void {
@@ -147,7 +147,7 @@ export class NavigatorDOMProxy {
     }
 
     private onDragStart(event: ProxyDragHandlerEvent, key: NavigatorButtonType, slider: HTMLInputElement) {
-        const toolbarLeft = parseFloat(this.toolbar.style.left);
+        const toolbarLeft = this.toolbar.cssLeft();
         const sliderLeft = parseFloat(slider.style.left);
         this.dragStartX = toolbarLeft + sliderLeft + event.offsetX;
         this.sliderHandlers.onDragStart(key, this.toCanvasOffsets(event));
@@ -208,8 +208,8 @@ export class NavigatorDOMProxy {
         canvasY: number
     ): { target: HTMLElement; x: number; y: number } {
         const target = this.sliders[{ min: 0, pan: 1, max: 2 }[type]];
-        const x = canvasX - parseFloat(target.style.left) - parseFloat(this.toolbar.style.left);
-        const y = canvasY - parseFloat(target.style.top) - parseFloat(this.toolbar.style.top);
+        const x = canvasX - parseFloat(target.style.left) - this.toolbar.cssLeft();
+        const y = canvasY - parseFloat(target.style.top) - this.toolbar.cssTop();
         return { target, x, y };
     }
 }
