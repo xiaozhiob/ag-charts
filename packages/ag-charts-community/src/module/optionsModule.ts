@@ -520,7 +520,7 @@ export class ChartOptions<T extends AgChartOptions = AgChartOptions> {
         }
     }
 
-    private enableConfiguredOptionFn(visitingUserOpts: any, visitingMergedOpts: any) {
+    private static enableConfiguredJsonOptions(visitingUserOpts: any, visitingMergedOpts: any) {
         if (
             visitingMergedOpts &&
             'enabled' in visitingMergedOpts &&
@@ -531,7 +531,7 @@ export class ChartOptions<T extends AgChartOptions = AgChartOptions> {
         }
     }
 
-    private cleanupEnabledFromThemeFn(visitingMergedOpts: any) {
+    private static cleanupEnabledFromThemeJsonOptions(visitingMergedOpts: any) {
         if (visitingMergedOpts._enabledFromTheme != null) {
             // Do not apply special handling, base enablement on theme.
             delete visitingMergedOpts._enabledFromTheme;
@@ -540,24 +540,24 @@ export class ChartOptions<T extends AgChartOptions = AgChartOptions> {
 
     private enableConfiguredOptions(options: T, userOptions: T) {
         // Set `enabled: true` for all option objects where the user has provided values.
-        jsonWalk(userOptions, this.enableConfiguredOptionFn, new Set(['data', 'theme']), options);
+        jsonWalk(userOptions, ChartOptions.enableConfiguredJsonOptions, new Set(['data', 'theme']), options);
 
         // Cleanup any special properties.
-        jsonWalk(options, this.cleanupEnabledFromThemeFn, new Set(['data', 'theme']));
+        jsonWalk(options, ChartOptions.cleanupEnabledFromThemeJsonOptions, new Set(['data', 'theme']));
     }
 
-    private removeDisabledOptionsFn(optionsNode: any) {
+    private static removeDisabledOptionJson(optionsNode: any) {
         if ('enabled' in optionsNode && optionsNode.enabled === false) {
             Object.keys(optionsNode).forEach((key) => {
                 if (key === 'enabled') return;
-                delete optionsNode[key as keyof T];
+                delete optionsNode[key];
             });
         }
     }
 
     private removeDisabledOptions(options: Partial<T>) {
         // Remove configurations from all option objects with a `false` value for the `enabled` property.
-        jsonWalk(options, this.removeDisabledOptionsFn, new Set(['data', 'theme']));
+        jsonWalk(options, ChartOptions.removeDisabledOptionJson, new Set(['data', 'theme']));
     }
 
     private specialOverridesDefaults(options: Partial<ChartSpecialOverrides>) {

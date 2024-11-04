@@ -396,7 +396,7 @@ export class ChartTheme {
         );
     }
 
-    private templateThemeFn(node: any, _other: any, params?: Map<any, any>) {
+    private static applyTemplateTheme(node: any, _other: any, params?: Map<any, any>) {
         if (isArray(node)) {
             for (let i = 0; i < node.length; i++) {
                 const symbol = node[i];
@@ -417,7 +417,7 @@ export class ChartTheme {
         const themeInstance = clone ? deepClone(themeTemplate) : themeTemplate;
         const params = this.getTemplateParameters();
 
-        jsonWalk(themeInstance, this.templateThemeFn, undefined, undefined, params);
+        jsonWalk(themeInstance, ChartTheme.applyTemplateTheme, undefined, undefined, params);
 
         return themeInstance;
     }
