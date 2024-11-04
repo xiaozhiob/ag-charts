@@ -129,9 +129,10 @@ export function jsonWalk<T, C>(
 ) {
     if (isArray(json)) {
         visit(json, parallelJson, ctx);
-        json.forEach((node, index) => {
-            jsonWalk(node, visit, skip, (parallelJson as any[])?.[index], ctx);
-        });
+        let index = 0;
+        for (let node of json) {
+            jsonWalk(node, visit, skip, (parallelJson as any[])?.[index++], ctx);
+        }
     } else if (isPlainObject(json)) {
         visit(json, parallelJson, ctx);
         for (const key of Object.keys(json)) {
