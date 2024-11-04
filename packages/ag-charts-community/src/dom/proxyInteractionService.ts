@@ -3,10 +3,10 @@ import type { Direction } from 'ag-charts-types';
 import type { LocaleManager } from '../locale/localeManager';
 import { type BaseStyleTypeMap, setAttribute, setElementStyle } from '../util/attributeUtil';
 import { createElement, getWindow } from '../util/dom';
+import { NativeWidget } from '../widget/nativeWidget';
 import type { Widget } from '../widget/widget';
 import { BoundedText } from './boundedText';
 import type { DOMManager } from './domManager';
-import { ProxyContainerWidget, ProxyElementWidget } from './proxyWidgets';
 
 export type ListSwitch = { button: HTMLButtonElement; listitem: HTMLElement; remove(): void };
 
@@ -15,7 +15,7 @@ type ElemParams<T extends ProxyElementType> = {
     readonly id?: string;
     readonly cursor?: BaseStyleTypeMap['cursor'];
 } & (
-    | { readonly parent: ProxyContainerWidget }
+    | { readonly parent: NativeWidget<HTMLDivElement> }
     | { readonly domManagerId: string; readonly parent: 'beforebegin' | 'afterend' }
 );
 
@@ -46,15 +46,15 @@ type ProxyMeta = {
     // Elements
     button: {
         params: InteractParams<'button'> & { readonly textContent: string | TranslationKey };
-        result: ProxyElementWidget<HTMLButtonElement>;
+        result: NativeWidget<HTMLButtonElement>;
     };
     slider: {
         params: InteractParams<'slider'> & { readonly ariaLabel: TranslationKey; readonly ariaOrientation: Direction };
-        result: ProxyElementWidget<HTMLInputElement>;
+        result: NativeWidget<HTMLInputElement>;
     };
     text: {
         params: ElemParams<'text'>;
-        result: ProxyElementWidget<BoundedText, HTMLElement>;
+        result: NativeWidget<HTMLElement, BoundedText>;
     };
     listswitch: {
         params: InteractParams<'listswitch'> & {
@@ -62,25 +62,25 @@ type ProxyMeta = {
             readonly ariaChecked: boolean;
             readonly ariaDescribedBy: string;
         };
-        result: ProxyElementWidget<ListSwitch, HTMLElement>;
+        result: NativeWidget<HTMLElement, ListSwitch>;
     };
     region: {
         params: ElemParams<'region'>;
-        result: ProxyElementWidget<HTMLDivElement>;
+        result: NativeWidget<HTMLDivElement>;
     };
 
     // Containers
     toolbar: {
         params: ContainerParams<'toolbar'>;
-        result: ProxyContainerWidget;
+        result: NativeWidget<HTMLDivElement>;
     };
     group: {
         params: ContainerParams<'group'>;
-        result: ProxyContainerWidget;
+        result: NativeWidget<HTMLDivElement>;
     };
     list: {
         params: Omit<ContainerParams<'list'>, 'ariaOrientation'>;
-        result: ProxyContainerWidget;
+        result: NativeWidget<HTMLDivElement>;
     };
 };
 
@@ -103,24 +103,22 @@ function checkType<T extends keyof ProxyMeta>(type: T, meta: ProxyMeta[keyof Pro
 
 function allocateResult<T extends keyof ProxyMeta>(type: T): ProxyMeta[T]['result'] {
     if ('button' === type) {
-        return ProxyElementWidget.fromHTML(createElement('button'));
+        return NativeWidget.createElement('button');
     } else if ('slider' === type) {
-        return ProxyElementWidget.fromHTML(createElement('input'));
-    } else if (['toolbar', 'group', 'list'].includes(type)) {
-        return new ProxyContainerWidget();
-    } else if ('region' === type) {
-        return ProxyElementWidget.fromHTML(createElement('div'));
+        return NativeWidget.createElement('input');
+    } else if (['toolbar', 'group', 'list', 'region'].includes(type)) {
+        return NativeWidget.createElement('div');
     } else if ('text' === type) {
-        const remover = new BoundedText();
-        const nativeElement = remover.getContainer();
-        return new ProxyElementWidget(remover, nativeElement);
+        const value = new BoundedText();
+        const elem = value.getContainer();
+        return new NativeWidget(elem, value);
     } else if ('listswitch' === type) {
-        const remover: ListSwitch = {
+        const value: ListSwitch = {
             button: createElement('button'),
             listitem: createElement('div'),
-            remove: () => remover.button.remove(),
+            remove: () => value.button.remove(),
         };
-        return new ProxyElementWidget(remover, remover.listitem);
+        return new NativeWidget(value.listitem, value);
     } else {
         throw Error('AG Charts - error allocating meta');
     }
@@ -190,7 +188,7 @@ export class ProxyInteractionService {
 
         if (checkType('button', meta)) {
             const { params, result } = meta;
-            const button = result.nativeElement;
+            const button = result.getElement();
             this.initInteract(params, button);
 
             if (typeof params.textContent === 'string') {
@@ -205,7 +203,7 @@ export class ProxyInteractionService {
 
         if (checkType('slider', meta)) {
             const { params, result } = meta;
-            const slider = result.nativeElement;
+            const slider = result.getElement();
             this.initInteract(params, slider);
             slider.type = 'range';
             slider.role = 'presentation';
@@ -219,12 +217,12 @@ export class ProxyInteractionService {
 
         if (checkType('text', meta)) {
             const { params, result } = meta;
-            this.initElement(params, result.remover.getContainer());
+            this.initElement(params, result.value.getContainer());
         }
 
         if (checkType('listswitch', meta)) {
             const { params, result } = meta;
-            const { listitem, button } = result.remover;
+            const { listitem, button } = result.value;
             this.initInteract(params, button);
             button.style.width = '100%';
             button.style.height = '100%';
@@ -240,7 +238,7 @@ export class ProxyInteractionService {
 
         if (checkType('region', meta)) {
             const { params, result } = meta;
-            const region = result.remover;
+            const region = result.getElement();
             this.initInteract(params, region);
             region.role = 'region';
         }

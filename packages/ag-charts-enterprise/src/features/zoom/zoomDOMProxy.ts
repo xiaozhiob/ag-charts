@@ -1,4 +1,4 @@
-import { _ModuleSupport, _Scene, _Util } from 'ag-charts-community';
+import { _ModuleSupport, _Scene, _Util, _Widget } from 'ag-charts-community';
 
 type AxesHandlers = {
     onDragStart: (id: string, direction: _ModuleSupport.ChartAxisDirection) => void;
@@ -8,7 +8,7 @@ type AxesHandlers = {
 
 type ProxyAxis = {
     axisId: string;
-    div: _ModuleSupport.ProxyElementWidget<HTMLDivElement>;
+    div: _Widget.NativeWidget<HTMLDivElement>;
     destroy(): void;
 };
 

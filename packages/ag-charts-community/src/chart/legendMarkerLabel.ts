@@ -1,7 +1,6 @@
 import type { FontStyle, FontWeight } from 'ag-charts-types';
 
 import type { ListSwitch } from '../dom/proxyInteractionService';
-import type { ProxyElementWidget } from '../dom/proxyWidgets';
 import { BBox } from '../scene/bbox';
 import { Group } from '../scene/group';
 import { Image } from '../scene/image';
@@ -14,6 +13,7 @@ import { iterate } from '../util/iterator';
 import { ProxyPropertyOnWrite } from '../util/proxy';
 import type { Marker } from './marker/marker';
 import type { MarkerConstructor } from './marker/util';
+import type { NativeWidget } from '../widget/nativeWidget';
 
 export class LegendMarkerLabel extends Translatable(Group) {
     static readonly className = 'MarkerLabel';
@@ -50,12 +50,12 @@ export class LegendMarkerLabel extends Translatable(Group) {
     }
 
     destroyProxyButton() {
-        this.proxyButton?.remover.button.remove();
-        this.proxyButton?.remover.listitem.remove();
+        this.proxyButton?.value.button.remove();
+        this.proxyButton?.value.listitem.remove();
         this.proxyButton = undefined;
     }
 
-    proxyButton?: ProxyElementWidget<ListSwitch>;
+    proxyButton?: NativeWidget<HTMLElement, ListSwitch>;
 
     pageIndex: number = NaN;
 

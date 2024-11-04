@@ -1,5 +1,4 @@
 import type { ProxyDragHandlerEvent } from '../../dom/proxyInteractionService';
-import type { ProxyContainerWidget, ProxyElementWidget } from '../../dom/proxyWidgets';
 import type { ModuleContext } from '../../module/moduleContext';
 import { setAttribute } from '../../util/attributeUtil';
 import type { BBoxValues } from '../../util/bboxinterface';
@@ -7,6 +6,7 @@ import { DestroyFns } from '../../util/destroy';
 import { formatPercent } from '../../util/format.util';
 import { initToolbarKeyNav } from '../../util/keynavUtil';
 import { clamp } from '../../util/number';
+import type { NativeWidget } from '../../widget/nativeWidget';
 
 export type NavigatorButtonType = 'min' | 'max' | 'pan';
 
@@ -23,11 +23,11 @@ export class NavigatorDOMProxy {
 
     private dragStartX = 0;
 
-    private readonly toolbar: ProxyContainerWidget;
+    private readonly toolbar: NativeWidget<HTMLDivElement>;
     private readonly sliders: [
-        ProxyElementWidget<HTMLInputElement>,
-        ProxyElementWidget<HTMLInputElement>,
-        ProxyElementWidget<HTMLInputElement>,
+        NativeWidget<HTMLInputElement>,
+        NativeWidget<HTMLInputElement>,
+        NativeWidget<HTMLInputElement>,
     ];
 
     private readonly destroyFns = new DestroyFns();
@@ -187,7 +187,7 @@ export class NavigatorDOMProxy {
         slider.ariaValueText = this.ctx.localeManager.t('ariaValuePanRange', { min, max });
     }
 
-    private setSliderRatioClamped(slider: ProxyElementWidget<HTMLInputElement>, clampMin: number, clampMax: number) {
+    private setSliderRatioClamped(slider: NativeWidget<HTMLInputElement>, clampMin: number, clampMax: number) {
         const ratio = this.getSliderRatio(slider);
         const clampedRatio = clamp(clampMin, ratio, clampMax);
         if (clampedRatio !== ratio) {
@@ -196,14 +196,14 @@ export class NavigatorDOMProxy {
         return clampedRatio;
     }
 
-    private setSliderRatio(widget: ProxyElementWidget<HTMLInputElement>, ratio: number) {
+    private setSliderRatio(widget: NativeWidget<HTMLInputElement>, ratio: number) {
         const slider = widget.getElement();
         const value = Math.round(ratio * 10000) / 100;
         slider.value = `${value}`;
         slider.ariaValueText = formatPercent(value / 100);
     }
 
-    private getSliderRatio(widget: ProxyElementWidget<HTMLInputElement>) {
+    private getSliderRatio(widget: NativeWidget<HTMLInputElement>) {
         return parseFloat(widget.getElement().value) / 100;
     }
 

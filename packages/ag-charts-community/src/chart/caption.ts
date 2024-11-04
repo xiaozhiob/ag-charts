@@ -2,7 +2,6 @@ import type { FontStyle, FontWeight, TextAlign, TextWrap } from 'ag-charts-types
 
 import type { BoundedText } from '../dom/boundedText';
 import type { ProxyInteractionService } from '../dom/proxyInteractionService';
-import type { ProxyElementWidget } from '../dom/proxyWidgets';
 import type { ModuleContext } from '../module/moduleContext';
 import { PointerEvents } from '../scene/node';
 import { RotatableText } from '../scene/shape/text';
@@ -27,6 +26,7 @@ import {
 import type { CaptionLike } from './captionLike';
 import type { PointerInteractionEvent } from './interaction/interactionManager';
 import { toTooltipHtml } from './tooltip/tooltip';
+import type { NativeWidget } from '../widget/nativeWidget';
 
 export class Caption extends BaseProperties implements CaptionLike {
     static readonly SMALL_PADDING = 10;
@@ -89,7 +89,7 @@ export class Caption extends BaseProperties implements CaptionLike {
     layoutStyle: 'block' | 'overlay' = 'block';
 
     private truncated = false;
-    private proxyText?: ProxyElementWidget<BoundedText>;
+    private proxyText?: NativeWidget<HTMLElement, BoundedText>;
 
     registerInteraction(moduleCtx: ModuleContext, where: 'beforebegin' | 'afterend') {
         const { regionManager, proxyInteractionService, layoutManager } = moduleCtx;
@@ -122,11 +122,11 @@ export class Caption extends BaseProperties implements CaptionLike {
             if (bbox) {
                 const { id: domManagerId } = this;
                 this.proxyText ??= proxyService.createProxyElement({ type: 'text', domManagerId, parent: where });
-                this.proxyText.remover.textContent = this.text;
-                this.proxyText.remover.updateBounds(bbox);
+                this.proxyText.value.textContent = this.text;
+                this.proxyText.value.updateBounds(bbox);
             }
         } else {
-            this.proxyText?.remover.remove();
+            this.proxyText?.value.remove();
             this.proxyText = undefined;
         }
     }

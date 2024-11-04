@@ -12,7 +12,6 @@ import type {
 } from 'ag-charts-types';
 
 import type { ListSwitch } from '../dom/proxyInteractionService';
-import type { ProxyElementWidget } from '../dom/proxyWidgets';
 import type { LayoutContext } from '../module/baseModule';
 import type { ModuleContext } from '../module/moduleContext';
 import { BBox } from '../scene/bbox';
@@ -57,6 +56,7 @@ import { type MarkerConstructor, getMarker } from './marker/util';
 import { Pagination } from './pagination/pagination';
 import { type TooltipMeta, type TooltipPointerEvent, toTooltipHtml } from './tooltip/tooltip';
 import { ZIndexMap } from './zIndexMap';
+import type { NativeWidget } from '../widget/nativeWidget';
 
 class LegendLabel extends BaseProperties {
     @Validate(POSITIVE_NUMBER, { optional: true })
@@ -877,7 +877,7 @@ export class Legend extends BaseProperties {
 
     private findNode(params: AgChartLegendContextMenuEvent): {
         datum: CategoryLegendDatum;
-        proxyButton: ProxyElementWidget<ListSwitch>;
+        proxyButton: NativeWidget<HTMLElement, ListSwitch>;
     } {
         const { datum, proxyButton } =
             this.itemSelection.select((ml): ml is LegendMarkerLabel => ml.datum?.itemId === params.itemId)[0] ?? {};
@@ -889,7 +889,7 @@ export class Legend extends BaseProperties {
 
     private contextToggleVisibility(params: AgChartLegendContextMenuEvent) {
         const { datum, proxyButton } = this.findNode(params);
-        this.doClick(params.event, datum, proxyButton.remover.button);
+        this.doClick(params.event, datum, proxyButton.value.button);
     }
 
     private contextToggleOtherSeries(params: AgChartLegendContextMenuEvent) {
@@ -1217,7 +1217,7 @@ export class Legend extends BaseProperties {
             const bbox = Transformable.toCanvas(node);
             if (bbox.containsPoint(canvasX, canvasY)) {
                 const { x, y } = Transformable.fromCanvasPoint(node, canvasX, canvasY);
-                return { target: node.proxyButton?.remover.button!, x, y };
+                return { target: node.proxyButton?.value.button!, x, y };
             }
         }
     }
