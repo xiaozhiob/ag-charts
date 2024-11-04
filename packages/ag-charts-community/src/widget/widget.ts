@@ -2,7 +2,7 @@ import { setElementStyle } from '../util/attributeUtil';
 import type { BBoxValues } from '../util/bboxinterface';
 import { setElementBBox } from '../util/dom';
 
-interface IWidget<TElement extends HTMLElement> {
+export interface IWidget<TElement extends HTMLElement> {
     destroy(): void;
     getElement(): TElement;
 }

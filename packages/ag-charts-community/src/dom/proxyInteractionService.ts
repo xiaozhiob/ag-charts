@@ -5,9 +5,9 @@ import { type BaseStyleTypeMap, setAttribute, setElementStyle } from '../util/at
 import { createElement, getWindow } from '../util/dom';
 import { BoundedText } from './boundedText';
 import type { DOMManager } from './domManager';
-import { ProxyContainerWidget } from './proxyContainerWidget';
+import { ProxyContainerWidget, ProxyElementWidget } from './proxyWidgets';
 
-export type ListSwitch = { button: HTMLButtonElement; listitem: HTMLElement };
+export type ListSwitch = { button: HTMLButtonElement; listitem: HTMLElement; remove(): void };
 
 type ElemParams<T extends ProxyElementType> = {
     readonly type: T;
@@ -45,15 +45,15 @@ type ProxyMeta = {
     // Elements
     button: {
         params: InteractParams<'button'> & { readonly textContent: string | TranslationKey };
-        result: HTMLButtonElement;
+        result: ProxyElementWidget<HTMLButtonElement>;
     };
     slider: {
         params: InteractParams<'slider'> & { readonly ariaLabel: TranslationKey; readonly ariaOrientation: Direction };
-        result: HTMLInputElement;
+        result: ProxyElementWidget<HTMLInputElement>;
     };
     text: {
         params: ElemParams<'text'>;
-        result: BoundedText;
+        result: ProxyElementWidget<BoundedText>;
     };
     listswitch: {
         params: InteractParams<'listswitch'> & {
@@ -61,11 +61,11 @@ type ProxyMeta = {
             readonly ariaChecked: boolean;
             readonly ariaDescribedBy: string;
         };
-        result: ListSwitch;
+        result: ProxyElementWidget<ListSwitch>;
     };
     region: {
         params: ElemParams<'region'>;
-        result: HTMLDivElement;
+        result: ProxyElementWidget<HTMLDivElement>;
     };
 
     // Containers
@@ -102,17 +102,24 @@ function checkType<T extends keyof ProxyMeta>(type: T, meta: ProxyMeta[keyof Pro
 
 function allocateResult<T extends keyof ProxyMeta>(type: T): ProxyMeta[T]['result'] {
     if ('button' === type) {
-        return createElement('button');
+        return ProxyElementWidget.fromHTML(createElement('button'));
     } else if ('slider' === type) {
-        return createElement('input');
+        return ProxyElementWidget.fromHTML(createElement('input'));
     } else if (['toolbar', 'group', 'list'].includes(type)) {
         return new ProxyContainerWidget();
     } else if ('region' === type) {
-        return createElement('div');
+        return ProxyElementWidget.fromHTML(createElement('div'));
     } else if ('text' === type) {
-        return new BoundedText();
+        const remover = new BoundedText();
+        const nativeElement = remover.getContainer();
+        return new ProxyElementWidget(remover, nativeElement);
     } else if ('listswitch' === type) {
-        return { button: createElement('button'), listitem: createElement('div') };
+        const remover: ListSwitch = {
+            button: createElement('button'),
+            listitem: createElement('div'),
+            remove: () => remover.button.remove(),
+        };
+        return new ProxyElementWidget(remover, remover.listitem);
     } else {
         throw Error('AG Charts - error allocating meta');
     }
@@ -181,7 +188,8 @@ export class ProxyInteractionService {
         const meta: ProxyMeta[T] = allocateMeta(args);
 
         if (checkType('button', meta)) {
-            const { params, result: button } = meta;
+            const { params, result } = meta;
+            const button = result.nativeElement;
             this.initInteract(params, button);
 
             if (typeof params.textContent === 'string') {
@@ -192,11 +200,11 @@ export class ProxyInteractionService {
                     button.textContent = this.localeManager.t(textContent.id, textContent.params);
                 });
             }
-            this.setParent(params, button);
         }
 
         if (checkType('slider', meta)) {
-            const { params, result: slider } = meta;
+            const { params, result } = meta;
+            const slider = result.nativeElement;
             this.initInteract(params, slider);
             slider.type = 'range';
             slider.role = 'presentation';
@@ -206,20 +214,16 @@ export class ProxyInteractionService {
             this.addLocalisation(() => {
                 slider.ariaLabel = this.localeManager.t(params.ariaLabel.id, params.ariaLabel.params);
             });
-            this.setParent(params, slider);
         }
 
         if (checkType('text', meta)) {
-            const { params, result: text } = meta;
-            this.initElement(params, text.getContainer());
-            this.setParent(params, text.getContainer());
+            const { params, result } = meta;
+            this.initElement(params, result.remover.getContainer());
         }
 
         if (checkType('listswitch', meta)) {
-            const {
-                params,
-                result: { button, listitem },
-            } = meta;
+            const { params, result } = meta;
+            const { listitem, button } = result.remover;
             this.initInteract(params, button);
             button.style.width = '100%';
             button.style.height = '100%';
@@ -231,16 +235,16 @@ export class ProxyInteractionService {
             listitem.role = 'listitem';
             listitem.style.position = 'absolute';
             listitem.replaceChildren(button);
-            this.setParent(params, listitem);
         }
 
         if (checkType('region', meta)) {
-            const { params, result: region } = meta;
+            const { params, result } = meta;
+            const region = result.remover;
             this.initInteract(params, region);
             region.role = 'region';
-            this.setParent(params, region);
         }
 
+        this.setParent(meta.params, meta.result);
         return meta.result;
     }
 
@@ -345,11 +349,11 @@ export class ProxyInteractionService {
         }
     }
 
-    private setParent<T extends ProxyElementType, TElem extends HTMLElement>(params: ElemParams<T>, element: TElem) {
+    private setParent<T extends ProxyElementType>(params: ElemParams<T>, element: ProxyElementWidget<HTMLElement>) {
         const { parent } = params;
         if (typeof parent === 'string') {
             const insert = { where: parent, query: '.ag-charts-series-area' };
-            this.domManager.addChild('canvas-proxy', params.domManagerId, element, insert);
+            this.domManager.addChild('canvas-proxy', params.domManagerId, element.getElement(), insert);
         } else {
             parent.appendChild(element);
         }
