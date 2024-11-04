@@ -203,7 +203,7 @@ export class AreaSeries extends CartesianSeries<
         if (!visible) {
             common.forceValue = 0;
         }
-        const { processedData } = await this.requestDataModel<any, any, true>(dataController, data, {
+        await this.requestDataModel<any, any, true>(dataController, data, {
             props: [
                 keyProperty(xKey, xScaleType, { id: 'xValue' }),
                 valueProperty(yKey, yScaleType, { id: `yValueRaw`, ...common }),
@@ -231,8 +231,6 @@ export class AreaSeries extends CartesianSeries<
             formatIntoColumns: true,
             doNotFormatIntoRows: true,
         });
-
-        console.log(processedData);
 
         this.animationState.transition('updateData');
     }

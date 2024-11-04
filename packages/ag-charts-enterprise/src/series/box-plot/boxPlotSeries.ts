@@ -100,7 +100,7 @@ export class BoxPlotSeries extends _ModuleSupport.AbstractBarSeries<
                 ...extraProps,
             ],
             formatIntoColumns: true,
-            doNotFormatIntoRows: false,
+            doNotFormatIntoRows: true,
         });
 
         this.smallestDataInterval = processedData.reduced?.smallestKeyInterval;

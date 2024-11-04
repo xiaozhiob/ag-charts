@@ -1136,8 +1136,8 @@ export class DataModel<
             const reducer = def.reducer();
             let accValue: any = def.initialValue;
             if (processedData.data == null) {
+                const { rawData, keys, columns } = processedData;
                 if (processedData.type === 'grouped') {
-                    const { rawData, keys, columns } = processedData;
                     for (const group of processedData.groups) {
                         if (!group.validScopes || def.scopes?.some((s) => group.validScopes?.has(s))) {
                             accValue = reducer(accValue, {
@@ -1148,6 +1148,15 @@ export class DataModel<
                                 datum: group.datumIndices.map((datumIndex) => rawData[datumIndex]),
                             });
                         }
+                    }
+                } else {
+                    for (let datumIndex = 0; datumIndex < rawData.length; datumIndex += 1) {
+                        accValue = reducer(accValue, {
+                            index: [datumIndex],
+                            keys: keys![datumIndex],
+                            values: [columns![datumIndex]],
+                            datum: [rawData[datumIndex]],
+                        });
                     }
                 }
             } else {
