@@ -282,16 +282,16 @@ export class RadialBarSeries extends _ModuleSupport.PolarSeries<
         const context = { itemId: radiusKey, nodeData, labelData: nodeData };
         if (!this.visible) return context;
 
-        const { rawData, keys } = processedData;
-        processedData.ungroups!.forEach(({ aggregation }, datumIndex) => {
-            const datum = rawData[datumIndex];
+        const { rawData, keys, aggregation } = processedData;
+        rawData!.forEach((datum, datumIndex) => {
+            const datumAggregation = aggregation![datumIndex];
 
             const radiusDatum = keys![datumIndex][0];
             const angleDatum = angleRawValues[datumIndex];
             const angleStartDatum = angleStartValues[datumIndex];
             const angleEndDatum = angleEndValues[datumIndex];
             const isPositive = angleDatum >= 0 && !Object.is(angleDatum, -0);
-            const angleRange = aggregation[angleRangeIndex][isPositive ? 1 : 0];
+            const angleRange = datumAggregation[angleRangeIndex][isPositive ? 1 : 0];
             const reversed = isPositive === angleAxisReversed;
 
             let startAngle = angleScale.convert(angleStartDatum, true);

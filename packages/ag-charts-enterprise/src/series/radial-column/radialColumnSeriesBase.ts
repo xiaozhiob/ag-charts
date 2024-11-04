@@ -294,15 +294,15 @@ export abstract class RadialColumnSeriesBase<
         const context = { itemId: radiusKey, nodeData, labelData: nodeData };
         if (!this.visible) return context;
 
-        const { keys, rawData } = processedData;
-        processedData.ungroups.forEach(({ aggregation }, datumIndex) => {
-            const datum = rawData[datumIndex];
+        const { keys, rawData, aggregation } = processedData;
+        processedData.rawData.forEach((datum, datumIndex) => {
+            const datumAggregation = aggregation![datumIndex];
             const angleDatum = keys![datumIndex][0];
             const radiusDatum = radiusRawValues[datumIndex];
             const isPositive = radiusDatum >= 0 && !Object.is(radiusDatum, -0);
             const innerRadiusDatum = radiusStartValues[datumIndex];
             const outerRadiusDatum = radiusEndValues[datumIndex];
-            const radiusRange = aggregation[radiusRangeIndex][isPositive ? 1 : 0] ?? 0;
+            const radiusRange = datumAggregation[radiusRangeIndex][isPositive ? 1 : 0] ?? 0;
             const negative = isPositive === radiusAxisReversed;
             if (innerRadiusDatum === undefined || outerRadiusDatum === undefined) {
                 return;

@@ -203,7 +203,7 @@ export class AreaSeries extends CartesianSeries<
         if (!visible) {
             common.forceValue = 0;
         }
-        await this.requestDataModel<any, any, true>(dataController, data, {
+        const { processedData } = await this.requestDataModel<any, any, true>(dataController, data, {
             props: [
                 keyProperty(xKey, xScaleType, { id: 'xValue' }),
                 valueProperty(yKey, yScaleType, { id: `yValueRaw`, ...common }),
@@ -229,15 +229,17 @@ export class AreaSeries extends CartesianSeries<
             groupByKeys: true,
             groupByData: false,
             formatIntoColumns: true,
-            doNotFormatIntoRows: false,
+            doNotFormatIntoRows: true,
         });
+
+        console.log(processedData);
 
         this.animationState.transition('updateData');
     }
 
     override getSeriesDomain(direction: ChartAxisDirection): any[] {
         const { processedData, dataModel, axes } = this;
-        if (!processedData || !dataModel || processedData.data.length === 0) return [];
+        if (!processedData || !dataModel || !processedData.rawData?.length) return [];
 
         const yAxis = axes[ChartAxisDirection.Y];
         const keyDef = dataModel.resolveProcessedDataDefById(this, `xValue`);
@@ -264,7 +266,15 @@ export class AreaSeries extends CartesianSeries<
         const xAxis = axes[ChartAxisDirection.X];
         const yAxis = axes[ChartAxisDirection.Y];
 
-        if (!xAxis || !yAxis || !data || !dataModel || !processedData?.rawData.length || !this.properties.isValid()) {
+        if (
+            !xAxis ||
+            !yAxis ||
+            !data ||
+            !dataModel ||
+            !processedData?.rawData.length ||
+            processedData.type !== 'grouped' ||
+            !this.properties.isValid()
+        ) {
             return;
         }
 
@@ -321,8 +331,8 @@ export class AreaSeries extends CartesianSeries<
 
         let crossFiltering = false;
         const { rawData } = processedData;
-        processedData.data.forEach(({ index: indices }) => {
-            (indices as number[]).forEach((datumIndex) => {
+        processedData.groups.forEach(({ datumIndices }) => {
+            datumIndices.forEach((datumIndex) => {
                 const xDatum = xValues[datumIndex][xIndex];
                 const seriesDatum = rawData[datumIndex];
                 const yDatum = yRawValues[datumIndex];
@@ -389,9 +399,8 @@ export class AreaSeries extends CartesianSeries<
             });
         };
 
-        const dataIndices = processedData.data.flatMap((datumGroup) => {
-            const indices = datumGroup.index as any as number[];
-            return indices.filter((datumIndex) => {
+        const dataIndices = processedData.groups.flatMap(({ datumIndices }) => {
+            return datumIndices.filter((datumIndex) => {
                 const xDatum = xValues[datumIndex][xIndex];
                 return xDatum != null;
             });
