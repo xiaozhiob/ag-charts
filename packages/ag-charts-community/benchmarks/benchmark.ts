@@ -1,7 +1,7 @@
 import { afterEach, beforeEach } from '@jest/globals';
 
 import { flushTimings, loadBuiltExampleOptions, logTimings, recordTiming, setupMockConsole } from 'ag-charts-test';
-import { AgChartInstance, AgChartOptions, AgChartsApi } from 'ag-charts-types';
+import { AgChartInstance, AgChartOptions } from 'ag-charts-types';
 
 import {
     CartesianSeries,
