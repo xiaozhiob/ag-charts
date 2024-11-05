@@ -3,6 +3,7 @@ import type { BBoxValues } from '../util/bboxinterface';
 import { getElementBBox, getWindow, setElementBBox } from '../util/dom';
 
 interface IWidget<TElement extends HTMLElement> {
+    index: number;
     destroy(): void;
     getElement(): TElement;
 }
@@ -12,9 +13,11 @@ export abstract class Widget<
     TChildWidget extends IWidget<HTMLElement> = IWidget<HTMLElement>,
 > implements IWidget<TElement>
 {
-    private readonly children: TChildWidget[] = [];
+    public index: number = NaN;
 
-    constructor(private readonly elem: TElement) {}
+    protected readonly children: TChildWidget[] = [];
+
+    constructor(protected readonly elem: TElement) {}
 
     protected abstract destructor(): void;
 
@@ -48,10 +51,6 @@ export abstract class Widget<
         setElementStyle(this.elem, 'cursor', cursor);
     }
 
-    setAttribute<A extends keyof BaseAttributeTypeMap>(qualifiedName: A, value: BaseAttributeTypeMap[A] | undefined) {
-        setAttribute(this.elem, qualifiedName, value);
-    }
-
     cssLeft(): number {
         return parseFloat(this.elem.style.left);
     }
@@ -59,8 +58,24 @@ export abstract class Widget<
         return parseFloat(this.elem.style.top);
     }
 
+    focus(): void {
+        this.elem.focus();
+    }
+
+    setPreventsDefault(preventDefault: boolean) {
+        setAttribute(this.elem, 'data-preventdefault', preventDefault);
+    }
+
+    setTabIndex(tabIndex: BaseAttributeTypeMap['tabindex']) {
+        setAttribute(this.elem, 'tabindex', tabIndex);
+    }
+
     appendChild(child: TChildWidget) {
         this.elem.appendChild(child.getElement());
         this.children.push(child);
+        child.index = this.children.length - 1;
+        this.onChildAdded(child);
     }
+    protected onChildAdded(_child: TChildWidget): void {}
+    protected onChildRemoved(_child: TChildWidget): void {}
 }

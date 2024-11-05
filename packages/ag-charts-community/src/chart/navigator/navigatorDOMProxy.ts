@@ -1,7 +1,6 @@
 import type { ProxyDragHandlerEvent } from '../../dom/proxyInteractionService';
 import type { ModuleContext } from '../../module/moduleContext';
 import type { BBoxValues } from '../../util/bboxinterface';
-import { initToolbarKeyNav } from '../../util/keynavUtil';
 import { clamp } from '../../util/number';
 import { SliderWidget } from '../../widget/sliderWidget';
 import type { ToolbarWidget } from '../../widget/toolbarWidget';
@@ -67,14 +66,9 @@ export class NavigatorDOMProxy {
         ];
         for (const slider of this.sliders) {
             slider.step = SliderWidget.STEP_HUNDRETH;
-            slider.setAttribute('data-preventdefault', false);
+            slider.setPreventsDefault(false);
         }
         this.updateSliderRatios();
-        initToolbarKeyNav({
-            orientation: 'vertical',
-            toolbar: this.toolbar.getElement(),
-            buttons: this.sliders.map((widget) => widget.getElement()),
-        });
         this.updateVisibility(false);
     }
 
