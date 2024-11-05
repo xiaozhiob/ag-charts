@@ -72,7 +72,7 @@ const options: AgChartOptions = {
             xKey: 'year',
             yKey: 'cider',
             marker: {
-                shape: (params) => heart(params),
+                shape: heart,
             },
         },
     ],

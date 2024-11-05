@@ -58,7 +58,7 @@ const options: AgChartOptions = {
             sizeKey: 'y',
             size: 3,
             maxSize: 25,
-            shape: (params) => rainDrop(params),
+            shape: rainDrop,
             tooltip,
         },
     ],

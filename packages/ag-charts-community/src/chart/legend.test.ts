@@ -48,7 +48,7 @@ const OPTIONS: AgCartesianChartOptions = {
     series: SERIES,
 };
 
-const aGChartsLogo = ({ path }: AgMarkerShapeFnParams) => {
+const agChartsLogo = ({ path }: AgMarkerShapeFnParams) => {
     const pathData = [
         'M58,10l-17,0l-8,8l25,0l0,-8Z',
         'M43,30l0,-7.995l-14,0l-8.008,7.995l22.008,0Z',
@@ -398,8 +398,8 @@ describe('Legend', () => {
                     { x: 2, ag: 5, npm: 1 },
                 ],
                 series: [
-                    { type: 'scatter', xKey: 'x', yKey: 'ag', shape: (params) => aGChartsLogo(params) },
-                    { type: 'scatter', xKey: 'x', yKey: 'npm', shape: (params) => npmLogo(params) },
+                    { type: 'scatter', xKey: 'x', yKey: 'ag', shape: agChartsLogo },
+                    { type: 'scatter', xKey: 'x', yKey: 'npm', shape: npmLogo },
                 ],
             });
             chart = deproxy(AgCharts.create(options));

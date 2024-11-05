@@ -119,7 +119,7 @@ const options: AgChartOptions = {
       yKey: "cider",
       marker: {
         size: markerSize,
-        shape: (params: any) => {
+        shape: (params) => {
           const {x, y, size, path} = params;
           const r = size / 4
               const yCoord = y + r / 2

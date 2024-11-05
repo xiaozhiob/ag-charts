@@ -7,7 +7,7 @@ import {
 
 import { getData } from './data';
 
-function aGChartsLogo({ path }: AgMarkerShapeFnParams) {
+function agChartsLogo({ path }: AgMarkerShapeFnParams) {
     const pathData = [
         'M58,10l-17,0l-8,8l25,0l0,-8Z',
         'M43,30l0,-7.995l-14,0l-8.008,7.995l22.008,0Z',
@@ -49,7 +49,7 @@ const options: AgChartOptions = {
             xName: 'Date',
             yKey: 'numberOfVisits',
             yName: 'Daily Website Visits',
-            shape: (params) => aGChartsLogo(params),
+            shape: agChartsLogo,
             fillOpacity: 1,
             tooltip,
         },
@@ -59,7 +59,7 @@ const options: AgChartOptions = {
             xName: 'Date',
             yKey: 'npmDownloads',
             yName: 'NPM Downloads',
-            shape: (params) => npmLogo(params),
+            shape: npmLogo,
             fillOpacity: 1,
             tooltip,
         },

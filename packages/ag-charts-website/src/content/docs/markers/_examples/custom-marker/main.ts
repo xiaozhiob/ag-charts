@@ -29,7 +29,7 @@ const options: AgChartOptions = {
             yKey: 'electric',
             title: 'Electric',
             marker: {
-                shape: (params) => heart(params),
+                shape: heart,
                 size: 16,
             },
         },
