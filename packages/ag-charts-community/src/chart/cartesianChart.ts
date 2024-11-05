@@ -390,20 +390,17 @@ export class CartesianChart extends Chart {
 
         for (const axis of axes) {
             const minorOffset = axisAreaWidths.get(minorDimension === 'x' ? 'left' : 'top') ?? 0;
-            axis.translation[minorDimension] = axisBound[minorDimension] + minorOffset;
-
             const axisThickness = axisWidths.get(axis.id) ?? 0;
             const axisOffset = axisOffsets.get(axis.id) ?? 0;
+
+            axis.gridPadding = axisAreaWidth - axisOffset - axisThickness;
+            axis.translation[minorDimension] = axisBound[minorDimension] + minorOffset;
             axis.translation[mainDimension] = this.clampToOutsideSeriesRect(
                 seriesRect,
                 axisBoundMainOffset + direction * (axisOffset + axisThickness),
                 mainDimension,
                 direction
             );
-
-            axis.gridPadding = axisAreaWidth - axisOffset - axisThickness;
-
-            axis.updatePosition();
         }
     }
 
