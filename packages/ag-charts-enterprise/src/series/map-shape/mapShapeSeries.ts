@@ -176,8 +176,6 @@ export class MapShapeSeries
                 ...(labelKey ? [valueProperty(labelKey, 'band', { id: 'labelValue' })] : []),
                 ...(colorKey ? [valueProperty(colorKey, colorScaleType, { id: 'colorValue' })] : []),
             ],
-            formatIntoColumns: true,
-            doNotFormatIntoRows: true,
         });
 
         const featureValues =

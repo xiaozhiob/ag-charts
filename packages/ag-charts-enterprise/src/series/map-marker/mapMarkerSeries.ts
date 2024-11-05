@@ -235,8 +235,6 @@ export class MapMarkerSeries
                 ...(sizeKey ? [valueProperty(sizeKey, sizeScaleType, { id: 'sizeValue' })] : []),
                 ...(colorKey ? [valueProperty(colorKey, colorScaleType, { id: 'colorValue' })] : []),
             ],
-            formatIntoColumns: true,
-            doNotFormatIntoRows: true,
         });
 
         const hasData = processedData.rawData.length !== 0;
@@ -293,7 +291,7 @@ export class MapMarkerSeries
         }
 
         const colorIdx = dataModel.resolveProcessedDataIndexById(this, 'colorValue');
-        const dataCount = processedData.data.length;
+        const dataCount = processedData.rawData.length;
         const missCount = getMissCount(this, processedData.defs.values[colorIdx].missing);
         const colorDataMissing = dataCount === 0 || dataCount === missCount;
         return !colorDataMissing;

@@ -136,8 +136,6 @@ export abstract class RadarSeries extends _ModuleSupport.PolarSeries<
                 valueProperty(radiusKey, radiusScaleType, { id: 'radiusValue', invalidValue: undefined }),
                 ...extraProps,
             ],
-            formatIntoColumns: true,
-            doNotFormatIntoRows: true,
         });
 
         this.animationState.transition('updateData');

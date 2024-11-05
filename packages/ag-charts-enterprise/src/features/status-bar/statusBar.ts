@@ -282,8 +282,6 @@ export class StatusBar
 
         const { processedData, dataModel } = await dataController.request(this.id, this.data, {
             props,
-            formatIntoColumns: true,
-            doNotFormatIntoRows: true,
         });
 
         for (const label of this.labels) {

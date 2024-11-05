@@ -199,8 +199,6 @@ export class LineSeries extends CartesianSeries<
 
         const { dataModel, processedData } = await this.requestDataModel<any>(dataController, data, {
             props,
-            formatIntoColumns: true,
-            doNotFormatIntoRows: stackCount <= 1,
         });
 
         this.dataAggregationFilters = this.aggregateData(dataModel, processedData as any as UngroupedData<any>);

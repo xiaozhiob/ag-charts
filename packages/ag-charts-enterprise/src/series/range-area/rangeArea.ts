@@ -113,8 +113,6 @@ export class RangeAreaSeries extends _ModuleSupport.CartesianSeries<
                 valueProperty(yHighKey, yScaleType, { id: `yHighValue`, invalidValue: undefined }),
                 ...extraProps,
             ],
-            formatIntoColumns: true,
-            doNotFormatIntoRows: true,
         });
 
         this.animationState.transition('updateData');

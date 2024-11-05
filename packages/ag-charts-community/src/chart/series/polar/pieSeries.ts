@@ -291,8 +291,6 @@ export class PieSeries extends PolarSeries<PieNodeDatum, PieSeriesProperties, Se
                 normalisePropertyTo('angleValue', [0, 1], 0, 0),
                 ...extraProps,
             ],
-            formatIntoColumns: true,
-            doNotFormatIntoRows: true,
         });
 
         // AG-9879 Warning about missing data.

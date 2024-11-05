@@ -531,8 +531,6 @@ export class Annotations extends _ModuleSupport.BaseModuleInstance implements _M
 
         const { dataModel, processedData } = await dataController.request('annotations', this.data, {
             props,
-            formatIntoColumns: true,
-            doNotFormatIntoRows: true,
         });
         this.dataModel = dataModel;
         this.processedData = processedData;

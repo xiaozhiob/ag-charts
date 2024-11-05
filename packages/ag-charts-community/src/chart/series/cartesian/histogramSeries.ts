@@ -200,8 +200,6 @@ export class HistogramSeries extends CartesianSeries<Rect, HistogramSeriesProper
         await this.requestDataModel<any>(dataController, this.data, {
             props,
             groupByFn,
-            formatIntoColumns: true,
-            doNotFormatIntoRows: true,
         });
 
         this.animationState.transition('updateData');
