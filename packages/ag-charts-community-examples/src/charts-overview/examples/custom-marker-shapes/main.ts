@@ -2,7 +2,11 @@ import type { AgChartOptions} from "ag-charts-community";
 import { AgCharts } from "ag-charts-community";
 import { getData } from "./data";
 
-const markerSize = 10
+const markerSize = 10;
+
+function rad(degree: number) {
+  return (degree / 180) * Math.PI
+}
 
 const options: AgChartOptions = {
   container: document.getElementById("myChart"),
@@ -119,16 +123,15 @@ const options: AgChartOptions = {
       yKey: "cider",
       marker: {
         size: markerSize,
-        shape: (params) => {
-          const {x, y, size, path} = params;
+        shape: ({x, y, size, path}) => {
           const r = size / 4
-              const yCoord = y + r / 2
-        
-              path.clear()
-              path.arc(x - r, yCoord - r, r, rad(130), rad(330))
-              path.arc(x + r, yCoord - r, r, rad(220), rad(50))
-              path.lineTo(x, yCoord + r)
-              path.closePath()
+          const yCoord = y + r / 2
+          
+          path.clear()
+          path.arc(x - r, yCoord - r, r, rad(130), rad(330))
+          path.arc(x + r, yCoord - r, r, rad(220), rad(50))
+          path.lineTo(x, yCoord + r)
+          path.closePath()
         },
       },
     },
@@ -157,8 +160,5 @@ const options: AgChartOptions = {
   ],
 }
 
-const chart = AgCharts.create(options)
+AgCharts.create(options)
 
-function rad(degree: number) {
-  return (degree / 180) * Math.PI
-}
