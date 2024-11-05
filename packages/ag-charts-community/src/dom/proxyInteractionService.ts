@@ -18,7 +18,7 @@ type ElemParams<T extends ProxyElementType> = {
     readonly cursor?: BaseStyleTypeMap['cursor'];
 } & (
     | { readonly parent: NativeWidget<HTMLDivElement> }
-    | { readonly domManagerId: string; readonly parent: 'beforebegin' | 'afterend' }
+    | { readonly domManagerId: string; readonly where: 'beforebegin' | 'afterend' }
 );
 
 type InteractParams<T extends ProxyElementType> = ElemParams<T> & {
@@ -353,12 +353,11 @@ export class ProxyInteractionService {
     }
 
     private setParent<T extends ProxyElementType>(params: ElemParams<T>, element: Widget<HTMLElement>) {
-        const { parent } = params;
-        if (typeof parent === 'string') {
-            const insert = { where: parent, query: '.ag-charts-series-area' };
-            this.domManager.addChild('canvas-proxy', params.domManagerId, element.getElement(), insert);
+        if ('parent' in params) {
+            params.parent.appendChild(element);
         } else {
-            parent.appendChild(element);
+            const insert = { where: params.where, query: '.ag-charts-series-area' };
+            this.domManager.addChild('canvas-proxy', params.domManagerId, element.getElement(), insert);
         }
     }
 }

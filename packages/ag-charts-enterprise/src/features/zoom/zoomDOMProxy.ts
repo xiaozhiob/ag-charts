@@ -25,8 +25,8 @@ export class ZoomDOMProxy {
     ): ProxyAxis {
         const { X, Y } = _ModuleSupport.ChartAxisDirection;
         const cursor = ({ [X]: 'ew-resize', [Y]: 'ns-resize' } as const)[direction];
-        const parent = 'afterend';
-        const div = ctx.proxyInteractionService.createProxyElement({ type: 'region', domManagerId: axisId, parent });
+        const where = 'afterend';
+        const div = ctx.proxyInteractionService.createProxyElement({ type: 'region', domManagerId: axisId, where });
         div.setCursor(cursor);
 
         const removeListeners = ctx.proxyInteractionService.createDragListeners({
