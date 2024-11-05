@@ -1,4 +1,4 @@
-import { type BaseStyleTypeMap, setElementStyle } from '../util/attributeUtil';
+import { type BaseAttributeTypeMap, type BaseStyleTypeMap, setAttribute, setElementStyle } from '../util/attributeUtil';
 import type { BBoxValues } from '../util/bboxinterface';
 import { getElementBBox, getWindow, setElementBBox } from '../util/dom';
 
@@ -46,6 +46,10 @@ export abstract class Widget<
 
     setCursor(cursor: BaseStyleTypeMap['cursor'] | undefined) {
         setElementStyle(this.elem, 'cursor', cursor);
+    }
+
+    setAttribute<A extends keyof BaseAttributeTypeMap>(qualifiedName: A, value: BaseAttributeTypeMap[A] | undefined) {
+        setAttribute(this.elem, qualifiedName, value);
     }
 
     cssLeft(): number {

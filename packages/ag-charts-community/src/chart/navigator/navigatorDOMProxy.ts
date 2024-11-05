@@ -1,11 +1,9 @@
 import type { ProxyDragHandlerEvent } from '../../dom/proxyInteractionService';
 import type { ModuleContext } from '../../module/moduleContext';
-import { setAttribute } from '../../util/attributeUtil';
 import type { BBoxValues } from '../../util/bboxinterface';
-import { formatPercent } from '../../util/format.util';
 import { initToolbarKeyNav } from '../../util/keynavUtil';
 import { clamp } from '../../util/number';
-import type { SliderWidget } from '../../widget/sliderWidget';
+import { SliderWidget } from '../../widget/sliderWidget';
 import type { ToolbarWidget } from '../../widget/toolbarWidget';
 
 export type NavigatorButtonType = 'min' | 'max' | 'pan';
@@ -67,9 +65,11 @@ export class NavigatorDOMProxy {
                 onchange: (ev) => this.onMaxSliderChange(ev),
             }),
         ];
-        this.setSliderRatio(this.sliders[0], this._min);
-        this.setSliderRatio(this.sliders[2], this._max);
-        this.setPanSliderValue(this._min, this._max);
+        for (const slider of this.sliders) {
+            slider.step = SliderWidget.STEP_HUNDRETH;
+            slider.setAttribute('data-preventdefault', false);
+        }
+        this.updateSliderRatios();
         initToolbarKeyNav({
             orientation: 'vertical',
             toolbar: this.toolbar.getElement(),
@@ -87,8 +87,6 @@ export class NavigatorDOMProxy {
 
         for (const [index, key] of (['min', 'pan', 'max'] as const).entries()) {
             const slider = this.sliders[index];
-            slider.getElement().step = '0.01';
-            setAttribute(slider.getElement(), 'data-preventdefault', false);
             this.destroyDragListeners = this.ctx.proxyInteractionService.createDragListeners({
                 element: slider.getElement(),
                 onDragStart: (ev) => this.onDragStart(ev, key, slider),
@@ -130,9 +128,10 @@ export class NavigatorDOMProxy {
     }
 
     private updateSliderRatios() {
-        this.setPanSliderValue(this._min, this._max);
-        this.setSliderRatio(this.sliders[0], this._min);
-        this.setSliderRatio(this.sliders[2], this._max);
+        const { _min: min, _max: max } = this;
+        const panAria = this.ctx.localeManager.t('ariaValuePanRange', { min, max });
+        this.sliders[0].setValueRatio(min);
+        this.sliders[1].setValueRatio(min, { ariaValueText: panAria }), this.sliders[2].setValueRatio(max);
     }
 
     private toCanvasOffsets(event: ProxyDragHandlerEvent): { offsetX: number } {
@@ -151,7 +150,7 @@ export class NavigatorDOMProxy {
     }
 
     private onPanSliderChange(_event: Event) {
-        const ratio = this.getSliderRatio(this.sliders[1]);
+        const ratio = this.sliders[1].getValueRatio();
         const span = this._max - this._min;
         this._min = clamp(0, ratio, 1 - span);
         this._max = this._min + span;
@@ -159,42 +158,13 @@ export class NavigatorDOMProxy {
     }
 
     private onMinSliderChange(_event: Event) {
-        const slider = this.sliders[0];
-        this._min = this.setSliderRatioClamped(slider, 0, this._max - this.minRange);
+        this._min = this.sliders[0].clampValueRatio(0, this._max - this.minRange);
         this.updateZoom();
     }
 
     private onMaxSliderChange(_event: Event) {
-        const slider = this.sliders[2];
-        this._max = this.setSliderRatioClamped(slider, this._min + this.minRange, 1);
+        this._max = this.sliders[2].clampValueRatio(this._min + this.minRange, 1);
         this.updateZoom();
-    }
-
-    private setPanSliderValue(min: number, max: number) {
-        const value = Math.round(min * 10000) / 100;
-        const slider = this.sliders[1].getElement();
-        slider.value = `${value}`;
-        slider.ariaValueText = this.ctx.localeManager.t('ariaValuePanRange', { min, max });
-    }
-
-    private setSliderRatioClamped(slider: SliderWidget, clampMin: number, clampMax: number) {
-        const ratio = this.getSliderRatio(slider);
-        const clampedRatio = clamp(clampMin, ratio, clampMax);
-        if (clampedRatio !== ratio) {
-            this.setSliderRatio(slider, clampedRatio);
-        }
-        return clampedRatio;
-    }
-
-    private setSliderRatio(widget: SliderWidget, ratio: number) {
-        const slider = widget.getElement();
-        const value = Math.round(ratio * 10000) / 100;
-        slider.value = `${value}`;
-        slider.ariaValueText = formatPercent(value / 100);
-    }
-
-    private getSliderRatio(widget: SliderWidget) {
-        return parseFloat(widget.getElement().value) / 100;
     }
 
     testFindTarget(
