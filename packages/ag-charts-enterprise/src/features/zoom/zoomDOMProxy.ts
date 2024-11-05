@@ -67,8 +67,9 @@ export class ZoomDOMProxy {
         }
 
         for (const axis of this.axes) {
-            const bbox = axesCtx.filter((ac) => ac.axisId === axis.axisId)[0].getCanvasBounds();
-            axis.div.setHidden(bbox != null);
+            const axisCtx = axesCtx.filter((ac) => ac.axisId === axis.axisId)[0];
+            const bbox = axisCtx.getCanvasBounds();
+            axis.div.setHidden(_Util.BBoxValues.isEmpty(bbox));
             if (bbox !== undefined) {
                 axis.div.setBounds(bbox);
             }
