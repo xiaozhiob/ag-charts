@@ -48,8 +48,8 @@ export class ZoomDOMProxy {
 
     update(ctx: _ModuleSupport.ModuleContext) {
         const { X, Y } = _ModuleSupport.ChartAxisDirection;
-        const axisCtx = [...ctx.axisManager.getAxisContext(X), ...ctx.axisManager.getAxisContext(Y)];
-        const { removed, added } = this.diffAxisIds(axisCtx);
+        const axesCtx = [...ctx.axisManager.getAxisContext(X), ...ctx.axisManager.getAxisContext(Y)];
+        const { removed, added } = this.diffAxisIds(axesCtx);
 
         if (removed.length > 0) {
             this.axes = this.axes.filter((entry) => {
@@ -67,7 +67,7 @@ export class ZoomDOMProxy {
         }
 
         for (const axis of this.axes) {
-            const bbox = axisCtx.filter((ac) => ac.axisId === axis.axisId)[0].getCanvasBounds();
+            const bbox = axesCtx.filter((ac) => ac.axisId === axis.axisId)[0].getCanvasBounds();
             axis.div.setHidden(bbox != null);
             if (bbox !== undefined) {
                 axis.div.setBounds(bbox);
@@ -87,12 +87,12 @@ export class ZoomDOMProxy {
         return undefined;
     }
 
-    private diffAxisIds(axisCtx: _ModuleSupport.AxisContext[]) {
+    private diffAxisIds(axesCtx: _ModuleSupport.AxisContext[]) {
         const myIds = this.axes.map((entry) => entry.axisId);
-        const ctxIds = axisCtx.map((ctx) => ctx.axisId);
+        const ctxIds = axesCtx.map((ctx) => ctx.axisId);
 
         const removed: string[] = myIds.filter((id) => !ctxIds.includes(id));
-        const added: _ModuleSupport.AxisContext[] = axisCtx.filter((ac) => !myIds.includes(ac.axisId));
+        const added: _ModuleSupport.AxisContext[] = axesCtx.filter((ac) => !myIds.includes(ac.axisId));
         return { removed, added };
     }
 }
