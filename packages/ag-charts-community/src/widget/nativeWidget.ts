@@ -5,10 +5,9 @@ export class NativeWidget<
     TElem extends HTMLElement = HTMLElement,
     Value extends { remove(): void } | undefined = undefined,
 > extends Widget<TElem> {
-
     public readonly value: Value;
 
-    constructor(        elem: TElem, value: Value    ) {
+    constructor(elem: TElem, value: Value) {
         super(elem);
         this.value = value;
     }

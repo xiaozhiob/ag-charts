@@ -23,10 +23,10 @@ import {
     TEXT_WRAP,
     Validate,
 } from '../util/validation';
+import type { NativeWidget } from '../widget/nativeWidget';
 import type { CaptionLike } from './captionLike';
 import type { PointerInteractionEvent } from './interaction/interactionManager';
 import { toTooltipHtml } from './tooltip/tooltip';
-import type { NativeWidget } from '../widget/nativeWidget';
 
 export class Caption extends BaseProperties implements CaptionLike {
     static readonly SMALL_PADDING = 10;

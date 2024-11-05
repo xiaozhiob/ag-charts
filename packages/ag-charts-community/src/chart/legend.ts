@@ -42,6 +42,7 @@ import {
     UNION,
     Validate,
 } from '../util/validation';
+import type { NativeWidget } from '../widget/nativeWidget';
 import { ChartUpdateType } from './chartUpdateType';
 import type { Page } from './gridLayout';
 import { gridLayout } from './gridLayout';
@@ -56,7 +57,6 @@ import { type MarkerConstructor, getMarker } from './marker/util';
 import { Pagination } from './pagination/pagination';
 import { type TooltipMeta, type TooltipPointerEvent, toTooltipHtml } from './tooltip/tooltip';
 import { ZIndexMap } from './zIndexMap';
-import type { NativeWidget } from '../widget/nativeWidget';
 
 class LegendLabel extends BaseProperties {
     @Validate(POSITIVE_NUMBER, { optional: true })

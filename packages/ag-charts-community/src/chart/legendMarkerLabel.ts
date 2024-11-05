@@ -11,9 +11,9 @@ import { Translatable } from '../scene/transformable';
 import { arraysEqual } from '../util/array';
 import { iterate } from '../util/iterator';
 import { ProxyPropertyOnWrite } from '../util/proxy';
+import type { NativeWidget } from '../widget/nativeWidget';
 import type { Marker } from './marker/marker';
 import type { MarkerConstructor } from './marker/util';
-import type { NativeWidget } from '../widget/nativeWidget';
 
 export class LegendMarkerLabel extends Translatable(Group) {
     static readonly className = 'MarkerLabel';
