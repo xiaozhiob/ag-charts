@@ -2,7 +2,6 @@ import type { ProxyDragHandlerEvent } from '../../dom/proxyInteractionService';
 import type { ModuleContext } from '../../module/moduleContext';
 import { setAttribute } from '../../util/attributeUtil';
 import type { BBoxValues } from '../../util/bboxinterface';
-import { DestroyFns } from '../../util/destroy';
 import { formatPercent } from '../../util/format.util';
 import { initToolbarKeyNav } from '../../util/keynavUtil';
 import { clamp } from '../../util/number';
@@ -26,8 +25,6 @@ export class NavigatorDOMProxy {
 
     private readonly toolbar: ToolbarWidget;
     private readonly sliders: [SliderWidget, SliderWidget, SliderWidget];
-
-    private readonly destroyFns = new DestroyFns();
 
     private destroyDragListeners?: () => void;
 
@@ -78,26 +75,22 @@ export class NavigatorDOMProxy {
             toolbar: this.toolbar.getElement(),
             buttons: this.sliders.map((widget) => widget.getElement()),
         });
-        this.destroyFns.push(() => {
-            this.sliders.forEach((e) => e.destroy());
-            this.toolbar.destroy();
-        });
         this.updateVisibility(false);
     }
 
     destroy() {
-        this.destroyFns.destroy();
+        this.toolbar.destroy();
     }
 
     private initDragListeners() {
         if (this.destroyDragListeners != null) return;
 
         for (const [index, key] of (['min', 'pan', 'max'] as const).entries()) {
-            const slider = this.sliders[index].getElement();
-            slider.step = '0.01';
-            setAttribute(slider, 'data-preventdefault', false);
+            const slider = this.sliders[index];
+            slider.getElement().step = '0.01';
+            setAttribute(slider.getElement(), 'data-preventdefault', false);
             this.destroyDragListeners = this.ctx.proxyInteractionService.createDragListeners({
-                element: slider,
+                element: slider.getElement(),
                 onDragStart: (ev) => this.onDragStart(ev, key, slider),
                 onDrag: (ev) => this.onDrag(ev, key),
                 onDragEnd: () => this.updateSliderRatios(),
@@ -146,9 +139,9 @@ export class NavigatorDOMProxy {
         return { offsetX: this.dragStartX + event.originDeltaX };
     }
 
-    private onDragStart(event: ProxyDragHandlerEvent, key: NavigatorButtonType, slider: HTMLInputElement) {
+    private onDragStart(event: ProxyDragHandlerEvent, key: NavigatorButtonType, slider: SliderWidget) {
         const toolbarLeft = this.toolbar.cssLeft();
-        const sliderLeft = parseFloat(slider.style.left);
+        const sliderLeft = slider.cssLeft();
         this.dragStartX = toolbarLeft + sliderLeft + event.offsetX;
         this.sliderHandlers.onDragStart(key, this.toCanvasOffsets(event));
     }
