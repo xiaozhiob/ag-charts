@@ -33,7 +33,7 @@ import { countFractionDigits, findMinMax, findRangeExtent, round } from '../../u
 import { ObserveChanges } from '../../util/proxy';
 import { StateMachine } from '../../util/stateMachine';
 import { createIdsGenerator } from '../../util/tempUtils';
-import { CachedTextMeasurerPool, type TextMeasurer, TextUtils } from '../../util/textMeasurer';
+import { CachedTextMeasurerPool, TextUtils } from '../../util/textMeasurer';
 import { estimateTickCount } from '../../util/ticks';
 import { BOOLEAN, OBJECT, STRING_ARRAY, Validate } from '../../util/validation';
 import { Caption } from '../caption';
@@ -43,7 +43,7 @@ import { ChartAxisDirection } from '../chartAxisDirection';
 import { CartesianCrossLine } from '../crossline/cartesianCrossLine';
 import type { CrossLine } from '../crossline/crossLine';
 import type { AnimationManager } from '../interaction/animationManager';
-import { calculateLabelBBox, calculateLabelRotation, getLabelSpacing, getTextAlign, getTextBaseline } from '../label';
+import { calculateLabelRotation, createLabelData, getLabelSpacing, getTextAlign, getTextBaseline } from '../label';
 import type { AxisLayout } from '../layout/layoutManager';
 import type { ISeries } from '../series/seriesTypes';
 import { ZIndexMap } from '../zIndexMap';
@@ -95,7 +95,7 @@ export type TickDatum = {
     translationY: number;
 };
 
-export type LabelNodeDatum = {
+type LabelNodeDatum = {
     tickId: string;
     fill?: CssColor;
     fontFamily?: FontFamily;
@@ -144,7 +144,7 @@ const NO_LABELS_AND_TICKS: TickGenerationResult = Object.freeze({
 type AxisAnimationState = 'empty' | 'ready';
 type AxisAnimationEvent = { reset: undefined; resize: undefined; update: FromToDiff };
 
-export type AxisModuleMap = ModuleMap<AxisOptionModule, ModuleInstance, ModuleContextWithParent<AxisContext>>;
+type AxisModuleMap = ModuleMap<AxisOptionModule, ModuleInstance, ModuleContextWithParent<AxisContext>>;
 
 class TranslatableLine extends Translatable(Line) {}
 
@@ -830,7 +830,7 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
                 Matrix.updateTransformMatrix(labelMatrix, 1, 1, labelRotation, 0, 0);
 
                 textAlign = getTextAlign(parallel, configuredRotation, autoRotation, sideFlag, regularFlipFlag);
-                labelData = this.createLabelData(tickData.ticks, labelX, labelMatrix, textMeasurer);
+                labelData = createLabelData(tickData.ticks, labelX, labelMatrix, textMeasurer);
                 labelOverlap = this.label.avoidCollisions ? axisLabelsOverlap(labelData, labelSpacing) : false;
             }
         }
@@ -894,7 +894,7 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
         return strategies;
     }
 
-    createTickData(
+    private createTickData(
         tickGenerationType: TickGenerationType,
         index: number,
         tickData: TickData,
@@ -936,26 +936,6 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
         terminate ||= step != null || values != null;
 
         return { tickData, index, autoRotation: 0, terminate };
-    }
-
-    private createLabelData(
-        tickData: TickDatum[],
-        labelX: number,
-        labelMatrix: Matrix,
-        textMeasurer: TextMeasurer
-    ): PlacedLabelDatum[] {
-        const labelData: PlacedLabelDatum[] = [];
-        for (const { tickLabel, translationY } of tickData) {
-            if (!tickLabel) continue;
-
-            const { width, height } = textMeasurer.measureLines(tickLabel);
-            const bbox = new BBox(labelX, translationY, width, height);
-            const labelDatum = calculateLabelBBox(tickLabel, bbox, labelMatrix);
-
-            labelData.push(labelDatum);
-        }
-
-        return labelData;
     }
 
     private getTicks({
@@ -1204,45 +1184,60 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
     }
 
     // For formatting (nice rounded) tick values.
-    formatTick(datum: any, fractionDigits: number, index: number): string {
-        return String(this.getFormatter(index, true)(datum, fractionDigits));
-    }
-
-    // For formatting arbitrary values between the ticks.
-    formatDatum(datum: any): string {
-        return String(this.getFormatter()(datum));
-    }
-
-    getFormatter(index: number = 0, isTickLabel?: boolean): (datum: any, fractionDigits?: number) => string {
+    private formatTick(datum: any, fractionDigits: number, index: number): string {
         const {
             labelFormatter,
-            datumFormatter,
             label: { formatter },
             moduleCtx: { callbackCache },
         } = this;
 
+        let result: string | undefined;
         if (formatter) {
-            return (datum, fractionDigits) =>
-                callbackCache.call(formatter, { value: datum, index, fractionDigits }) ?? String(datum);
-        } else if (!isTickLabel && datumFormatter) {
-            return (datum) => callbackCache.call(datumFormatter, datum) ?? String(datum);
+            result = callbackCache.call(formatter, { value: datum, index, fractionDigits });
         } else if (labelFormatter) {
-            return (datum) => callbackCache.call(labelFormatter, datum) ?? String(datum);
+            result = callbackCache.call(labelFormatter, datum);
         }
-        // The axis is using a logScale or the`datum` is an integer, a string or an object
-        return String;
+        return String(result ?? datum);
+    }
+
+    // For formatting arbitrary values between the ticks.
+    formatDatum(datum: any): string {
+        const {
+            label: { formatter },
+            moduleCtx: { callbackCache },
+            datumFormatter: valueFormatter = this.labelFormatter,
+        } = this;
+
+        let result: string | undefined;
+        if (formatter) {
+            result = callbackCache.call(formatter, { value: datum, index: NaN });
+        } else if (valueFormatter) {
+            result = callbackCache.call(valueFormatter, datum);
+        }
+        return String(result ?? datum);
+    }
+
+    private getScaleValueFormatter(format?: string): (datum: any) => string {
+        if (format && this.scale.tickFormat) {
+            try {
+                return this.scale.tickFormat({ specifier: format });
+            } catch (e) {
+                Logger.warnOnce(`the format string ${format} is invalid, ignoring.`);
+            }
+        }
+        return (datum) => this.formatDatum(datum);
     }
 
     getBBox(): BBox {
         return this.axisGroup.getBBox();
     }
 
-    initCrossLine(crossLine: CrossLine) {
+    private initCrossLine(crossLine: CrossLine) {
         crossLine.scale = this.scale;
         crossLine.gridLength = this.gridLength;
     }
 
-    isAnySeriesActive() {
+    private isAnySeriesActive() {
         return this.boundSeries.some((s) => this.includeInvisibleDomains || s.isEnabled());
     }
 
@@ -1267,7 +1262,7 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
         return { direction, boundSeries, defaultValue: this.title?.text };
     }
 
-    normaliseDataDomain(d: D[]): { domain: D[]; clipped: boolean } {
+    protected normaliseDataDomain(d: D[]): { domain: D[]; clipped: boolean } {
         return { domain: [...d], clipped: false };
     }
 
@@ -1328,18 +1323,7 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
         };
     }
 
-    private getScaleValueFormatter(format?: string) {
-        if (format && this.scale.tickFormat) {
-            try {
-                return this.scale.tickFormat({ specifier: format });
-            } catch (e) {
-                Logger.warnOnce(`the format string ${format} is invalid, ignoring.`);
-            }
-        }
-        return this.getFormatter();
-    }
-
-    animateReadyUpdate(diff: FromToDiff) {
+    private animateReadyUpdate(diff: FromToDiff) {
         const { animationManager } = this.moduleCtx;
         const selectionCtx = prepareAxisAnimationContext(this);
         const fns = prepareAxisAnimationFunctions(selectionCtx);
