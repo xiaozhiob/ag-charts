@@ -228,8 +228,6 @@ export class AreaSeries extends CartesianSeries<
             ],
             groupByKeys: true,
             groupByData: false,
-            formatIntoColumns: true,
-            doNotFormatIntoRows: true,
         });
 
         this.animationState.transition('updateData');

@@ -112,8 +112,6 @@ export class HeatmapSeries extends _ModuleSupport.CartesianSeries<
                 valueProperty(yKey, yScaleType, { id: 'yValue' }),
                 ...(colorKey ? [valueProperty(colorKey, colorScaleType, { id: 'colorValue' })] : []),
             ],
-            formatIntoColumns: true,
-            doNotFormatIntoRows: true,
         });
 
         if (this.isColorScaleValid()) {

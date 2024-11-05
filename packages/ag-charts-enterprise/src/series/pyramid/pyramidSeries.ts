@@ -123,8 +123,6 @@ export class PyramidSeries extends _ModuleSupport.DataModelSeries<
                 valueProperty(stageKey, xScaleType, { id: 'xValue' }),
                 valueProperty(valueKey, yScaleType, { id: `yValue`, ...visibleProps, validation, invalidValue: 0 }),
             ],
-            formatIntoColumns: true,
-            doNotFormatIntoRows: true,
         });
     }
 

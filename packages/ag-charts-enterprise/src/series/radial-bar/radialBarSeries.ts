@@ -175,8 +175,6 @@ export class RadialBarSeries extends _ModuleSupport.PolarSeries<
                 ),
                 ...extraProps,
             ],
-            formatIntoColumns: true,
-            doNotFormatIntoRows: true,
         });
 
         this.animationState.transition('updateData');

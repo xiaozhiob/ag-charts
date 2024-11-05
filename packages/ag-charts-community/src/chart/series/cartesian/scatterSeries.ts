@@ -84,8 +84,6 @@ export class ScatterSeries extends CartesianSeries<Group, ScatterSeriesPropertie
                 ...(colorKey ? [valueProperty(colorKey, colorScaleType, { id: `colorValue` })] : []),
                 ...(labelKey ? [valueProperty(labelKey, 'band', { id: `labelValue` })] : []),
             ],
-            formatIntoColumns: true,
-            doNotFormatIntoRows: true,
         });
 
         if (colorKey) {

@@ -135,8 +135,6 @@ export abstract class FlowProportionSeries<
                               : []),
                       ],
                       groupByKeys: true,
-                      formatIntoColumns: true,
-                      doNotFormatIntoRows: true,
                   })
                 : null;
 
@@ -149,8 +147,6 @@ export abstract class FlowProportionSeries<
                     : []),
             ],
             groupByKeys: false,
-            formatIntoColumns: true,
-            doNotFormatIntoRows: true,
         });
 
         if (nodes != null) {

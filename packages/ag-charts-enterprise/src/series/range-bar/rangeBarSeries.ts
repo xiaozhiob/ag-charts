@@ -151,8 +151,6 @@ export class RangeBarSeries extends _ModuleSupport.AbstractBarSeries<
                 ...extraProps,
             ],
             groupByKeys: true,
-            formatIntoColumns: true,
-            doNotFormatIntoRows: true,
         });
 
         this.smallestDataInterval = processedData.reduced?.smallestKeyInterval;

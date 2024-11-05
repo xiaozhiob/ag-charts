@@ -151,8 +151,6 @@ export class MapLineSeries
                 ...(sizeKey != null ? [valueProperty(sizeKey, sizeScaleType, { id: 'sizeValue' })] : []),
                 ...(colorKey != null ? [valueProperty(colorKey, colorScaleType, { id: 'colorValue' })] : []),
             ],
-            formatIntoColumns: true,
-            doNotFormatIntoRows: true,
         });
 
         const featureValues =

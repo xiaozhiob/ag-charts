@@ -182,8 +182,6 @@ export abstract class RadialColumnSeriesBase<
                 ),
                 ...extraProps,
             ],
-            formatIntoColumns: true,
-            doNotFormatIntoRows: true,
         });
 
         this.animationState.transition('updateData');

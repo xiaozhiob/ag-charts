@@ -223,8 +223,6 @@ export abstract class BaseFunnelSeries<
                 ...extraProps,
             ],
             groupByKeys: false,
-            formatIntoColumns: true,
-            doNotFormatIntoRows: true,
         });
 
         this.smallestDataInterval = processedData.reduced?.smallestKeyInterval;

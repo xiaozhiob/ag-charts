@@ -197,8 +197,6 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
             ],
             groupByKeys: true,
             groupByData: false,
-            formatIntoColumns: true,
-            doNotFormatIntoRows: true,
         });
 
         this.smallestDataInterval = processedData.reduced?.smallestKeyInterval;

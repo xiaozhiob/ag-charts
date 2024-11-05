@@ -114,8 +114,6 @@ export class BubbleSeries extends CartesianSeries<Group, BubbleSeriesProperties,
                 ...(colorKey ? [valueProperty(colorKey, colorScaleType, { id: `colorValue` })] : []),
                 ...(labelKey ? [valueProperty(labelKey, 'band', { id: `labelValue` })] : []),
             ],
-            formatIntoColumns: true,
-            doNotFormatIntoRows: true,
         });
 
         const sizeKeyIdx = dataModel.resolveProcessedDataIndexById(this, `sizeValue`);

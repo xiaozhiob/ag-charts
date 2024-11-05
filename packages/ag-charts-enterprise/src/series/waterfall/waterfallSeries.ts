@@ -170,8 +170,6 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
                 ...(isContinuousX ? [_ModuleSupport.SMALLEST_KEY_INTERVAL, _ModuleSupport.LARGEST_KEY_INTERVAL] : []),
                 ...extraProps,
             ],
-            formatIntoColumns: true,
-            doNotFormatIntoRows: true,
         });
 
         this.smallestDataInterval = processedData.reduced?.smallestKeyInterval;
