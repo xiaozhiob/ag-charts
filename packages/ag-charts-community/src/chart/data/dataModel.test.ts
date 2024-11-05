@@ -118,7 +118,7 @@ describe('DataModel', () => {
                     const result = dataModel.processData(data)!!;
 
                     expect(result.type).toEqual('ungrouped');
-                    expect(result.keys).toEqual([[2], [3], [4]]);
+                    expect(result.keys).toEqual([[2, 3, 4]]);
                 });
 
                 it('should extract the configured values', () => {
@@ -165,8 +165,8 @@ describe('DataModel', () => {
                     const result = dataModel.processData(data)!!;
 
                     expect(result.type).toEqual('ungrouped');
-                    expect(result.keys).toHaveLength(4);
-                    expect(result.keys).toEqual([['Q1'], ['Q1'], ['Q2'], ['Q2']]);
+                    expect(result.keys[0]).toHaveLength(4);
+                    expect(result.keys).toEqual([['Q1', 'Q1', 'Q2', 'Q2']]);
                 });
 
                 it('should extract the configured values', () => {
@@ -197,8 +197,8 @@ describe('DataModel', () => {
                     const result = dataModel.processData(data)!!;
 
                     expect(result.type).toEqual('ungrouped');
-                    expect(result.keys).toHaveLength(4);
-                    expect(result.keys).toEqual([[data[0].kp], [data[1].kp], [data[2].kp], [data[3].kp]]);
+                    expect(result.keys[0]).toHaveLength(4);
+                    expect(result.keys).toEqual([[data[0].kp, data[1].kp, data[2].kp, data[3].kp]]);
                 });
 
                 it('should extract the configured values', () => {
@@ -252,7 +252,7 @@ describe('DataModel', () => {
                     const result = dataModel.processData(data)!;
 
                     expect(result.type).toEqual('ungrouped');
-                    expect(result.keys).toEqual([[2], [3], [4]]);
+                    expect(result.keys).toEqual([[2, 3, 4]]);
                 });
 
                 it('should extract the configured values', () => {
@@ -296,7 +296,7 @@ describe('DataModel', () => {
                     const result = dataModel.processData(data)!;
 
                     expect(result.type).toEqual('ungrouped');
-                    expect(result.keys).toEqual([['Q1'], ['Q1'], ['Q2'], ['Q2']]);
+                    expect(result.keys).toEqual([['Q1', 'Q1', 'Q2', 'Q2']]);
                 });
 
                 it('should extract the configured values', () => {
@@ -468,12 +468,14 @@ describe('DataModel', () => {
                 const result = dataModel.processData(data)!;
 
                 expect(result.type).toEqual('grouped');
-                expect(result.keys).toHaveLength(5);
-                expect(result.keys[0]).toEqual([new Date('2023-01-01T00:00:00.000Z')]);
-                expect(result.keys[1]).toEqual([new Date('2023-01-02T00:00:00.000Z')]);
-                expect(result.keys[2]).toEqual([new Date('2023-01-03T00:00:00.000Z')]);
-                expect(result.keys[3]).toEqual([new Date('2023-01-04T00:00:00.000Z')]);
-                expect(result.keys[4]).toEqual([]);
+                expect(result.keys[0]).toHaveLength(5);
+                expect(result.keys[0]).toEqual([
+                    new Date('2023-01-01T00:00:00.000Z'),
+                    new Date('2023-01-02T00:00:00.000Z'),
+                    new Date('2023-01-03T00:00:00.000Z'),
+                    new Date('2023-01-04T00:00:00.000Z'),
+                    undefined,
+                ]);
                 expectWarningsCalls().toMatchInlineSnapshot(`
 [
   [

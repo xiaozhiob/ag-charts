@@ -175,7 +175,7 @@ export class RangeAreaSeries extends _ModuleSupport.CartesianSeries<
 
         const xOffset = (xScale.bandwidth ?? 0) / 2;
 
-        const xValues = dataModel.resolveColumnById(this, 'xValue', processedData);
+        const xValues = dataModel.resolveKeysById(this, 'xValue', processedData);
         const yHighValues = dataModel.resolveColumnById(this, 'yHighValue', processedData);
         const yLowValues = dataModel.resolveColumnById(this, 'yLowValue', processedData);
 

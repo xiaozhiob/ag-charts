@@ -250,7 +250,7 @@ describe('DataController', () => {
         await controller.execute();
         const results = await Promise.all([promise1]);
 
-        expect(results[0].processedData.keys).toEqual([[2020], [2021], [2022]]);
+        expect(results[0].processedData.keys).toEqual([[2020, 2021, 2022]]);
         expect(results[0].processedData.columns).toEqual([[100, 200, 300]]);
     });
 

@@ -245,6 +245,18 @@ function createArray<T>(length: number, value: T): T[] {
     return out;
 }
 
+export function datumKeys(keys: any[][], datumIndex: number): any[] | undefined {
+    const out: any = [];
+
+    for (const k of keys) {
+        const key = k[datumIndex];
+        if (key == null) return;
+        out.push(key);
+    }
+
+    return out;
+}
+
 export function getPathComponents(path: string) {
     const components: string[] = [];
     let matchIndex = 0;
@@ -715,8 +727,9 @@ export class DataModel<
         const { rawData, keys: dataKeys, validScopes: dataValidScopes } = data;
         for (let datumIndex = 0; datumIndex < rawData.length; datumIndex += 1) {
             const datum = rawData[datumIndex];
-            const keys = dataKeys.map((k) => k[datumIndex]) as any[];
+            const keys = datumKeys(dataKeys, datumIndex);
             if (keys == null || keys.length === 0) continue;
+
             const group =
                 groupingFn?.({
                     index: datumIndex,
@@ -755,17 +768,16 @@ export class DataModel<
 
         const resultGroups = [];
         const resultData = [];
-        let dataIndex = 0;
         for (const { keys, datumIndices, validScopes } of groups.values()) {
             if (validScopes?.size === 0) continue;
 
-            resultGroups[dataIndex] = keys;
-            resultData[dataIndex++] = {
+            resultGroups.push(keys);
+            resultData.push({
                 datumIndices,
                 keys,
                 aggregation: [],
                 validScopes,
-            };
+            });
         }
 
         return {
@@ -780,15 +792,12 @@ export class DataModel<
     }
 
     private aggregateData(processedData: ProcessedData<any>) {
-        const isUngrouped = processedData.type === 'ungrouped';
+        const domainAggValues = this.aggregates.map((): [number, number] => [Infinity, -Infinity]);
+        processedData.domain.aggValues = domainAggValues;
 
-        if (isUngrouped) {
-            const { keys, columns, rawData } = processedData;
+        const { keys, columns, rawData } = processedData;
 
-            const domainAggValues = this.aggregates.map((): [number, number] => [Infinity, -Infinity]);
-
-            processedData.domain.aggValues = domainAggValues;
-
+        if (processedData.type === 'ungrouped') {
             const resultAggregation = rawData.map((_datum, datumIndex) => {
                 const aggregation: [number, number][] = [];
 
@@ -796,8 +805,8 @@ export class DataModel<
                     const indices = this.valueGroupIdxLookup(def);
                     let groupAggValues = def.groupAggregateFunction?.() ?? [Infinity, -Infinity];
                     const valuesToAgg = indices.map((columnIndex) => columns![columnIndex][datumIndex] as D[K]);
-                    const datumKeys: any[] = keys.map((k) => k[datumIndex]);
-                    const valuesAgg = def.aggregateFunction(valuesToAgg, datumKeys);
+                    const k = datumKeys(keys, datumIndex);
+                    const valuesAgg = k != null ? def.aggregateFunction(valuesToAgg, k) : undefined;
                     if (valuesAgg) {
                         groupAggValues =
                             def.groupAggregateFunction?.(valuesAgg, groupAggValues) ??
@@ -816,46 +825,36 @@ export class DataModel<
             });
 
             processedData.aggregation = resultAggregation;
+        } else {
+            for (const [index, def] of this.aggregates.entries()) {
+                const indices = this.valueGroupIdxLookup(def);
 
-            return;
-        }
+                for (const group of processedData.groups) {
+                    group.aggregation ??= [];
 
-        processedData.domain.aggValues = [];
+                    if (group.validScopes != null) continue;
 
-        for (const [index, def] of this.aggregates.entries()) {
-            const indices = this.valueGroupIdxLookup(def);
-            const domain: [number, number] = [Infinity, -Infinity];
+                    const groupKeys = group.keys;
 
-            const { columns } = processedData;
-
-            for (const group of processedData.groups) {
-                group.aggregation ??= [];
-
-                if (group.validScopes != null) continue;
-
-                const groupKeys = group.keys;
-
-                let groupAggValues = def.groupAggregateFunction?.() ?? [Infinity, -Infinity];
-                for (const datumIndex of group.datumIndices) {
-                    const valuesToAgg = indices.map((columnIndex) => columns![columnIndex][datumIndex] as D[K]);
-                    const valuesAgg = def.aggregateFunction(valuesToAgg, groupKeys);
-                    if (valuesAgg) {
-                        groupAggValues =
-                            def.groupAggregateFunction?.(valuesAgg, groupAggValues) ??
-                            ContinuousDomain.extendDomain(valuesAgg, groupAggValues);
+                    let groupAggValues = def.groupAggregateFunction?.() ?? [Infinity, -Infinity];
+                    for (const datumIndex of group.datumIndices) {
+                        const valuesToAgg = indices.map((columnIndex) => columns![columnIndex][datumIndex] as D[K]);
+                        const valuesAgg = def.aggregateFunction(valuesToAgg, groupKeys);
+                        if (valuesAgg) {
+                            groupAggValues =
+                                def.groupAggregateFunction?.(valuesAgg, groupAggValues) ??
+                                ContinuousDomain.extendDomain(valuesAgg, groupAggValues);
+                        }
                     }
+
+                    const finalValues = (def.finalFunction?.(groupAggValues) ?? groupAggValues).map((v) =>
+                        round(v)
+                    ) as [number, number];
+
+                    group.aggregation[index] = finalValues;
+                    ContinuousDomain.extendDomain(finalValues, domainAggValues[index]);
                 }
-
-                const finalValues = (def.finalFunction?.(groupAggValues) ?? groupAggValues).map((v) => round(v)) as [
-                    number,
-                    number,
-                ];
-
-                group.aggregation[index] = finalValues;
-                ContinuousDomain.extendDomain(finalValues, domain);
             }
-
-            processedData.domain.aggValues.push(domain);
         }
     }
 

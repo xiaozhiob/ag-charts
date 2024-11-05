@@ -5,14 +5,15 @@ import { clamp, isNegative } from '../../util/number';
 import { isArray, isFiniteNumber } from '../../util/type-guards';
 import { isContinuous, transformIntegratedCategoryValue } from '../../util/value';
 import { accumulatedValue, range, trailingAccumulatedValue } from './aggregateFunctions';
-import type {
-    DatumPropertyDefinition,
-    GroupValueProcessorDefinition,
-    ProcessedData,
-    ProcessedOutputDiff,
-    ProcessorOutputPropertyDefinition,
-    PropertyValueProcessorDefinition,
-    ReducerOutputPropertyDefinition,
+import {
+    type DatumPropertyDefinition,
+    type GroupValueProcessorDefinition,
+    type ProcessedData,
+    type ProcessedOutputDiff,
+    type ProcessorOutputPropertyDefinition,
+    type PropertyValueProcessorDefinition,
+    type ReducerOutputPropertyDefinition,
+    datumKeys,
 } from './dataModel';
 
 function basicContinuousCheckDatumValidation(value: any) {
@@ -496,10 +497,6 @@ function columnsEqual(
     return true;
 }
 
-function datumKeys(keys: Array<string | undefined>[], datumIndex: number) {
-    return keys.map((k) => k[datumIndex]);
-}
-
 export function diff(
     id: string,
     previousData: ProcessedData<any>,
@@ -531,8 +528,10 @@ export function diff(
                 const hasPreviousDatum = i < previousData.rawData.length;
                 const hasDatum = i < processedData.rawData.length;
 
-                const prevId = hasPreviousDatum ? createDatumId(datumKeys(previousKeys, i)) : '';
-                const datumId = hasDatum ? createDatumId(datumKeys(keys, i)) : '';
+                const prevKeys = hasPreviousDatum ? datumKeys(previousKeys, i) : undefined;
+                const prevId = prevKeys != null ? createDatumId(prevKeys) : '';
+                const dKeys = hasDatum ? datumKeys(keys, i) : undefined;
+                const datumId = dKeys != null ? createDatumId(dKeys) : '';
 
                 if (hasDatum && hasPreviousDatum && prevId === datumId) {
                     if (!columnsEqual(previousColumns, columns, prevIndices, nextIndices, i, i)) {

@@ -3,7 +3,12 @@
 exports[`DataModel empty data set processing should generated the expected results 1`] = `
 {
   "aggregation": undefined,
-  "columns": [],
+  "columns": [
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+  ],
   "defs": {
     "allScopesHaveSameDefs": true,
     "keys": [
@@ -87,8 +92,9 @@ exports[`DataModel empty data set processing should generated the expected resul
   "input": {
     "count": 0,
   },
-  "keys": [],
-  "keys": [],
+  "keys": [
+    undefined,
+  ],
   "partialValidDataCount": 0,
   "rawData": [],
   "rawDataSources": undefined,
@@ -156,8 +162,8 @@ exports[`DataModel grouped processing - calculated grouping should generated the
   "domain": {
     "aggValues": [
       [
-        Infinity,
-        -Infinity,
+        0,
+        0.012,
       ],
     ],
     "groups": [
@@ -191,8 +197,8 @@ exports[`DataModel grouped processing - calculated grouping should generated the
     {
       "aggregation": [
         [
-          NaN,
-          NaN,
+          0,
+          0.012,
         ],
       ],
       "datumIndices": [
@@ -218,8 +224,8 @@ exports[`DataModel grouped processing - calculated grouping should generated the
     {
       "aggregation": [
         [
-          NaN,
-          NaN,
+          0,
+          0.004,
         ],
       ],
       "datumIndices": [
@@ -239,8 +245,8 @@ exports[`DataModel grouped processing - calculated grouping should generated the
     {
       "aggregation": [
         [
-          NaN,
-          NaN,
+          0,
+          0.001,
         ],
       ],
       "datumIndices": [
@@ -260,66 +266,27 @@ exports[`DataModel grouped processing - calculated grouping should generated the
   "keys": [
     [
       2548,
-    ],
-    [
       2548,
-    ],
-    [
       2823,
-    ],
-    [
       2337,
-    ],
-    [
       2824,
-    ],
-    [
       2507,
-    ],
-    [
       2844,
-    ],
-    [
       2954,
-    ],
-    [
       3086,
-    ],
-    [
       3053,
-    ],
-    [
       2395,
-    ],
-    [
       2395,
-    ],
-    [
       2710,
-    ],
-    [
       2765,
-    ],
-    [
       3055,
-    ],
-    [
       3230,
-    ],
-    [
       3380,
-    ],
-    [
       3505,
-    ],
-    [
       1488,
-    ],
-    [
       1874,
     ],
   ],
-  "keys": [],
   "partialValidDataCount": 0,
   "rawData": [
     {
@@ -572,66 +539,27 @@ exports[`DataModel grouped processing - calculated grouping should generated the
   "keys": [
     [
       130,
-    ],
-    [
       130,
-    ],
-    [
       152,
-    ],
-    [
       109,
-    ],
-    [
       136,
-    ],
-    [
       136,
-    ],
-    [
       136,
-    ],
-    [
       136,
-    ],
-    [
       131,
-    ],
-    [
       131,
-    ],
-    [
       108,
-    ],
-    [
       108,
-    ],
-    [
       164,
-    ],
-    [
       164,
-    ],
-    [
       164,
-    ],
-    [
       209,
-    ],
-    [
       209,
-    ],
-    [
       209,
-    ],
-    [
       61,
-    ],
-    [
       90,
     ],
   ],
-  "keys": [],
   "partialValidDataCount": 0,
   "rawData": [
     {
@@ -738,30 +666,7 @@ exports[`DataModel grouped processing - calculated grouping should generated the
 exports[`DataModel grouped processing - calculated grouping should generated the expected results for simple histogram example with hard-coded buckets 1`] = `
 {
   "aggregation": undefined,
-  "columns": [
-    [
-      130,
-      130,
-      152,
-      109,
-      136,
-      136,
-      136,
-      136,
-      131,
-      131,
-      108,
-      108,
-      164,
-      164,
-      164,
-      209,
-      209,
-      209,
-      61,
-      90,
-    ],
-  ],
+  "columns": [],
   "defs": {
     "allScopesHaveSameDefs": true,
     "keys": [
@@ -882,66 +787,27 @@ exports[`DataModel grouped processing - calculated grouping should generated the
   "keys": [
     [
       130,
-    ],
-    [
       130,
-    ],
-    [
       152,
-    ],
-    [
       109,
-    ],
-    [
       136,
-    ],
-    [
       136,
-    ],
-    [
       136,
-    ],
-    [
       136,
-    ],
-    [
       131,
-    ],
-    [
       131,
-    ],
-    [
       108,
-    ],
-    [
       108,
-    ],
-    [
       164,
-    ],
-    [
       164,
-    ],
-    [
       164,
-    ],
-    [
       209,
-    ],
-    [
       209,
-    ],
-    [
       209,
-    ],
-    [
       61,
-    ],
-    [
       90,
     ],
   ],
-  "keys": [],
   "partialValidDataCount": 0,
   "rawData": [
     {
@@ -1256,27 +1122,14 @@ exports[`DataModel grouped processing - grouped example should generated the exp
   "keys": [
     [
       "Whole economy",
-    ],
-    [
       "Finance and business services",
-    ],
-    [
       "Public sector",
-    ],
-    [
       "Construction",
-    ],
-    [
       "Private sector",
-    ],
-    [
       "Manufacturing",
-    ],
-    [
       "Wholesaling, retailing, hotels and restaurants",
     ],
   ],
-  "keys": [],
   "partialValidDataCount": 0,
   "rawData": [
     {
@@ -1782,42 +1635,19 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
   "keys": [
     [
       "Jan",
-    ],
-    [
       "Feb",
-    ],
-    [
       "Mar",
-    ],
-    [
       "Apr",
-    ],
-    [
       "May",
-    ],
-    [
       "Jun",
-    ],
-    [
       "Jul",
-    ],
-    [
       "Aug",
-    ],
-    [
       "Sep",
-    ],
-    [
       "Oct",
-    ],
-    [
       "Nov",
-    ],
-    [
       "Dec",
     ],
   ],
-  "keys": [],
   "partialValidDataCount": 0,
   "rawData": [
     {
@@ -2233,21 +2063,12 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
   "keys": [
     [
       "Nursery",
-    ],
-    [
       "Primary",
-    ],
-    [
       "Secondary",
-    ],
-    [
       "Special",
-    ],
-    [
       "Referral units",
     ],
   ],
-  "keys": [],
   "partialValidDataCount": 0,
   "rawData": [
     {
@@ -2609,30 +2430,15 @@ exports[`DataModel grouped processing - stacked example should generated the exp
   "keys": [
     [
       "Semi-detached house",
-    ],
-    [
       "Medium/large terraced house",
-    ],
-    [
       "Detached house",
-    ],
-    [
       "Purpose-built flat low rise",
-    ],
-    [
       "Small terraced house",
-    ],
-    [
       "Bungalow",
-    ],
-    [
       "Converted flat",
-    ],
-    [
       "Purpose-built flat high rise",
     ],
   ],
-  "keys": [],
   "partialValidDataCount": 0,
   "rawData": [
     {
@@ -3009,30 +2815,15 @@ exports[`DataModel grouped processing - stacked with accumulation and normalised
   "keys": [
     [
       "Semi-detached house",
-    ],
-    [
       "Medium/large terraced house",
-    ],
-    [
       "Detached house",
-    ],
-    [
       "Purpose-built flat low rise",
-    ],
-    [
       "Small terraced house",
-    ],
-    [
       "Bungalow",
-    ],
-    [
       "Converted flat",
-    ],
-    [
       "Purpose-built flat high rise",
     ],
   ],
-  "keys": [],
   "partialValidDataCount": 0,
   "rawData": [
     {
@@ -3363,30 +3154,15 @@ exports[`DataModel grouped processing - stacked with accumulation example should
   "keys": [
     [
       "Semi-detached house",
-    ],
-    [
       "Medium/large terraced house",
-    ],
-    [
       "Detached house",
-    ],
-    [
       "Purpose-built flat low rise",
-    ],
-    [
       "Small terraced house",
-    ],
-    [
       "Bungalow",
-    ],
-    [
       "Converted flat",
-    ],
-    [
       "Purpose-built flat high rise",
     ],
   ],
-  "keys": [],
   "partialValidDataCount": 0,
   "rawData": [
     {
@@ -3626,39 +3402,18 @@ exports[`DataModel missing and invalid data processing - multiple scopes should 
   "keys": [
     [
       "2009",
-    ],
-    [
       "2010",
-    ],
-    [
       "2011",
-    ],
-    [
       "2012",
-    ],
-    [
       "2013",
-    ],
-    [
       "2014",
-    ],
-    [
       "2015",
-    ],
-    [
       "2016",
-    ],
-    [
       "2017",
-    ],
-    [
       "2018",
-    ],
-    [
       "2019",
     ],
   ],
-  "keys": [],
   "partialValidDataCount": 4,
   "rawData": [
     {
@@ -3937,39 +3692,18 @@ exports[`DataModel missing and invalid data processing should generated the expe
   "keys": [
     [
       "2009",
-    ],
-    [
       "2010",
-    ],
-    [
       "2011",
-    ],
-    [
       "2012",
-    ],
-    [
       "2013",
-    ],
-    [
       "2014",
-    ],
-    [
       "2015",
-    ],
-    [
       "2016",
-    ],
-    [
       "2017",
-    ],
-    [
       "2018",
-    ],
-    [
       "2019",
     ],
   ],
-  "keys": [],
   "partialValidDataCount": 0,
   "rawData": [
     {
@@ -4114,13 +3848,6 @@ exports[`DataModel repeated property processing should generated the expected re
   "input": {
     "count": 5,
   },
-  "keys": [
-    [],
-    [],
-    [],
-    [],
-    [],
-  ],
   "keys": [],
   "partialValidDataCount": 0,
   "rawData": [
@@ -4261,16 +3988,6 @@ exports[`DataModel ungrouped processing - accumulated and normalised properties 
   "input": {
     "count": 8,
   },
-  "keys": [
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-  ],
   "keys": [],
   "partialValidDataCount": 0,
   "rawData": [
@@ -4492,162 +4209,59 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
   "keys": [
     [
       2019-01-07T00:00:00.000Z,
-    ],
-    [
       2019-01-14T00:00:00.000Z,
-    ],
-    [
       2019-01-21T00:00:00.000Z,
-    ],
-    [
       2019-01-28T00:00:00.000Z,
-    ],
-    [
       2019-02-04T00:00:00.000Z,
-    ],
-    [
       2019-02-11T00:00:00.000Z,
-    ],
-    [
       2019-02-18T00:00:00.000Z,
-    ],
-    [
       2019-02-25T00:00:00.000Z,
-    ],
-    [
       2019-03-04T00:00:00.000Z,
-    ],
-    [
       2019-03-11T00:00:00.000Z,
-    ],
-    [
       2019-03-18T00:00:00.000Z,
-    ],
-    [
       2019-03-25T00:00:00.000Z,
-    ],
-    [
       2019-03-31T23:00:00.000Z,
-    ],
-    [
       2019-04-07T23:00:00.000Z,
-    ],
-    [
       2019-04-14T23:00:00.000Z,
-    ],
-    [
       2019-04-21T23:00:00.000Z,
-    ],
-    [
       2019-04-28T23:00:00.000Z,
-    ],
-    [
       2019-05-05T23:00:00.000Z,
-    ],
-    [
       2019-05-12T23:00:00.000Z,
-    ],
-    [
       2019-05-19T23:00:00.000Z,
-    ],
-    [
       2019-05-26T23:00:00.000Z,
-    ],
-    [
       2019-06-02T23:00:00.000Z,
-    ],
-    [
       2019-06-09T23:00:00.000Z,
-    ],
-    [
       2019-06-16T23:00:00.000Z,
-    ],
-    [
       2019-06-23T23:00:00.000Z,
-    ],
-    [
       2019-06-30T23:00:00.000Z,
-    ],
-    [
       2019-07-07T23:00:00.000Z,
-    ],
-    [
       2019-07-14T23:00:00.000Z,
-    ],
-    [
       2019-07-21T23:00:00.000Z,
-    ],
-    [
       2019-07-28T23:00:00.000Z,
-    ],
-    [
       2019-08-04T23:00:00.000Z,
-    ],
-    [
       2019-08-11T23:00:00.000Z,
-    ],
-    [
       2019-08-18T23:00:00.000Z,
-    ],
-    [
       2019-08-25T23:00:00.000Z,
-    ],
-    [
       2019-09-01T23:00:00.000Z,
-    ],
-    [
       2019-09-08T23:00:00.000Z,
-    ],
-    [
       2019-09-15T23:00:00.000Z,
-    ],
-    [
       2019-09-22T23:00:00.000Z,
-    ],
-    [
       2019-09-29T23:00:00.000Z,
-    ],
-    [
       2019-10-06T23:00:00.000Z,
-    ],
-    [
       2019-10-13T23:00:00.000Z,
-    ],
-    [
       2019-10-20T23:00:00.000Z,
-    ],
-    [
       2019-10-28T00:00:00.000Z,
-    ],
-    [
       2019-11-04T00:00:00.000Z,
-    ],
-    [
       2019-11-11T00:00:00.000Z,
-    ],
-    [
       2019-11-18T00:00:00.000Z,
-    ],
-    [
       2019-11-25T00:00:00.000Z,
-    ],
-    [
       2019-12-02T00:00:00.000Z,
-    ],
-    [
       2019-12-09T00:00:00.000Z,
-    ],
-    [
       2019-12-16T00:00:00.000Z,
-    ],
-    [
       2019-12-23T00:00:00.000Z,
-    ],
-    [
       2019-12-30T00:00:00.000Z,
     ],
   ],
-  "keys": [],
   "partialValidDataCount": 0,
   "rawData": [
     {
