@@ -12,16 +12,19 @@ import type { DOMManager } from './domManager';
 
 export type ListSwitch = { button: HTMLButtonElement; listitem: HTMLElement; remove(): void };
 
-type ElemParams<T extends ProxyElementType> = {
+type ElemParams<T extends ProxyElementType, TParentWidget extends Widget = NativeWidget<HTMLDivElement>> = {
     readonly type: T;
     readonly id?: string;
     readonly cursor?: BaseStyleTypeMap['cursor'];
 } & (
-    | { readonly parent: NativeWidget<HTMLDivElement> }
+    | { readonly parent: TParentWidget }
     | { readonly domManagerId: string; readonly where: 'beforebegin' | 'afterend' }
 );
 
-type InteractParams<T extends ProxyElementType> = ElemParams<T> & {
+type InteractParams<
+    T extends ProxyElementType,
+    TParentWidget extends Widget = NativeWidget<HTMLDivElement>,
+> = ElemParams<T, TParentWidget> & {
     readonly tabIndex?: number;
     readonly onclick?: (ev: MouseEvent) => void;
     readonly ondblclick?: (ev: MouseEvent) => void;
@@ -51,7 +54,10 @@ type ProxyMeta = {
         result: NativeWidget<HTMLButtonElement>;
     };
     slider: {
-        params: InteractParams<'slider'> & { readonly ariaLabel: TranslationKey; readonly ariaOrientation: Direction };
+        params: InteractParams<'slider', ToolbarWidget> & {
+            readonly ariaLabel: TranslationKey;
+            readonly ariaOrientation: Direction;
+        };
         result: SliderWidget;
     };
     text: {
@@ -203,6 +209,7 @@ export class ProxyInteractionService {
                     button.textContent = this.localeManager.t(textContent.id, textContent.params);
                 });
             }
+            this.setParent(meta.params, meta.result);
         }
 
         if (checkType('slider', meta)) {
@@ -217,6 +224,7 @@ export class ProxyInteractionService {
             this.addLocalisation(() => {
                 slider.ariaLabel = this.localeManager.t(params.ariaLabel.id, params.ariaLabel.params);
             });
+            this.setParent(meta.params, meta.result);
         }
 
         if (checkType('text', meta)) {
@@ -238,6 +246,7 @@ export class ProxyInteractionService {
             listitem.role = 'listitem';
             listitem.style.position = 'absolute';
             listitem.replaceChildren(button);
+            this.setParent(meta.params, meta.result);
         }
 
         if (checkType('region', meta)) {
@@ -245,9 +254,9 @@ export class ProxyInteractionService {
             const region = result.getElement();
             this.initInteract(params, region);
             region.role = 'region';
+            this.setParent(meta.params, meta.result);
         }
 
-        this.setParent(meta.params, meta.result);
         return meta.result;
     }
 
@@ -308,14 +317,17 @@ export class ProxyInteractionService {
         };
     }
 
-    private initElement<T extends ProxyElementType, TElem extends HTMLElement>(params: ElemParams<T>, element: TElem) {
+    private initElement<T extends ProxyElementType, TElem extends HTMLElement, TParentWidget extends Widget>(
+        params: ElemParams<T, TParentWidget>,
+        element: TElem
+    ) {
         setAttribute(element, 'id', params.id);
         setElementStyle(element, 'cursor', params.cursor);
         element.classList.toggle('ag-charts-proxy-elem', true);
     }
 
-    private initInteract<T extends ProxyElementType, TElem extends HTMLElement>(
-        params: InteractParams<T>,
+    private initInteract<T extends ProxyElementType, TElem extends HTMLElement, TParentWidget extends Widget>(
+        params: InteractParams<T, TParentWidget>,
         element: TElem
     ) {
         const { onclick, ondblclick, onmouseenter, onmouseleave, oncontextmenu, onchange, onfocus, onblur, tabIndex } =
@@ -352,7 +364,10 @@ export class ProxyInteractionService {
         }
     }
 
-    private setParent<T extends ProxyElementType>(params: ElemParams<T>, element: Widget<HTMLElement>) {
+    private setParent<T extends ProxyElementType, TChildWidget extends Widget, TParentWidget extends Widget>(
+        params: ElemParams<T, TParentWidget>,
+        element: TChildWidget
+    ) {
         if ('parent' in params) {
             params.parent.appendChild(element);
         } else {

@@ -184,7 +184,7 @@ export class NavigatorDOMProxy {
         slider.ariaValueText = this.ctx.localeManager.t('ariaValuePanRange', { min, max });
     }
 
-    private setSliderRatioClamped(slider: NativeWidget<HTMLInputElement>, clampMin: number, clampMax: number) {
+    private setSliderRatioClamped(slider: SliderWidget, clampMin: number, clampMax: number) {
         const ratio = this.getSliderRatio(slider);
         const clampedRatio = clamp(clampMin, ratio, clampMax);
         if (clampedRatio !== ratio) {
@@ -193,14 +193,14 @@ export class NavigatorDOMProxy {
         return clampedRatio;
     }
 
-    private setSliderRatio(widget: NativeWidget<HTMLInputElement>, ratio: number) {
+    private setSliderRatio(widget: SliderWidget, ratio: number) {
         const slider = widget.getElement();
         const value = Math.round(ratio * 10000) / 100;
         slider.value = `${value}`;
         slider.ariaValueText = formatPercent(value / 100);
     }
 
-    private getSliderRatio(widget: NativeWidget<HTMLInputElement>) {
+    private getSliderRatio(widget: SliderWidget) {
         return parseFloat(widget.getElement().value) / 100;
     }
 
