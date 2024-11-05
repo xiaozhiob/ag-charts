@@ -175,7 +175,7 @@ export class RangeAreaSeries extends _ModuleSupport.CartesianSeries<
 
         const xOffset = (xScale.bandwidth ?? 0) / 2;
 
-        const xValueIndex = dataModel.resolveProcessedDataIndexById(this, 'xValue');
+        const xValues = dataModel.resolveColumnById(this, 'xValue', processedData);
         const yHighValues = dataModel.resolveColumnById(this, 'yHighValue', processedData);
         const yLowValues = dataModel.resolveColumnById(this, 'yLowValue', processedData);
 
@@ -185,10 +185,8 @@ export class RangeAreaSeries extends _ModuleSupport.CartesianSeries<
         const markerData: RangeAreaMarkerDatum[] = [];
         const spanPoints: Array<RangeAreaSpanPointDatum[] | { skip: number }> = [];
 
-        const keys = processedData.keys!;
         processedData.rawData.forEach((datum, datumIndex) => {
-            const xValue = keys[datumIndex][xValueIndex];
-
+            const xValue = xValues[datumIndex];
             if (xValue == null) return;
 
             const yHighValue = yHighValues[datumIndex];

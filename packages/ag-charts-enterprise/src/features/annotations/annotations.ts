@@ -601,12 +601,11 @@ export class Annotations extends _ModuleSupport.BaseModuleInstance implements _M
             [from, to] = [to, from];
         }
 
-        const { keys } = processedData;
-        const dateIndex = dataModel.resolveProcessedDataIndexById({ id: 'annotations' }, 'date');
+        const dateValues = dataModel.resolveKeysById<Date>({ id: 'annotations' }, 'date', processedData);
         const volumeValues = dataModel.resolveColumnById({ id: 'annotations' }, 'volume', processedData);
 
         return processedData.rawData.reduce((sum, _datum, datumIndex) => {
-            const key = keys![datumIndex][dateIndex];
+            const key = dateValues[datumIndex];
             if (isValidDate(key) && key >= from && key <= to) {
                 return sum + volumeValues[datumIndex];
             }

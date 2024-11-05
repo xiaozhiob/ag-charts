@@ -229,8 +229,8 @@ export class RangeBarSeries extends _ModuleSupport.AbstractBarSeries<
         if (!visible) return context;
 
         const { rawData } = processedData;
-        const keys = processedData.keys!;
-        const xIndex = dataModel.resolveProcessedDataIndexById(this, `xValue`);
+
+        const xValues = dataModel.resolveKeysById(this, `xValue`, processedData);
         const yLowValues = dataModel.resolveColumnById(this, `yLowValue`, processedData);
         const yHighValues = dataModel.resolveColumnById(this, `yHighValue`, processedData);
 
@@ -239,7 +239,9 @@ export class RangeBarSeries extends _ModuleSupport.AbstractBarSeries<
         processedData.groups.forEach(({ datumIndices }, groupedDataIndex) => {
             datumIndices.forEach((datumIndex) => {
                 const datum = rawData[datumIndex];
-                const xDatum = keys[datumIndex][xIndex];
+                const xDatum = xValues[datumIndex];
+                if (xDatum == null) return;
+
                 const x = Math.round(xScale.convert(xDatum)) + groupScale.convert(String(groupIndex)) + barOffset;
 
                 const rawLowValue = yLowValues[datumIndex];

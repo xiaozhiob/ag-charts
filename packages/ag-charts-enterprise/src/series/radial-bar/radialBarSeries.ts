@@ -229,6 +229,7 @@ export class RadialBarSeries extends _ModuleSupport.PolarSeries<
             return;
         }
 
+        const radiusValues = dataModel.resolveKeysById<number>(this, 'radiusValue', processedData);
         const angleStartValues = dataModel.resolveColumnById(this, `angleValue-start`, processedData);
         const angleEndValues = dataModel.resolveColumnById(this, `angleValue-end`, processedData);
         const angleRawValues = dataModel.resolveColumnById(this, `angleValue-raw`, processedData);
@@ -280,15 +281,16 @@ export class RadialBarSeries extends _ModuleSupport.PolarSeries<
         const context = { itemId: radiusKey, nodeData, labelData: nodeData };
         if (!this.visible) return context;
 
-        const { rawData, keys, aggregation } = processedData;
-        rawData!.forEach((datum, datumIndex) => {
-            const datumAggregation = aggregation![datumIndex];
+        const { rawData, aggregation } = processedData;
+        rawData.forEach((datum, datumIndex) => {
+            const radiusDatum = radiusValues[datumIndex];
+            if (radiusDatum == null) return;
 
-            const radiusDatum = keys![datumIndex][0];
             const angleDatum = angleRawValues[datumIndex];
             const angleStartDatum = angleStartValues[datumIndex];
             const angleEndDatum = angleEndValues[datumIndex];
             const isPositive = angleDatum >= 0 && !Object.is(angleDatum, -0);
+            const datumAggregation = aggregation![datumIndex];
             const angleRange = datumAggregation[angleRangeIndex][isPositive ? 1 : 0];
             const reversed = isPositive === angleAxisReversed;
 

@@ -292,8 +292,7 @@ export class AreaSeries extends CartesianSeries<
 
         const xOffset = (xScale.bandwidth ?? 0) / 2;
 
-        const xValues = processedData.keys!;
-        const xIndex = dataModel.resolveProcessedDataIndexById(this, `xValue`);
+        const xValues = dataModel.resolveKeysById(this, 'xValue', processedData);
         const yEndValues = dataModel.resolveColumnById(this, `yValueEnd`, processedData);
         const yRawValues = dataModel.resolveColumnById(this, `yValueRaw`, processedData);
         const yCumulativeValues = dataModel.resolveColumnById(this, `yValueCumulative`, processedData);
@@ -329,7 +328,9 @@ export class AreaSeries extends CartesianSeries<
         const { rawData } = processedData;
         processedData.groups.forEach(({ datumIndices }) => {
             datumIndices.forEach((datumIndex) => {
-                const xDatum = xValues[datumIndex][xIndex];
+                const xDatum = xValues[datumIndex];
+                if (xDatum == null) return;
+
                 const seriesDatum = rawData[datumIndex];
                 const yDatum = yRawValues[datumIndex];
                 const yValueCumulative = yCumulativeValues[datumIndex];
@@ -397,7 +398,7 @@ export class AreaSeries extends CartesianSeries<
 
         const dataIndices = processedData.groups.flatMap(({ datumIndices }) => {
             return datumIndices.filter((datumIndex) => {
-                const xDatum = xValues[datumIndex][xIndex];
+                const xDatum = xValues[datumIndex];
                 return xDatum != null;
             });
         });
@@ -415,7 +416,7 @@ export class AreaSeries extends CartesianSeries<
             const points: Array<LineSpanPointDatum[] | { skip: number }> = [];
 
             for (const datumIndex of dataIndices) {
-                const xDatum = xValues[datumIndex][xIndex];
+                const xDatum = xValues[datumIndex];
                 const yValueStack = yStackValues[datumIndex];
                 const yDatum = yValueStack[index];
 
@@ -483,7 +484,7 @@ export class AreaSeries extends CartesianSeries<
         const getAxisSpans = () => {
             const yValueZeroPoints = dataIndices
                 .map<LineSpanPointDatum | undefined>((datumIndex) => {
-                    const xDatum = xValues[datumIndex][xIndex];
+                    const xDatum = xValues[datumIndex];
                     const yValueStack: number[] = yStackValues[datumIndex];
                     const yDatum = yValueStack[stackIndex];
 

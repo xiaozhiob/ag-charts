@@ -192,7 +192,7 @@ export abstract class OhlcSeriesBase<
 
         const nodeData: CandlestickNodeBaseDatum[] = [];
         const { xKey, highKey, lowKey } = this.properties;
-        const xIndex = dataModel.resolveProcessedDataIndexById(this, 'xValue');
+        const xValues = dataModel.resolveKeysById(this, 'xValue', processedData);
         const openValues = dataModel.resolveColumnById(this, 'openValue', processedData);
         const closeValues = dataModel.resolveColumnById(this, 'closeValue', processedData);
         const highValues = dataModel.resolveColumnById(this, 'highValue', processedData);
@@ -211,10 +211,8 @@ export abstract class OhlcSeriesBase<
         };
         if (!visible) return context;
 
-        const { rawData, keys } = processedData;
-        rawData.forEach((datum, datumIndex) => {
-            const xValue = keys![datumIndex][xIndex];
-
+        processedData.rawData.forEach((datum, datumIndex) => {
+            const xValue = xValues[datumIndex];
             if (xValue == null) return;
 
             const openValue = openValues[datumIndex];

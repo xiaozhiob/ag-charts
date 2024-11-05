@@ -293,8 +293,7 @@ export abstract class BaseFunnelSeries<
         const isVisible = this.visible && this.properties.visible;
         if (!isVisible) return context;
 
-        const xIndex = dataModel.resolveProcessedDataIndexById(this, `xValue`);
-        const xValues = processedData.keys;
+        const xValues = dataModel.resolveKeysById(this, 'xValue', processedData);
         const yValues = dataModel.resolveColumnById(this, `yValue`, processedData);
 
         const { barWidth, groupIndex } = this.updateGroupScale(xAxis);
@@ -307,11 +306,12 @@ export abstract class BaseFunnelSeries<
             stroke: string;
         }
         let previousConnection: ConnectorConfig | undefined;
-        const { rawData } = processedData;
-        rawData.forEach((datum, datumIndex) => {
+        processedData.rawData.forEach((datum, datumIndex) => {
             const visible = isVisible && seriesItemEnabled[datumIndex];
 
-            const xDatum = xValues![datumIndex][xIndex];
+            const xDatum = xValues[datumIndex];
+            if (xDatum == null) return;
+
             const x = Math.round(xScale.convert(xDatum)) + groupScale.convert(String(groupIndex)) + barOffset;
 
             const yDatum = yValues[datumIndex];
@@ -620,25 +620,28 @@ export abstract class BaseFunnelSeries<
         const { strokeWidth, fillOpacity, strokeOpacity } = this.barStyle();
         const { fills, strokes, visible } = this.properties;
 
-        const keys = processedData.keys!;
-        const stageIdx = dataModel.resolveProcessedDataIndexById(this, `xValue`);
+        const xValues = dataModel.resolveKeysById(this, 'xValue', processedData);
 
-        return processedData.rawData.map((_datum, datumIndex): _ModuleSupport.CategoryLegendDatum => {
-            const stageValue = keys[datumIndex][stageIdx];
-            const fill = fills[datumIndex % fills.length] ?? 'black';
-            const stroke = strokes[datumIndex % strokes.length] ?? 'black';
+        return processedData.rawData
+            .map((_datum, datumIndex): _ModuleSupport.CategoryLegendDatum | undefined => {
+                const stageValue = xValues[datumIndex];
+                if (stageValue == null) return;
 
-            return {
-                legendType: 'category',
-                id,
-                itemId: datumIndex,
-                seriesId: id,
-                enabled: visible && legendItemEnabled[datumIndex],
-                label: { text: stageValue },
-                symbols: [{ marker: { fill, fillOpacity, stroke, strokeWidth, strokeOpacity } }],
-                skipAnimations: true,
-            };
-        });
+                const fill = fills[datumIndex % fills.length] ?? 'black';
+                const stroke = strokes[datumIndex % strokes.length] ?? 'black';
+
+                return {
+                    legendType: 'category',
+                    id,
+                    itemId: datumIndex,
+                    seriesId: id,
+                    enabled: visible && legendItemEnabled[datumIndex],
+                    label: { text: stageValue },
+                    symbols: [{ marker: { fill, fillOpacity, stroke, strokeWidth, strokeOpacity } }],
+                    skipAnimations: true,
+                };
+            })
+            .filter((datum): datum is _ModuleSupport.CategoryLegendDatum => datum != null);
     }
 
     override onLegendItemClick(event: _ModuleSupport.LegendItemClickChartEvent) {

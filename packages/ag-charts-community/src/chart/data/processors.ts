@@ -496,6 +496,10 @@ function columnsEqual(
     return true;
 }
 
+function datumKeys(keys: Array<string | undefined>[], datumIndex: number) {
+    return keys.map((k) => k[datumIndex]);
+}
+
 export function diff(
     id: string,
     previousData: ProcessedData<any>,
@@ -527,8 +531,8 @@ export function diff(
                 const hasPreviousDatum = i < previousData.rawData.length;
                 const hasDatum = i < processedData.rawData.length;
 
-                const prevId = hasPreviousDatum ? createDatumId(previousKeys[i]) : '';
-                const datumId = hasDatum ? createDatumId(keys[i]) : '';
+                const prevId = hasPreviousDatum ? createDatumId(datumKeys(previousKeys, i)) : '';
+                const datumId = hasDatum ? createDatumId(datumKeys(keys, i)) : '';
 
                 if (hasDatum && hasPreviousDatum && prevId === datumId) {
                     if (!columnsEqual(previousColumns, columns, prevIndices, nextIndices, i, i)) {

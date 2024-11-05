@@ -266,8 +266,7 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
         const { barWidth, groupIndex } = this.updateGroupScale(xAxis);
         const barOffset = ContinuousScale.is(xScale) ? barWidth * -0.5 : 0;
 
-        const xValues = processedData.keys!;
-        const xIndex = dataModel.resolveProcessedDataIndexById(this, `xValue`);
+        const xValues = dataModel.resolveKeysById(this, `xValue`, processedData);
         const yRawValues = dataModel.resolveColumnById(this, `yValue-raw`, processedData);
         const yFilterValues = this.crossFilteringEnabled()
             ? dataModel.resolveColumnById(this, `yFilterValue`, processedData)
@@ -393,7 +392,9 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
             const yRanges = aggregation[yRangeIndex];
 
             datumIndices.forEach((datumIndex, valueIndex) => {
-                const xValue = xValues[datumIndex][xIndex];
+                const xValue = xValues[datumIndex];
+                if (xValue == null) return;
+
                 const yRawValue = yRawValues[datumIndex];
                 const yStart = Number(yStartValues[datumIndex]);
                 const yFilterValue = yFilterValues != null ? Number(yFilterValues[datumIndex]) : undefined;

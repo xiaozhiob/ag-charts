@@ -88,6 +88,7 @@ exports[`DataModel empty data set processing should generated the expected resul
     "count": 0,
   },
   "keys": [],
+  "keys": [],
   "partialValidDataCount": 0,
   "rawData": [],
   "rawDataSources": undefined,
@@ -318,6 +319,7 @@ exports[`DataModel grouped processing - calculated grouping should generated the
       1874,
     ],
   ],
+  "keys": [],
   "partialValidDataCount": 0,
   "rawData": [
     {
@@ -629,6 +631,7 @@ exports[`DataModel grouped processing - calculated grouping should generated the
       90,
     ],
   ],
+  "keys": [],
   "partialValidDataCount": 0,
   "rawData": [
     {
@@ -735,7 +738,30 @@ exports[`DataModel grouped processing - calculated grouping should generated the
 exports[`DataModel grouped processing - calculated grouping should generated the expected results for simple histogram example with hard-coded buckets 1`] = `
 {
   "aggregation": undefined,
-  "columns": [],
+  "columns": [
+    [
+      130,
+      130,
+      152,
+      109,
+      136,
+      136,
+      136,
+      136,
+      131,
+      131,
+      108,
+      108,
+      164,
+      164,
+      164,
+      209,
+      209,
+      209,
+      61,
+      90,
+    ],
+  ],
   "defs": {
     "allScopesHaveSameDefs": true,
     "keys": [
@@ -915,6 +941,7 @@ exports[`DataModel grouped processing - calculated grouping should generated the
       90,
     ],
   ],
+  "keys": [],
   "partialValidDataCount": 0,
   "rawData": [
     {
@@ -1249,6 +1276,7 @@ exports[`DataModel grouped processing - grouped example should generated the exp
       "Wholesaling, retailing, hotels and restaurants",
     ],
   ],
+  "keys": [],
   "partialValidDataCount": 0,
   "rawData": [
     {
@@ -1789,6 +1817,7 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
       "Dec",
     ],
   ],
+  "keys": [],
   "partialValidDataCount": 0,
   "rawData": [
     {
@@ -2218,6 +2247,7 @@ exports[`DataModel grouped processing - stacked and normalised example should ge
       "Referral units",
     ],
   ],
+  "keys": [],
   "partialValidDataCount": 0,
   "rawData": [
     {
@@ -2602,6 +2632,7 @@ exports[`DataModel grouped processing - stacked example should generated the exp
       "Purpose-built flat high rise",
     ],
   ],
+  "keys": [],
   "partialValidDataCount": 0,
   "rawData": [
     {
@@ -3001,6 +3032,7 @@ exports[`DataModel grouped processing - stacked with accumulation and normalised
       "Purpose-built flat high rise",
     ],
   ],
+  "keys": [],
   "partialValidDataCount": 0,
   "rawData": [
     {
@@ -3354,6 +3386,7 @@ exports[`DataModel grouped processing - stacked with accumulation example should
       "Purpose-built flat high rise",
     ],
   ],
+  "keys": [],
   "partialValidDataCount": 0,
   "rawData": [
     {
@@ -3625,6 +3658,7 @@ exports[`DataModel missing and invalid data processing - multiple scopes should 
       "2019",
     ],
   ],
+  "keys": [],
   "partialValidDataCount": 4,
   "rawData": [
     {
@@ -3704,7 +3738,7 @@ exports[`DataModel missing and invalid data processing - multiple scopes should 
     },
     undefined,
     undefined,
-    undefined,
+    Set {},
     Set {
       "series-a",
     },
@@ -3719,6 +3753,7 @@ exports[`DataModel missing and invalid data processing - multiple scopes should 
       "series-a",
       "series-c",
     },
+    undefined,
   ],
 }
 `;
@@ -3934,6 +3969,7 @@ exports[`DataModel missing and invalid data processing should generated the expe
       "2019",
     ],
   ],
+  "keys": [],
   "partialValidDataCount": 0,
   "rawData": [
     {
@@ -4085,6 +4121,7 @@ exports[`DataModel repeated property processing should generated the expected re
     [],
     [],
   ],
+  "keys": [],
   "partialValidDataCount": 0,
   "rawData": [
     {
@@ -4234,6 +4271,7 @@ exports[`DataModel ungrouped processing - accumulated and normalised properties 
     [],
     [],
   ],
+  "keys": [],
   "partialValidDataCount": 0,
   "rawData": [
     {
@@ -4609,6 +4647,7 @@ exports[`DataModel ungrouped processing should generated the expected results 1`
       2019-12-30T00:00:00.000Z,
     ],
   ],
+  "keys": [],
   "partialValidDataCount": 0,
   "rawData": [
     {

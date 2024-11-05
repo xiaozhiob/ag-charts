@@ -140,7 +140,7 @@ export class BoxPlotSeries extends _ModuleSupport.AbstractBarSeries<
 
         const nodeData: BoxPlotNodeDatum[] = [];
 
-        const xValueIndex = dataModel.resolveProcessedDataIndexById(this, 'xValue');
+        const xValues = dataModel.resolveKeysById(this, 'xValue', processedData);
         const minValues = dataModel.resolveColumnById(this, 'minValue', processedData);
         const q1Values = dataModel.resolveColumnById(this, 'q1Value', processedData);
         const medianValues = dataModel.resolveColumnById(this, 'medianValue', processedData);
@@ -162,10 +162,8 @@ export class BoxPlotSeries extends _ModuleSupport.AbstractBarSeries<
 
         if (!visible) return context;
 
-        const { rawData, keys } = processedData;
-        rawData.forEach((datum, datumIndex) => {
-            const xValue = keys![datumIndex][xValueIndex];
-
+        processedData.rawData.forEach((datum, datumIndex) => {
+            const xValue = xValues[datumIndex];
             if (xValue == null) return;
 
             const minValue = minValues[datumIndex];

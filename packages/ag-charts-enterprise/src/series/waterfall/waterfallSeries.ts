@@ -244,8 +244,7 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
 
         const pointData: WaterfallNodePointDatum[] = [];
 
-        const keys = processedData.keys!;
-        const xIndex = dataModel.resolveProcessedDataIndexById(this, `xValue`);
+        const xValues = dataModel.resolveKeysById(this, `xValue`, processedData);
         const yRawValues = dataModel.resolveColumnById(this, `yRaw`, processedData);
         const totalTypeValues = dataModel.resolveColumnById<AgWaterfallSeriesItemType>(
             this,
@@ -300,7 +299,9 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
             const isTotal = this.isTotal(datumType);
             const isTotalOrSubtotal = isTotal || isSubtotal;
 
-            const xDatum = keys[datumIndex][xIndex];
+            const xDatum = xValues[datumIndex];
+            if (xDatum == null) return;
+
             const x = Math.round(xScale.convert(xDatum));
 
             const rawValue = yRawValues[datumIndex];

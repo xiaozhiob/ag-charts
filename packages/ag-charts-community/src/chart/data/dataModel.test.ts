@@ -1089,7 +1089,7 @@ describe('DataModel', () => {
 `);
         });
 
-        describe.skip('property tests', () => {
+        describe('property tests', () => {
             const validated = { validation: (v: unknown) => typeof v === 'number' };
             const dataModel = new DataModel<any, any, true>({
                 props: [
@@ -1131,14 +1131,14 @@ describe('DataModel', () => {
             it('should handle scope validations distinctly for values', () => {
                 const result = dataModel.processData(data)!;
 
-                // @ts-ignore
-                expect(result.data).toHaveLength(3);
-                // @ts-ignore
-                expect(result.data[0].values).toEqual([[1, undefined, 2]]);
-                // @ts-ignore
-                expect(result.data[1].values).toEqual([[6, 9, 'illegal value']]);
-                // @ts-ignore
-                expect(result.data[2].values).toEqual([[6, 9, 4]]);
+                expect(result.groups).toHaveLength(3);
+                expect(result.groups[0].datumIndices.map((d) => result.columns.map((c) => c[d]))).toEqual([
+                    [1, undefined, 2],
+                ]);
+                expect(result.groups[1].datumIndices.map((d) => result.columns.map((c) => c[d]))).toEqual([
+                    [6, 9, 'illegal value'],
+                ]);
+                expect(result.groups[2].datumIndices.map((d) => result.columns.map((c) => c[d]))).toEqual([[6, 9, 4]]);
                 expectWarningsCalls().toMatchInlineSnapshot(`
 [
   [

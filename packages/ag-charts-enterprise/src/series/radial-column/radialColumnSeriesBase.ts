@@ -240,6 +240,7 @@ export abstract class RadialColumnSeriesBase<
             return;
         }
 
+        const angleValues = dataModel.resolveKeysById(this, `angleValue`, processedData);
         const radiusStartValues = dataModel.resolveColumnById(this, `radiusValue-start`, processedData);
         const radiusEndValues = dataModel.resolveColumnById(this, `radiusValue-end`, processedData);
         const radiusRawValues = dataModel.resolveColumnById(this, `radiusValue-raw`, processedData);
@@ -292,19 +293,19 @@ export abstract class RadialColumnSeriesBase<
         const context = { itemId: radiusKey, nodeData, labelData: nodeData };
         if (!this.visible) return context;
 
-        const { keys, rawData, aggregation } = processedData;
-        processedData.rawData.forEach((datum, datumIndex) => {
-            const datumAggregation = aggregation![datumIndex];
-            const angleDatum = keys![datumIndex][0];
+        const { rawData, aggregation } = processedData;
+        rawData.forEach((datum, datumIndex) => {
+            const angleDatum = angleValues[datumIndex];
+            if (angleDatum == null) return;
+
             const radiusDatum = radiusRawValues[datumIndex];
             const isPositive = radiusDatum >= 0 && !Object.is(radiusDatum, -0);
             const innerRadiusDatum = radiusStartValues[datumIndex];
             const outerRadiusDatum = radiusEndValues[datumIndex];
+            const datumAggregation = aggregation![datumIndex];
             const radiusRange = datumAggregation[radiusRangeIndex][isPositive ? 1 : 0] ?? 0;
             const negative = isPositive === radiusAxisReversed;
-            if (innerRadiusDatum === undefined || outerRadiusDatum === undefined) {
-                return;
-            }
+            if (innerRadiusDatum === undefined || outerRadiusDatum === undefined) return;
 
             let startAngle: number;
             let endAngle: number;
