@@ -6,7 +6,8 @@ import { DestroyFns } from '../../util/destroy';
 import { formatPercent } from '../../util/format.util';
 import { initToolbarKeyNav } from '../../util/keynavUtil';
 import { clamp } from '../../util/number';
-import type { NativeWidget } from '../../widget/nativeWidget';
+import type { SliderWidget } from '../../widget/sliderWidget';
+import type { ToolbarWidget } from '../../widget/toolbarWidget';
 
 export type NavigatorButtonType = 'min' | 'max' | 'pan';
 
@@ -23,12 +24,8 @@ export class NavigatorDOMProxy {
 
     private dragStartX = 0;
 
-    private readonly toolbar: NativeWidget<HTMLDivElement>;
-    private readonly sliders: [
-        NativeWidget<HTMLInputElement>,
-        NativeWidget<HTMLInputElement>,
-        NativeWidget<HTMLInputElement>,
-    ];
+    private readonly toolbar: ToolbarWidget;
+    private readonly sliders: [SliderWidget, SliderWidget, SliderWidget];
 
     private readonly destroyFns = new DestroyFns();
 

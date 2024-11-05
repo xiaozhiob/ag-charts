@@ -9,8 +9,7 @@ interface IWidget<TElement extends HTMLElement> {
 
 export abstract class Widget<
     TElement extends HTMLElement = HTMLElement,
-    TChildElement extends HTMLElement = HTMLElement,
-    TChildWidget extends IWidget<TChildElement> = IWidget<TChildElement>,
+    TChildWidget extends IWidget<HTMLElement> = IWidget<HTMLElement>,
 > implements IWidget<TElement>
 {
     private readonly children: TChildWidget[] = [];

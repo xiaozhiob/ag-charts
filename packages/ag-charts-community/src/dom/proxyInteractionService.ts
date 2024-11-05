@@ -4,6 +4,8 @@ import type { LocaleManager } from '../locale/localeManager';
 import { type BaseStyleTypeMap, setAttribute, setElementStyle } from '../util/attributeUtil';
 import { createElement, getWindow } from '../util/dom';
 import { NativeWidget } from '../widget/nativeWidget';
+import { SliderWidget } from '../widget/sliderWidget';
+import { ToolbarWidget } from '../widget/toolbarWidget';
 import type { Widget } from '../widget/widget';
 import { BoundedText } from './boundedText';
 import type { DOMManager } from './domManager';
@@ -50,7 +52,7 @@ type ProxyMeta = {
     };
     slider: {
         params: InteractParams<'slider'> & { readonly ariaLabel: TranslationKey; readonly ariaOrientation: Direction };
-        result: NativeWidget<HTMLInputElement>;
+        result: SliderWidget;
     };
     text: {
         params: ElemParams<'text'>;
@@ -72,7 +74,7 @@ type ProxyMeta = {
     // Containers
     toolbar: {
         params: ContainerParams<'toolbar'>;
-        result: NativeWidget<HTMLDivElement>;
+        result: ToolbarWidget;
     };
     group: {
         params: ContainerParams<'group'>;
@@ -105,8 +107,10 @@ function allocateResult<T extends keyof ProxyMeta>(type: T): ProxyMeta[T]['resul
     if ('button' === type) {
         return NativeWidget.createElement('button');
     } else if ('slider' === type) {
-        return NativeWidget.createElement('input');
-    } else if (['toolbar', 'group', 'list', 'region'].includes(type)) {
+        return new SliderWidget();
+    } else if ('toolbar' === type) {
+        return new ToolbarWidget();
+    } else if (['group', 'list', 'region'].includes(type)) {
         return NativeWidget.createElement('div');
     } else if ('text' === type) {
         const value = new BoundedText();
