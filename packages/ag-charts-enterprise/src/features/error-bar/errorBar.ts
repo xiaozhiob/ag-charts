@@ -1,4 +1,4 @@
-import type { AgErrorBarThemeableOptions, _Scale } from 'ag-charts-community';
+import type { AgErrorBarThemeableOptions } from 'ag-charts-community';
 import { AgErrorBarSupportedSeriesTypes, _ModuleSupport, _Scene } from 'ag-charts-community';
 
 import type { ErrorBarNodeDatum, ErrorBarStylingOptions } from './errorBarNode';
@@ -35,7 +35,7 @@ function toErrorBoundCartesianSeries(ctx: _ModuleSupport.SeriesContext): ErrorBo
 
 type AnyDataModel = _ModuleSupport.DataModel<any, any, any>;
 type AnyProcessedData = _ModuleSupport.ProcessedData<any>;
-type AnyScale = _Scale.Scale<any, any, any>;
+type AnyScale = _ModuleSupport.Scale<any, any, any>;
 type HighlightNodeDatum = NonNullable<_ModuleSupport.HighlightChangeEvent['currentHighlight']>;
 type PickNodeDatumResult = _ModuleSupport.PickNodeDatumResult;
 type Point = _Scene.Point;
@@ -122,7 +122,12 @@ export class ErrorBars extends _ModuleSupport.BaseModuleInstance implements _Mod
             separateNegative: true,
             ...(cartesianSeries.visible ? {} : { forceValue: 0 }),
         };
-        const makeErrorProperty = (key: string, id: string, type: 'lower' | 'upper', scaleType?: _Scale.ScaleType) => {
+        const makeErrorProperty = (
+            key: string,
+            id: string,
+            type: 'lower' | 'upper',
+            scaleType?: _ModuleSupport.ScaleType
+        ) => {
             return groupAccumulativeValueProperty(
                 key,
                 'normal',
@@ -135,7 +140,12 @@ export class ErrorBars extends _ModuleSupport.BaseModuleInstance implements _Mod
                 scaleType
             );
         };
-        const pushErrorProperties = (lowerKey: string, upperKey: string, id: string, scaleType?: _Scale.ScaleType) => {
+        const pushErrorProperties = (
+            lowerKey: string,
+            upperKey: string,
+            id: string,
+            scaleType?: _ModuleSupport.ScaleType
+        ) => {
             props.push(
                 ...makeErrorProperty(lowerKey, id, 'lower', scaleType),
                 ...makeErrorProperty(upperKey, id, 'upper', scaleType)

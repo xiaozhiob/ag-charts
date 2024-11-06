@@ -1,9 +1,9 @@
-import { _ModuleSupport, _Scale } from 'ag-charts-community';
+import { _ModuleSupport } from 'ag-charts-community';
 
 import { RadiusAxis } from '../radius/radiusAxis';
 
-const { AND, Default, GREATER_THAN, LESS_THAN, NUMBER_OR_NAN, Validate, normalisedExtentWithMetadata } = _ModuleSupport;
-const { LinearScale } = _Scale;
+const { AND, Default, GREATER_THAN, LESS_THAN, NUMBER_OR_NAN, Validate, normalisedExtentWithMetadata, LinearScale } =
+    _ModuleSupport;
 
 type TickDatum = {
     tickLabel: string;

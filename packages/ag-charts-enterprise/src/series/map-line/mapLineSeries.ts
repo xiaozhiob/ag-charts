@@ -1,4 +1,4 @@
-import { type AgMapLineSeriesStyle, _ModuleSupport, _Scale, _Scene } from 'ag-charts-community';
+import { type AgMapLineSeriesStyle, _ModuleSupport, _Scene } from 'ag-charts-community';
 
 import { GeoGeometry, GeoGeometryRenderMode } from '../map-util/geoGeometry';
 import { GeometryType, containsType, geometryBbox, largestLineString, projectGeometry } from '../map-util/geometryUtil';
@@ -18,8 +18,9 @@ const {
     Validate,
     sanitizeHtml,
     Logger,
+    ColorScale,
+    LinearScale,
 } = _ModuleSupport;
-const { ColorScale, LinearScale } = _Scale;
 const { Selection, Text } = _Scene;
 
 export interface MapLineNodeDataContext

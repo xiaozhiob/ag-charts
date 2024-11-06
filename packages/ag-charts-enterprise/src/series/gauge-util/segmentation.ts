@@ -1,4 +1,4 @@
-import { _ModuleSupport, type _Scale } from 'ag-charts-community';
+import { _ModuleSupport } from 'ag-charts-community';
 
 const { BaseProperties, Validate, OBJECT, BOOLEAN, NUMBER, NUMBER_ARRAY, Logger } = _ModuleSupport;
 
@@ -12,7 +12,7 @@ class GaugeSegmentationIntervalProperties extends BaseProperties {
     @Validate(NUMBER, { optional: true })
     count?: number;
 
-    getSegments(scale: _Scale.Scale<number, number>, maxTicks: number) {
+    getSegments(scale: _ModuleSupport.Scale<number, number>, maxTicks: number) {
         const { values, step, count } = this;
         const d0 = Math.min(...scale.domain);
         const d1 = Math.max(...scale.domain);

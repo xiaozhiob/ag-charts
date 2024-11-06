@@ -1,4 +1,4 @@
-import { _ModuleSupport, _Scale, _Scene } from 'ag-charts-community';
+import { _ModuleSupport, _Scene } from 'ag-charts-community';
 import type { AgMapShapeSeriesStyle } from 'ag-charts-types';
 
 import { GeoGeometry, GeoGeometryRenderMode } from '../map-util/geoGeometry';
@@ -26,8 +26,8 @@ const {
     TextUtils,
     sanitizeHtml,
     Logger,
+    ColorScale,
 } = _ModuleSupport;
-const { ColorScale } = _Scale;
 const { Group, Selection, Text, PointerEvents } = _Scene;
 
 export interface MapShapeNodeDataContext

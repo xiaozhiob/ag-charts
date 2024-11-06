@@ -1,4 +1,4 @@
-import type { AgAngleAxisLabelOrientation, _Scale } from 'ag-charts-community';
+import type { AgAngleAxisLabelOrientation } from 'ag-charts-community';
 import { _ModuleSupport, _Scene } from 'ag-charts-community';
 
 import { AngleCrossLine } from '../polar-crosslines/angleCrossLine';
@@ -43,7 +43,7 @@ class AngleAxisLabel extends _ModuleSupport.AxisLabel {
 
 export abstract class AngleAxis<
     TDomain,
-    TScale extends _Scale.Scale<TDomain, any>,
+    TScale extends _ModuleSupport.Scale<TDomain, any>,
 > extends _ModuleSupport.PolarAxis<TScale> {
     protected static override CrossLineConstructor: new () => _ModuleSupport.CrossLine<any> = AngleCrossLine;
 

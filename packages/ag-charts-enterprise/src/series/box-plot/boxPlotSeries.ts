@@ -1,4 +1,4 @@
-import { type AgBoxPlotSeriesStyle, _ModuleSupport, _Scale, _Scene } from 'ag-charts-community';
+import { type AgBoxPlotSeriesStyle, _ModuleSupport, _Scene } from 'ag-charts-community';
 
 import { prepareBoxPlotFromTo, resetBoxPlotSelectionsScalingCenterFn } from './blotPlotUtil';
 import { BoxPlotGroup } from './boxPlotGroup';
@@ -18,9 +18,9 @@ const {
     computeBarFocusBounds,
     sanitizeHtml,
     Color,
+    ContinuousScale,
 } = _ModuleSupport;
 const { motion } = _Scene;
-const { ContinuousScale } = _Scale;
 
 class BoxPlotSeriesNodeEvent<
     TEvent extends string = _ModuleSupport.SeriesNodeEventTypes,

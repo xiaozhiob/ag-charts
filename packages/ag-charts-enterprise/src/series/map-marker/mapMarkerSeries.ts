@@ -1,4 +1,4 @@
-import { type AgMapShapeSeriesStyle, _ModuleSupport, _Scale, _Scene } from 'ag-charts-community';
+import { type AgMapShapeSeriesStyle, _ModuleSupport, _Scene } from 'ag-charts-community';
 
 import { extendBbox } from '../map-util/bboxUtil';
 import { geometryBbox, projectGeometry } from '../map-util/geometryUtil';
@@ -25,8 +25,9 @@ const {
     computeMarkerFocusBounds,
     sanitizeHtml,
     Logger,
+    ColorScale,
+    LinearScale,
 } = _ModuleSupport;
-const { ColorScale, LinearScale } = _Scale;
 const { Group, Selection, Text, getMarker } = _Scene;
 
 export interface MapMarkerNodeDataContext

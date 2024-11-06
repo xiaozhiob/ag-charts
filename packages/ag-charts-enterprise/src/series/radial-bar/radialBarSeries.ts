@@ -1,4 +1,4 @@
-import { _ModuleSupport, _Scale, _Scene } from 'ag-charts-community';
+import { _ModuleSupport, _Scene } from 'ag-charts-community';
 
 import { RadiusCategoryAxis } from '../../axes/radius-category/radiusCategoryAxis';
 import type { RadialColumnNodeDatum } from '../radial-column/radialColumnSeriesBase';
@@ -23,9 +23,9 @@ const {
     isFiniteNumber,
     angleBetween,
     sanitizeHtml,
+    BandScale,
 } = _ModuleSupport;
 
-const { BandScale } = _Scale;
 const { Sector, SectorBox, motion } = _Scene;
 
 class RadialBarSeriesNodeEvent<

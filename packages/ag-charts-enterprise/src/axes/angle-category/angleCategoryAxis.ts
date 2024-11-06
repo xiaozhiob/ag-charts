@@ -1,14 +1,13 @@
-import { _ModuleSupport, _Scale } from 'ag-charts-community';
+import { _ModuleSupport } from 'ag-charts-community';
 
 import { loopSymmetrically } from '../../utils/polar';
 import { AngleAxisInterval } from '../angle-number/angleAxisInterval';
 import type { AngleAxisLabelDatum } from '../angle/angleAxis';
 import { AngleAxis } from '../angle/angleAxis';
 
-const { RATIO, OBJECT, Validate, isNumberEqual } = _ModuleSupport;
-const { BandScale } = _Scale;
+const { RATIO, OBJECT, Validate, isNumberEqual, BandScale } = _ModuleSupport;
 
-export class AngleCategoryAxis extends AngleAxis<string, _Scale.BandScale<string>> {
+export class AngleCategoryAxis extends AngleAxis<string, _ModuleSupport.BandScale<string>> {
     static readonly className = 'AngleCategoryAxis';
     static readonly type = 'angle-category' as const;
 

@@ -1,4 +1,4 @@
-import { _ModuleSupport, _Scale, _Scene } from 'ag-charts-community';
+import { _ModuleSupport, _Scene } from 'ag-charts-community';
 
 import { PolarCrossLine, PolarCrossLineLabel } from './polarCrossLine';
 
@@ -52,7 +52,7 @@ export class RadiusCrossLine extends PolarCrossLine {
             return;
         }
 
-        if (type === 'line' && scale instanceof _Scale.BandScale) {
+        if (type === 'line' && scale instanceof _ModuleSupport.BandScale) {
             this.type = 'range';
             this.range = [value, value];
         }
@@ -193,6 +193,6 @@ export class RadiusCrossLine extends PolarCrossLine {
 
         const bandwidth = Math.abs(scale.bandwidth ?? 0);
         const step = Math.abs(scale.step ?? 0);
-        return scale instanceof _Scale.BandScale ? (step - bandwidth) / 2 : 0;
+        return scale instanceof _ModuleSupport.BandScale ? (step - bandwidth) / 2 : 0;
     }
 }

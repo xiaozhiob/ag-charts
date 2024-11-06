@@ -2,7 +2,6 @@ import {
     type AgCandlestickSeriesItemOptions,
     type AgOhlcSeriesItemType,
     _ModuleSupport,
-    _Scale,
     _Scene,
 } from 'ag-charts-community';
 
@@ -23,9 +22,8 @@ const {
     animationValidation,
     sanitizeHtml,
     Logger,
+    ContinuousScale,
 } = _ModuleSupport;
-
-const { ContinuousScale } = _Scale;
 
 class CandlestickSeriesNodeEvent<
     TEvent extends string = _ModuleSupport.SeriesNodeEventTypes,

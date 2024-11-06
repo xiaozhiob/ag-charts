@@ -1,5 +1,5 @@
 import type { AgTooltipRendererResult } from 'ag-charts-community';
-import { _ModuleSupport, _Scale, _Scene } from 'ag-charts-community';
+import { _ModuleSupport, _Scene } from 'ag-charts-community';
 
 import type { BaseFunnelProperties } from './baseFunnelSeriesProperties';
 import { FunnelConnector } from './funnelConnector';
@@ -22,9 +22,9 @@ const {
     animationValidation,
     computeBarFocusBounds,
     sanitizeHtml,
+    ContinuousScale,
 } = _ModuleSupport;
 const { Group, Selection, PointerEvents, motion } = _Scene;
-const { ContinuousScale } = _Scale;
 
 export type Bounds = {
     x: number;
@@ -494,7 +494,7 @@ export abstract class BaseFunnelSeries<
         });
     }
 
-    protected async updateLabelNodes(opts: { labelSelection: _Scene.Selection<_Scene.Text, any> }) {
+    protected async updateLabelNodes(opts: { labelSelection: _Scene.Selection<_Scene.Text> }) {
         opts.labelSelection.each((textNode, datum) => {
             updateLabelNode(textNode, this.properties.label, datum);
         });
@@ -560,17 +560,12 @@ export abstract class BaseFunnelSeries<
         });
     }
 
-    private resetConnectorAnimation(_data: FunnelAnimationData<TNode>) {
-        const { connectorSelection } = this;
-        resetMotion([connectorSelection], resetConnectorSelectionsFn);
-    }
-
     protected override resetAllAnimation(
         data: _ModuleSupport.CartesianAnimationData<TNode, FunnelNodeDatum, FunnelNodeLabelDatum, FunnelContext>
     ): void {
         super.resetAllAnimation(data);
 
-        this.resetConnectorAnimation(data);
+        resetMotion([this.connectorSelection], resetConnectorSelectionsFn);
     }
 
     override animateEmptyUpdateReady({ labelSelection }: FunnelAnimationData<TNode>) {

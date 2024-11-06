@@ -137,3 +137,11 @@ export type { PlacedLabel, PointLabelDatum, LabelPlacement } from './scene/util/
 export { BBoxValues } from './util/bboxinterface';
 export { Padding } from './util/padding';
 export { lineDistanceSquared } from './util/distance';
+export * from './scale/timeScale';
+export * from './scale/bandScale';
+export * from './scale/continuousScale';
+export * from './scale/ordinalTimeScale';
+export * from './scale/colorScale';
+export * from './scale/linearScale';
+export * from './scale/scale';
+export * from './scale/invalidating';
