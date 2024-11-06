@@ -396,12 +396,7 @@ export class AreaSeries extends CartesianSeries<
             });
         };
 
-        const dataIndices = processedData.groups.flatMap(({ datumIndices }) => {
-            return datumIndices.filter((datumIndex) => {
-                const xDatum = xValues[datumIndex];
-                return xDatum != null;
-            });
-        });
+        const dataIndices = processedData.groups.flatMap((group) => group.datumIndices);
 
         const createPoint = (xDatum: any, yDatum: any): LineSpanPointDatum => ({
             point: {
@@ -415,7 +410,8 @@ export class AreaSeries extends CartesianSeries<
         const getSeriesSpans = (index: number) => {
             const points: Array<LineSpanPointDatum[] | { skip: number }> = [];
 
-            for (const datumIndex of dataIndices) {
+            for (let dataIndicesIndex = 0; dataIndicesIndex < dataIndices.length; dataIndicesIndex += 1) {
+                const datumIndex = dataIndices[dataIndicesIndex];
                 const xDatum = xValues[datumIndex];
                 const yValueStack = yStackValues[datumIndex];
                 const yDatum = yValueStack[index];
@@ -424,9 +420,12 @@ export class AreaSeries extends CartesianSeries<
 
                 if (connectMissingData && !yDatumIsFinite) continue;
 
-                const lastYValueStack = datumIndex > 0 ? yStackValues[dataIndices[datumIndex - 1]] : undefined;
+                const lastYValueStack =
+                    dataIndicesIndex > 0 ? yStackValues[dataIndices[dataIndicesIndex - 1]] : undefined;
                 const nextYValueStack =
-                    datumIndex < dataIndices.length - 1 ? yStackValues[dataIndices[datumIndex + 1]] : undefined;
+                    dataIndicesIndex < dataIndices.length - 1
+                        ? yStackValues[dataIndices[dataIndicesIndex + 1]]
+                        : undefined;
 
                 let yValueEndBackwards = 0;
                 let yValueEndForwards = 0;
