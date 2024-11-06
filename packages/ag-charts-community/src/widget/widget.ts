@@ -31,6 +31,7 @@ export abstract class Widget<
         this.children.forEach((child) => child.destroy());
         this.destructor();
         this.elem.remove();
+        this.map?.destroy(this);
     }
 
     setHidden(hidden: boolean): void {

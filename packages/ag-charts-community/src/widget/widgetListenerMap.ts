@@ -23,7 +23,7 @@ export class WidgetListenerMap<TWidget extends TargetableWidget> {
         type: K,
         target: TWidget,
         widgetHandler: (target: TWidget, widgetEvent: WidgetEventMap[K]) => unknown
-    ) {
+    ): void {
         const map = this.lazyGetMap(type);
         if (map.has(widgetHandler)) throw new Error('AG Charts - duplicate add(handler)');
 
@@ -39,12 +39,26 @@ export class WidgetListenerMap<TWidget extends TargetableWidget> {
         type: K,
         target: TWidget,
         widgetHandler: (target: TWidget, widgetEvent: WidgetEventMap[K]) => unknown
-    ) {
+    ): void {
         const map = this.lazyGetMap(type);
         const sourceHandler = map.get(widgetHandler);
         if (sourceHandler) {
             target.getElement().removeEventListener(type, sourceHandler);
         }
         map.delete(widgetHandler);
+    }
+
+    destroy(target: TWidget): void {
+        for (const type of Object.keys(this.maps) as (keyof WidgetEventMap)[]) {
+            this.typedDestroy(type, target);
+        }
+    }
+
+    private typedDestroy<K extends keyof WidgetEventMap>(type: K, target: TWidget): void {
+        const map = this.maps[type];
+        if (map == null) return;
+        for (const [_widgetHandler, sourceHandler] of map.entries()) {
+            target.getElement().removeEventListener(type, sourceHandler);
+        }
     }
 }
