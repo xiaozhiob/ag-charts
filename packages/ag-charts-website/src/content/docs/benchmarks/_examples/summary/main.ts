@@ -139,9 +139,7 @@ function generatePerformanceChart(keyX: number, keyY: number) {
     const options: AgCartesianChartOptions = {
         data: getData(),
         title: {
-            fontSize: 12,
             text: yName(testName),
-            spacing: 2,
         },
         sync: {
             groupId: `${keyY}-group`,
@@ -149,7 +147,6 @@ function generatePerformanceChart(keyX: number, keyY: number) {
             nodeInteraction: true,
         },
         legend: { enabled: false },
-        padding: { bottom: 10, left: 0, right: 5, top: 0 },
         axes: [
             {
                 type: 'category',
