@@ -243,6 +243,7 @@ export abstract class BaseFunnelSeries<
         if (direction === this.getCategoryDirection()) {
             const keyDef = dataModel.resolveProcessedDataDefById(this, `xValue`);
             if (keyDef?.def.type === 'key' && keyDef?.def.valueType === 'category') {
+                if (!this.hasData) return [];
                 return keys.filter((_key, index) => seriesItemEnabled[index]);
             }
             return this.padBandExtent(keys);
@@ -255,12 +256,13 @@ export abstract class BaseFunnelSeries<
     }
 
     async createNodeData() {
-        const { data, dataModel, groupScale, processedData, seriesItemEnabled } = this;
+        const { hasData, data, dataModel, groupScale, processedData, seriesItemEnabled } = this;
         const xAxis = this.getCategoryAxis();
         const yAxis = this.getValueAxis();
 
         if (
             !(
+                hasData &&
                 data &&
                 xAxis &&
                 yAxis &&

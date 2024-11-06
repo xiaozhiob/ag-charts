@@ -28,6 +28,10 @@ export class ConeFunnelSeries extends BaseFunnelSeries<_Scene.Line> {
         });
     }
 
+    override get hasData() {
+        return this.data != null && this.data.length > 1;
+    }
+
     override getBandScalePadding() {
         return { inner: 1, outer: 0 };
     }
