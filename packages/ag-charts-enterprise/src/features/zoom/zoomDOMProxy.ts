@@ -1,4 +1,6 @@
-import { _ModuleSupport, _Scene, _Util, _Widget } from 'ag-charts-community';
+import { _ModuleSupport, type _Widget } from 'ag-charts-community';
+
+const { BBoxValues } = _ModuleSupport;
 
 type AxesHandlers = {
     onDragStart: (id: string, direction: _ModuleSupport.ChartAxisDirection) => void;
@@ -69,7 +71,7 @@ export class ZoomDOMProxy {
         for (const axis of this.axes) {
             const axisCtx = axesCtx.filter((ac) => ac.axisId === axis.axisId)[0];
             const bbox = axisCtx.getCanvasBounds();
-            axis.div.setHidden(_Util.BBoxValues.isEmpty(bbox));
+            axis.div.setHidden(BBoxValues.isEmpty(bbox));
             if (bbox !== undefined) {
                 axis.div.setBounds(bbox);
             }
@@ -79,7 +81,7 @@ export class ZoomDOMProxy {
     testFindTarget(canvasX: number, canvasY: number): { target: HTMLElement; x: number; y: number } | undefined {
         for (const axis of this.axes) {
             const bbox = axis.div.getBounds();
-            if (!axis.div.isHidden() && _Util.BBoxValues.containsPoint(bbox, canvasX, canvasY)) {
+            if (!axis.div.isHidden() && BBoxValues.containsPoint(bbox, canvasX, canvasY)) {
                 const x = canvasX - bbox.x;
                 const y = canvasY - bbox.y;
                 return { target: axis.div.getElement(), x, y };
