@@ -1,6 +1,8 @@
 import { type BaseAttributeTypeMap, type BaseStyleTypeMap, setAttribute, setElementStyle } from '../util/attributeUtil';
 import type { BBoxValues } from '../util/bboxinterface';
 import { getElementBBox, getWindow, setElementBBox } from '../util/dom';
+import type { WidgetEventMap } from './widgetEvents';
+import { WidgetListenerMap } from './widgetListenerMap';
 
 interface IWidget<TElement extends HTMLElement> {
     index: number;
@@ -78,4 +80,21 @@ export abstract class Widget<
     }
     protected onChildAdded(_child: TChildWidget): void {}
     protected onChildRemoved(_child: TChildWidget): void {}
+
+    protected map?: WidgetListenerMap<typeof this>;
+
+    addListener<K extends keyof WidgetEventMap>(
+        type: K,
+        listener: (target: typeof this, ev: WidgetEventMap[K]) => unknown
+    ) {
+        this.map ??= new WidgetListenerMap();
+        this.map.add(type, this, listener);
+    }
+
+    removeListener<K extends keyof WidgetEventMap>(
+        type: K,
+        listener: (target: typeof this, ev: WidgetEventMap[K]) => unknown
+    ) {
+        this.map?.remove(type, this, listener);
+    }
 }
