@@ -1,4 +1,4 @@
-import { _ModuleSupport, _Scene, _Util } from 'ag-charts-community';
+import { _ModuleSupport, _Scene, _Util, _Widget } from 'ag-charts-community';
 
 type AxesHandlers = {
     onDragStart: (id: string, direction: _ModuleSupport.ChartAxisDirection) => void;
@@ -8,7 +8,7 @@ type AxesHandlers = {
 
 type ProxyAxis = {
     axisId: string;
-    div: HTMLDivElement;
+    div: _Widget.NativeWidget<HTMLDivElement>;
     destroy(): void;
 };
 
@@ -25,16 +25,16 @@ export class ZoomDOMProxy {
         const cursor = ({ [X]: 'ew-resize', [Y]: 'ns-resize' } as const)[direction];
         const parent = 'afterend';
         const div = ctx.proxyInteractionService.createProxyElement({ type: 'region', domManagerId: axisId, parent });
-        _Util.setElementStyle(div, 'cursor', cursor);
+        div.setCursor(cursor);
 
         const removeListeners = ctx.proxyInteractionService.createDragListeners({
-            element: div,
+            element: div.getElement(),
             onDragStart: () => handlers.onDragStart(axisId, direction),
             onDrag: handlers.onDrag,
             onDragEnd: handlers.onDragEnd,
         });
         const destroy = () => {
-            div.remove();
+            div.destroy();
             removeListeners();
         };
         return { axisId, div, destroy };
@@ -48,8 +48,8 @@ export class ZoomDOMProxy {
 
     update(ctx: _ModuleSupport.ModuleContext) {
         const { X, Y } = _ModuleSupport.ChartAxisDirection;
-        const axisCtx = [...ctx.axisManager.getAxisContext(X), ...ctx.axisManager.getAxisContext(Y)];
-        const { removed, added } = this.diffAxisIds(axisCtx);
+        const axesCtx = [...ctx.axisManager.getAxisContext(X), ...ctx.axisManager.getAxisContext(Y)];
+        const { removed, added } = this.diffAxisIds(axesCtx);
 
         if (removed.length > 0) {
             this.axes = this.axes.filter((entry) => {
@@ -67,35 +67,33 @@ export class ZoomDOMProxy {
         }
 
         for (const axis of this.axes) {
-            const bbox = axisCtx.filter((ac) => ac.axisId === axis.axisId)[0].getCanvasBounds();
-            if (bbox === undefined) {
-                _Util.setElementStyle(axis.div, 'display', 'none');
-            } else {
-                _ModuleSupport.setElementBBox(axis.div, bbox);
-                _Util.setElementStyle(axis.div, 'display', undefined);
+            const axisCtx = axesCtx.filter((ac) => ac.axisId === axis.axisId)[0];
+            const bbox = axisCtx.getCanvasBounds();
+            axis.div.setHidden(_Util.BBoxValues.isEmpty(bbox));
+            if (bbox !== undefined) {
+                axis.div.setBounds(bbox);
             }
         }
     }
 
     testFindTarget(canvasX: number, canvasY: number): { target: HTMLElement; x: number; y: number } | undefined {
         for (const axis of this.axes) {
-            const bbox = _ModuleSupport.getElementBBox(axis.div);
-            const display = axis.div.style.display;
-            if (display !== 'none' && _Util.BBoxValues.containsPoint(bbox, canvasX, canvasY)) {
+            const bbox = axis.div.getBounds();
+            if (!axis.div.isHidden() && _Util.BBoxValues.containsPoint(bbox, canvasX, canvasY)) {
                 const x = canvasX - bbox.x;
                 const y = canvasY - bbox.y;
-                return { target: axis.div, x, y };
+                return { target: axis.div.getElement(), x, y };
             }
         }
         return undefined;
     }
 
-    private diffAxisIds(axisCtx: _ModuleSupport.AxisContext[]) {
+    private diffAxisIds(axesCtx: _ModuleSupport.AxisContext[]) {
         const myIds = this.axes.map((entry) => entry.axisId);
-        const ctxIds = axisCtx.map((ctx) => ctx.axisId);
+        const ctxIds = axesCtx.map((ctx) => ctx.axisId);
 
         const removed: string[] = myIds.filter((id) => !ctxIds.includes(id));
-        const added: _ModuleSupport.AxisContext[] = axisCtx.filter((ac) => !myIds.includes(ac.axisId));
+        const added: _ModuleSupport.AxisContext[] = axesCtx.filter((ac) => !myIds.includes(ac.axisId));
         return { removed, added };
     }
 }

@@ -23,6 +23,7 @@ import {
     TEXT_WRAP,
     Validate,
 } from '../util/validation';
+import type { NativeWidget } from '../widget/nativeWidget';
 import type { CaptionLike } from './captionLike';
 import type { PointerInteractionEvent } from './interaction/interactionManager';
 import { toTooltipHtml } from './tooltip/tooltip';
@@ -88,7 +89,7 @@ export class Caption extends BaseProperties implements CaptionLike {
     layoutStyle: 'block' | 'overlay' = 'block';
 
     private truncated = false;
-    private proxyText?: BoundedText;
+    private proxyText?: NativeWidget<HTMLElement, BoundedText>;
 
     registerInteraction(moduleCtx: ModuleContext, where: 'beforebegin' | 'afterend') {
         const { regionManager, proxyInteractionService, layoutManager } = moduleCtx;
@@ -121,11 +122,11 @@ export class Caption extends BaseProperties implements CaptionLike {
             if (bbox) {
                 const { id: domManagerId } = this;
                 this.proxyText ??= proxyService.createProxyElement({ type: 'text', domManagerId, parent: where });
-                this.proxyText.textContent = this.text;
-                this.proxyText.updateBounds(bbox);
+                this.proxyText.value.textContent = this.text;
+                this.proxyText.value.updateBounds(bbox);
             }
         } else {
-            this.proxyText?.remove();
+            this.proxyText?.value.remove();
             this.proxyText = undefined;
         }
     }
