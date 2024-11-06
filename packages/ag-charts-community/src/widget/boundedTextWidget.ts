@@ -1,10 +1,9 @@
-import type { BBoxValues } from '../util/bboxinterface';
-import { createElement, createElementNS, setElementBBox } from '../util/dom';
+import { createElementNS, getDocument } from '../util/dom';
+import { Widget } from '../widget/widget';
 
 // This class represents text that is sized by bounds rather than font size.
 // Its main purpose to tell screenreaders about the bounds & content of text scene nodes.
-export class BoundedText {
-    private readonly boundedContainer: HTMLDivElement;
+export class BoundedTextWidget extends Widget<HTMLDivElement> {
     private readonly svgElement: SVGElement;
     private readonly textElement: SVGTextElement;
 
@@ -25,6 +24,7 @@ export class BoundedText {
     }
 
     constructor() {
+        super(getDocument().createElement('div'));
         this.textElement = createElementNS('http://www.w3.org/2000/svg', 'text');
         this.textElement.role = 'presentation';
 
@@ -34,20 +34,9 @@ export class BoundedText {
         this.svgElement.style.opacity = '0';
         this.svgElement.role = 'presentation';
 
-        this.boundedContainer = createElement('div');
-        this.boundedContainer.appendChild(this.svgElement);
-        this.boundedContainer.role = 'presentation';
+        this.elem.appendChild(this.svgElement);
+        this.elem.role = 'presentation';
     }
 
-    remove() {
-        this.boundedContainer.remove();
-    }
-
-    getContainer(): HTMLDivElement {
-        return this.boundedContainer;
-    }
-
-    updateBounds(bounds: BBoxValues) {
-        setElementBBox(this.boundedContainer, bounds);
-    }
+    protected override destructor() {} // NOSONAR
 }

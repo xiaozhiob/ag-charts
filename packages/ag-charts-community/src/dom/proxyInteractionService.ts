@@ -3,12 +3,12 @@ import type { Direction } from 'ag-charts-types';
 import type { LocaleManager } from '../locale/localeManager';
 import { type BaseStyleTypeMap, setAttribute, setElementStyle } from '../util/attributeUtil';
 import { createElement, getWindow } from '../util/dom';
+import { BoundedTextWidget } from '../widget/boundedTextWidget';
 import { GroupWidget } from '../widget/groupWidget';
 import { NativeWidget } from '../widget/nativeWidget';
 import { SliderWidget } from '../widget/sliderWidget';
 import { ToolbarWidget } from '../widget/toolbarWidget';
 import type { Widget } from '../widget/widget';
-import { BoundedText } from './boundedText';
 import type { DOMManager } from './domManager';
 
 export type ListSwitch = { button: HTMLButtonElement; listitem: HTMLElement; remove(): void };
@@ -64,7 +64,7 @@ type ProxyMeta = {
     };
     text: {
         params: ParentProperties & ElemParams<'text'>;
-        result: NativeWidget<HTMLDivElement, BoundedText>;
+        result: BoundedTextWidget;
     };
     listswitch: {
         params: ParentProperties &
@@ -124,9 +124,7 @@ function allocateResult<T extends keyof ProxyMeta>(type: T): ProxyMeta[T]['resul
     } else if (['list', 'region'].includes(type)) {
         return NativeWidget.createElement('div');
     } else if ('text' === type) {
-        const value = new BoundedText();
-        const elem = value.getContainer();
-        return new NativeWidget(elem, value);
+        return new BoundedTextWidget();
     } else if ('listswitch' === type) {
         const value: ListSwitch = {
             button: createElement('button'),
@@ -238,7 +236,7 @@ export class ProxyInteractionService {
 
         if (checkType('text', meta)) {
             const { params, result } = meta;
-            this.initElement(params, result.value.getContainer());
+            this.initElement(params, result.getElement());
         }
 
         if (checkType('listswitch', meta)) {
