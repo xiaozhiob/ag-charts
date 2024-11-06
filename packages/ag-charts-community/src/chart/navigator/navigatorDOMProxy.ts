@@ -125,7 +125,8 @@ export class NavigatorDOMProxy {
         const { _min: min, _max: max } = this;
         const panAria = this.ctx.localeManager.t('ariaValuePanRange', { min, max });
         this.sliders[0].setValueRatio(min);
-        this.sliders[1].setValueRatio(min, { ariaValueText: panAria }), this.sliders[2].setValueRatio(max);
+        this.sliders[1].setValueRatio(min, { ariaValueText: panAria });
+        this.sliders[2].setValueRatio(max);
     }
 
     private toCanvasOffsets(event: ProxyDragHandlerEvent): { offsetX: number } {

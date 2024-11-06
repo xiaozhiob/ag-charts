@@ -29,7 +29,7 @@ export class ToolbarWidget extends Widget<HTMLDivElement, TChildWidget> {
         this.children[this.focusedChildIndex]?.focus();
     }
 
-    protected override destructor() {}
+    protected override destructor() {} // NOSONAR
 
     protected override onChildAdded(child: TChildWidget): void {
         child.addListener('focus', this.onChildFocus);

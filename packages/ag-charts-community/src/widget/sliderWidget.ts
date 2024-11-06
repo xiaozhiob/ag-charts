@@ -5,8 +5,8 @@ import { Widget } from './widget';
 
 type SliderStep = typeof SliderWidget.STEP_ONE | typeof SliderWidget.STEP_HUNDRETH;
 export class SliderWidget extends Widget<HTMLInputElement> {
-    public static STEP_ONE = { attributeValue: '1', divider: 1 } as const;
-    public static STEP_HUNDRETH = { attributeValue: '0.01', divider: 100 } as const;
+    public static readonly STEP_ONE = { attributeValue: '1', divider: 1 } as const;
+    public static readonly STEP_HUNDRETH = { attributeValue: '0.01', divider: 100 } as const;
     private _step: Readonly<SliderStep> = SliderWidget.STEP_ONE;
 
     public get step() {
@@ -21,7 +21,7 @@ export class SliderWidget extends Widget<HTMLInputElement> {
         super(getDocument().createElement('input'));
     }
 
-    protected override destructor() {}
+    protected override destructor() {} // NOSONAR
 
     clampValueRatio(clampMin: number, clampMax: number) {
         const ratio = this.getValueRatio();
