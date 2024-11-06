@@ -89,7 +89,7 @@ export class Caption extends BaseProperties implements CaptionLike {
     layoutStyle: 'block' | 'overlay' = 'block';
 
     private truncated = false;
-    private proxyText?: NativeWidget<HTMLElement, BoundedText>;
+    private proxyText?: NativeWidget<HTMLDivElement, BoundedText>;
 
     registerInteraction(moduleCtx: ModuleContext, where: 'beforebegin' | 'afterend') {
         const { regionManager, proxyInteractionService, layoutManager } = moduleCtx;

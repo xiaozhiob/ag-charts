@@ -12,7 +12,7 @@ import type { DOMManager } from './domManager';
 
 export type ListSwitch = { button: HTMLButtonElement; listitem: HTMLElement; remove(): void };
 
-type ElemParams<T extends ProxyElementType, TParentWidget extends Widget = NativeWidget<HTMLDivElement>> = {
+type ElemParams<T extends ProxyElementType, TParentWidget = NativeWidget<HTMLDivElement>> = {
     readonly type: T;
     readonly id?: string;
     readonly cursor?: BaseStyleTypeMap['cursor'];
@@ -21,10 +21,10 @@ type ElemParams<T extends ProxyElementType, TParentWidget extends Widget = Nativ
     | { readonly domManagerId: string; readonly where: 'beforebegin' | 'afterend' }
 );
 
-type InteractParams<
-    T extends ProxyElementType,
-    TParentWidget extends Widget = NativeWidget<HTMLDivElement>,
-> = ElemParams<T, TParentWidget> & {
+type InteractParams<T extends ProxyElementType, TParentWidget = NativeWidget<HTMLDivElement>> = ElemParams<
+    T,
+    TParentWidget
+> & {
     readonly tabIndex?: number;
     readonly onclick?: (ev: MouseEvent) => void;
     readonly ondblclick?: (ev: MouseEvent) => void;
@@ -62,7 +62,7 @@ type ProxyMeta = {
     };
     text: {
         params: ElemParams<'text'>;
-        result: NativeWidget<HTMLElement, BoundedText>;
+        result: NativeWidget<HTMLDivElement, BoundedText>;
     };
     listswitch: {
         params: InteractParams<'listswitch'> & {
