@@ -340,8 +340,6 @@ export function sparkline(opts: AgSparklineOptions): AgCartesianChartOptions {
         })
     );
 
-    console.log(axis, xAxis, yAxis);
-
     chartOpts.axes = swapAxes ? [yAxis, xAxis] : [xAxis, yAxis];
 
     return chartOpts;
