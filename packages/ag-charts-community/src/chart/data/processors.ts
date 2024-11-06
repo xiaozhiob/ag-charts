@@ -184,8 +184,9 @@ export const SORT_DOMAIN_GROUPS: ProcessorOutputPropertyDefinition<'sortedGroupD
 };
 
 function normaliseFnBuilder({ normaliseTo, mode }: { normaliseTo: number; mode: 'sum' | 'range' }) {
-    const normalise = (val: number, extent: number) => {
-        const result = (val * normaliseTo) / extent;
+    const normalise = (val: null | number, extent: number) => {
+        if (extent === 0) return null;
+        const result = ((val ?? 0) * normaliseTo) / extent;
         if (result >= 0) {
             return Math.min(normaliseTo, result);
         }
@@ -193,30 +194,39 @@ function normaliseFnBuilder({ normaliseTo, mode }: { normaliseTo: number; mode: 
     };
 
     return () => () => (columns: any[][], valueIndexes: number[], datumIndex: number) => {
-        const valuesExtent = [0, 0];
+        const extent = normaliseFindExtent(mode, columns, valueIndexes, datumIndex);
         for (const valueIdx of valueIndexes) {
             const column = columns[valueIdx];
-            const value: number | number[] = column[datumIndex];
-            // Note - Array.isArray(new Float64Array) is false, and this type is used for stack accumulators
-            const valueExtent = typeof value === 'number' ? value : Math.max(...value);
-            const valIdx = valueExtent < 0 ? 0 : 1;
-            if (mode === 'sum') {
-                valuesExtent[valIdx] += valueExtent;
-            } else if (valIdx === 0) {
-                valuesExtent[valIdx] = Math.min(valuesExtent[valIdx], valueExtent);
-            } else {
-                valuesExtent[valIdx] = Math.max(valuesExtent[valIdx], valueExtent);
+            const value: null | number | number[] | (null | number)[] = column[datumIndex];
+            if (value == null) {
+                column[datumIndex] = undefined;
+                continue;
             }
-        }
-
-        const extent = Math.max(Math.abs(valuesExtent[0]), valuesExtent[1]);
-        for (const valueIdx of valueIndexes) {
-            const column = columns[valueIdx];
-            const value: number | number[] = column[datumIndex];
             column[datumIndex] =
                 typeof value === 'number' ? normalise(value, extent) : value.map((v) => normalise(v, extent));
         }
     };
+}
+
+function normaliseFindExtent(mode: 'sum' | 'range', columns: any[][], valueIndexes: number[], datumIndex: number) {
+    const valuesExtent = [0, 0];
+    for (const valueIdx of valueIndexes) {
+        const column = columns[valueIdx];
+        const value: null | number | (null | number)[] = column[datumIndex];
+        if (value == null) continue;
+        // Note - Array.isArray(new Float64Array) is false, and this type is used for stack accumulators
+        const valueExtent = typeof value === 'number' ? value : Math.max(...value.map((v) => v ?? 0));
+        const valIdx = valueExtent < 0 ? 0 : 1;
+        if (mode === 'sum') {
+            valuesExtent[valIdx] += valueExtent;
+        } else if (valIdx === 0) {
+            valuesExtent[valIdx] = Math.min(valuesExtent[valIdx], valueExtent);
+        } else {
+            valuesExtent[valIdx] = Math.max(valuesExtent[valIdx], valueExtent);
+        }
+    }
+
+    return Math.max(Math.abs(valuesExtent[0]), valuesExtent[1]);
 }
 
 export function normaliseGroupTo(
