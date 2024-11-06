@@ -7,7 +7,9 @@ type ElementID = string;
 export type BaseAttributeTypeMap = {
     role:
         | 'figure'
+        | 'group'
         | 'img'
+        | 'list'
         | 'radio'
         | 'radiogroup'
         | 'status'
@@ -15,8 +17,7 @@ export type BaseAttributeTypeMap = {
         | 'tab'
         | 'tablist'
         | 'tabpanel'
-        | 'toolbar'
-        | 'group';
+        | 'toolbar';
     'aria-checked': boolean;
     'aria-controls': ElementID;
     'aria-expanded': boolean;

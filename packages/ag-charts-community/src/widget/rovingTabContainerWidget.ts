@@ -9,19 +9,23 @@ import { Widget } from './widget';
 import type { FocusWidgetEvent, KeyboardWidgetEvent } from './widgetEvents';
 
 type RovingChildWidgets = SliderWidget | NativeWidget;
+type RovingDirection = Direction | 'both';
+
+type RovingKeys = (typeof PREV_NEXT_KEYS)[keyof typeof PREV_NEXT_KEYS];
 
 export class RovingTabContainerWidget extends Widget<HTMLDivElement, RovingChildWidgets> {
     private focusedChildIndex = 0;
 
-    public get orientation(): Direction {
-        return getAttribute(this.elem, 'aria-orientation', 'horizontal');
+    public get orientation(): RovingDirection {
+        return getAttribute(this.elem, 'aria-orientation') ?? 'both';
     }
-    public set orientation(orientation: Direction) {
-        setAttribute(this.elem, 'aria-orientation', orientation);
+    public set orientation(orientation: RovingDirection) {
+        setAttribute(this.elem, 'aria-orientation', orientation !== 'both' ? orientation : undefined);
     }
 
-    constructor(role: 'toolbar') {
+    constructor(initialOrientation: RovingDirection, role: 'toolbar' | 'list') {
         super(getDocument().createElement('div'));
+        this.orientation = initialOrientation;
         setAttribute(this.elem, 'role', role);
     }
 
@@ -49,12 +53,18 @@ export class RovingTabContainerWidget extends Widget<HTMLDivElement, RovingChild
     };
 
     private readonly onChildKeyDown = (child: RovingChildWidgets, event: KeyboardWidgetEvent): void => {
-        const keys = PREV_NEXT_KEYS[this.orientation];
+        const rovingOrientation = this.orientation;
+        const [primaryKeys, seconardKeys]: [RovingKeys, RovingKeys | undefined] =
+            rovingOrientation === 'both'
+                ? [PREV_NEXT_KEYS['horizontal'], PREV_NEXT_KEYS['vertical']]
+                : [PREV_NEXT_KEYS[rovingOrientation], undefined];
+
         let targetIndex = -1;
         if (hasNoModifiers(event.sourceEvent)) {
-            if (event.sourceEvent.key === keys.nextKey) {
+            const key = event.sourceEvent.key;
+            if (key === primaryKeys.nextKey || key === seconardKeys?.nextKey) {
                 targetIndex = child.index + 1;
-            } else if (event.sourceEvent.key === keys.prevKey) {
+            } else if (key === primaryKeys.prevKey || key === seconardKeys?.prevKey) {
                 targetIndex = child.index - 1;
             }
         }
