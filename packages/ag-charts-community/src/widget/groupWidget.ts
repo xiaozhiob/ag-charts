@@ -1,7 +1,11 @@
-import { RovingTabContainerWidget } from './rovingTabContainerWidget';
+import { setAttribute } from '../util/attributeUtil';
+import { getDocument } from '../util/dom';
+import { Widget } from './widget';
 
-export class GroupWidget extends RovingTabContainerWidget {
+export class GroupWidget extends Widget<HTMLDivElement> {
     constructor() {
-        super('group');
+        super(getDocument().createElement('div'));
+        setAttribute(this.elem, 'role', 'group');
     }
+    protected override destructor() {} // NOSONAR
 }

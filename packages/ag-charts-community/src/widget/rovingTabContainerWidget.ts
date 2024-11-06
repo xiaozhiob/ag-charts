@@ -20,7 +20,7 @@ export class RovingTabContainerWidget extends Widget<HTMLDivElement, RovingChild
         setAttribute(this.elem, 'aria-orientation', orientation);
     }
 
-    constructor(role: 'group' | 'toolbar') {
+    constructor(role: 'toolbar') {
         super(getDocument().createElement('div'));
         setAttribute(this.elem, 'role', role);
     }
