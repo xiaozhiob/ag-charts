@@ -449,9 +449,13 @@ export abstract class Chart extends Observable {
         this.updateMutex
             .acquire(async () => {
                 if (this.destroyed) return;
-                await cb(this);
-                if (this.destroyed) return;
-                this._pendingFactoryUpdatesCount--;
+                try {
+                    await cb(this);
+                } finally {
+                    if (!this.destroyed) {
+                        this._pendingFactoryUpdatesCount--;
+                    }
+                }
             })
             .catch((e) => Logger.errorOnce(e));
     }
