@@ -1,26 +1,26 @@
-export * from './util/angle';
-export * from './util/attributeUtil';
-export * from './util/bboxinterface';
-export * from './util/destroy';
-export * from './util/distance';
-export * from './util/id';
-export * from './util/interpolate';
-export * from './util/json';
-export * from './util/number';
-export * from './util/padding';
-export * from './util/sanitize';
-export * from './util/value';
-
-export { isValidDate as isDate, isFiniteNumber as isNumber, isString } from './util/type-guards';
+export type { PlacedLabel, PointLabelDatum } from './scene/util/labelPlacement';
+export {
+    angleBetween,
+    isBetweenAngles,
+    normalizeAngle360,
+    normalizeAngle360Inclusive,
+    toDegrees,
+    toRadians,
+} from './util/angle';
 export { extent, normalisedExtentWithMetadata } from './util/array';
-export { isEqual as isNumberEqual } from './util/number';
-export { tickFormat } from './util/ticks';
+export { setAttribute, setAttributes, setElementStyle } from './util/attributeUtil';
+export { BBoxValues } from './util/bboxinterface';
+export { Debug } from './util/debug';
+export { lineDistanceSquared } from './util/distance';
+export { createId, generateUUID } from './util/id';
+export { deepClone } from './util/json';
+export { Logger } from './util/logger';
+export { clamp, findMinMax, isNumberEqual } from './util/number';
+export { Padding } from './util/padding';
+export { sanitizeHtml } from './util/sanitize';
+export { isDenseInterval, range } from './util/ticks';
+export { isContinuous } from './util/value';
 
-export * from './util/time';
-export { createTicks as ticks, tickStep, range, isDenseInterval } from './util/ticks';
+// Used by ag-grid:
 export { Color } from './util/color';
-export * from './util/debug';
-export type { LabelPlacement, MeasuredLabel, PointLabelDatum, PlacedLabel } from './scene/util/labelPlacement';
-export * from './util/logger';
-
-export type { RequireOptional } from './util/types';
+export { interpolateColor } from './util/interpolate';

@@ -6,6 +6,7 @@ import type { RadialColumnSeriesBaseProperties } from './radialColumnSeriesBaseP
 
 const {
     isDefined,
+    isFiniteNumber,
     ChartAxisDirection,
     PolarAxis,
     diff,
@@ -24,7 +25,7 @@ const {
 
 const { BandScale } = _Scale;
 const { motion } = _Scene;
-const { isNumber, normalizeAngle360, sanitizeHtml } = _Util;
+const { normalizeAngle360, sanitizeHtml } = _Util;
 
 class RadialColumnSeriesNodeEvent<
     TEvent extends string = _ModuleSupport.SeriesNodeEventTypes,
@@ -524,7 +525,7 @@ export abstract class RadialColumnSeriesBase<
         const xAxis = axes[ChartAxisDirection.X];
         const yAxis = axes[ChartAxisDirection.Y];
 
-        if (!this.properties.isValid() || !(xAxis && yAxis && isNumber(radiusValue)) || !dataModel) {
+        if (!this.properties.isValid() || !(xAxis && yAxis && isFiniteNumber(radiusValue)) || !dataModel) {
             return _ModuleSupport.EMPTY_TOOLTIP_CONTENT;
         }
 

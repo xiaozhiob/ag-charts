@@ -20,11 +20,12 @@ const {
     seriesLabelFadeInAnimation,
     seriesLabelFadeOutAnimation,
     animationValidation,
+    isFiniteNumber,
 } = _ModuleSupport;
 
 const { BandScale } = _Scale;
 const { Sector, SectorBox, motion } = _Scene;
-const { angleBetween, isNumber, sanitizeHtml } = _Util;
+const { angleBetween, sanitizeHtml } = _Util;
 
 class RadialBarSeriesNodeEvent<
     TEvent extends string = _ModuleSupport.SeriesNodeEventTypes,
@@ -514,7 +515,7 @@ export class RadialBarSeries extends _ModuleSupport.PolarSeries<
         const xAxis = axes[ChartAxisDirection.X];
         const yAxis = axes[ChartAxisDirection.Y];
 
-        if (!this.properties.isValid() || !(xAxis && yAxis && isNumber(angleValue)) || !dataModel) {
+        if (!this.properties.isValid() || !(xAxis && yAxis && isFiniteNumber(angleValue)) || !dataModel) {
             return _ModuleSupport.EMPTY_TOOLTIP_CONTENT;
         }
 

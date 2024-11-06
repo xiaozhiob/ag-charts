@@ -5,7 +5,6 @@ import type {
     AgChartOptions,
     AgPolarChartOptions,
     InteractionRange,
-    _Util,
 } from 'ag-charts-community';
 import { AgCharts, _Scene } from 'ag-charts-community';
 import {

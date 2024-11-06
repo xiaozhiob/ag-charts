@@ -4,7 +4,7 @@ import { PolarCrossLine, PolarCrossLineLabel } from './polarCrossLine';
 
 const { ChartAxisDirection, Validate, DEGREE, validateCrossLineValues } = _ModuleSupport;
 const { Group, Path, Sector, RotatableText } = _Scene;
-const { normalizeAngle360, toRadians, isNumberEqual } = _Util;
+const { clamp, normalizeAngle360, toRadians, isNumberEqual } = _Util;
 
 class RadiusCrossLineLabel extends PolarCrossLineLabel {
     @Validate(DEGREE, { optional: true })
@@ -136,8 +136,8 @@ export class RadiusCrossLine extends PolarCrossLine {
         sector.endAngle = 2 * Math.PI;
 
         const padding = this.getPadding();
-        const r0 = _Util.clamp(axisInnerRadius, innerRadius + padding, axisOuterRadius);
-        const r1 = _Util.clamp(axisInnerRadius, outerRadius - padding, axisOuterRadius);
+        const r0 = clamp(axisInnerRadius, innerRadius + padding, axisOuterRadius);
+        const r1 = clamp(axisInnerRadius, outerRadius - padding, axisOuterRadius);
         sector.innerRadius = Math.min(r0, r1);
         sector.outerRadius = Math.max(r0, r1);
 

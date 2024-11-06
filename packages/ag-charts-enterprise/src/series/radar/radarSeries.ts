@@ -14,6 +14,7 @@ const {
     animationValidation,
     formatValue,
     computeMarkerFocusBounds,
+    isFiniteNumber,
 } = _ModuleSupport;
 
 const { BBox, Group, Path, PointerEvents, Selection, Text, getMarker } = _Scene;
@@ -244,7 +245,7 @@ export abstract class RadarSeries extends _ModuleSupport.PolarSeries<
                 label: labelNodeDatum,
                 angleValue: angleDatum,
                 radiusValue: radiusDatum,
-                missing: !_Util.isNumber(angle) || !_Util.isNumber(radius),
+                missing: !isFiniteNumber(angle) || !isFiniteNumber(radius),
             };
         });
 

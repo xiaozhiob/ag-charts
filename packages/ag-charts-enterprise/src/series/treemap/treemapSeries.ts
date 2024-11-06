@@ -14,7 +14,7 @@ import { TreemapSeriesProperties } from './treemapSeriesProperties';
 
 const { TextUtils, TextWrapper } = _ModuleSupport;
 const { Rect, Group, BBox, Selection, Text } = _Scene;
-const { Color, Logger, clamp, isEqual, sanitizeHtml } = _Util;
+const { Color, Logger, clamp, isNumberEqual, sanitizeHtml } = _Util;
 
 type Side = 'left' | 'right' | 'top' | 'bottom';
 
@@ -349,7 +349,7 @@ export class TreemapSeries<
         const childBounds = getBounds(childBox);
         const sides: Side[] = ['top', 'right', 'bottom', 'left'];
         sides.forEach((side) => {
-            if (!isEqual(innerBounds[side], childBounds[side])) {
+            if (!isNumberEqual(innerBounds[side], childBounds[side])) {
                 childBox.shrink(gap, side);
             }
         });
