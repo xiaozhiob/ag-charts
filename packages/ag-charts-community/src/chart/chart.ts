@@ -13,8 +13,9 @@ import type { Scene } from '../scene/scene';
 import type { PlacedLabel, PointLabelDatum } from '../scene/util/labelPlacement';
 import { isPointLabelDatum, placeLabels } from '../scene/util/labelPlacement';
 import { groupBy } from '../util/array';
-import { AsyncAwaitQueue } from '../util/async';
+import { AsyncAwaitQueue, pause } from '../util/async';
 import { Debug } from '../util/debug';
+import { isInputPending } from '../util/dom';
 import { createId } from '../util/id';
 import { jsonApply, jsonDiff } from '../util/json';
 import { Logger } from '../util/logger';
@@ -1040,6 +1041,10 @@ export abstract class Chart extends Observable {
                 } else {
                     Logger.warnOnce(message);
                 }
+            }
+
+            if (isInputPending()) {
+                await pause();
             }
         }
     }
