@@ -1,5 +1,5 @@
 import type { AgErrorBarThemeableOptions, _Scale } from 'ag-charts-community';
-import { AgErrorBarSupportedSeriesTypes, _ModuleSupport, _Scene, _Util } from 'ag-charts-community';
+import { AgErrorBarSupportedSeriesTypes, _ModuleSupport, _Scene } from 'ag-charts-community';
 
 import type { ErrorBarNodeDatum, ErrorBarStylingOptions } from './errorBarNode';
 import { ErrorBarGroup, ErrorBarNode } from './errorBarNode';
@@ -12,6 +12,7 @@ const {
     mergeDefaults,
     valueProperty,
     ChartAxisDirection,
+    Logger,
 } = _ModuleSupport;
 
 type ErrorBoundCartesianSeries = Omit<
@@ -253,7 +254,7 @@ export class ErrorBars extends _ModuleSupport.BaseModuleInstance implements _Mod
 
         // The datum has an error value for `key`. Validate this user input value:
         if (typeof value !== 'number') {
-            _Util.Logger.warnOnce(`Found [${key}] error value of type ${typeof value}. Expected number type`);
+            Logger.warnOnce(`Found [${key}] error value of type ${typeof value}. Expected number type`);
             return;
         }
 

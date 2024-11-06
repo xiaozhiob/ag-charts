@@ -1,9 +1,18 @@
-import { _ModuleSupport, _Scene, _Util } from 'ag-charts-community';
+import { _ModuleSupport, _Scene } from 'ag-charts-community';
 
-const { Validate, BOOLEAN, POSITIVE_NUMBER, ZIndexMap, ActionOnSet, CategoryAxis, GroupedCategoryAxis, TextUtils } =
-    _ModuleSupport;
+const {
+    Validate,
+    BOOLEAN,
+    POSITIVE_NUMBER,
+    ZIndexMap,
+    ActionOnSet,
+    CategoryAxis,
+    GroupedCategoryAxis,
+    TextUtils,
+    Padding,
+    Logger,
+} = _ModuleSupport;
 
-const { Padding, Logger } = _Util;
 const { Group, TranslatableGroup, BBox } = _Scene;
 
 class MiniChartPadding {

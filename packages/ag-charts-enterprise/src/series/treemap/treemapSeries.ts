@@ -6,15 +6,13 @@ import {
     type VerticalAlign,
     _ModuleSupport,
     _Scene,
-    _Util,
 } from 'ag-charts-community';
 
 import { formatLabels } from '../util/labelFormatter';
 import { TreemapSeriesProperties } from './treemapSeriesProperties';
 
-const { TextUtils, TextWrapper } = _ModuleSupport;
+const { TextUtils, TextWrapper, Color, Logger, clamp, isNumberEqual, sanitizeHtml } = _ModuleSupport;
 const { Rect, Group, BBox, Selection, Text } = _Scene;
-const { Color, Logger, clamp, isNumberEqual, sanitizeHtml } = _Util;
 
 type Side = 'left' | 'right' | 'top' | 'bottom';
 

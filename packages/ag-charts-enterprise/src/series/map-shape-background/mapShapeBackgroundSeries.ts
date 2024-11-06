@@ -1,4 +1,4 @@
-import { _ModuleSupport, _Scene, _Util } from 'ag-charts-community';
+import { _ModuleSupport, _Scene } from 'ag-charts-community';
 
 import { GeoGeometry, GeoGeometryRenderMode } from '../map-util/geoGeometry';
 import { geometryBbox, projectGeometry } from '../map-util/geometryUtil';
@@ -9,9 +9,8 @@ import {
     MapShapeBackgroundSeriesProperties,
 } from './mapShapeBackgroundSeriesProperties';
 
-const { createDatumId, Series, SeriesNodePickMode, Validate } = _ModuleSupport;
+const { createDatumId, Series, SeriesNodePickMode, Validate, Logger } = _ModuleSupport;
 const { Selection, Group, PointerEvents } = _Scene;
-const { Logger } = _Util;
 
 export interface MapShapeBackgroundNodeDataContext
     extends _ModuleSupport.SeriesNodeDataContext<MapShapeBackgroundNodeDatum> {}
@@ -200,7 +199,7 @@ export class MapShapeBackgroundSeries
         // No animations
     }
 
-    override getLabelData(): _Util.PointLabelDatum[] {
+    override getLabelData(): _ModuleSupport.PointLabelDatum[] {
         return [];
     }
 

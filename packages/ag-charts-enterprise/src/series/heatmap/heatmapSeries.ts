@@ -1,5 +1,5 @@
 import type { AgHeatmapSeriesStyle, FontStyle, FontWeight, TextAlign, VerticalAlign } from 'ag-charts-community';
-import { _ModuleSupport, _Scale, _Scene, _Util } from 'ag-charts-community';
+import { _ModuleSupport, _Scale, _Scene } from 'ag-charts-community';
 
 import { formatLabels } from '../util/labelFormatter';
 import { HeatmapSeriesProperties } from './heatmapSeriesProperties';
@@ -12,10 +12,11 @@ const {
     ChartAxisDirection,
     DEFAULT_CARTESIAN_DIRECTION_KEYS,
     DEFAULT_CARTESIAN_DIRECTION_NAMES,
+    sanitizeHtml,
+    Logger,
 } = _ModuleSupport;
 const { Rect, PointerEvents } = _Scene;
 const { ColorScale } = _Scale;
-const { sanitizeHtml, Logger } = _Util;
 
 interface HeatmapNodeDatum extends _ModuleSupport.CartesianSeriesNodeDatum {
     readonly point: Readonly<_Scene.SizedPoint>;

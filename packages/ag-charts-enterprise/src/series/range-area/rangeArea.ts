@@ -1,4 +1,4 @@
-import { _ModuleSupport, _Scene, _Util } from 'ag-charts-community';
+import { _ModuleSupport, _Scene } from 'ag-charts-community';
 
 import { type RangeAreaMarkerDatum, RangeAreaProperties } from './rangeAreaProperties';
 import { type RangeAreaContext, type RangeAreaLabelDatum, prepareRangeAreaPathAnimation } from './rangeAreaUtil';
@@ -29,9 +29,10 @@ const {
     markerFadeInAnimation,
     fromToMotion,
     pathMotion,
+    sanitizeHtml,
+    extent,
 } = _ModuleSupport;
 const { getMarker, PointerEvents } = _Scene;
-const { sanitizeHtml, extent } = _Util;
 
 class RangeAreaSeriesNodeEvent<
     TEvent extends string = _ModuleSupport.SeriesNodeEventTypes,

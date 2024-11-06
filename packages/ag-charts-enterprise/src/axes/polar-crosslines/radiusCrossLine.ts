@@ -1,10 +1,18 @@
-import { _ModuleSupport, _Scale, _Scene, _Util } from 'ag-charts-community';
+import { _ModuleSupport, _Scale, _Scene } from 'ag-charts-community';
 
 import { PolarCrossLine, PolarCrossLineLabel } from './polarCrossLine';
 
-const { ChartAxisDirection, Validate, DEGREE, validateCrossLineValues } = _ModuleSupport;
+const {
+    ChartAxisDirection,
+    Validate,
+    DEGREE,
+    validateCrossLineValues,
+    clamp,
+    normalizeAngle360,
+    toRadians,
+    isNumberEqual,
+} = _ModuleSupport;
 const { Group, Path, Sector, RotatableText } = _Scene;
-const { clamp, normalizeAngle360, toRadians, isNumberEqual } = _Util;
 
 class RadiusCrossLineLabel extends PolarCrossLineLabel {
     @Validate(DEGREE, { optional: true })

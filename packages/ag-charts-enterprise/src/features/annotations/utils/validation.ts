@@ -1,8 +1,8 @@
-import { type Direction, _Scale, _Util } from 'ag-charts-community';
+import { type Direction, _ModuleSupport, _Scale } from 'ag-charts-community';
 
 import type { AnnotationAxisContext, AnnotationContext, Point } from '../annotationTypes';
 
-const { Logger } = _Util;
+const { Logger } = _ModuleSupport;
 
 export function validateDatumLine(
     context: AnnotationContext,

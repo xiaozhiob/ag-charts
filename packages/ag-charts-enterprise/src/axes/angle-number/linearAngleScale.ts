@@ -1,7 +1,7 @@
-import { _Scale, _Util } from 'ag-charts-community';
+import { _ModuleSupport, _Scale } from 'ag-charts-community';
 
 const { LinearScale, Invalidating } = _Scale;
-const { range, isDenseInterval, isNumberEqual } = _Util;
+const { range, isDenseInterval, isNumberEqual } = _ModuleSupport;
 
 export class LinearAngleScale extends LinearScale {
     @Invalidating

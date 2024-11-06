@@ -1,10 +1,9 @@
-import { _ModuleSupport, _Scale, _Scene, _Util } from 'ag-charts-community';
+import { _ModuleSupport, _Scale, _Scene } from 'ag-charts-community';
 
 import { PolarCrossLine } from './polarCrossLine';
 
-const { ChartAxisDirection, validateCrossLineValues } = _ModuleSupport;
+const { ChartAxisDirection, validateCrossLineValues, normalizeAngle360, isNumberEqual } = _ModuleSupport;
 const { Group, Path, Sector, RotatableText, ContinuousScale } = _Scene;
-const { normalizeAngle360, isNumberEqual } = _Util;
 
 export class AngleCrossLine extends PolarCrossLine {
     static readonly className = 'AngleCrossLine';

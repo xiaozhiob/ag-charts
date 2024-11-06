@@ -1,11 +1,20 @@
-import type { AgAxisCaptionFormatterParams, _Scale } from 'ag-charts-community';
-import { _ModuleSupport, _Scene, _Util } from 'ag-charts-community';
+import type { AgAxisCaptionFormatterParams } from 'ag-charts-community';
+import { _ModuleSupport, _Scene } from 'ag-charts-community';
 
 import { RadiusCrossLine } from '../polar-crosslines/radiusCrossLine';
 
-const { ChartAxisDirection, Default, ZIndexMap, DEGREE, BOOLEAN, Validate } = _ModuleSupport;
+const {
+    ChartAxisDirection,
+    Default,
+    ZIndexMap,
+    DEGREE,
+    BOOLEAN,
+    Validate,
+    isNumberEqual,
+    normalizeAngle360,
+    toRadians,
+} = _ModuleSupport;
 const { Caption, Group, Path, Selection } = _Scene;
-const { isNumberEqual, normalizeAngle360, toRadians } = _Util;
 
 class RadiusAxisLabel extends _ModuleSupport.AxisLabel {
     @Validate(BOOLEAN, { optional: true })

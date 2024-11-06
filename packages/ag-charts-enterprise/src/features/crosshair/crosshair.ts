@@ -1,10 +1,10 @@
-import { type AgCrosshairLabelRendererResult, _ModuleSupport, _Scene, _Util } from 'ag-charts-community';
+import { type AgCrosshairLabelRendererResult, _ModuleSupport, _Scene } from 'ag-charts-community';
 
 import { CrosshairLabel, CrosshairLabelProperties } from './crosshairLabel';
 
 const { Group, TranslatableGroup, Line, BBox } = _Scene;
-const { createId } = _Util;
 const {
+    createId,
     POSITIVE_NUMBER,
     RATIO,
     BOOLEAN,

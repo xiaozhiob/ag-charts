@@ -1,5 +1,5 @@
 import type { AgWaterfallSeriesItemType } from 'ag-charts-community';
-import { _ModuleSupport, _Scene, _Util } from 'ag-charts-community';
+import { _ModuleSupport, _Scene } from 'ag-charts-community';
 
 import type { WaterfallSeriesItem, WaterfallSeriesTotal } from './waterfallSeriesProperties';
 import { WaterfallSeriesProperties } from './waterfallSeriesProperties';
@@ -26,9 +26,10 @@ const {
     DEFAULT_CARTESIAN_DIRECTION_KEYS,
     DEFAULT_CARTESIAN_DIRECTION_NAMES,
     computeBarFocusBounds,
+    sanitizeHtml,
+    isContinuous,
 } = _ModuleSupport;
 const { Rect, motion } = _Scene;
-const { sanitizeHtml, isContinuous } = _Util;
 
 type WaterfallNodeLabelDatum = Readonly<_Scene.Point> & {
     readonly text: string;

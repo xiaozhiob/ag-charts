@@ -6,7 +6,6 @@ import {
     type FontWeight,
     _ModuleSupport,
     _Scene,
-    _Util,
 } from 'ag-charts-community';
 
 import { fadeInFns, formatLabel, getLabelText } from '../gauge-util/label';
@@ -37,9 +36,9 @@ const {
     ChartAxisDirection,
     CachedTextMeasurerPool,
     EMPTY_TOOLTIP_CONTENT,
+    toRadians,
 } = _ModuleSupport;
 const { BBox, Group, PointerEvents, Selection, Rect, Text, LinearGradient, getMarker, easing } = _Scene;
-const { toRadians } = _Util;
 
 interface TargetLabel {
     enabled: boolean;
@@ -1067,7 +1066,7 @@ export class LinearGaugeSeries
         this.resetAllAnimation();
     }
 
-    override getLabelData(): _Util.PointLabelDatum[] {
+    override getLabelData(): _ModuleSupport.PointLabelDatum[] {
         return [];
     }
 

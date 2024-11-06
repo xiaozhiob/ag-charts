@@ -1,4 +1,4 @@
-import { _ModuleSupport, _Scale, _Scene, _Util } from 'ag-charts-community';
+import { _ModuleSupport, _Scale, _Scene } from 'ag-charts-community';
 
 import { RadiusCategoryAxis } from '../../axes/radius-category/radiusCategoryAxis';
 import type { RadialColumnNodeDatum } from '../radial-column/radialColumnSeriesBase';
@@ -21,11 +21,12 @@ const {
     seriesLabelFadeOutAnimation,
     animationValidation,
     isFiniteNumber,
+    angleBetween,
+    sanitizeHtml,
 } = _ModuleSupport;
 
 const { BandScale } = _Scale;
 const { Sector, SectorBox, motion } = _Scene;
-const { angleBetween, sanitizeHtml } = _Util;
 
 class RadialBarSeriesNodeEvent<
     TEvent extends string = _ModuleSupport.SeriesNodeEventTypes,

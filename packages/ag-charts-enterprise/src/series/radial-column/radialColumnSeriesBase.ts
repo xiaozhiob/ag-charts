@@ -1,5 +1,5 @@
 import type { AgRadialSeriesStyle } from 'ag-charts-community';
-import { _ModuleSupport, _Scale, _Scene, _Util } from 'ag-charts-community';
+import { _ModuleSupport, _Scale, _Scene } from 'ag-charts-community';
 
 import { AngleCategoryAxis } from '../../axes/angle-category/angleCategoryAxis';
 import type { RadialColumnSeriesBaseProperties } from './radialColumnSeriesBaseProperties';
@@ -21,11 +21,12 @@ const {
     valueProperty,
     animationValidation,
     SeriesNodePickMode,
+    normalizeAngle360,
+    sanitizeHtml,
 } = _ModuleSupport;
 
 const { BandScale } = _Scale;
 const { motion } = _Scene;
-const { normalizeAngle360, sanitizeHtml } = _Util;
 
 class RadialColumnSeriesNodeEvent<
     TEvent extends string = _ModuleSupport.SeriesNodeEventTypes,

@@ -1,10 +1,4 @@
-import {
-    type AgChordSeriesLinkStyle,
-    type AgChordSeriesNodeStyle,
-    _ModuleSupport,
-    _Scene,
-    _Util,
-} from 'ag-charts-community';
+import { type AgChordSeriesLinkStyle, type AgChordSeriesNodeStyle, _ModuleSupport, _Scene } from 'ag-charts-community';
 
 import {
     FlowProportionDatumType,
@@ -15,9 +9,19 @@ import {
 import { ChordLink, bezierControlPoints } from './chordLink';
 import { ChordSeriesProperties } from './chordSeriesProperties';
 
-const { SeriesNodePickMode, CachedTextMeasurerPool, TextWrapper, TextUtils, createDatumId, EMPTY_TOOLTIP_CONTENT } =
-    _ModuleSupport;
-const { angleBetween, normalizeAngle360, isBetweenAngles, sanitizeHtml, Logger } = _Util;
+const {
+    SeriesNodePickMode,
+    CachedTextMeasurerPool,
+    TextWrapper,
+    TextUtils,
+    createDatumId,
+    EMPTY_TOOLTIP_CONTENT,
+    angleBetween,
+    normalizeAngle360,
+    isBetweenAngles,
+    sanitizeHtml,
+    Logger,
+} = _ModuleSupport;
 const { Sector, evaluateBezier } = _Scene;
 
 interface ChordNodeDatum extends FlowProportionNodeDatum {
@@ -604,7 +608,7 @@ export class ChordSeries extends FlowProportionSeries<
         );
     }
 
-    override getLabelData(): _Util.PointLabelDatum[] {
+    override getLabelData(): _ModuleSupport.PointLabelDatum[] {
         return [];
     }
 

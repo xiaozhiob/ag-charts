@@ -1,12 +1,11 @@
-import { _ModuleSupport, _Scene, _Util } from 'ag-charts-community';
+import { _ModuleSupport, _Scene } from 'ag-charts-community';
 import type { AgSunburstSeriesStyle, AgTooltipRendererResult } from 'ag-charts-types';
 
 import { formatLabels } from '../util/labelFormatter';
 import { SunburstSeriesProperties } from './sunburstSeriesProperties';
 
-const { fromToMotion } = _ModuleSupport;
+const { fromToMotion, sanitizeHtml, normalizeAngle360 } = _ModuleSupport;
 const { Sector, ScalableGroup, Selection, TransformableText } = _Scene;
-const { sanitizeHtml, normalizeAngle360 } = _Util;
 
 interface LabelData {
     label: string | undefined;

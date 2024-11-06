@@ -4,7 +4,6 @@ import {
     _ModuleSupport,
     _Scale,
     _Scene,
-    _Util,
 } from 'ag-charts-community';
 
 import type { CandlestickBaseGroup } from '../candlestick/candlestickGroup';
@@ -22,9 +21,10 @@ const {
     valueProperty,
     diff,
     animationValidation,
+    sanitizeHtml,
+    Logger,
 } = _ModuleSupport;
 
-const { sanitizeHtml, Logger } = _Util;
 const { ContinuousScale } = _Scale;
 
 class CandlestickSeriesNodeEvent<

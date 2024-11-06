@@ -1,5 +1,5 @@
 import type { AgTooltipRendererResult } from 'ag-charts-community';
-import { _ModuleSupport, _Scale, _Scene, _Util } from 'ag-charts-community';
+import { _ModuleSupport, _Scale, _Scene } from 'ag-charts-community';
 
 import type { BaseFunnelProperties } from './baseFunnelSeriesProperties';
 import { FunnelConnector } from './funnelConnector';
@@ -21,9 +21,9 @@ const {
     resetLabelFn,
     animationValidation,
     computeBarFocusBounds,
+    sanitizeHtml,
 } = _ModuleSupport;
 const { Group, Selection, PointerEvents, motion } = _Scene;
-const { sanitizeHtml } = _Util;
 const { ContinuousScale } = _Scale;
 
 export type Bounds = {
