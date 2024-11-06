@@ -1,15 +1,16 @@
 import type { Direction } from 'ag-charts-types';
 
 import { getAttribute, setAttribute } from '../util/attributeUtil';
+import { getDocument } from '../util/dom';
 import { PREV_NEXT_KEYS, hasNoModifiers } from '../util/keynavUtil';
+import type { NativeWidget } from './nativeWidget';
 import type { SliderWidget } from './sliderWidget';
 import { Widget } from './widget';
 import type { FocusWidgetEvent, KeyboardWidgetEvent } from './widgetEvents';
 
-export class RovingTabContainerWidget<TElement extends HTMLElement, TChildWidget extends SliderWidget> extends Widget<
-    TElement,
-    TChildWidget
-> {
+type RovingChildWidgets = SliderWidget | NativeWidget;
+
+export class RovingTabContainerWidget extends Widget<HTMLDivElement, RovingChildWidgets> {
     private focusedChildIndex = 0;
 
     public get orientation(): Direction {
@@ -19,8 +20,9 @@ export class RovingTabContainerWidget<TElement extends HTMLElement, TChildWidget
         setAttribute(this.elem, 'aria-orientation', orientation);
     }
 
-    constructor(elem: TElement) {
-        super(elem);
+    constructor(role: 'group' | 'toolbar') {
+        super(getDocument().createElement('div'));
+        setAttribute(this.elem, 'role', role);
     }
 
     override focus() {
@@ -29,24 +31,24 @@ export class RovingTabContainerWidget<TElement extends HTMLElement, TChildWidget
 
     protected override destructor() {} // NOSONAR
 
-    protected override onChildAdded(child: TChildWidget): void {
+    protected override onChildAdded(child: RovingChildWidgets): void {
         child.addListener('focus', this.onChildFocus);
         child.addListener('keydown', this.onChildKeyDown);
     }
 
-    protected override onChildRemoved(child: TChildWidget): void {
+    protected override onChildRemoved(child: RovingChildWidgets): void {
         child.removeListener('focus', this.onChildFocus);
         child.removeListener('keydown', this.onChildKeyDown);
     }
 
-    private readonly onChildFocus = (child: TChildWidget, _event: FocusWidgetEvent): void => {
+    private readonly onChildFocus = (child: RovingChildWidgets, _event: FocusWidgetEvent): void => {
         const oldFocus = this.children[this.focusedChildIndex];
         this.focusedChildIndex = child.index;
         oldFocus?.setTabIndex(-1);
         child.setTabIndex(0);
     };
 
-    private readonly onChildKeyDown = (child: TChildWidget, event: KeyboardWidgetEvent): void => {
+    private readonly onChildKeyDown = (child: RovingChildWidgets, event: KeyboardWidgetEvent): void => {
         const keys = PREV_NEXT_KEYS[this.orientation];
         let targetIndex = -1;
         if (hasNoModifiers(event.sourceEvent)) {

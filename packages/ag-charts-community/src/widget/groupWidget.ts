@@ -1,7 +1,7 @@
 import { RovingTabContainerWidget } from './rovingTabContainerWidget';
 
-export class ToolbarWidget extends RovingTabContainerWidget {
+export class GroupWidget extends RovingTabContainerWidget {
     constructor() {
-        super('toolbar');
+        super('group');
     }
 }

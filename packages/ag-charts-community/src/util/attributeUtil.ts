@@ -5,7 +5,18 @@ import type { Nullable } from './types';
 type ElementID = string;
 
 export type BaseAttributeTypeMap = {
-    role: 'figure' | 'img' | 'radio' | 'radiogroup' | 'status' | 'switch' | 'tab' | 'tablist' | 'tabpanel';
+    role:
+        | 'figure'
+        | 'img'
+        | 'radio'
+        | 'radiogroup'
+        | 'status'
+        | 'switch'
+        | 'tab'
+        | 'tablist'
+        | 'tabpanel'
+        | 'toolbar'
+        | 'group';
     'aria-checked': boolean;
     'aria-controls': ElementID;
     'aria-expanded': boolean;
