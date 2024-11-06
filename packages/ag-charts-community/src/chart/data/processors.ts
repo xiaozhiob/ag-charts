@@ -286,52 +286,67 @@ export function normalisePropertyTo(
     };
 }
 
+const ANIMATION_VALIDATION_UNIQUE_KEYS = 0b01;
+const ANIMATION_VALIDATION_ORDERED_KEYS = 0b10;
+const animationValidationProcessKey = (
+    count: number,
+    def: DatumPropertyDefinition<unknown>,
+    keyValues: any[],
+    column: any[]
+) => {
+    let validation = ANIMATION_VALIDATION_UNIQUE_KEYS | ANIMATION_VALIDATION_ORDERED_KEYS;
+
+    if (def.valueType === 'category') {
+        if (!(keyValues.length === count)) validation &= ~ANIMATION_VALIDATION_UNIQUE_KEYS;
+
+        return validation;
+    }
+
+    let lastValue = column[0];
+    for (let d = 1; validation !== 0 && d < column.length; d++) {
+        const keyValue = column[d];
+        if (!(lastValue <= keyValue)) validation &= ~ANIMATION_VALIDATION_ORDERED_KEYS;
+        if (!(lastValue !== keyValue)) validation &= ~ANIMATION_VALIDATION_UNIQUE_KEYS;
+        lastValue = keyValue;
+    }
+
+    return validation;
+};
+
 export function animationValidation(valueKeyIds?: string[]): ProcessorOutputPropertyDefinition {
     return {
         type: 'processor',
         property: 'animationValidation',
         calculate(result: ProcessedData<any>) {
-            const { keys, values } = result.defs;
-            const { input, rawData, columns } = result;
-            let uniqueKeys = true;
-            let orderedKeys = true;
+            const { keys: keysDefs, values: valuesDef } = result.defs;
+            const {
+                input: { count },
+                domain: { keys: domainKeys, values: domainValues },
+                rawData,
+                keys,
+                columns,
+            } = result;
 
-            if (rawData.length === 0) {
-                return { uniqueKeys, orderedKeys };
-            }
+            let validation = ANIMATION_VALIDATION_UNIQUE_KEYS | ANIMATION_VALIDATION_ORDERED_KEYS;
 
-            const valueKeys: [number, DatumPropertyDefinition<unknown>][] = [];
-            for (let k = 0; k < values.length; k++) {
-                if (!valueKeyIds?.includes(values[k].id as string)) continue;
-
-                valueKeys.push([k, values[k]]);
-            }
-
-            const processKey = (idx: number, def: DatumPropertyDefinition<unknown>, type: 'keys' | 'values') => {
-                if (def.valueType === 'category') {
-                    const keyValues = result.domain[type][idx];
-                    uniqueKeys &&= keyValues.length === input.count;
-                    return;
+            if (rawData.length !== 0) {
+                for (let i = 0; validation !== 0 && i < keysDefs.length; i++) {
+                    validation &= animationValidationProcessKey(count, keysDefs[i], domainKeys[i], keys[i]);
                 }
 
-                let lastValue = columns[idx][0];
-                for (let d = 1; (uniqueKeys || orderedKeys) && d < rawData.length; d++) {
-                    const keyValue = columns[idx][d];
-                    orderedKeys &&= lastValue <= keyValue;
-                    uniqueKeys &&= lastValue !== keyValue;
-                    lastValue = keyValue;
+                for (let i = 0; validation !== 0 && i < valuesDef.length; i++) {
+                    const value = valuesDef[i];
+
+                    if (!valueKeyIds?.includes(value.id as string) === true) continue;
+
+                    validation &= animationValidationProcessKey(count, value, domainValues[i], columns[i]);
                 }
+            }
+
+            return {
+                uniqueKeys: (validation & ANIMATION_VALIDATION_UNIQUE_KEYS) !== 0,
+                orderedKeys: (validation & ANIMATION_VALIDATION_ORDERED_KEYS) !== 0,
             };
-            for (let k = 0; (uniqueKeys || orderedKeys) && k < keys.length; k++) {
-                processKey(k, keys[k], 'keys');
-            }
-
-            for (let k = 0; (uniqueKeys || orderedKeys) && k < valueKeys.length; k++) {
-                const [idx, key] = valueKeys[k];
-                processKey(idx, key, 'values');
-            }
-
-            return { uniqueKeys, orderedKeys };
         },
     };
 }
