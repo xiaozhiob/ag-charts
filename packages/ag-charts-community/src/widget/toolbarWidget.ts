@@ -1,5 +1,6 @@
 import type { Direction } from 'ag-charts-types';
 
+import { getAttribute, setAttribute } from '../util/attributeUtil';
 import { getDocument } from '../util/dom';
 import { PREV_NEXT_KEYS, hasNoModifiers } from '../util/keynavUtil';
 import type { SliderWidget } from './sliderWidget';
@@ -11,18 +12,15 @@ type TChildWidget = SliderWidget;
 export class ToolbarWidget extends Widget<HTMLDivElement, TChildWidget> {
     private focusedChildIndex = 0;
 
-    private _orientation = undefined as unknown as Direction;
-    public get orientation() {
-        return this._orientation;
+    public get orientation(): Direction {
+        return getAttribute(this.elem, 'aria-orientation', 'horizontal');
     }
     public set orientation(orientation: Direction) {
-        this._orientation = orientation;
-        this.elem.setAttribute('aria-orientation', orientation);
+        setAttribute(this.elem, 'aria-orientation', orientation);
     }
 
     constructor() {
         super(getDocument().createElement('div'));
-        this.orientation = 'horizontal';
     }
 
     override focus() {
@@ -49,7 +47,7 @@ export class ToolbarWidget extends Widget<HTMLDivElement, TChildWidget> {
     };
 
     private readonly onChildKeyDown = (child: TChildWidget, event: KeyboardWidgetEvent): void => {
-        const keys = PREV_NEXT_KEYS[this._orientation];
+        const keys = PREV_NEXT_KEYS[this.orientation];
         let targetIndex = -1;
         if (hasNoModifiers(event.sourceEvent)) {
             if (event.sourceEvent.key === keys.nextKey) {
