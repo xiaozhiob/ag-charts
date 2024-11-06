@@ -1,12 +1,6 @@
 // Only these imports are used by ag-grid.
 // DO NOT ADD EXPORTS UNLESS REQUIRED BY INTEGRATED CHARTS.
-import { themes as themeFactories } from './chart/mapping/themes';
-
 export { getChartTheme } from './chart/mapping/themes';
 export { ChartTheme } from './chart/themes/chartTheme';
+export { themes } from './chart/mapping/themes';
 export * from './chart/themes/symbols';
-export * from './chart/themes/constants';
-export * from './chart/themes/util';
-export * from './module/theme';
-
-export const themes = Object.freeze(themeFactories);

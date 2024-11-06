@@ -29,7 +29,6 @@ export * from './util/type-guards';
 export * from './util/validation';
 export * from './util/vector';
 export * from './util/vector4';
-export * from './module/theme';
 export * from './module/axisModule';
 export * from './module/axisOptionModule';
 export * from './module/baseModule';
@@ -206,3 +205,7 @@ export { RadialColumnShape, getRadialColumnWidth } from './scene/shape/radialCol
 export { Rect } from './scene/shape/rect';
 export { Sector } from './scene/shape/sector';
 export { Shape } from './scene/shape/shape';
+
+export * from './chart/themes/util';
+export * as ThemeSymbols from './chart/themes/symbols';
+export * as ThemeConstants from './chart/themes/constants';
