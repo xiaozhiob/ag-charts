@@ -3,7 +3,6 @@ import {
     type AgGradientLegendScaleOptions,
     _ModuleSupport,
     _Scene,
-    _Util,
 } from 'ag-charts-community';
 
 const {
@@ -17,9 +16,9 @@ const {
     ProxyProperty,
     Validate,
     LayoutElement,
+    createId,
 } = _ModuleSupport;
 const { Group, Rect, Triangle, TranslatableGroup, LinearGradient } = _Scene;
-const { createId } = _Util;
 
 class GradientBar extends BaseProperties {
     @Validate(POSITIVE_NUMBER)

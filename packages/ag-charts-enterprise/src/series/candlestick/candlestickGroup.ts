@@ -1,5 +1,5 @@
 import type { AgCandlestickSeriesItemOptions } from 'ag-charts-community';
-import { _ModuleSupport, _Scene, _Util } from 'ag-charts-community';
+import { _ModuleSupport, _Scene } from 'ag-charts-community';
 
 import type { CandlestickNodeDatum } from './candlestickTypes';
 
@@ -9,6 +9,7 @@ enum GroupTags {
     HighWick,
 }
 
+const { Logger } = _ModuleSupport;
 const { SceneChangeDetection, BBox } = _Scene;
 
 export abstract class CandlestickBaseGroup<TNodeDatum, TStyles>
@@ -47,7 +48,7 @@ export abstract class CandlestickBaseGroup<TNodeDatum, TStyles>
     get midPoint(): { x: number; y: number } {
         const datum: { midPoint?: { readonly x: number; readonly y: number } } = this.datum;
         if (datum.midPoint === undefined) {
-            _Util.Logger.error('CandlestickBaseGroup.datum.midPoint is undefined');
+            Logger.error('CandlestickBaseGroup.datum.midPoint is undefined');
             return { x: NaN, y: NaN };
         }
         return datum.midPoint;

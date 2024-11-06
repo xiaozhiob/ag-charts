@@ -1,4 +1,4 @@
-import { type AgMapLineSeriesStyle, _ModuleSupport, _Scale, _Scene, _Util } from 'ag-charts-community';
+import { type AgMapLineSeriesStyle, _ModuleSupport, _Scene } from 'ag-charts-community';
 
 import { GeoGeometry, GeoGeometryRenderMode } from '../map-util/geoGeometry';
 import { GeometryType, containsType, geometryBbox, largestLineString, projectGeometry } from '../map-util/geometryUtil';
@@ -16,10 +16,12 @@ const {
     valueProperty,
     CachedTextMeasurerPool,
     Validate,
+    sanitizeHtml,
+    Logger,
+    ColorScale,
+    LinearScale,
 } = _ModuleSupport;
-const { ColorScale, LinearScale } = _Scale;
 const { Selection, Text } = _Scene;
-const { sanitizeHtml, Logger } = _Util;
 
 export interface MapLineNodeDataContext
     extends _ModuleSupport.SeriesNodeDataContext<MapLineNodeDatum, MapLineNodeLabelDatum> {}
@@ -58,10 +60,8 @@ export class MapLineSeries
     public datumSelection: _Scene.Selection<GeoGeometry, MapLineNodeDatum> = Selection.select(this.contentGroup, () =>
         this.nodeFactory()
     );
-    private labelSelection: _Scene.Selection<_Scene.Text, _Util.PlacedLabel<_Util.PointLabelDatum>> = Selection.select(
-        this.labelGroup,
-        Text
-    );
+    private labelSelection: _Scene.Selection<_Scene.Text, _ModuleSupport.PlacedLabel<_ModuleSupport.PointLabelDatum>> =
+        Selection.select(this.labelGroup, Text);
     private highlightDatumSelection: _Scene.Selection<GeoGeometry, MapLineNodeDatum> = Selection.select(
         this.highlightNode,
         () => this.nodeFactory()
@@ -427,14 +427,14 @@ export class MapLineSeries
     }
 
     private async updateLabelSelection(opts: {
-        labelSelection: _Scene.Selection<_Scene.Text, _Util.PlacedLabel<_Util.PointLabelDatum>>;
+        labelSelection: _Scene.Selection<_Scene.Text, _ModuleSupport.PlacedLabel<_ModuleSupport.PointLabelDatum>>;
     }) {
         const placedLabels = (this.isLabelEnabled() ? this.chart?.placeLabels().get(this) : undefined) ?? [];
         return opts.labelSelection.update(placedLabels);
     }
 
     private async updateLabelNodes(opts: {
-        labelSelection: _Scene.Selection<_Scene.Text, _Util.PlacedLabel<_Util.PointLabelDatum>>;
+        labelSelection: _Scene.Selection<_Scene.Text, _ModuleSupport.PlacedLabel<_ModuleSupport.PointLabelDatum>>;
     }) {
         const { labelSelection } = opts;
         const { color: fill, fontStyle, fontWeight, fontSize, fontFamily } = this.properties.label;
@@ -485,7 +485,7 @@ export class MapLineSeries
         // No animations
     }
 
-    override getLabelData(): _Util.PointLabelDatum[] {
+    override getLabelData(): _ModuleSupport.PointLabelDatum[] {
         return this.contextNodeData?.labelData ?? [];
     }
 

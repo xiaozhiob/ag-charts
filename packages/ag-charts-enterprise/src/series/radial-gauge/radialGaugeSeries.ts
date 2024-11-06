@@ -8,7 +8,6 @@ import {
     type VerticalAlign,
     _ModuleSupport,
     _Scene,
-    _Util,
 } from 'ag-charts-community';
 
 import { fadeInFns, formatLabel, getLabelText } from '../gauge-util/label';
@@ -39,9 +38,12 @@ const {
     createDatumId,
     ChartAxisDirection,
     EMPTY_TOOLTIP_CONTENT,
+    normalizeAngle360,
+    normalizeAngle360Inclusive,
+    toDegrees,
+    toRadians,
 } = _ModuleSupport;
 const { BBox, Group, PointerEvents, Selection, Sector, Text, ConicGradient, getMarker } = _Scene;
-const { normalizeAngle360, normalizeAngle360Inclusive, toDegrees, toRadians } = _Util;
 
 interface TargetLabel {
     enabled: boolean;
@@ -1115,7 +1117,7 @@ export class RadialGaugeSeries
         this.resetAllAnimation();
     }
 
-    override getLabelData(): _Util.PointLabelDatum[] {
+    override getLabelData(): _ModuleSupport.PointLabelDatum[] {
         return [];
     }
 

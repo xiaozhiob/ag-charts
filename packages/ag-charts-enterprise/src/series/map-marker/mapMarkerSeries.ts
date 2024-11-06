@@ -1,4 +1,4 @@
-import { type AgMapShapeSeriesStyle, _ModuleSupport, _Scale, _Scene, _Util } from 'ag-charts-community';
+import { type AgMapShapeSeriesStyle, _ModuleSupport, _Scene } from 'ag-charts-community';
 
 import { extendBbox } from '../map-util/bboxUtil';
 import { geometryBbox, projectGeometry } from '../map-util/geometryUtil';
@@ -23,10 +23,12 @@ const {
     SeriesNodePickMode,
     valueProperty,
     computeMarkerFocusBounds,
+    sanitizeHtml,
+    Logger,
+    ColorScale,
+    LinearScale,
 } = _ModuleSupport;
-const { ColorScale, LinearScale } = _Scale;
 const { Group, Selection, Text, getMarker } = _Scene;
-const { sanitizeHtml, Logger } = _Util;
 
 export interface MapMarkerNodeDataContext
     extends _ModuleSupport.SeriesNodeDataContext<MapMarkerNodeDatum, MapMarkerNodeLabelDatum> {}
@@ -81,11 +83,8 @@ export class MapMarkerSeries
 
     private readonly markerGroup = this.contentGroup.appendChild(new Group({ name: 'markerGroup' }));
 
-    private labelSelection: _Scene.Selection<_Scene.Text, _Util.PlacedLabel<_Util.PointLabelDatum>> = Selection.select(
-        this.labelGroup,
-        Text,
-        false
-    );
+    private labelSelection: _Scene.Selection<_Scene.Text, _ModuleSupport.PlacedLabel<_ModuleSupport.PointLabelDatum>> =
+        Selection.select(this.labelGroup, Text, false);
     private markerSelection: _Scene.Selection<_Scene.Marker, MapMarkerNodeDatum> = Selection.select(
         this.markerGroup,
         () => this.markerFactory(),
@@ -534,14 +533,14 @@ export class MapMarkerSeries
     }
 
     private async updateLabelSelection(opts: {
-        labelSelection: _Scene.Selection<_Scene.Text, _Util.PlacedLabel<_Util.PointLabelDatum>>;
+        labelSelection: _Scene.Selection<_Scene.Text, _ModuleSupport.PlacedLabel<_ModuleSupport.PointLabelDatum>>;
     }) {
         const placedLabels = (this.isLabelEnabled() ? this.chart?.placeLabels().get(this) : undefined) ?? [];
         return opts.labelSelection.update(placedLabels);
     }
 
     private async updateLabelNodes(opts: {
-        labelSelection: _Scene.Selection<_Scene.Text, _Util.PlacedLabel<_Util.PointLabelDatum>>;
+        labelSelection: _Scene.Selection<_Scene.Text, _ModuleSupport.PlacedLabel<_ModuleSupport.PointLabelDatum>>;
     }) {
         const { labelSelection } = opts;
         const { color: fill, fontStyle, fontWeight, fontSize, fontFamily } = this.properties.label;
@@ -653,7 +652,7 @@ export class MapMarkerSeries
         fromToMotion(this.id, 'markers', animationManager, [this.markerSelection, this.highlightMarkerSelection], fns);
     }
 
-    override getLabelData(): _Util.PointLabelDatum[] {
+    override getLabelData(): _ModuleSupport.PointLabelDatum[] {
         return this.contextNodeData?.labelData ?? [];
     }
 

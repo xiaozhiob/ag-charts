@@ -1,5 +1,5 @@
 import type { AgTooltipRendererResult } from 'ag-charts-community';
-import { _ModuleSupport, _Scale, _Scene, _Util } from 'ag-charts-community';
+import { _ModuleSupport, _Scene } from 'ag-charts-community';
 
 import { RangeBarProperties } from './rangeBarProperties';
 
@@ -24,10 +24,10 @@ const {
     animationValidation,
     createDatumId,
     computeBarFocusBounds,
+    sanitizeHtml,
+    ContinuousScale,
 } = _ModuleSupport;
 const { Rect, PointerEvents, motion } = _Scene;
-const { sanitizeHtml } = _Util;
-const { ContinuousScale } = _Scale;
 
 type Bounds = {
     x: number;

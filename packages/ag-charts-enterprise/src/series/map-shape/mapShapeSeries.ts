@@ -1,4 +1,4 @@
-import { _ModuleSupport, _Scale, _Scene, _Util } from 'ag-charts-community';
+import { _ModuleSupport, _Scene } from 'ag-charts-community';
 import type { AgMapShapeSeriesStyle } from 'ag-charts-types';
 
 import { GeoGeometry, GeoGeometryRenderMode } from '../map-util/geoGeometry';
@@ -24,10 +24,11 @@ const {
     Validate,
     CachedTextMeasurerPool,
     TextUtils,
+    sanitizeHtml,
+    Logger,
+    ColorScale,
 } = _ModuleSupport;
-const { ColorScale } = _Scale;
 const { Group, Selection, Text, PointerEvents } = _Scene;
-const { sanitizeHtml, Logger } = _Util;
 
 export interface MapShapeNodeDataContext
     extends _ModuleSupport.SeriesNodeDataContext<MapShapeNodeDatum, MapShapeNodeLabelDatum> {}
@@ -558,7 +559,7 @@ export class MapShapeSeries
         // No animations
     }
 
-    override getLabelData(): _Util.PointLabelDatum[] {
+    override getLabelData(): _ModuleSupport.PointLabelDatum[] {
         return [];
     }
 

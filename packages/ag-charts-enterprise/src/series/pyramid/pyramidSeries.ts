@@ -4,15 +4,13 @@ import {
     type AgTooltipRendererResult,
     _ModuleSupport,
     _Scene,
-    _Util,
 } from 'ag-charts-community';
 
 import { FunnelConnector } from '../funnel/funnelConnector';
 import { PyramidProperties } from './pyramidProperties';
 
-const { valueProperty, SeriesNodePickMode, CachedTextMeasurerPool, TextUtils } = _ModuleSupport;
+const { valueProperty, SeriesNodePickMode, CachedTextMeasurerPool, TextUtils, sanitizeHtml } = _ModuleSupport;
 const { BBox, Group, Selection, Text, PointerEvents } = _Scene;
-const { sanitizeHtml } = _Util;
 
 type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 
@@ -570,7 +568,7 @@ export class PyramidSeries extends _ModuleSupport.DataModelSeries<
         });
     }
 
-    override getLabelData(): _Util.PointLabelDatum[] {
+    override getLabelData(): _ModuleSupport.PointLabelDatum[] {
         return [];
     }
 

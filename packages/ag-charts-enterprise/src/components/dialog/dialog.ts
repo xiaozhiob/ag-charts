@@ -1,4 +1,4 @@
-import { _ModuleSupport, type _Scene, _Util } from 'ag-charts-community';
+import { _ModuleSupport, type _Scene } from 'ag-charts-community';
 import type { AgIconName } from 'ag-charts-types';
 
 import { ColorPicker } from '../../features/color-picker/colorPicker';
@@ -16,8 +16,10 @@ const {
     initRovingTabIndex,
     getWindow,
     mapValues,
+    Color,
+    setAttribute,
+    setAttributes,
 } = _ModuleSupport;
-const { Color, setAttribute, setAttributes } = _Util;
 
 export interface DialogOptions extends PopoverOptions {}
 

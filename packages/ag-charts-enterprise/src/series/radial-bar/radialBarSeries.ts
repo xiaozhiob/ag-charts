@@ -1,4 +1,4 @@
-import { _ModuleSupport, _Scale, _Scene, _Util } from 'ag-charts-community';
+import { _ModuleSupport, _Scene } from 'ag-charts-community';
 
 import { RadiusCategoryAxis } from '../../axes/radius-category/radiusCategoryAxis';
 import type { RadialColumnNodeDatum } from '../radial-column/radialColumnSeriesBase';
@@ -20,11 +20,13 @@ const {
     seriesLabelFadeInAnimation,
     seriesLabelFadeOutAnimation,
     animationValidation,
+    isFiniteNumber,
+    angleBetween,
+    sanitizeHtml,
+    BandScale,
 } = _ModuleSupport;
 
-const { BandScale } = _Scale;
 const { Sector, SectorBox, motion } = _Scene;
-const { angleBetween, isNumber, sanitizeHtml } = _Util;
 
 class RadialBarSeriesNodeEvent<
     TEvent extends string = _ModuleSupport.SeriesNodeEventTypes,
@@ -514,7 +516,7 @@ export class RadialBarSeries extends _ModuleSupport.PolarSeries<
         const xAxis = axes[ChartAxisDirection.X];
         const yAxis = axes[ChartAxisDirection.Y];
 
-        if (!this.properties.isValid() || !(xAxis && yAxis && isNumber(angleValue)) || !dataModel) {
+        if (!this.properties.isValid() || !(xAxis && yAxis && isFiniteNumber(angleValue)) || !dataModel) {
             return _ModuleSupport.EMPTY_TOOLTIP_CONTENT;
         }
 

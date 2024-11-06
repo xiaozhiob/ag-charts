@@ -1,10 +1,17 @@
-import { _ModuleSupport, type _Scene, _Util } from 'ag-charts-community';
+import { _ModuleSupport, type _Scene } from 'ag-charts-community';
 
 import { convert, invert } from './utils/values';
 
-const { BaseModuleInstance, InteractionState, Validate, BOOLEAN, createElement, REGIONS, ChartAxisDirection } =
-    _ModuleSupport;
-const { setAttributes } = _Util;
+const {
+    BaseModuleInstance,
+    InteractionState,
+    Validate,
+    BOOLEAN,
+    createElement,
+    REGIONS,
+    ChartAxisDirection,
+    setAttributes,
+} = _ModuleSupport;
 
 export const DEFAULT_ANNOTATION_AXIS_BUTTON_CLASS = `ag-charts-annotations__axis-button`;
 

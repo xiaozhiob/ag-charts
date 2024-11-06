@@ -1,4 +1,4 @@
-import { _ModuleSupport, type _Scene, _Util } from 'ag-charts-community';
+import { _ModuleSupport, type _Scene } from 'ag-charts-community';
 
 import { type AnnotationLineStyle, type AnnotationOptionsColorPickerType, AnnotationType } from './annotationTypes';
 import { annotationConfigs, getTypedDatum } from './annotationsConfig';
@@ -16,7 +16,7 @@ import { hasLineStyle, hasLineText } from './utils/has';
 import { setColor, setLineStyle } from './utils/styles';
 import { isChannelType, isEphemeralType, isTextType } from './utils/types';
 
-const { ActionOnSet, ParallelStateMachine, StateMachine, StateMachineProperty } = _ModuleSupport;
+const { ActionOnSet, ParallelStateMachine, StateMachine, StateMachineProperty, Debug } = _ModuleSupport;
 
 enum States {
     Idle = 'idle',
@@ -109,7 +109,7 @@ class UpdateMachine extends StateMachine<States, AnnotationStateEvents> {
 }
 
 class AnnotationsMainStateMachine extends StateMachine<States, AnnotationStateEvents> {
-    override debug = _Util.Debug.create(true, 'annotations');
+    override debug = Debug.create(true, 'annotations');
 
     @ActionOnSet<AnnotationsMainStateMachine>({
         changeValue(newValue?: number) {

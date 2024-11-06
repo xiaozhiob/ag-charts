@@ -1,4 +1,4 @@
-import { _ModuleSupport, _Scene, _Util } from 'ag-charts-community';
+import { _ModuleSupport, _Scene } from 'ag-charts-community';
 
 import { type RadarNodeDatum, RadarSeriesProperties } from './radarSeriesProperties';
 
@@ -14,10 +14,13 @@ const {
     animationValidation,
     formatValue,
     computeMarkerFocusBounds,
+    isFiniteNumber,
+    extent,
+    isNumberEqual,
+    sanitizeHtml,
 } = _ModuleSupport;
 
 const { BBox, Group, Path, PointerEvents, Selection, Text, getMarker } = _Scene;
-const { extent, isNumberEqual, sanitizeHtml } = _Util;
 
 export interface RadarPathPoint {
     x: number;
@@ -244,7 +247,7 @@ export abstract class RadarSeries extends _ModuleSupport.PolarSeries<
                 label: labelNodeDatum,
                 angleValue: angleDatum,
                 radiusValue: radiusDatum,
-                missing: !_Util.isNumber(angle) || !_Util.isNumber(radius),
+                missing: !isFiniteNumber(angle) || !isFiniteNumber(radius),
             };
         });
 

@@ -1,12 +1,11 @@
-import { _ModuleSupport, _Scene, _Util } from 'ag-charts-community';
+import { _ModuleSupport, _Scene } from 'ag-charts-community';
 import type { AgSunburstSeriesStyle, AgTooltipRendererResult } from 'ag-charts-types';
 
 import { formatLabels } from '../util/labelFormatter';
 import { SunburstSeriesProperties } from './sunburstSeriesProperties';
 
-const { fromToMotion } = _ModuleSupport;
+const { fromToMotion, sanitizeHtml, normalizeAngle360 } = _ModuleSupport;
 const { Sector, ScalableGroup, Selection, TransformableText } = _Scene;
-const { sanitizeHtml } = _Util;
 
 interface LabelData {
     label: string | undefined;
@@ -284,7 +283,7 @@ export class SunburstSeries extends _ModuleSupport.HierarchySeries<
                     perpendicularWidth =
                         Math.sqrt(outerRadius ** 2 - (perpendicularHeight / 2) ** 2) -
                         labelHeight / (2 * Math.tan(deltaOuterAngle * 0.5));
-                } else if (_Util.normalizeAngle360(deltaInnerAngle) < maxPerpendicularAngle) {
+                } else if (normalizeAngle360(deltaInnerAngle) < maxPerpendicularAngle) {
                     // Outer wedge - fit the height to the sector, then fit the width
                     perpendicularHeight = 2 * innerRadius * Math.tan(deltaInnerAngle * 0.5);
                     perpendicularWidth = Math.sqrt(outerRadius ** 2 - (perpendicularHeight / 2) ** 2) - innerRadius;
@@ -561,7 +560,7 @@ export class SunburstSeries extends _ModuleSupport.HierarchySeries<
             Pick<_Scene.ScalableGroup, 'scalingX' | 'scalingY'>,
             _ModuleSupport.HierarchyNode<_ModuleSupport.SeriesNodeDatum>
         >(this.id, 'nodes', this.ctx.animationManager, datumSelections, {
-            toFn(_group, _datum, _status) {
+            toFn() {
                 return { scalingX: 1, scalingY: 1 };
             },
             fromFn(group, datum, status) {

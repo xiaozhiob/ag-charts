@@ -1,5 +1,5 @@
-import type { AgBaseCrossLineLabelOptions, FontStyle, FontWeight, _Scale } from 'ag-charts-community';
-import { _ModuleSupport, _Scene, _Util } from 'ag-charts-community';
+import type { AgBaseCrossLineLabelOptions, FontStyle, FontWeight } from 'ag-charts-community';
+import { _ModuleSupport, _Scene } from 'ag-charts-community';
 
 const {
     BaseProperties,
@@ -19,10 +19,10 @@ const {
     AND,
     Validate,
     MATCHING_CROSSLINE_TYPE,
+    createId,
 } = _ModuleSupport;
 
 const { Group } = _Scene;
-const { createId } = _Util;
 
 export class PolarCrossLineLabel extends BaseProperties implements AgBaseCrossLineLabelOptions {
     @Validate(BOOLEAN, { optional: true })
@@ -100,7 +100,7 @@ export abstract class PolarCrossLine extends BaseProperties implements _ModuleSu
     @Validate(OBJECT)
     label = new PolarCrossLineLabel();
 
-    scale?: _Scale.Scale<any, number> = undefined;
+    scale?: _ModuleSupport.Scale<any, number> = undefined;
     clippedRange: [number, number] = [-Infinity, Infinity];
     gridLength: number = 0;
     sideFlag: 1 | -1 = -1;

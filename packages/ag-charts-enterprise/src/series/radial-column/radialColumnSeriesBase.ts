@@ -1,11 +1,12 @@
 import type { AgRadialSeriesStyle } from 'ag-charts-community';
-import { _ModuleSupport, _Scale, _Scene, _Util } from 'ag-charts-community';
+import { _ModuleSupport, _Scene } from 'ag-charts-community';
 
 import { AngleCategoryAxis } from '../../axes/angle-category/angleCategoryAxis';
 import type { RadialColumnSeriesBaseProperties } from './radialColumnSeriesBaseProperties';
 
 const {
     isDefined,
+    isFiniteNumber,
     ChartAxisDirection,
     PolarAxis,
     diff,
@@ -20,11 +21,12 @@ const {
     valueProperty,
     animationValidation,
     SeriesNodePickMode,
+    normalizeAngle360,
+    sanitizeHtml,
+    BandScale,
 } = _ModuleSupport;
 
-const { BandScale } = _Scale;
 const { motion } = _Scene;
-const { isNumber, normalizeAngle360, sanitizeHtml } = _Util;
 
 class RadialColumnSeriesNodeEvent<
     TEvent extends string = _ModuleSupport.SeriesNodeEventTypes,
@@ -524,7 +526,7 @@ export abstract class RadialColumnSeriesBase<
         const xAxis = axes[ChartAxisDirection.X];
         const yAxis = axes[ChartAxisDirection.Y];
 
-        if (!this.properties.isValid() || !(xAxis && yAxis && isNumber(radiusValue)) || !dataModel) {
+        if (!this.properties.isValid() || !(xAxis && yAxis && isFiniteNumber(radiusValue)) || !dataModel) {
             return _ModuleSupport.EMPTY_TOOLTIP_CONTENT;
         }
 

@@ -3,7 +3,6 @@ import {
     type AgSankeySeriesNodeStyle,
     _ModuleSupport,
     _Scene,
-    _Util,
 } from 'ag-charts-community';
 
 import { FlowProportionDatumType, FlowProportionSeries } from '../flow-proportion/flowProportionSeries';
@@ -18,9 +17,16 @@ import {
     SankeySeriesProperties,
 } from './sankeySeriesProperties';
 
-const { SeriesNodePickMode, CachedTextMeasurerPool, TextWrapper, TextUtils, createDatumId, EMPTY_TOOLTIP_CONTENT } =
-    _ModuleSupport;
-const { sanitizeHtml, Logger } = _Util;
+const {
+    SeriesNodePickMode,
+    CachedTextMeasurerPool,
+    TextWrapper,
+    TextUtils,
+    createDatumId,
+    EMPTY_TOOLTIP_CONTENT,
+    sanitizeHtml,
+    Logger,
+} = _ModuleSupport;
 const { Rect, BBox } = _Scene;
 
 export interface SankeyNodeDataContext
@@ -618,7 +624,7 @@ export class SankeySeries extends FlowProportionSeries<
         );
     }
 
-    override getLabelData(): _Util.PointLabelDatum[] {
+    override getLabelData(): _ModuleSupport.PointLabelDatum[] {
         return [];
     }
 

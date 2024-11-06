@@ -1,12 +1,24 @@
-import type { AgAngleAxisLabelOrientation, _Scale } from 'ag-charts-community';
-import { _ModuleSupport, _Scene, _Util } from 'ag-charts-community';
+import type { AgAngleAxisLabelOrientation } from 'ag-charts-community';
+import { _ModuleSupport, _Scene } from 'ag-charts-community';
 
 import { AngleCrossLine } from '../polar-crosslines/angleCrossLine';
 
-const { AND, ChartAxisDirection, GREATER_THAN, NUMBER, UNION, ProxyOnWrite, TextWrapper, TextUtils, Validate } =
-    _ModuleSupport;
+const {
+    AND,
+    ChartAxisDirection,
+    GREATER_THAN,
+    NUMBER,
+    UNION,
+    ProxyOnWrite,
+    TextWrapper,
+    TextUtils,
+    Validate,
+    angleBetween,
+    isNumberEqual,
+    toRadians,
+    normalizeAngle360,
+} = _ModuleSupport;
 const { Path, RotatableText } = _Scene;
-const { angleBetween, isNumberEqual, toRadians, normalizeAngle360 } = _Util;
 
 export interface AngleAxisLabelDatum {
     text: string;
@@ -31,7 +43,7 @@ class AngleAxisLabel extends _ModuleSupport.AxisLabel {
 
 export abstract class AngleAxis<
     TDomain,
-    TScale extends _Scale.Scale<TDomain, any>,
+    TScale extends _ModuleSupport.Scale<TDomain, any>,
 > extends _ModuleSupport.PolarAxis<TScale> {
     protected static override CrossLineConstructor: new () => _ModuleSupport.CrossLine<any> = AngleCrossLine;
 
