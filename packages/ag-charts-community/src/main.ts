@@ -8,7 +8,7 @@ export { Marker } from './chart/marker/marker';
 // Undocumented APIs used by Integrated Charts.
 export * as _Scene from './integrated-charts-scene';
 export * as _Theme from './integrated-charts-theme';
-export * as _Util from './sparklines-util';
+export * as _Util from './integrated-charts-util';
 
 // Undocumented APIs used by Enterprise Modules.
 export * as _ModuleSupport from './module-support';

@@ -6,7 +6,7 @@ import type {
     AgMapLineSeriesTooltipRendererParams,
     Styler,
 } from 'ag-charts-community';
-import { _ModuleSupport, _Scene } from 'ag-charts-community';
+import { _ModuleSupport } from 'ag-charts-community';
 
 import { GEOJSON_OBJECT } from '../map-util/validation';
 
@@ -25,8 +25,8 @@ const {
     Validate,
     SeriesProperties,
     SeriesTooltip,
+    Label,
 } = _ModuleSupport;
-const { Label } = _Scene;
 
 export interface MapLineNodeLabelDatum extends _ModuleSupport.PointLabelDatum {}
 

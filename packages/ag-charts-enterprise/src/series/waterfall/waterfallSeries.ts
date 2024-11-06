@@ -1,5 +1,5 @@
 import type { AgWaterfallSeriesItemType } from 'ag-charts-community';
-import { _ModuleSupport, _Scene } from 'ag-charts-community';
+import { _ModuleSupport } from 'ag-charts-community';
 
 import type { WaterfallSeriesItem, WaterfallSeriesTotal } from './waterfallSeriesProperties';
 import { WaterfallSeriesProperties } from './waterfallSeriesProperties';
@@ -28,10 +28,11 @@ const {
     computeBarFocusBounds,
     sanitizeHtml,
     isContinuous,
+    Rect,
+    motion,
 } = _ModuleSupport;
-const { Rect, motion } = _Scene;
 
-type WaterfallNodeLabelDatum = Readonly<_Scene.Point> & {
+type WaterfallNodeLabelDatum = Readonly<_ModuleSupport.Point> & {
     readonly text: string;
     readonly textAlign: CanvasTextAlign;
     readonly textBaseline: CanvasTextBaseline;
@@ -42,7 +43,7 @@ type WaterfallNodePointDatum = _ModuleSupport.SeriesNodeDatum['point'] & {
     readonly y2: number;
 };
 
-interface WaterfallNodeDatum extends _ModuleSupport.CartesianSeriesNodeDatum, Readonly<_Scene.Point> {
+interface WaterfallNodeDatum extends _ModuleSupport.CartesianSeriesNodeDatum, Readonly<_ModuleSupport.Point> {
     readonly index: number;
     readonly itemId: AgWaterfallSeriesItemType;
     readonly cumulativeValue: number;
@@ -53,7 +54,7 @@ interface WaterfallNodeDatum extends _ModuleSupport.CartesianSeriesNodeDatum, Re
     readonly stroke: string;
     readonly strokeWidth: number;
     readonly opacity: number;
-    readonly clipBBox?: _Scene.BBox;
+    readonly clipBBox?: _ModuleSupport.BBox;
 }
 
 interface WaterfallContext extends _ModuleSupport.CartesianSeriesNodeDataContext<WaterfallNodeDatum> {
@@ -61,14 +62,14 @@ interface WaterfallContext extends _ModuleSupport.CartesianSeriesNodeDataContext
 }
 
 type WaterfallAnimationData = _ModuleSupport.CartesianAnimationData<
-    _Scene.Rect,
+    _ModuleSupport.Rect,
     WaterfallNodeDatum,
     WaterfallNodeDatum,
     WaterfallContext
 >;
 
 export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
-    _Scene.Rect,
+    _ModuleSupport.Rect,
     WaterfallSeriesProperties,
     WaterfallNodeDatum,
     WaterfallNodeDatum,
@@ -493,7 +494,7 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
 
     protected override async updateDatumSelection(opts: {
         nodeData: WaterfallNodeDatum[];
-        datumSelection: _Scene.Selection<_Scene.Rect, WaterfallNodeDatum>;
+        datumSelection: _ModuleSupport.Selection<_ModuleSupport.Rect, WaterfallNodeDatum>;
     }) {
         const { nodeData, datumSelection } = opts;
         const data = nodeData ?? [];
@@ -501,7 +502,7 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
     }
 
     protected override async updateDatumNodes(opts: {
-        datumSelection: _Scene.Selection<_Scene.Rect, WaterfallNodeDatum>;
+        datumSelection: _ModuleSupport.Selection<_ModuleSupport.Rect, WaterfallNodeDatum>;
         isHighlight: boolean;
     }) {
         const { datumSelection, isHighlight } = opts;
@@ -566,7 +567,7 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
 
     protected async updateLabelSelection(opts: {
         labelData: WaterfallNodeDatum[];
-        labelSelection: _Scene.Selection<_Scene.Text, WaterfallNodeDatum>;
+        labelSelection: _ModuleSupport.Selection<_ModuleSupport.Text, WaterfallNodeDatum>;
     }) {
         const { labelData, labelSelection } = opts;
 
@@ -582,7 +583,9 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
         return labelSelection.update(data);
     }
 
-    protected async updateLabelNodes(opts: { labelSelection: _Scene.Selection<_Scene.Text, WaterfallNodeDatum> }) {
+    protected async updateLabelNodes(opts: {
+        labelSelection: _ModuleSupport.Selection<_ModuleSupport.Text, WaterfallNodeDatum>;
+    }) {
         opts.labelSelection.each((textNode, datum) => {
             updateLabelNode(textNode, this.getItemConfig(datum.itemId).label, datum.label);
         });
@@ -706,7 +709,7 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
         }
     }
 
-    protected animateConnectorLinesHorizontal(lineNode: _Scene.Path, pointData: WaterfallNodePointDatum[]) {
+    protected animateConnectorLinesHorizontal(lineNode: _ModuleSupport.Path, pointData: WaterfallNodePointDatum[]) {
         const { path: linePath } = lineNode;
 
         this.updateLineNode(lineNode);
@@ -755,7 +758,7 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
         });
     }
 
-    protected animateConnectorLinesVertical(lineNode: _Scene.Path, pointData: WaterfallNodePointDatum[]) {
+    protected animateConnectorLinesVertical(lineNode: _ModuleSupport.Path, pointData: WaterfallNodePointDatum[]) {
         const { path: linePath } = lineNode;
 
         this.updateLineNode(lineNode);
@@ -813,13 +816,19 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
         seriesHighlighted?: boolean;
         itemId?: string;
         contextData: WaterfallContext;
-        paths: _Scene.Path[];
+        paths: _ModuleSupport.Path[];
         seriesIdx: number;
     }): Promise<void> {
         this.resetConnectorLinesPath({ contextData: opts.contextData, paths: opts.paths });
     }
 
-    resetConnectorLinesPath({ contextData, paths }: { contextData: WaterfallContext; paths: Array<_Scene.Path> }) {
+    resetConnectorLinesPath({
+        contextData,
+        paths,
+    }: {
+        contextData: WaterfallContext;
+        paths: Array<_ModuleSupport.Path>;
+    }) {
         if (paths.length === 0) {
             return;
         }
@@ -845,7 +854,7 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
         lineNode.checkPathDirty();
     }
 
-    protected updateLineNode(lineNode: _Scene.Path) {
+    protected updateLineNode(lineNode: _ModuleSupport.Path) {
         const { stroke, strokeWidth, strokeOpacity, lineDash, lineDashOffset } = this.properties.line;
         lineNode.setProperties({
             fill: undefined,
@@ -855,7 +864,7 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
             lineDash,
             lineDashOffset,
             lineJoin: 'round',
-            pointerEvents: _Scene.PointerEvents.None,
+            pointerEvents: _ModuleSupport.PointerEvents.None,
         });
     }
 
@@ -866,7 +875,10 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
 
     protected override onDataChange() {}
 
-    protected computeFocusBounds({ datumIndex, seriesRect }: _ModuleSupport.PickFocusInputs): _Scene.BBox | undefined {
+    protected computeFocusBounds({
+        datumIndex,
+        seriesRect,
+    }: _ModuleSupport.PickFocusInputs): _ModuleSupport.BBox | undefined {
         return computeBarFocusBounds(this.contextNodeData?.nodeData[datumIndex], this.contentGroup, seriesRect);
     }
 }

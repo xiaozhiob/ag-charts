@@ -1,4 +1,4 @@
-import { _ModuleSupport, type _Scene } from 'ag-charts-community';
+import { _ModuleSupport } from 'ag-charts-community';
 
 import { type AnnotationLineStyle, type AnnotationOptionsColorPickerType, AnnotationType } from './annotationTypes';
 import { annotationConfigs, getTypedDatum } from './annotationsConfig';
@@ -230,14 +230,14 @@ class AnnotationsMainStateMachine extends StateMachine<States, AnnotationStateEv
             ctx.update();
         };
 
-        const actionUpdateTextInputBBox = (bbox?: _Scene.BBox) => {
+        const actionUpdateTextInputBBox = (bbox?: _ModuleSupport.BBox) => {
             const { node } = this;
             if (!node || !('setTextInputBBox' in node)) return;
             node.setTextInputBBox(bbox);
             ctx.update();
         };
 
-        const actionSaveText = ({ textInputValue, bbox }: { textInputValue?: string; bbox?: _Scene.BBox }) => {
+        const actionSaveText = ({ textInputValue, bbox }: { textInputValue?: string; bbox?: _ModuleSupport.BBox }) => {
             const { datum } = this;
             if (bbox != null && textInputValue != null && textInputValue.length > 0) {
                 if (!isTextType(datum)) {

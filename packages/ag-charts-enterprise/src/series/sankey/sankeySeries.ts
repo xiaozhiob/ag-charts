@@ -1,9 +1,4 @@
-import {
-    type AgSankeySeriesLinkStyle,
-    type AgSankeySeriesNodeStyle,
-    _ModuleSupport,
-    _Scene,
-} from 'ag-charts-community';
+import { type AgSankeySeriesLinkStyle, type AgSankeySeriesNodeStyle, _ModuleSupport } from 'ag-charts-community';
 
 import { FlowProportionDatumType, FlowProportionSeries } from '../flow-proportion/flowProportionSeries';
 import type { NodeGraphEntry } from '../flow-proportion/flowProportionUtil';
@@ -26,8 +21,10 @@ const {
     EMPTY_TOOLTIP_CONTENT,
     sanitizeHtml,
     Logger,
+    Rect,
+    BBox,
+    Transformable,
 } = _ModuleSupport;
-const { Rect, BBox } = _Scene;
 
 export interface SankeyNodeDataContext
     extends _ModuleSupport.SeriesNodeDataContext<SankeyDatum, SankeyNodeLabelDatum> {}
@@ -37,7 +34,7 @@ export class SankeySeries extends FlowProportionSeries<
     SankeyLinkDatum,
     SankeyNodeLabelDatum,
     SankeySeriesProperties,
-    _Scene.Rect,
+    _ModuleSupport.Rect,
     SankeyLink
 > {
     static readonly className = 'SankeySeries';
@@ -348,14 +345,14 @@ export class SankeySeries extends FlowProportionSeries<
 
     protected async updateLabelSelection(opts: {
         labelData: SankeyNodeLabelDatum[];
-        labelSelection: _Scene.Selection<_Scene.TransformableText, SankeyNodeLabelDatum>;
+        labelSelection: _ModuleSupport.Selection<_ModuleSupport.TransformableText, SankeyNodeLabelDatum>;
     }) {
         const labels = this.isLabelEnabled() ? opts.labelData : [];
         return opts.labelSelection.update(labels);
     }
 
     protected async updateLabelNodes(opts: {
-        labelSelection: _Scene.Selection<_Scene.TransformableText, SankeyNodeLabelDatum>;
+        labelSelection: _ModuleSupport.Selection<_ModuleSupport.TransformableText, SankeyNodeLabelDatum>;
     }) {
         const { labelSelection } = opts;
         const { color: fill, fontStyle, fontWeight, fontSize, fontFamily } = this.properties.label;
@@ -377,13 +374,13 @@ export class SankeySeries extends FlowProportionSeries<
 
     protected async updateNodeSelection(opts: {
         nodeData: SankeyNodeDatum[];
-        datumSelection: _Scene.Selection<_Scene.Rect, SankeyNodeDatum>;
+        datumSelection: _ModuleSupport.Selection<_ModuleSupport.Rect, SankeyNodeDatum>;
     }) {
         return opts.datumSelection.update(opts.nodeData, undefined, (datum) => createDatumId([datum.type, datum.id]));
     }
 
     protected async updateNodeNodes(opts: {
-        datumSelection: _Scene.Selection<_Scene.Rect, SankeyNodeDatum>;
+        datumSelection: _ModuleSupport.Selection<_ModuleSupport.Rect, SankeyNodeDatum>;
         isHighlight: boolean;
     }) {
         const { datumSelection, isHighlight } = opts;
@@ -447,7 +444,7 @@ export class SankeySeries extends FlowProportionSeries<
 
     protected async updateLinkSelection(opts: {
         nodeData: SankeyLinkDatum[];
-        datumSelection: _Scene.Selection<SankeyLink, SankeyLinkDatum>;
+        datumSelection: _ModuleSupport.Selection<SankeyLink, SankeyLinkDatum>;
     }) {
         return opts.datumSelection.update(opts.nodeData, undefined, (datum) =>
             createDatumId([datum.type, datum.index, datum.fromNode.id, datum.toNode.id])
@@ -455,7 +452,7 @@ export class SankeySeries extends FlowProportionSeries<
     }
 
     protected async updateLinkNodes(opts: {
-        datumSelection: _Scene.Selection<SankeyLink, SankeyLinkDatum>;
+        datumSelection: _ModuleSupport.Selection<SankeyLink, SankeyLinkDatum>;
         isHighlight: boolean;
     }) {
         const { datumSelection, isHighlight } = opts;
@@ -631,13 +628,13 @@ export class SankeySeries extends FlowProportionSeries<
     protected override computeFocusBounds({
         datumIndex,
         seriesRect,
-    }: _ModuleSupport.PickFocusInputs): _Scene.BBox | _Scene.Path | undefined {
+    }: _ModuleSupport.PickFocusInputs): _ModuleSupport.BBox | _ModuleSupport.Path | undefined {
         const datum = this.contextNodeData?.nodeData[datumIndex];
 
         if (datum?.type === FlowProportionDatumType.Node) {
             const { x, y, width, height } = datum;
             const bbox = new BBox(x, y, width, height);
-            return _Scene.Transformable.toCanvas(this.contentGroup, bbox).clip(seriesRect);
+            return Transformable.toCanvas(this.contentGroup, bbox).clip(seriesRect);
         } else if (datum?.type === FlowProportionDatumType.Link) {
             for (const link of this.linkSelection) {
                 if (link.datum === datum) {

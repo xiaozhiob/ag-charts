@@ -1,4 +1,4 @@
-import { _ModuleSupport, type _Scene } from 'ag-charts-community';
+import { _ModuleSupport } from 'ag-charts-community';
 
 import type { AnnotationOptionsColorPickerType, Point } from '../annotationTypes';
 import type { AnnotationsCreateStateMachineContext } from '../annotationsSuperTypes';
@@ -71,7 +71,7 @@ export abstract class TextualPointStateMachine<
             ctx.deselect();
         };
 
-        const actionUpdateTextInputBBox = (bbox?: _Scene.BBox) => {
+        const actionUpdateTextInputBBox = (bbox?: _ModuleSupport.BBox) => {
             this.node?.setTextInputBBox(bbox);
             ctx.update();
         };
@@ -109,7 +109,7 @@ export abstract class TextualPointStateMachine<
             ctx.delete();
         };
 
-        const actionSave = ({ textInputValue, bbox }: { textInputValue?: string; bbox?: _Scene.BBox }) => {
+        const actionSave = ({ textInputValue, bbox }: { textInputValue?: string; bbox?: _ModuleSupport.BBox }) => {
             if (bbox != null && textInputValue != null && textInputValue.length > 0) {
                 const { datum } = this;
 

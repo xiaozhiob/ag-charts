@@ -5,14 +5,26 @@ import {
     type TextAlign,
     type VerticalAlign,
     _ModuleSupport,
-    _Scene,
 } from 'ag-charts-community';
 
 import { formatLabels } from '../util/labelFormatter';
 import { TreemapSeriesProperties } from './treemapSeriesProperties';
 
-const { TextUtils, TextWrapper, Color, Logger, clamp, isNumberEqual, sanitizeHtml } = _ModuleSupport;
-const { Rect, Group, BBox, Selection, Text } = _Scene;
+const {
+    TextUtils,
+    TextWrapper,
+    Color,
+    Logger,
+    clamp,
+    isNumberEqual,
+    sanitizeHtml,
+    Transformable,
+    Rect,
+    Group,
+    BBox,
+    Selection,
+    Text,
+} = _ModuleSupport;
 
 type Side = 'left' | 'right' | 'top' | 'bottom';
 
@@ -78,7 +90,7 @@ const verticalAlignFactors: Record<VerticalAlign, number | undefined> = {
     bottom: 1,
 };
 
-class DistantGroup extends _Scene.Group implements _ModuleSupport.DistantObject {
+class DistantGroup extends _ModuleSupport.Group implements _ModuleSupport.DistantObject {
     distanceSquared(x: number, y: number): number {
         return this.getBBox().distanceSquared(x, y);
     }
@@ -93,12 +105,12 @@ export class TreemapSeries<
     override properties = new TreemapSeriesProperties();
 
     groupSelection = Selection.select(this.contentGroup, DistantGroup);
-    private readonly highlightSelection: _Scene.Selection<_Scene.Group, _ModuleSupport.HierarchyNode> =
+    private readonly highlightSelection: _ModuleSupport.Selection<_ModuleSupport.Group, _ModuleSupport.HierarchyNode> =
         Selection.select(this.highlightGroup, Group);
 
     private labelData?: (LabelData | undefined)[];
 
-    private groupTitleHeight(node: _ModuleSupport.HierarchyNode, bbox: _Scene.BBox): number | undefined {
+    private groupTitleHeight(node: _ModuleSupport.HierarchyNode, bbox: _ModuleSupport.BBox): number | undefined {
         const label = this.labelData?.[node.index]?.label;
 
         const { label: font } = this.properties.group;
@@ -118,7 +130,7 @@ export class TreemapSeries<
         }
     }
 
-    private getNodePadding(node: _ModuleSupport.HierarchyNode, bbox: _Scene.BBox) {
+    private getNodePadding(node: _ModuleSupport.HierarchyNode, bbox: _ModuleSupport.BBox) {
         if (node.index === 0) {
             return {
                 top: 0,
@@ -228,8 +240,8 @@ export class TreemapSeries<
      */
     private squarify(
         node: _ModuleSupport.HierarchyNode<TDatum>,
-        bbox: _Scene.BBox,
-        outputBoxes: (_Scene.BBox | undefined)[],
+        bbox: _ModuleSupport.BBox,
+        outputBoxes: (_ModuleSupport.BBox | undefined)[],
         outputPadding: (Padding | undefined)[]
     ) {
         const { index, datum, children } = node;
@@ -335,9 +347,9 @@ export class TreemapSeries<
         }
     }
 
-    private applyGap(innerBox: _Scene.BBox, childBox: _Scene.BBox, allLeafNodes: boolean) {
+    private applyGap(innerBox: _ModuleSupport.BBox, childBox: _ModuleSupport.BBox, allLeafNodes: boolean) {
         const gap = allLeafNodes ? this.properties.tile.gap * 0.5 : this.properties.group.gap * 0.5;
-        const getBounds = (box: _Scene.BBox): Record<Side, number> => ({
+        const getBounds = (box: _ModuleSupport.BBox): Record<Side, number> => ({
             left: box.x,
             top: box.y,
             right: box.x + box.width,
@@ -368,7 +380,7 @@ export class TreemapSeries<
 
         const descendants = Array.from(this.rootNode);
 
-        const updateGroup = (group: _Scene.Group) => {
+        const updateGroup = (group: _ModuleSupport.Group) => {
             group.append([
                 new Rect(),
                 new Text({ tag: TextNodeTag.Primary }),
@@ -440,7 +452,7 @@ export class TreemapSeries<
         if (!seriesRect || !data) return;
 
         const { width, height } = seriesRect;
-        const bboxes: (_Scene.BBox | undefined)[] = Array.from(this.rootNode, () => undefined);
+        const bboxes: (_ModuleSupport.BBox | undefined)[] = Array.from(this.rootNode, () => undefined);
         const paddings: (Padding | undefined)[] = Array.from(this.rootNode, () => undefined);
         this.squarify(rootNode, new BBox(0, 0, width, height), bboxes, paddings);
 
@@ -452,7 +464,7 @@ export class TreemapSeries<
 
         this.updateNodeMidPoint(bboxes);
 
-        const updateRectFn = (node: _ModuleSupport.HierarchyNode, rect: _Scene.Rect, highlighted: boolean) => {
+        const updateRectFn = (node: _ModuleSupport.HierarchyNode, rect: _ModuleSupport.Rect, highlighted: boolean) => {
             const bbox = bboxes[node.index];
             if (bbox == null) {
                 rect.visible = false;
@@ -627,7 +639,7 @@ export class TreemapSeries<
 
         const updateLabelFn = (
             node: _ModuleSupport.HierarchyNode,
-            text: _Scene.Text,
+            text: _ModuleSupport.Text,
             tag: TextNodeTag,
             highlighted: boolean
         ) => {
@@ -679,7 +691,7 @@ export class TreemapSeries<
         });
     }
 
-    private updateNodeMidPoint(bboxes: (_Scene.BBox | undefined)[]) {
+    private updateNodeMidPoint(bboxes: (_ModuleSupport.BBox | undefined)[]) {
         this.rootNode.walk((node) => {
             const bbox = bboxes[node.index];
             if (bbox != null) {
@@ -689,7 +701,9 @@ export class TreemapSeries<
         });
     }
 
-    protected override pickNodeClosestDatum(point: _Scene.Point): _ModuleSupport.SeriesNodePickMatch | undefined {
+    protected override pickNodeClosestDatum(
+        point: _ModuleSupport.Point
+    ): _ModuleSupport.SeriesNodePickMatch | undefined {
         const exactMatch = this.pickNodeExactShape(point);
         if (exactMatch !== undefined) {
             return exactMatch;
@@ -811,8 +825,8 @@ export class TreemapSeries<
 
     protected computeFocusBounds(
         node: _ModuleSupport.HierarchyNode<_ModuleSupport.SeriesNodeDatum>
-    ): _Scene.BBox | undefined {
+    ): _ModuleSupport.BBox | undefined {
         const rects = this.groupSelection.selectByClass(Rect);
-        return _Scene.Transformable.toCanvas(rects[node.index]);
+        return Transformable.toCanvas(rects[node.index]);
     }
 }

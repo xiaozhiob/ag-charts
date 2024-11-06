@@ -5,7 +5,6 @@ import type {
     Formatter,
     PixelSize,
     TextAlign,
-    _Scene,
 } from 'ag-charts-community';
 import { _ModuleSupport } from 'ag-charts-community';
 
@@ -252,7 +251,7 @@ export function Stroke<T extends Constructor>(Parent: T) {
 
 export function LineStyle<T extends Constructor>(Parent: T) {
     class LineDashInternal extends Parent {
-        lineCap?: _Scene.ShapeLineCap = undefined;
+        lineCap?: _ModuleSupport.ShapeLineCap = undefined;
         computedLineDash?: PixelSize[] = undefined;
 
         @Validate(LINE_DASH, { optional: true })

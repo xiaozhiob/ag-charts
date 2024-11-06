@@ -5,7 +5,6 @@ import type {
     AgToolbarZoomButton,
     AgZoomAnchorPoint,
     AgZoomButtons,
-    _Scene,
 } from 'ag-charts-community';
 import { _ModuleSupport } from 'ag-charts-community';
 
@@ -149,8 +148,8 @@ export class Zoom extends _ModuleSupport.BaseModuleInstance implements _ModuleSu
     public anchorPointY: AgZoomAnchorPoint = DEFAULT_ANCHOR_POINT_Y;
 
     // Scenes
-    private seriesRect?: _Scene.BBox;
-    private paddedRect?: _Scene.BBox;
+    private seriesRect?: _ModuleSupport.BBox;
+    private paddedRect?: _ModuleSupport.BBox;
 
     // Zoom methods
     private readonly axisDragger = new ZoomAxisDragger();
@@ -538,7 +537,7 @@ export class Zoom extends _ModuleSupport.BaseModuleInstance implements _ModuleSu
         this.shouldFlipXY = shouldFlipXY;
     }
 
-    private onUpdateComplete(event: { minRect?: _Scene.BBox; minVisibleRect?: _Scene.BBox }) {
+    private onUpdateComplete(event: { minRect?: _ModuleSupport.BBox; minVisibleRect?: _ModuleSupport.BBox }) {
         const { minRect, minVisibleRect } = event;
         const { enabled, minVisibleItemsX, minVisibleItemsY, paddedRect, shouldFlipXY } = this;
 

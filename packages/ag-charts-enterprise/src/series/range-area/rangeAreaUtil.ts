@@ -1,4 +1,4 @@
-import { _ModuleSupport, _Scene } from 'ag-charts-community';
+import { _ModuleSupport } from 'ag-charts-community';
 
 import { type RangeAreaMarkerDatum } from './rangeAreaProperties';
 
@@ -11,7 +11,7 @@ const {
     prepareLinePathPropertyAnimation,
 } = _ModuleSupport;
 
-export interface RangeAreaLabelDatum extends Readonly<_Scene.Point> {
+export interface RangeAreaLabelDatum extends Readonly<_ModuleSupport.Point> {
     text: string;
     textAlign: CanvasTextAlign;
     textBaseline: CanvasTextBaseline;
@@ -44,15 +44,15 @@ function prepareRangeAreaPathStrokeAnimationFns(
     lowSpans: _ModuleSupport.SpanAnimation,
     visibleToggleMode: 'fade' | 'none'
 ) {
-    const removePhaseFn = (ratio: number, path: _Scene.Path) => {
+    const removePhaseFn = (ratio: number, path: _ModuleSupport.Path) => {
         plotInterpolatedLinePathStroke(ratio, path, highSpans.removed);
         plotInterpolatedLinePathStroke(ratio, path, lowSpans.removed);
     };
-    const updatePhaseFn = (ratio: number, path: _Scene.Path) => {
+    const updatePhaseFn = (ratio: number, path: _ModuleSupport.Path) => {
         plotInterpolatedLinePathStroke(ratio, path, highSpans.moved);
         plotInterpolatedLinePathStroke(ratio, path, lowSpans.moved);
     };
-    const addPhaseFn = (ratio: number, path: _Scene.Path) => {
+    const addPhaseFn = (ratio: number, path: _ModuleSupport.Path) => {
         plotInterpolatedLinePathStroke(ratio, path, highSpans.added);
         plotInterpolatedLinePathStroke(ratio, path, lowSpans.added);
     };

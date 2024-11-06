@@ -1,11 +1,11 @@
-import { _ModuleSupport, _Scene } from 'ag-charts-community';
+import { _ModuleSupport } from 'ag-charts-community';
 import type { AgSunburstSeriesStyle, AgTooltipRendererResult } from 'ag-charts-types';
 
 import { formatLabels } from '../util/labelFormatter';
 import { SunburstSeriesProperties } from './sunburstSeriesProperties';
 
-const { fromToMotion, sanitizeHtml, normalizeAngle360 } = _ModuleSupport;
-const { Sector, ScalableGroup, Selection, TransformableText } = _Scene;
+const { fromToMotion, sanitizeHtml, normalizeAngle360, Sector, ScalableGroup, Selection, TransformableText } =
+    _ModuleSupport;
 
 interface LabelData {
     label: string | undefined;
@@ -52,7 +52,7 @@ enum TextNodeTag {
 }
 
 export class SunburstSeries extends _ModuleSupport.HierarchySeries<
-    _Scene.ScalableGroup,
+    _ModuleSupport.ScalableGroup,
     SunburstSeriesProperties,
     _ModuleSupport.SeriesNodeDatum
 > {
@@ -131,7 +131,7 @@ export class SunburstSeries extends _ModuleSupport.HierarchySeries<
 
         const descendants: _ModuleSupport.HierarchyNode[] = Array.from(this.rootNode);
 
-        const updateGroup = (group: _Scene.Group) => {
+        const updateGroup = (group: _ModuleSupport.Group) => {
             group.append([
                 new Sector(),
                 new TransformableText({ tag: TextNodeTag.Primary }),
@@ -179,7 +179,11 @@ export class SunburstSeries extends _ModuleSupport.HierarchySeries<
             }
         });
 
-        const updateSector = (node: _ModuleSupport.HierarchyNode, sector: _Scene.Sector, highlighted: boolean) => {
+        const updateSector = (
+            node: _ModuleSupport.HierarchyNode,
+            sector: _ModuleSupport.Sector,
+            highlighted: boolean
+        ) => {
             const { depth } = node;
             const angleDatum = this.angleData[node.index];
             if (depth == null || angleDatum == null) {
@@ -355,7 +359,7 @@ export class SunburstSeries extends _ModuleSupport.HierarchySeries<
 
         const updateText = (
             node: _ModuleSupport.HierarchyNode,
-            text: _Scene.TransformableText,
+            text: _ModuleSupport.TransformableText,
             tag: TextNodeTag,
             highlighted: boolean
         ) => {
@@ -548,16 +552,18 @@ export class SunburstSeries extends _ModuleSupport.HierarchySeries<
         return undefined;
     }
 
-    protected override pickNodeClosestDatum(point: _Scene.Point): _ModuleSupport.SeriesNodePickMatch | undefined {
+    protected override pickNodeClosestDatum(
+        point: _ModuleSupport.Point
+    ): _ModuleSupport.SeriesNodePickMatch | undefined {
         return this.pickNodeNearestDistantObject(point, this.groupSelection.selectByClass(Sector));
     }
 
     protected override animateEmptyUpdateReady({
         datumSelections,
-    }: _ModuleSupport.HierarchyAnimationData<_Scene.ScalableGroup, _ModuleSupport.SeriesNodeDatum>) {
+    }: _ModuleSupport.HierarchyAnimationData<_ModuleSupport.ScalableGroup, _ModuleSupport.SeriesNodeDatum>) {
         fromToMotion<
-            _Scene.ScalableGroup,
-            Pick<_Scene.ScalableGroup, 'scalingX' | 'scalingY'>,
+            _ModuleSupport.ScalableGroup,
+            Pick<_ModuleSupport.ScalableGroup, 'scalingX' | 'scalingY'>,
             _ModuleSupport.HierarchyNode<_ModuleSupport.SeriesNodeDatum>
         >(this.id, 'nodes', this.ctx.animationManager, datumSelections, {
             toFn() {
@@ -575,11 +581,11 @@ export class SunburstSeries extends _ModuleSupport.HierarchySeries<
 
     protected override computeFocusBounds(
         nodeDatum: _ModuleSupport.HierarchyNode<_ModuleSupport.SeriesNodeDatum>
-    ): _Scene.Path | undefined {
-        let match: _Scene.Sector | undefined;
+    ): _ModuleSupport.Path | undefined {
+        let match: _ModuleSupport.Sector | undefined;
         for (const { node, datum } of this.groupSelection) {
             if (datum === nodeDatum) {
-                match = _Scene.Selection.selectByClass<_Scene.Sector>(node, _Scene.Sector)[0];
+                match = Selection.selectByClass<_ModuleSupport.Sector>(node, Sector)[0];
             }
         }
         return match;

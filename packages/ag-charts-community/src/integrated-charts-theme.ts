@@ -1,3 +1,5 @@
+// Only these imports are used by ag-grid.
+// DO NOT ADD EXPORTS UNLESS REQUIRED BY INTEGRATED CHARTS.
 import { themes as themeFactories } from './chart/mapping/themes';
 
 export { getChartTheme } from './chart/mapping/themes';
