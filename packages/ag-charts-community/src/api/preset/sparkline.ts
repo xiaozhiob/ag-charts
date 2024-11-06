@@ -172,19 +172,22 @@ function createInitialBaseTheme(
     return initialBaseTheme;
 }
 
-function dataPreset(data: any[] | undefined): [any[] | undefined, AgCartesianSeriesOptions | undefined] {
+export function sparklineDataPreset(data: any[] | undefined): {
+    data: any[] | undefined;
+    series?: { xKey: string; yKey: string }[];
+} {
     if (Array.isArray(data) && data.length !== 0) {
         const firstItem = data[0];
         if (typeof firstItem === 'number') {
             const mappedData = data.map((y, x) => ({ x, y }));
-            return [mappedData, { xKey: 'x', yKey: 'y' }];
+            return { data: mappedData, series: [{ xKey: 'x', yKey: 'y' }] };
         } else if (Array.isArray(firstItem)) {
             const mappedData = data.map(([x, y]) => ({ x, y }));
-            return [mappedData, { xKey: 'x', yKey: 'y' }];
+            return { data: mappedData, series: [{ xKey: 'x', yKey: 'y' }] };
         }
     }
 
-    return [data, undefined];
+    return { data };
 }
 
 function axisPreset(
@@ -310,7 +313,7 @@ export function sparkline(opts: AgSparklineOptions): AgCartesianChartOptions {
         theme: IGNORED_PROP,
     });
 
-    const [data, seriesOverrides] = dataPreset(baseData);
+    const { data, series: [seriesOverrides] = [] } = sparklineDataPreset(baseData);
 
     const seriesOptions = optsRest as any as AgCartesianSeriesOptions;
     // Assign is safe as it comes from a rest object

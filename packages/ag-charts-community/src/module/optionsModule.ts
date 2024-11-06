@@ -9,7 +9,7 @@ import {
     AgTooltipPositionType,
 } from 'ag-charts-types';
 
-import { PRESETS } from '../api/preset/presets';
+import { PRESETS, PRESET_DATA_PROCESSORS } from '../api/preset/presets';
 import { axisRegistry } from '../chart/factory/axisRegistry';
 import { publicChartTypes } from '../chart/factory/chartTypes';
 import { isEnterpriseSeriesType } from '../chart/factory/expectedEnterpriseModules';
@@ -51,7 +51,7 @@ export interface ChartSpecialOverrides {
 }
 
 export interface ChartInternalOptionMetadata {
-    presetType?: string;
+    presetType?: keyof typeof PRESETS;
 }
 
 type GroupingOptions = {
@@ -145,6 +145,12 @@ export class ChartOptions<T extends AgChartOptions = AgChartOptions> {
 
     private fastSetup(deltaOptions: DeepPartial<T>, baseChartOptions: ChartOptions<T>) {
         const { activeTheme, defaultAxes, processedOptions: baseOptions } = baseChartOptions;
+
+        const { presetType } = this.optionMetadata;
+        const processor = presetType ? PRESET_DATA_PROCESSORS[presetType] : undefined;
+        if (presetType != null && deltaOptions.data != null && processor != null) {
+            deltaOptions = mergeDefaults(deltaOptions, processor(deltaOptions.data)) as DeepPartial<T>;
+        }
 
         const processedOptions = mergeDefaults(deltaOptions, baseOptions);
         return { activeTheme, defaultAxes, processedOptions, fastDelta: deltaOptions };
