@@ -312,7 +312,7 @@ export function sparkline(opts: AgSparklineOptions): AgCartesianChartOptions {
 
     const [data, seriesOverrides] = dataPreset(baseData);
 
-    let seriesOptions = optsRest as any as AgCartesianSeriesOptions;
+    const seriesOptions = optsRest as any as AgCartesianSeriesOptions;
     // Assign is safe as it comes from a rest object
     if (seriesOverrides != null) Object.assign(seriesOptions, seriesOverrides);
 
