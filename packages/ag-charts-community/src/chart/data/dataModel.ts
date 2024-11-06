@@ -635,15 +635,17 @@ export class DataModel<
 
         let invalidKeys: boolean[] | undefined;
         const keys = keyDefs.map((def) => {
+            const { invalidValue } = def;
+
             return data.map((datum, datumIndex) => {
                 const key = processValue(def, datum, datumIndex);
 
-                if (key != null && key !== INVALID_VALUE) return key;
+                if (key !== INVALID_VALUE) return key;
 
                 invalidKeys ??= createArray(dataLength, false);
                 invalidKeys[datumIndex] = true;
 
-                return undefined;
+                return invalidValue;
             });
         });
 
@@ -658,34 +660,38 @@ export class DataModel<
             datumValidity[datumIndex] = true;
         };
 
-        const columns = valueDefs.map((def) => {
+        const columns: any[][] = [];
+        valueDefs.forEach((def) => {
             const { invalidValue } = def;
 
-            return data.map((datum, datumIndex) => {
-                let value;
-                if (invalidKeys?.[datumIndex] === true) {
-                    for (const scope of def.scopes ?? scopes) {
-                        markScopeDatumInvalid(scope, datumIndex);
-                    }
+            const previousColumn = columns.length > 0 ? columns[columns.length - 1] : undefined;
 
-                    return invalidValue;
-                }
-
+            const column = data.map((datum, datumIndex) => {
+                const invalidKey = invalidKeys?.[datumIndex] === true;
+                let value = previousColumn?.[datumIndex];
                 for (const scope of def.scopes ?? scopes) {
                     const source = sourcesById.get(scope);
                     const valueDatum = source?.data[datumIndex] ?? datum;
 
                     value = processValue(def, valueDatum, datumIndex, value, scope);
 
-                    if (value === INVALID_VALUE) {
+                    if (invalidKey || value === INVALID_VALUE) {
                         markScopeDatumInvalid(scope, datumIndex);
                     }
                 }
 
-                if (value !== INVALID_VALUE) return value;
+                if (invalidKey) {
+                    return invalidValue;
+                } else if (value === INVALID_VALUE) {
+                    partialValidDataCount += 1;
 
-                return invalidValue;
+                    return invalidValue;
+                }
+
+                return value;
             });
+
+            columns.push(column);
         });
 
         const propertyDomain = (def: InternalDatumPropertyDefinition<K>) => {
@@ -745,12 +751,21 @@ export class DataModel<
             if (invalidKeys?.[datumIndex] === true) continue;
 
             let validScopes: Set<string> | undefined;
-            invalidDataScopes?.forEach((invalidDatums, scope) => {
-                if (invalidDatums[datumIndex] === true) {
-                    validScopes ??= new Set();
-                    validScopes.add(scope);
+            if (invalidDataScopes != null) {
+                validScopes = new Set();
+                invalidDataScopes.forEach((invalidDatums, scope) => {
+                    if (invalidDatums[datumIndex] === false) {
+                        validScopes!.add(scope);
+                    }
+                });
+
+                if (validScopes.size === 0) {
+                    continue;
+                } else if (validScopes.size === invalidDataScopes.size) {
+                    // Default to all being valid
+                    validScopes = undefined;
                 }
-            });
+            }
 
             const existingGroup = groups.get(groupStr);
             if (existingGroup != null) {
