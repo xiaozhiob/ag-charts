@@ -9,6 +9,7 @@ import { DestroyFns } from '../util/destroy';
 import { createElement, setElementBBox } from '../util/dom';
 import { initRovingTabIndex } from '../util/keynavUtil';
 import { isDefined } from '../util/type-guards';
+import type { ButtonWidget } from '../widget/buttonWidget';
 import type { GroupWidget } from '../widget/groupWidget';
 import type { NativeWidget } from '../widget/nativeWidget';
 import type { Page } from './gridLayout';
@@ -52,8 +53,8 @@ export class LegendDOMProxy {
     private readonly itemDescription: HTMLParagraphElement;
     private readonly paginationGroup: GroupWidget;
     private readonly destroyFns: DestroyFns = new DestroyFns();
-    private prevButton?: NativeWidget<HTMLButtonElement>;
-    private nextButton?: NativeWidget<HTMLButtonElement>;
+    private prevButton?: ButtonWidget;
+    private nextButton?: ButtonWidget;
 
     public constructor(
         ctx: Pick<ModuleContext, 'proxyInteractionService' | 'localeManager'>,

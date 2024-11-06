@@ -10,6 +10,7 @@ import { SliderWidget } from '../widget/sliderWidget';
 import { ToolbarWidget } from '../widget/toolbarWidget';
 import type { Widget } from '../widget/widget';
 import type { DOMManager } from './domManager';
+import { ButtonWidget } from '../widget/buttonWidget';
 
 export type ListSwitch = { button: HTMLButtonElement; listitem: HTMLElement; remove(): void };
 
@@ -52,7 +53,7 @@ type ProxyMeta = {
             InteractParams<'button'> & {
                 readonly textContent: string | TranslationKey;
             };
-        result: NativeWidget<HTMLButtonElement>;
+        result: ButtonWidget;
     };
     slider: {
         params: ParentProperties<ToolbarWidget> &
@@ -114,7 +115,7 @@ function checkType<T extends keyof ProxyMeta>(type: T, meta: ProxyMeta[keyof Pro
 
 function allocateResult<T extends keyof ProxyMeta>(type: T): ProxyMeta[T]['result'] {
     if ('button' === type) {
-        return NativeWidget.createElement('button');
+        return new ButtonWidget();
     } else if ('slider' === type) {
         return new SliderWidget();
     } else if ('toolbar' === type) {
