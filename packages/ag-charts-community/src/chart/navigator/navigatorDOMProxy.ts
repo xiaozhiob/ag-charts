@@ -34,7 +34,7 @@ export class NavigatorDOMProxy {
             type: 'toolbar',
             domManagerId: `navigator-toolbar`,
             classList: ['ag-charts-proxy-navigator-toolbar'],
-            ariaOrientation: 'vertical',
+            orientation: 'vertical',
             ariaLabel: { id: 'ariaLabelNavigator' },
         });
 

@@ -43,7 +43,6 @@ type ContainerParams<T extends ProxyContainerType> = {
     readonly domManagerId: string;
     readonly classList: string[];
     readonly ariaLabel: TranslationKey;
-    readonly ariaOrientation: Direction;
     readonly ariaHidden?: boolean;
 };
 
@@ -79,15 +78,15 @@ type ProxyMeta = {
 
     // Containers
     toolbar: {
-        params: ContainerParams<'toolbar'>;
+        params: ContainerParams<'toolbar'> & { readonly orientation: Direction };
         result: ToolbarWidget;
     };
     group: {
-        params: ContainerParams<'group'>;
+        params: ContainerParams<'group'> & { readonly ariaOrientation: Direction };
         result: NativeWidget<HTMLDivElement>;
     };
     list: {
-        params: Omit<ContainerParams<'list'>, 'ariaOrientation'>;
+        params: ContainerParams<'list'>;
         result: NativeWidget<HTMLDivElement>;
     };
 };
@@ -180,6 +179,10 @@ export class ProxyInteractionService {
         div.role = params.type;
         if ('ariaOrientation' in params) {
             div.ariaOrientation = params.ariaOrientation;
+        }
+
+        if (checkType('toolbar', meta)) {
+            meta.result.orientation = meta.params.orientation;
         }
 
         if (typeof params.ariaHidden === 'boolean') {
