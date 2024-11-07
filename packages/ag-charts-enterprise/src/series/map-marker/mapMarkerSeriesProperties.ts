@@ -28,7 +28,6 @@ const {
     SeriesTooltip,
     Logger,
     Label,
-    Circle,
 } = _ModuleSupport;
 
 export interface MapMarkerNodeLabelDatum extends _ModuleSupport.PointLabelDatum {}
