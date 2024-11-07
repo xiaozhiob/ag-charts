@@ -63,7 +63,7 @@ export interface _IUtil {
 export interface IntegratedModule<O extends AgChartInstanceOptions> {
     AgCharts: {
         setGridContext(gridContext: boolean): void;
-        getLicenseDetails(licenseKey: string): void;
+        setLicenseKey(licenseKey: string): void;
     };
     VERSION: string;
     _Scene: _IScene;
