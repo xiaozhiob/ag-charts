@@ -367,7 +367,7 @@ export class ProxyInteractionService {
     ) {
         if ('parent' in params) {
             params.parent?.appendChild(element);
-        } else if ('where' in params && 'domManageId' in params) {
+        } else {
             const insert = { where: params.where, query: '.ag-charts-series-area' };
             this.domManager.addChild('canvas-proxy', params.domManagerId, element.getElement(), insert);
         }
