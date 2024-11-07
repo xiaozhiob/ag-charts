@@ -1,16 +1,17 @@
-import { WidgetEvent, type WidgetEventMap, type WidgetSourceEventMap } from './widgetEvents';
+import { WidgetEventUtil } from './widgetEvents';
+import type { WidgetEventMap_HTML, WidgetSourceEventMap_HTML } from './widgetEvents';
 
 type TargetableWidget = { getElement(): HTMLElement };
 
-type TypedMap<K extends keyof WidgetEventMap, TWidget extends TargetableWidget> = Map<
-    (target: TWidget, widgetEvent: WidgetEventMap[K]) => unknown,
-    (this: HTMLElement, sourceEvent: WidgetSourceEventMap[K]) => void
+type TypedMap<K extends keyof WidgetEventMap_HTML, TWidget extends TargetableWidget> = Map<
+    (target: TWidget, widgetEvent: WidgetEventMap_HTML[K]) => unknown,
+    (this: HTMLElement, sourceEvent: WidgetSourceEventMap_HTML[K]) => void
 >;
 
-export class WidgetListenerMap<TWidget extends TargetableWidget> {
-    private readonly maps: { [K in keyof WidgetEventMap]?: TypedMap<K, TWidget> } = {};
+export class WidgetListenerHTML<TWidget extends TargetableWidget> {
+    private readonly maps: { [K in keyof WidgetEventMap_HTML]?: TypedMap<K, TWidget> } = {};
 
-    private lazyGetMap<K extends keyof WidgetEventMap>(type: K): TypedMap<K, TWidget> {
+    private lazyGetMap<K extends keyof WidgetEventMap_HTML>(type: K): TypedMap<K, TWidget> {
         let result = this.maps[type];
         if (result === undefined) {
             result = new Map();
@@ -19,26 +20,26 @@ export class WidgetListenerMap<TWidget extends TargetableWidget> {
         return result;
     }
 
-    add<K extends keyof WidgetEventMap>(
+    add<K extends keyof WidgetEventMap_HTML>(
         type: K,
         target: TWidget,
-        widgetHandler: (target: TWidget, widgetEvent: WidgetEventMap[K]) => unknown
+        widgetHandler: (target: TWidget, widgetEvent: WidgetEventMap_HTML[K]) => unknown
     ): void {
         const map = this.lazyGetMap(type);
         if (map.has(widgetHandler)) throw new Error('AG Charts - duplicate add(handler)');
 
-        const sourceHandler = (sourceEvent: WidgetSourceEventMap[K]): void => {
-            const widgetEvent = WidgetEvent.alloc(type, sourceEvent);
+        const sourceHandler = (sourceEvent: WidgetSourceEventMap_HTML[K]): void => {
+            const widgetEvent = WidgetEventUtil.alloc(type, sourceEvent);
             widgetHandler(target, widgetEvent);
         };
         target.getElement().addEventListener(type, sourceHandler);
         map.set(widgetHandler, sourceHandler);
     }
 
-    remove<K extends keyof WidgetEventMap>(
+    remove<K extends keyof WidgetEventMap_HTML>(
         type: K,
         target: TWidget,
-        widgetHandler: (target: TWidget, widgetEvent: WidgetEventMap[K]) => unknown
+        widgetHandler: (target: TWidget, widgetEvent: WidgetEventMap_HTML[K]) => unknown
     ): void {
         const map = this.lazyGetMap(type);
         const sourceHandler = map.get(widgetHandler);
@@ -49,12 +50,12 @@ export class WidgetListenerMap<TWidget extends TargetableWidget> {
     }
 
     destroy(target: TWidget): void {
-        for (const type of Object.keys(this.maps) as (keyof WidgetEventMap)[]) {
+        for (const type of Object.keys(this.maps) as (keyof WidgetEventMap_HTML)[]) {
             this.typedDestroy(type, target);
         }
     }
 
-    private typedDestroy<K extends keyof WidgetEventMap>(type: K, target: TWidget): void {
+    private typedDestroy<K extends keyof WidgetEventMap_HTML>(type: K, target: TWidget): void {
         const map = this.maps[type];
         if (map == null) return;
         for (const [_widgetHandler, sourceHandler] of map.entries()) {

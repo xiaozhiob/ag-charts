@@ -7,8 +7,8 @@ import {
 } from '../util/attributeUtil';
 import type { BBoxValues } from '../util/bboxinterface';
 import { getElementBBox, getWindow, setElementBBox } from '../util/dom';
-import type { WidgetEventMap } from './widgetEvents';
-import { WidgetListenerMap } from './widgetListenerMap';
+import { type WidgetEventMap, WidgetEventUtil } from './widgetEvents';
+import { WidgetListenerHTML } from './widgetListenerHTML';
 
 interface IWidget<TElement extends HTMLElement> {
     index: number;
@@ -71,7 +71,7 @@ export abstract class Widget<
         this.destructor();
         this.elem.remove();
         this.elemContainer?.remove();
-        this.map?.destroy(this);
+        this.htmlListener?.destroy(this);
     }
 
     setHidden(hidden: boolean): void {
@@ -130,20 +130,34 @@ export abstract class Widget<
 
     protected onChildRemoved(_child: TChildWidget): void {}
 
-    protected map?: WidgetListenerMap<typeof this>;
+    protected htmlListener?: WidgetListenerHTML<typeof this>;
 
     addListener<K extends keyof WidgetEventMap>(
         type: K,
         listener: (target: typeof this, ev: WidgetEventMap[K]) => unknown
-    ) {
-        this.map ??= new WidgetListenerMap();
-        this.map.add(type, this, listener);
+    ): void;
+
+    addListener<K extends keyof WidgetEventMap>(
+        type: K,
+        listener: (target: typeof this, ev: unknown) => unknown
+    ): void {
+        if (WidgetEventUtil.isHTMLEvent(type)) {
+            this.htmlListener ??= new WidgetListenerHTML();
+            this.htmlListener.add(type, this, listener);
+        }
     }
 
     removeListener<K extends keyof WidgetEventMap>(
         type: K,
         listener: (target: typeof this, ev: WidgetEventMap[K]) => unknown
-    ) {
-        this.map?.remove(type, this, listener);
+    ): void;
+
+    removeListener<K extends keyof WidgetEventMap>(
+        type: K,
+        listener: (target: typeof this, ev: unknown) => unknown
+    ): void {
+        if (WidgetEventUtil.isHTMLEvent(type)) {
+            this.htmlListener?.remove(type, this, listener);
+        }
     }
 }
