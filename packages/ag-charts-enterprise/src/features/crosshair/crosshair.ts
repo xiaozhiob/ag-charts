@@ -142,11 +142,16 @@ export class Crosshair extends _ModuleSupport.BaseModuleInstance implements _Mod
 
     private updateLabels(keys: string[]) {
         const { labels, ctx } = this;
-        keys.forEach((key) => {
-            labels[key] ??= new CrosshairLabel(ctx.domManager, key, this.axisCtx.axisId);
+        for (const key of keys) {
+            // Lazy creation of labels if enabled.
+            if (this.label.enabled) {
+                labels[key] ??= new CrosshairLabel(ctx.domManager, key, this.axisCtx.axisId);
+            }
 
-            this.updateLabel(labels[key]);
-        });
+            if (labels[key]) {
+                this.updateLabel(labels[key]);
+            }
+        }
         this.labelFormatter = this.axisCtx.scaleValueFormatter(this.label.format);
     }
 
@@ -399,6 +404,6 @@ export class Crosshair extends _ModuleSupport.BaseModuleInstance implements _Mod
     }
 
     private hideLabel(key: string) {
-        this.labels[key].toggle(false);
+        this.labels[key]?.toggle(false);
     }
 }
