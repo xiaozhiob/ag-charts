@@ -1,10 +1,10 @@
-import { WidgetEvent, type WidgetEventMap } from './widgetEvents';
+import { WidgetEvent, type WidgetEventMap, type WidgetSourceEventMap } from './widgetEvents';
 
 type TargetableWidget = { getElement(): HTMLElement };
 
-type TypedMap<K extends keyof WidgetEventMap & keyof HTMLElementEventMap, TWidget extends TargetableWidget> = Map<
+type TypedMap<K extends keyof WidgetEventMap, TWidget extends TargetableWidget> = Map<
     (target: TWidget, widgetEvent: WidgetEventMap[K]) => unknown,
-    (this: HTMLElement, sourceEvent: HTMLElementEventMap[K]) => void
+    (this: HTMLElement, sourceEvent: WidgetSourceEventMap[K]) => void
 >;
 
 export class WidgetListenerMap<TWidget extends TargetableWidget> {
@@ -27,7 +27,7 @@ export class WidgetListenerMap<TWidget extends TargetableWidget> {
         const map = this.lazyGetMap(type);
         if (map.has(widgetHandler)) throw new Error('AG Charts - duplicate add(handler)');
 
-        const sourceHandler = (sourceEvent: HTMLElementEventMap[K]): void => {
+        const sourceHandler = (sourceEvent: WidgetSourceEventMap[K]): void => {
             const widgetEvent = WidgetEvent.alloc(type, sourceEvent);
             widgetHandler(target, widgetEvent);
         };

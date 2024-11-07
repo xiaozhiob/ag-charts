@@ -11,7 +11,11 @@ export type WidgetEventMap = {
     keydown: KeyboardWidgetEvent;
 };
 
-const WidgetAllocators: { [K in keyof WidgetEventMap]: (sourceEvent: HTMLElementEventMap[K]) => WidgetEventMap[K] } = {
+export type WidgetSourceEventMap = {
+    [K in keyof WidgetEventMap]: WidgetEventMap[K]['sourceEvent'];
+};
+
+const WidgetAllocators: { [K in keyof WidgetEventMap]: (sourceEvent: WidgetSourceEventMap[K]) => WidgetEventMap[K] } = {
     focus: (sourceEvent: FocusEvent): FocusWidgetEvent => {
         return { sourceEvent };
     },
@@ -21,7 +25,7 @@ const WidgetAllocators: { [K in keyof WidgetEventMap]: (sourceEvent: HTMLElement
 };
 
 export const WidgetEvent = {
-    alloc<K extends keyof WidgetEventMap>(type: K, sourceEvent: HTMLElementEventMap[K]): WidgetEventMap[K] {
+    alloc<K extends keyof WidgetEventMap>(type: K, sourceEvent: WidgetSourceEventMap[K]): WidgetEventMap[K] {
         return WidgetAllocators[type](sourceEvent);
     },
 };
