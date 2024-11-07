@@ -5,7 +5,7 @@ import { RovingTabContainerWidget } from './rovingTabContainerWidget';
 type TChildWidget = Parameters<RovingTabContainerWidget['appendChildToDOM']>[0];
 
 export class ListWidget extends RovingTabContainerWidget {
-    private listitems: HTMLDivElement[] = [];
+    private readonly listitems: HTMLDivElement[] = [];
 
     constructor() {
         super('both', 'list');
