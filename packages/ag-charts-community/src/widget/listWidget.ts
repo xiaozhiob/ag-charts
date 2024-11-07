@@ -23,12 +23,14 @@ export class ListWidget extends RovingTabContainerWidget {
         listitem.replaceChildren(child.getElement());
         this.elem.appendChild(listitem);
         this.listitems.push(listitem);
+        this.setHidden(false);
     }
 
     protected override removeChildFromDOM(child: TChildWidget) {
         const listitem: HTMLDivElement = this.listitems[child.index];
         this.listitems.splice(child.index, 1);
         this.elem.removeChild(listitem);
+        this.setHidden(this.listitems.length === 0);
     }
 
     getListItemElement(index: number): HTMLDivElement | undefined {

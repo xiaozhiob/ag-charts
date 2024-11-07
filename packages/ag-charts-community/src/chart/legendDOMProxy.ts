@@ -7,7 +7,6 @@ import { setElementStyle } from '../util/attributeUtil';
 import type { BBoxValues } from '../util/bboxinterface';
 import { DestroyFns } from '../util/destroy';
 import { createElement, setElementBBox } from '../util/dom';
-import { initRovingTabIndex } from '../util/keynavUtil';
 import { isDefined } from '../util/type-guards';
 import type { ButtonWidget } from '../widget/buttonWidget';
 import type { GroupWidget } from '../widget/groupWidget';
@@ -114,16 +113,6 @@ export class LegendDOMProxy {
                 onfocus: (ev) => itemListener.onHover(ev, markerLabel),
             });
         });
-
-        const buttons: HTMLButtonElement[] = itemSelection
-            .nodes()
-            .map((markerLabel) => markerLabel.proxyButton?.getElement())
-            .filter(isDefined);
-        this.destroyFns.setFns([
-            ...initRovingTabIndex({ orientation: 'horizontal', buttons }),
-            ...initRovingTabIndex({ orientation: 'vertical', buttons }),
-        ]);
-        this.itemList.setHidden(buttons.length === 0);
         this.dirty = false;
     }
 
