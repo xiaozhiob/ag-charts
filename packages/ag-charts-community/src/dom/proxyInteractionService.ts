@@ -2,17 +2,16 @@ import type { Direction } from 'ag-charts-types';
 
 import type { LocaleManager } from '../locale/localeManager';
 import { type BaseStyleTypeMap, setAttribute, setElementStyle } from '../util/attributeUtil';
-import { createElement, getWindow } from '../util/dom';
+import { getWindow } from '../util/dom';
 import { BoundedTextWidget } from '../widget/boundedTextWidget';
+import { ButtonWidget } from '../widget/buttonWidget';
 import { GroupWidget } from '../widget/groupWidget';
+import { ListWidget } from '../widget/listWidget';
 import { NativeWidget } from '../widget/nativeWidget';
 import { SliderWidget } from '../widget/sliderWidget';
 import { ToolbarWidget } from '../widget/toolbarWidget';
 import type { Widget } from '../widget/widget';
 import type { DOMManager } from './domManager';
-import { ButtonWidget } from '../widget/buttonWidget';
-
-export type ListSwitch = { button: HTMLButtonElement; listitem: HTMLElement; remove(): void };
 
 type ParentProperties<T = NativeWidget<HTMLDivElement>> =
     | { readonly parent: T }
@@ -68,13 +67,13 @@ type ProxyMeta = {
         result: BoundedTextWidget;
     };
     listswitch: {
-        params: ParentProperties &
+        params: ParentProperties<ListWidget> &
             InteractParams<'listswitch'> & {
                 readonly textContent: string;
                 readonly ariaChecked: boolean;
                 readonly ariaDescribedBy: string;
             };
-        result: NativeWidget<HTMLElement, ListSwitch>;
+        result: ButtonWidget;
     };
     region: {
         params: ParentProperties & ElemParams<'region'>;
@@ -92,7 +91,7 @@ type ProxyMeta = {
     };
     list: {
         params: ContainerParams<'list'>;
-        result: NativeWidget<HTMLDivElement>;
+        result: ListWidget;
     };
 };
 
@@ -122,17 +121,14 @@ function allocateResult<T extends keyof ProxyMeta>(type: T): ProxyMeta[T]['resul
         return new ToolbarWidget();
     } else if ('group' === type) {
         return new GroupWidget();
-    } else if (['list', 'region'].includes(type)) {
+    } else if ('list' === type) {
+        return new ListWidget();
+    } else if ('region' === type) {
         return NativeWidget.createElement('div');
     } else if ('text' === type) {
         return new BoundedTextWidget();
     } else if ('listswitch' === type) {
-        const value: ListSwitch = {
-            button: createElement('button'),
-            listitem: createElement('div'),
-            remove: () => value.button.remove(),
-        };
-        return new NativeWidget(value.listitem, value);
+        return new ButtonWidget();
     } else {
         throw Error('AG Charts - error allocating meta');
     }
@@ -242,7 +238,7 @@ export class ProxyInteractionService {
 
         if (checkType('listswitch', meta)) {
             const { params, result } = meta;
-            const { listitem, button } = result.value;
+            const button = result.getElement();
             this.initInteract(params, button);
             button.style.width = '100%';
             button.style.height = '100%';
@@ -250,10 +246,6 @@ export class ProxyInteractionService {
             button.role = 'switch';
             button.ariaChecked = params.ariaChecked.toString();
             button.setAttribute('aria-describedby', params.ariaDescribedBy);
-
-            listitem.role = 'listitem';
-            listitem.style.position = 'absolute';
-            listitem.replaceChildren(button);
             this.setParent(meta.params, meta.result);
         }
 

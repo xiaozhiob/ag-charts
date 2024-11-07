@@ -11,7 +11,7 @@ import { initRovingTabIndex } from '../util/keynavUtil';
 import { isDefined } from '../util/type-guards';
 import type { ButtonWidget } from '../widget/buttonWidget';
 import type { GroupWidget } from '../widget/groupWidget';
-import type { NativeWidget } from '../widget/nativeWidget';
+import type { ListWidget } from '../widget/listWidget';
 import type { Page } from './gridLayout';
 import type { CategoryLegendDatum } from './legendDatum';
 import type { LegendMarkerLabel } from './legendMarkerLabel';
@@ -49,7 +49,7 @@ type LegendDOMProxyPageChangeParams = Pick<
 export class LegendDOMProxy {
     private dirty = true;
 
-    private readonly itemList: NativeWidget<HTMLDivElement>;
+    private readonly itemList: ListWidget;
     private readonly itemDescription: HTMLParagraphElement;
     private readonly paginationGroup: GroupWidget;
     private readonly destroyFns: DestroyFns = new DestroyFns();
@@ -94,7 +94,7 @@ export class LegendDOMProxy {
         const count = itemSelection.length;
         itemSelection.each((markerLabel, datum, index) => {
             // Create the hidden CSS button.
-            markerLabel.destroyProxyButton();
+            markerLabel.proxyButton?.destroy();
             markerLabel.proxyButton ??= ctx.proxyInteractionService.createProxyElement({
                 type: 'listswitch',
                 id: `ag-charts-legend-item-${index}`,
@@ -105,7 +105,7 @@ export class LegendDOMProxy {
                 // Retrieve the datum from the node rather than from the method parameter.
                 // The method parameter `datum` gets destroyed when the data is refreshed
                 // using Series.getLegendData(). But the scene node will stay the same.
-                onclick: (ev) => itemListener.onClick(ev, markerLabel.datum, markerLabel.proxyButton!.value.button),
+                onclick: (ev) => itemListener.onClick(ev, markerLabel.datum, markerLabel.proxyButton!.getElement()),
                 ondblclick: (ev) => itemListener.onDoubleClick(ev, markerLabel.datum),
                 onmouseenter: (ev) => itemListener.onHover(ev, markerLabel),
                 onmouseleave: () => itemListener.onLeave(),
@@ -117,7 +117,7 @@ export class LegendDOMProxy {
 
         const buttons: HTMLButtonElement[] = itemSelection
             .nodes()
-            .map((markerLabel) => markerLabel.proxyButton?.value.button)
+            .map((markerLabel) => markerLabel.proxyButton?.getElement())
             .filter(isDefined);
         this.destroyFns.setFns([
             ...initRovingTabIndex({ orientation: 'horizontal', buttons }),
@@ -146,9 +146,10 @@ export class LegendDOMProxy {
 
         const pointer = interactive ? 'pointer' : undefined;
         const maxHeight = Math.max(...itemSelection.nodes().map((l) => l.getBBox().height));
-        itemSelection.each((l) => {
-            if (l.proxyButton) {
-                const { listitem, button } = l.proxyButton.value;
+        itemSelection.each((l, _datum, index) => {
+            const listitem = this.itemList.getListItemElement(index);
+            const button = l.proxyButton?.getElement();
+            if (button && listitem) {
                 const visible = l.pageIndex === pagination.currentPage;
 
                 const { x, y, height, width } = Transformable.toCanvas(l);
@@ -228,9 +229,10 @@ export class LegendDOMProxy {
     ) {
         const count = itemSelection.length;
         itemSelection.each(({ proxyButton }, datum, index) => {
-            if (proxyButton?.value.button != null) {
+            const button = proxyButton?.getElement();
+            if (button != null) {
                 const label = datumReader.getItemLabel(datum);
-                proxyButton.value.button.textContent = this.getItemAriaText(localeManager, label, index, count);
+                button.textContent = this.getItemAriaText(localeManager, label, index, count);
             }
         });
         this.itemDescription.textContent = this.getItemAriaDescription(localeManager);

@@ -73,13 +73,20 @@ export abstract class Widget<
         setAttribute(this.elem, 'tabindex', tabIndex);
     }
 
-    appendChild(child: TChildWidget) {
+    protected appendChildToDOM(child: TChildWidget) {
         this.elem.appendChild(child.getElement());
+    }
+    appendChild(child: TChildWidget) {
+        this.appendChildToDOM(child);
         this.children.push(child);
         child.index = this.children.length - 1;
         this.onChildAdded(child);
     }
     protected onChildAdded(_child: TChildWidget): void {}
+
+    protected removeChildFromDOM(child: TChildWidget): void {
+        this.elem.removeChild(child.getElement());
+    }
     protected onChildRemoved(_child: TChildWidget): void {}
 
     protected map?: WidgetListenerMap<typeof this>;
