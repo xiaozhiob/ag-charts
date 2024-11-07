@@ -14,7 +14,7 @@ import {
     type AgTooltipPositionType,
 } from 'ag-charts-types';
 
-import { IS_ENTERPRISE } from '../../chart/themes/symbols';
+import { DEFAULT_AXIS_GRID_COLOUR, IS_ENTERPRISE } from '../../chart/themes/symbols';
 import { simpleMemorize } from '../../util/memo';
 import { IGNORED_PROP, assertEmpty, pickProps } from './presetUtils';
 
@@ -33,7 +33,7 @@ const commonAxisProperties = {
     },
     crosshair: {
         enabled: false,
-        strokeOpacity: 0.25,
+        stroke: DEFAULT_AXIS_GRID_COLOUR,
         lineDash: [0],
         label: {
             enabled: false,
@@ -287,10 +287,10 @@ export function sparkline(opts: AgSparklineOptions): AgCartesianChartOptions {
         width,
         theme: baseTheme,
         data: baseData,
+        crosshair,
         axis,
         min,
         max,
-        reverse,
         ...optsRest
     } = opts as any as AgBaseSparklinePresetOptions;
     assertEmpty(optsRest);
@@ -306,10 +306,10 @@ export function sparkline(opts: AgSparklineOptions): AgCartesianChartOptions {
         padding,
         width,
         data: IGNORED_PROP,
+        crosshair: IGNORED_PROP,
         axis: IGNORED_PROP,
         min: IGNORED_PROP,
         max: IGNORED_PROP,
-        reverse: IGNORED_PROP,
         theme: IGNORED_PROP,
     });
 
@@ -326,21 +326,20 @@ export function sparkline(opts: AgSparklineOptions): AgCartesianChartOptions {
     const swapAxes = seriesOptions.type !== 'bar' || seriesOptions.direction !== 'horizontal';
     const [xAxisPosition, yAxisPosition] = swapAxes ? (['bottom', 'left'] as const) : (['left', 'bottom'] as const);
 
-    const xAxis: AgCartesianAxisOptions = {
-        ...axisPreset(axis, 'category'),
-        position: xAxisPosition,
-    };
+    const xAxis: AgCartesianAxisOptions = Object.assign(
+        {
+            ...axisPreset(axis, 'category'),
+            position: xAxisPosition,
+        },
+        pickProps<Pick<AgCartesianAxisOptions, 'crosshair'>>(opts, { crosshair })
+    );
     const yAxis: AgCartesianAxisOptions = Object.assign(
         {
             type: 'number',
             gridLine: gridLinePreset(axis, false),
             position: yAxisPosition,
         },
-        pickProps<Pick<AgNumberAxisOptions, 'reverse' | 'min' | 'max'>>(opts, {
-            min,
-            max,
-            reverse,
-        })
+        pickProps<Pick<AgNumberAxisOptions, 'min' | 'max'>>(opts, { min, max })
     );
 
     chartOpts.axes = swapAxes ? [yAxis, xAxis] : [xAxis, yAxis];
