@@ -4,23 +4,26 @@ import type { Nullable } from './types';
 
 type ElementID = string;
 
+type AriaRole =
+    | 'figure'
+    | 'group'
+    | 'img'
+    | 'list'
+    | 'listitem'
+    | 'radio'
+    | 'radiogroup'
+    | 'status'
+    | 'switch'
+    | 'tab'
+    | 'tablist'
+    | 'tabpanel'
+    | 'toolbar';
+
 export type BaseAttributeTypeMap = {
-    role:
-        | 'figure'
-        | 'group'
-        | 'img'
-        | 'list'
-        | 'listitem'
-        | 'radio'
-        | 'radiogroup'
-        | 'status'
-        | 'switch'
-        | 'tab'
-        | 'tablist'
-        | 'tabpanel'
-        | 'toolbar';
+    role: AriaRole;
     'aria-checked': boolean;
     'aria-controls': ElementID;
+    'aria-disabled': boolean;
     'aria-expanded': boolean;
     'aria-haspopup': boolean;
     'aria-hidden': boolean;
@@ -48,6 +51,8 @@ export type BaseStyleTypeMap = {
     display: 'none';
     position: 'absolute';
     'pointer-events': 'auto' | 'none';
+    width: '100%';
+    height: '100%';
 };
 
 type StyleSet = Partial<{ [K in keyof BaseStyleTypeMap]: BaseStyleTypeMap[K] }>;

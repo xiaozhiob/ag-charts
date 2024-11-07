@@ -133,22 +133,18 @@ export class LegendDOMProxy {
         const groupBBox = Transformable.toCanvas(group);
         this.itemList.setBounds(groupBBox);
 
-        const pointer = interactive ? 'pointer' : undefined;
         const maxHeight = Math.max(...itemSelection.nodes().map((l) => l.getBBox().height));
-        itemSelection.each((l, _datum, index) => {
-            const listitem = this.itemList.getListItemElement(index);
-            const button = l.proxyButton?.getElement();
-            if (button && listitem) {
+        itemSelection.each((l, _datum) => {
+            if (l.proxyButton) {
                 const visible = l.pageIndex === pagination.currentPage;
 
                 const { x, y, height, width } = Transformable.toCanvas(l);
                 const margin = (maxHeight - height) / 2; // CRT-543 Give the legend items the same heights for a better look.
                 const bbox: BBoxValues = { x: x - groupBBox.x, y: y - margin - groupBBox.y, height: maxHeight, width };
 
-                // TODO(olegat) this should be part of CSS once all element types support pointer events.
-                setElementStyle(button, 'pointer-events', visible ? 'auto' : 'none');
-                setElementStyle(button, 'cursor', pointer);
-                setElementBBox(listitem, bbox);
+                l.proxyButton.setCursor('pointer');
+                l.proxyButton.setEnabled(interactive && visible);
+                l.proxyButton.setBounds(bbox);
             }
         });
     }
