@@ -400,6 +400,11 @@ export abstract class Chart extends Observable {
         this._performUpdateSkipAnimations = true;
     }
 
+    detachAndClear() {
+        this.container = undefined;
+        this.ctx.scene.clear();
+    }
+
     destroy(opts?: { keepTransferableResources: boolean }): TransferableResources | undefined {
         if (this.destroyed) {
             return;
