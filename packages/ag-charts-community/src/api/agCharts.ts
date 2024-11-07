@@ -132,7 +132,8 @@ export abstract class AgCharts {
     }
 
     public static __createSparkline(options: AgSparklineOptions): AgChartInstance<AgSparklineOptions> {
-        return this.create(options as AgChartOptions, { presetType: 'sparkline' }) as any;
+        const { pool, ...normalOptions } = options as any;
+        return this.create(normalOptions as AgChartOptions, { presetType: 'sparkline', pool: pool ?? true }) as any;
     }
 }
 
@@ -321,12 +322,10 @@ class AgChartsInternal {
     private static readonly detachAndClear = (chart: Chart) => chart.detachAndClear();
     private static readonly destroy = (chart: Chart) => chart.destroy();
     private static getPool(options: ChartOptions) {
-        if (options.optionMetadata.presetType !== 'sparkline') {
-            return;
-        }
+        if (options.optionMetadata.pool !== true) return;
 
         return Pool.getPool<Chart, ChartOptions>(
-            options.optionMetadata.presetType,
+            options.optionMetadata.presetType ?? 'default',
             this.createChartInstance,
             this.detachAndClear,
             this.destroy,
