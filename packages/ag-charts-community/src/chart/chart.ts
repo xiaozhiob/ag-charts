@@ -232,6 +232,7 @@ export abstract class Chart extends Observable {
 
     queuedUserOptions: AgChartOptions[] = [];
     chartOptions: ChartOptions;
+    private firstApply = true;
 
     /**
      * Public API for this Chart instance. NOTE: This is initialized after construction by the
@@ -397,6 +398,11 @@ export abstract class Chart extends Observable {
     skipAnimations() {
         this.ctx.animationManager.skipCurrentBatch();
         this._performUpdateSkipAnimations = true;
+    }
+
+    detachAndClear() {
+        this.container = undefined;
+        this.ctx.scene.clear();
     }
 
     destroy(opts?: { keepTransferableResources: boolean }): TransferableResources | undefined {
@@ -1082,11 +1088,13 @@ export abstract class Chart extends Observable {
         return series?.filter((s) => s.showInMiniChart !== false);
     }
 
-    applyOptions(newChartOptions: ChartOptions, create: boolean) {
-        const deltaOptions = create ? newChartOptions.processedOptions : newChartOptions.diffOptions(this.chartOptions);
+    applyOptions(newChartOptions: ChartOptions) {
+        const deltaOptions = this.firstApply
+            ? newChartOptions.processedOptions
+            : newChartOptions.diffOptions(this.chartOptions);
         if (deltaOptions == null || Object.keys(deltaOptions).length === 0) return;
 
-        const oldOpts = create ? {} : this.chartOptions.processedOptions;
+        const oldOpts = this.firstApply ? {} : this.chartOptions.processedOptions;
         const newOpts = newChartOptions.processedOptions;
 
         debug('Chart.applyOptions() - applying delta', deltaOptions);
@@ -1176,6 +1184,8 @@ export abstract class Chart extends Observable {
         if (deltaOptions.initialState || deltaOptions.theme) {
             this.applyInitialState(newOpts);
         }
+
+        this.firstApply = false;
     }
 
     private applyInitialState(options: AgChartOptions) {
