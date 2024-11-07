@@ -1,16 +1,9 @@
-import {
-    type AgCandlestickSeriesItemOptions,
-    type AgOhlcSeriesItemType,
-    _ModuleSupport,
-    _Scene,
-} from 'ag-charts-community';
+import { type AgCandlestickSeriesItemOptions, type AgOhlcSeriesItemType, _ModuleSupport } from 'ag-charts-community';
 
 import type { CandlestickBaseGroup } from '../candlestick/candlestickGroup';
 import type { CandlestickSeriesProperties } from '../candlestick/candlestickSeriesProperties';
 import type { CandlestickNodeBaseDatum } from '../candlestick/candlestickTypes';
 import { prepareCandlestickAnimationFunctions } from '../candlestick/candlestickUtil';
-
-const { motion } = _Scene;
 
 const {
     fixNumericExtent,
@@ -23,6 +16,7 @@ const {
     sanitizeHtml,
     Logger,
     ContinuousScale,
+    motion,
 } = _ModuleSupport;
 
 class CandlestickSeriesNodeEvent<
@@ -414,7 +408,7 @@ export abstract class OhlcSeriesBase<
 
     protected override async updateDatumSelection(opts: {
         nodeData: TNodeDatum[];
-        datumSelection: _Scene.Selection<TItemShapeGroup, TNodeDatum>;
+        datumSelection: _ModuleSupport.Selection<TItemShapeGroup, TNodeDatum>;
         seriesIdx: number;
     }) {
         const data = opts.nodeData ?? [];
@@ -425,7 +419,7 @@ export abstract class OhlcSeriesBase<
         datumSelection,
         isHighlight: highlighted,
     }: {
-        datumSelection: _Scene.Selection<TItemShapeGroup, TNodeDatum>;
+        datumSelection: _ModuleSupport.Selection<TItemShapeGroup, TNodeDatum>;
         isHighlight: boolean;
     }) {
         datumSelection.each((group, nodeDatum) => {
@@ -436,7 +430,7 @@ export abstract class OhlcSeriesBase<
     }
 
     protected async updateLabelNodes(_opts: {
-        labelSelection: _Scene.Selection<_Scene.Text, TNodeDatum>;
+        labelSelection: _ModuleSupport.Selection<_ModuleSupport.Text, TNodeDatum>;
         seriesIdx: number;
     }) {
         // Labels unsupported
@@ -444,7 +438,7 @@ export abstract class OhlcSeriesBase<
 
     protected async updateLabelSelection(opts: {
         labelData: TNodeDatum[];
-        labelSelection: _Scene.Selection<_Scene.Text, TNodeDatum>;
+        labelSelection: _ModuleSupport.Selection<_ModuleSupport.Text, TNodeDatum>;
         seriesIdx: number;
     }) {
         const { labelData, labelSelection } = opts;

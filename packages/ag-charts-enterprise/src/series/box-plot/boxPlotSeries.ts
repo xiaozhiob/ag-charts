@@ -1,4 +1,4 @@
-import { type AgBoxPlotSeriesStyle, _ModuleSupport, _Scene } from 'ag-charts-community';
+import { type AgBoxPlotSeriesStyle, _ModuleSupport } from 'ag-charts-community';
 
 import { prepareBoxPlotFromTo, resetBoxPlotSelectionsScalingCenterFn } from './blotPlotUtil';
 import { BoxPlotGroup } from './boxPlotGroup';
@@ -19,8 +19,8 @@ const {
     sanitizeHtml,
     Color,
     ContinuousScale,
+    motion,
 } = _ModuleSupport;
-const { motion } = _Scene;
 
 class BoxPlotSeriesNodeEvent<
     TEvent extends string = _ModuleSupport.SeriesNodeEventTypes,
@@ -364,7 +364,7 @@ export class BoxPlotSeries extends _ModuleSupport.AbstractBarSeries<
 
     protected override async updateDatumSelection(opts: {
         nodeData: BoxPlotNodeDatum[];
-        datumSelection: _Scene.Selection<BoxPlotGroup, BoxPlotNodeDatum>;
+        datumSelection: _ModuleSupport.Selection<BoxPlotGroup, BoxPlotNodeDatum>;
         seriesIdx: number;
     }) {
         const data = opts.nodeData ?? [];
@@ -375,7 +375,7 @@ export class BoxPlotSeries extends _ModuleSupport.AbstractBarSeries<
         datumSelection,
         isHighlight: highlighted,
     }: {
-        datumSelection: _Scene.Selection<BoxPlotGroup, BoxPlotNodeDatum>;
+        datumSelection: _ModuleSupport.Selection<BoxPlotGroup, BoxPlotNodeDatum>;
         isHighlight: boolean;
     }) {
         const isVertical = this.isVertical();
@@ -406,16 +406,13 @@ export class BoxPlotSeries extends _ModuleSupport.AbstractBarSeries<
         });
     }
 
-    protected async updateLabelNodes(_opts: {
-        labelSelection: _Scene.Selection<_Scene.Text, BoxPlotNodeDatum>;
-        seriesIdx: number;
-    }) {
+    protected async updateLabelNodes() {
         // Labels are unsupported.
     }
 
     protected async updateLabelSelection(opts: {
         labelData: BoxPlotNodeDatum[];
-        labelSelection: _Scene.Selection<_Scene.Text, BoxPlotNodeDatum>;
+        labelSelection: _ModuleSupport.Selection<_ModuleSupport.Text, BoxPlotNodeDatum>;
         seriesIdx: number;
     }) {
         const { labelData, labelSelection } = opts;
@@ -489,7 +486,10 @@ export class BoxPlotSeries extends _ModuleSupport.AbstractBarSeries<
         return activeStyles;
     }
 
-    protected computeFocusBounds({ datumIndex, seriesRect }: _ModuleSupport.PickFocusInputs): _Scene.BBox | undefined {
+    protected computeFocusBounds({
+        datumIndex,
+        seriesRect,
+    }: _ModuleSupport.PickFocusInputs): _ModuleSupport.BBox | undefined {
         return computeBarFocusBounds(
             this.contextNodeData?.nodeData[datumIndex].focusRect,
             this.contentGroup,

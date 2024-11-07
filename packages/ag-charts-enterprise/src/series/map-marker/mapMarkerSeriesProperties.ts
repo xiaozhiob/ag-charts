@@ -6,7 +6,7 @@ import type {
     AgMapMarkerSeriesTooltipRendererParams,
     Styler,
 } from 'ag-charts-community';
-import { _ModuleSupport, _Scene } from 'ag-charts-community';
+import { _ModuleSupport } from 'ag-charts-community';
 
 import { GEOJSON_OBJECT } from '../map-util/validation';
 
@@ -26,8 +26,9 @@ const {
     SeriesProperties,
     SeriesTooltip,
     Logger,
+    Label,
+    Circle,
 } = _ModuleSupport;
-const { Label, Circle } = _Scene;
 
 export interface MapMarkerNodeLabelDatum extends _ModuleSupport.PointLabelDatum {}
 
@@ -40,7 +41,7 @@ export interface MapMarkerNodeDatum extends _ModuleSupport.SeriesNodeDatum {
     readonly labelValue: string | undefined;
     readonly colorValue: number | undefined;
     readonly sizeValue: number | undefined;
-    readonly point: Readonly<_Scene.SizedPoint>;
+    readonly point: Readonly<_ModuleSupport.SizedPoint>;
 }
 
 class MapMarkerSeriesLabel extends Label<AgMapMarkerSeriesLabelFormatterParams> {
@@ -118,7 +119,7 @@ export class MapMarkerSeriesProperties extends SeriesProperties<AgMapMarkerSerie
 
     /** One of the predefined marker names, or a marker constructor function (for user-defined markers). */
     @Validate(MARKER_SHAPE)
-    shape: _Scene.MarkerShape = Circle;
+    shape: _ModuleSupport.MarkerShape = Circle;
 
     @Validate(POSITIVE_NUMBER)
     size: number = 6;

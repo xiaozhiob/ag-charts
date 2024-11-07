@@ -1,9 +1,12 @@
-import { type AgCrosshairLabelRendererResult, _ModuleSupport, _Scene } from 'ag-charts-community';
+import { type AgCrosshairLabelRendererResult, _ModuleSupport } from 'ag-charts-community';
 
 import { CrosshairLabel, CrosshairLabelProperties } from './crosshairLabel';
 
-const { Group, TranslatableGroup, Line, BBox } = _Scene;
 const {
+    Group,
+    TranslatableGroup,
+    Line,
+    BBox,
     createId,
     POSITIVE_NUMBER,
     RATIO,
@@ -49,9 +52,9 @@ export class Crosshair extends _ModuleSupport.BaseModuleInstance implements _Mod
     private readonly labels: { [key: string]: CrosshairLabel };
 
     private readonly axisCtx: _ModuleSupport.AxisContext;
-    private seriesRect: _Scene.BBox = new BBox(0, 0, 0, 0);
-    private hoverRect: _Scene.BBox = new BBox(0, 0, 0, 0);
-    private bounds: _Scene.BBox = new BBox(0, 0, 0, 0);
+    private seriesRect: _ModuleSupport.BBox = new BBox(0, 0, 0, 0);
+    private hoverRect: _ModuleSupport.BBox = new BBox(0, 0, 0, 0);
+    private bounds: _ModuleSupport.BBox = new BBox(0, 0, 0, 0);
     private axisLayout?: _ModuleSupport.AxisLayout;
     private labelFormatter?: (value: any) => string;
 
@@ -65,7 +68,7 @@ export class Crosshair extends _ModuleSupport.BaseModuleInstance implements _Mod
             zIndex: ZIndexMap.SERIES_CROSSHAIR,
         })
     );
-    protected lineGroupSelection = _Scene.Selection.select(this.lineGroup, Line, false);
+    protected lineGroupSelection = _ModuleSupport.Selection.select(this.lineGroup, Line, false);
 
     private activeHighlight?: _ModuleSupport.HighlightChangeEvent['currentHighlight'] = undefined;
     constructor(private readonly ctx: _ModuleSupport.ModuleContextWithParent<_ModuleSupport.AxisContext>) {

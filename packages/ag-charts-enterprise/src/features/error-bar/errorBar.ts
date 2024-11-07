@@ -1,5 +1,5 @@
 import type { AgErrorBarThemeableOptions } from 'ag-charts-community';
-import { AgErrorBarSupportedSeriesTypes, _ModuleSupport, _Scene } from 'ag-charts-community';
+import { AgErrorBarSupportedSeriesTypes, _ModuleSupport } from 'ag-charts-community';
 
 import type { ErrorBarNodeDatum, ErrorBarStylingOptions } from './errorBarNode';
 import { ErrorBarGroup, ErrorBarNode } from './errorBarNode';
@@ -16,7 +16,11 @@ const {
 } = _ModuleSupport;
 
 type ErrorBoundCartesianSeries = Omit<
-    _ModuleSupport.CartesianSeries<_Scene.Node, _ModuleSupport.CartesianSeriesProperties<any>, ErrorBarNodeDatum>,
+    _ModuleSupport.CartesianSeries<
+        _ModuleSupport.Node,
+        _ModuleSupport.CartesianSeriesProperties<any>,
+        ErrorBarNodeDatum
+    >,
     'highlightSelection'
 >;
 
@@ -38,7 +42,7 @@ type AnyProcessedData = _ModuleSupport.ProcessedData<any>;
 type AnyScale = _ModuleSupport.Scale<any, any, any>;
 type HighlightNodeDatum = NonNullable<_ModuleSupport.HighlightChangeEvent['currentHighlight']>;
 type PickNodeDatumResult = _ModuleSupport.PickNodeDatumResult;
-type Point = _Scene.Point;
+type Point = _ModuleSupport.Point;
 type SeriesDataProcessedEvent = _ModuleSupport.SeriesDataProcessedEvent;
 type SeriesDataUpdateEvent = _ModuleSupport.SeriesDataUpdateEvent;
 type SeriesVisibilityEvent = _ModuleSupport.SeriesVisibilityEvent;
@@ -47,7 +51,7 @@ type PropertyDefinitionOpts = Parameters<_ModuleSupport.SeriesOptionInstance['ge
 export class ErrorBars extends _ModuleSupport.BaseModuleInstance implements _ModuleSupport.SeriesOptionInstance {
     private readonly cartesianSeries: ErrorBoundCartesianSeries;
     private readonly groupNode: ErrorBarGroup;
-    private readonly selection: _Scene.Selection<ErrorBarNode>;
+    private readonly selection: _ModuleSupport.Selection<ErrorBarNode>;
 
     readonly properties = new ErrorBarProperties();
 
@@ -66,7 +70,7 @@ export class ErrorBars extends _ModuleSupport.BaseModuleInstance implements _Mod
         });
 
         annotationGroup.appendChild(this.groupNode);
-        this.selection = _Scene.Selection.select(this.groupNode, () => this.errorBarFactory());
+        this.selection = _ModuleSupport.Selection.select(this.groupNode, () => this.errorBarFactory());
         annotationSelections.add(this.selection);
 
         this.destroyFns.push(

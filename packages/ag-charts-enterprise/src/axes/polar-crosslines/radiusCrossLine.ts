@@ -1,4 +1,4 @@
-import { _ModuleSupport, _Scene } from 'ag-charts-community';
+import { _ModuleSupport } from 'ag-charts-community';
 
 import { PolarCrossLine, PolarCrossLineLabel } from './polarCrossLine';
 
@@ -11,8 +11,11 @@ const {
     normalizeAngle360,
     toRadians,
     isNumberEqual,
+    Group,
+    Path,
+    Sector,
+    RotatableText,
 } = _ModuleSupport;
-const { Group, Path, Sector, RotatableText } = _Scene;
 
 class RadiusCrossLineLabel extends PolarCrossLineLabel {
     @Validate(DEGREE, { optional: true })
@@ -97,7 +100,7 @@ export class RadiusCrossLine extends PolarCrossLine {
         this.innerRadius = innerRadius;
     }
 
-    private drawPolygon(radius: number, angles: number[], polygon: _Scene.Path) {
+    private drawPolygon(radius: number, angles: number[], polygon: _ModuleSupport.Path) {
         angles.forEach((angle, index) => {
             const x = radius * Math.cos(angle);
             const y = radius * Math.sin(angle);

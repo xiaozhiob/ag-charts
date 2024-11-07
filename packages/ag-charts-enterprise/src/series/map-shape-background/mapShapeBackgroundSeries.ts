@@ -1,4 +1,4 @@
-import { _ModuleSupport, _Scene } from 'ag-charts-community';
+import { _ModuleSupport } from 'ag-charts-community';
 
 import { GeoGeometry, GeoGeometryRenderMode } from '../map-util/geoGeometry';
 import { geometryBbox, projectGeometry } from '../map-util/geometryUtil';
@@ -9,8 +9,7 @@ import {
     MapShapeBackgroundSeriesProperties,
 } from './mapShapeBackgroundSeriesProperties';
 
-const { createDatumId, Series, SeriesNodePickMode, Validate, Logger } = _ModuleSupport;
-const { Selection, Group, PointerEvents } = _Scene;
+const { createDatumId, Series, SeriesNodePickMode, Validate, Logger, Selection, Group, PointerEvents } = _ModuleSupport;
 
 export interface MapShapeBackgroundNodeDataContext
     extends _ModuleSupport.SeriesNodeDataContext<MapShapeBackgroundNodeDatum> {}
@@ -54,7 +53,7 @@ export class MapShapeBackgroundSeries
 
     private readonly itemGroup = this.contentGroup.appendChild(new Group({ name: 'itemGroup' }));
 
-    private datumSelection: _Scene.Selection<GeoGeometry, MapShapeBackgroundNodeDatum> = Selection.select(
+    private datumSelection: _ModuleSupport.Selection<GeoGeometry, MapShapeBackgroundNodeDatum> = Selection.select(
         this.itemGroup,
         () => this.nodeFactory()
     );
@@ -162,13 +161,13 @@ export class MapShapeBackgroundSeries
 
     private async updateDatumSelection(opts: {
         nodeData: MapShapeBackgroundNodeDatum[];
-        datumSelection: _Scene.Selection<GeoGeometry, MapShapeBackgroundNodeDatum>;
+        datumSelection: _ModuleSupport.Selection<GeoGeometry, MapShapeBackgroundNodeDatum>;
     }) {
         return opts.datumSelection.update(opts.nodeData, undefined, (datum) => createDatumId(datum.index));
     }
 
     private async updateDatumNodes(opts: {
-        datumSelection: _Scene.Selection<GeoGeometry, MapShapeBackgroundNodeDatum>;
+        datumSelection: _ModuleSupport.Selection<GeoGeometry, MapShapeBackgroundNodeDatum>;
     }) {
         const { properties } = this;
         const { datumSelection } = opts;
@@ -215,7 +214,7 @@ export class MapShapeBackgroundSeries
         return _ModuleSupport.EMPTY_TOOLTIP_CONTENT;
     }
 
-    public override pickFocus(_opts: _ModuleSupport.PickFocusInputs) {
+    public override pickFocus() {
         return undefined;
     }
 }
