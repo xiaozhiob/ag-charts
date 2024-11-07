@@ -43,12 +43,12 @@ describe('Pool', () => {
     });
 
     it('should free items when released', () => {
-        let results = [];
+        const results = [];
         for (let i = 0; i < testPoolSize; i++) {
             results.push(pool.obtain('create test ' + i));
         }
 
-        let testItems = results.splice(0, 2);
+        const testItems = results.splice(0, 2);
         pool.release(testItems[0].item);
         testItems[1].release();
 
@@ -61,7 +61,7 @@ describe('Pool', () => {
     });
 
     it('should destroy freed items after 100ms', async () => {
-        let results = [];
+        const results = [];
         for (let i = 0; i < testPoolSize; i++) {
             results.push(pool.obtain('create test ' + i));
         }
