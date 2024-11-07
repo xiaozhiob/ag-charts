@@ -80,21 +80,25 @@ export function prepareRangeAreaPathAnimation(newData: RangeAreaContext, oldData
         { scales: oldData.scales, data: oldData.fillData.spans },
         CollapseMode.Split
     );
+    if (fillSpans == null) return;
     const fillPhantomSpans = pairUpSpans(
         { scales: newData.scales, data: newData.fillData.phantomSpans },
         { scales: oldData.scales, data: oldData.fillData.phantomSpans },
         CollapseMode.Split
     );
+    if (fillPhantomSpans == null) return;
     const highStrokeSpans = pairUpSpans(
         { scales: newData.scales, data: newData.highStrokeData.spans },
         { scales: oldData.scales, data: oldData.highStrokeData.spans },
         CollapseMode.Split
     );
+    if (highStrokeSpans == null) return;
     const lowStrokeSpans = pairUpSpans(
         { scales: newData.scales, data: newData.lowStrokeData.spans },
         { scales: oldData.scales, data: oldData.lowStrokeData.spans },
         CollapseMode.Split
     );
+    if (lowStrokeSpans == null) return;
 
     const fadeMode = 'none';
     const fill = prepareAreaFillAnimationFns(status, fillSpans, fillPhantomSpans, fadeMode);

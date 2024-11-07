@@ -6,7 +6,7 @@ import { pathMotion } from '../../../motion/pathMotion';
 import { resetMotion } from '../../../motion/resetMotion';
 import type { BBox } from '../../../scene/bbox';
 import { Group } from '../../../scene/group';
-import { Node } from '../../../scene/node';
+import type { Node } from '../../../scene/node';
 import { PointerEvents } from '../../../scene/node';
 import type { SizedPoint } from '../../../scene/point';
 import type { Selection } from '../../../scene/selection';
