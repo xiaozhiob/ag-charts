@@ -4,6 +4,7 @@ import type {
     AgMapMarkerSeriesOptions,
     AgMapMarkerSeriesStyle,
     AgMapMarkerSeriesTooltipRendererParams,
+    AgMarkerShape,
     Styler,
 } from 'ag-charts-community';
 import { _ModuleSupport } from 'ag-charts-community';
@@ -119,7 +120,7 @@ export class MapMarkerSeriesProperties extends SeriesProperties<AgMapMarkerSerie
 
     /** One of the predefined marker names, or a marker shape function (for user-defined markers). */
     @Validate(MARKER_SHAPE)
-    shape: _ModuleSupport.MarkerShape = 'circle';
+    shape: AgMarkerShape = 'circle';
 
     @Validate(POSITIVE_NUMBER)
     size: number = 6;

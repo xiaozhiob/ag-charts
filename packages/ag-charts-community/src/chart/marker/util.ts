@@ -1,3 +1,5 @@
+import type { AgMarkerShape, AgMarkerShapeFn } from 'ag-charts-types';
+
 import { Circle } from './circle';
 import { Cross } from './cross';
 import { Diamond } from './diamond';
@@ -9,27 +11,7 @@ import { Square } from './square';
 import { Star } from './star';
 import { Triangle } from './triangle';
 
-export interface Path {
-    readonly moveTo: (x: number, y: number) => void;
-    readonly lineTo: (x: number, y: number) => void;
-    readonly rect: (x: number, y: number, width: number, height: number) => void;
-    readonly roundRect: (x: number, y: number, width: number, height: number, radii: number) => void;
-    readonly arc: (x: number, y: number, r: number, sAngle: number, eAngle: number, counterClockwise?: boolean) => void;
-    readonly cubicCurveTo: (cx1: number, cy1: number, cx2: number, cy2: number, x: number, y: number) => void;
-    readonly closePath: () => void;
-    readonly clear: (trackChanges?: boolean) => void;
-}
-
-export type MarkerShapeFnParams = {
-    path: Path;
-    x: number;
-    y: number;
-    size: number;
-};
-
-export type MarkerShapeFn = (params: MarkerShapeFnParams) => void;
-type MarkerSupportedShapes = 'circle' | 'cross' | 'diamond' | 'heart' | 'plus' | 'pin' | 'square' | 'star' | 'triangle';
-export type MarkerShape = MarkerShapeFn | MarkerSupportedShapes;
+type MarkerSupportedShapes = Exclude<AgMarkerShape, AgMarkerShapeFn>;
 export type MarkerConstructor = typeof Marker;
 
 const MARKER_SHAPES: { [K in MarkerSupportedShapes]: MarkerConstructor } = {
@@ -46,11 +28,11 @@ const MARKER_SHAPES: { [K in MarkerSupportedShapes]: MarkerConstructor } = {
 
 const MARKER_SUPPORTED_SHAPES = Object.keys(MARKER_SHAPES);
 
-export function isMarkerShape(shape: unknown): shape is MarkerSupportedShapes {
+export function isSupportedMarkerShape(shape: unknown): shape is MarkerSupportedShapes {
     return typeof shape === 'string' && MARKER_SUPPORTED_SHAPES.includes(shape);
 }
 
-function markerFactory(pathFn: MarkerShapeFn) {
+function markerFactory(pathFn: AgMarkerShapeFn) {
     return class CustomMarker extends Marker {
         override updatePath() {
             const { path, x, y, size } = this;
@@ -63,8 +45,8 @@ function markerFactory(pathFn: MarkerShapeFn) {
 // suddenly aware of the series (it's an agnostic component), and putting it into Marker
 // introduces circular dependencies.
 // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-export function getMarker(shape: MarkerShape | MarkerShapeFn = 'square'): MarkerConstructor {
-    if (isMarkerShape(shape)) {
+export function getMarker(shape: AgMarkerShape = 'square'): MarkerConstructor {
+    if (isSupportedMarkerShape(shape)) {
         return MARKER_SHAPES[shape];
     }
     if (typeof shape === 'function') {

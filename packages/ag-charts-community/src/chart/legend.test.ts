@@ -1,10 +1,9 @@
 import { afterEach, describe, expect, it } from '@jest/globals';
 
-import type { AgCartesianChartOptions, AgChartOptions, MarkerShapeFnParams } from 'ag-charts-types';
+import type { AgCartesianChartOptions, AgChartOptions, AgMarkerShapeFnParams, AgPath } from 'ag-charts-types';
 
 import { AgCharts } from '../api/agCharts';
 import type { Chart } from './chart';
-import { Path } from './marker/util';
 import * as examples from './test/examples';
 import { seedRandom } from './test/random';
 import {
@@ -49,7 +48,7 @@ const OPTIONS: AgCartesianChartOptions = {
     series: SERIES,
 };
 
-const aGChartsLogo = ({ path }: MarkerShapeFnParams) => {
+const aGChartsLogo = ({ path }: AgMarkerShapeFnParams) => {
     const pathData = [
         'M58,10l-17,0l-8,8l25,0l0,-8Z',
         'M43,30l0,-7.995l-14,0l-8.008,7.995l22.008,0Z',
@@ -61,12 +60,12 @@ const aGChartsLogo = ({ path }: MarkerShapeFnParams) => {
     updatePath(pathData, path, 0.4, 12, 10);
 };
 
-const npmLogo = ({ path }: MarkerShapeFnParams) => {
+const npmLogo = ({ path }: AgMarkerShapeFnParams) => {
     const pathData = ['M5.8,21.75l7.86,0l0,-11.77l3.92,0l0,11.78l3.93,0l0,-15.7l-15.7,0l0,15.69'];
     updatePath(pathData, path, 0.75, 5, 11);
 };
 
-function updatePath(pathData: string[], path: Path, scale: number, xOffset: number, yOffset: number) {
+function updatePath(pathData: string[], path: AgPath, scale: number, xOffset: number, yOffset: number) {
     path.clear();
     pathData.forEach((pathDatum) => {
         const parts = pathDatum.split('l');

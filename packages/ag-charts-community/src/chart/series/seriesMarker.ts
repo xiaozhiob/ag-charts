@@ -1,4 +1,10 @@
-import type { AgSeriesMarkerStyle, AgSeriesMarkerStylerParams, ISeriesMarker, Styler } from 'ag-charts-types';
+import type {
+    AgMarkerShape,
+    AgSeriesMarkerStyle,
+    AgSeriesMarkerStylerParams,
+    ISeriesMarker,
+    Styler,
+} from 'ag-charts-types';
 
 import { SceneChangeDetection } from '../../scene/changeDetectable';
 import { ChangeDetectableProperties } from '../../scene/util/changeDetectableProperties';
@@ -12,11 +18,10 @@ import {
     Validate,
     predicateWithMessage,
 } from '../../util/validation';
-import type { MarkerShape } from '../marker/util';
-import { isMarkerShape } from '../marker/util';
+import { isSupportedMarkerShape } from '../marker/util';
 
 export const MARKER_SHAPE = predicateWithMessage(
-    (value: any) => isMarkerShape(value) || typeof value === 'function',
+    (value: any) => isSupportedMarkerShape(value) || typeof value === 'function',
     `a marker shape keyword such as 'circle', 'diamond' or 'square' or an object extending the Marker class`
 );
 
@@ -31,7 +36,7 @@ export class SeriesMarker<TParams = never>
     /** One of the predefined marker names, or a marker shape function (for user-defined markers). */
     @Validate(MARKER_SHAPE)
     @SceneChangeDetection()
-    shape: MarkerShape = 'circle';
+    shape: AgMarkerShape = 'circle';
 
     @Validate(POSITIVE_NUMBER)
     @SceneChangeDetection()
