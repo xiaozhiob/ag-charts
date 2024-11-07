@@ -2,7 +2,7 @@ import type { Direction } from 'ag-charts-types';
 
 import type { LocaleManager } from '../locale/localeManager';
 import { type BaseStyleTypeMap, setAttribute, setElementStyle } from '../util/attributeUtil';
-import { getWindow } from '../util/dom';
+import { createElement, getWindow } from '../util/dom';
 import { BoundedTextWidget } from '../widget/boundedTextWidget';
 import { ButtonWidget } from '../widget/buttonWidget';
 import { GroupWidget } from '../widget/groupWidget';
@@ -124,7 +124,7 @@ function allocateResult<T extends keyof ProxyMeta>(type: T): ProxyMeta[T]['resul
     } else if ('list' === type) {
         return new ListWidget();
     } else if ('region' === type) {
-        return NativeWidget.createElement('div');
+        return new NativeWidget<HTMLDivElement>(createElement('div'));
     } else if ('text' === type) {
         return new BoundedTextWidget();
     } else if ('listswitch' === type) {
