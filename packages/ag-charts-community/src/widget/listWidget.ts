@@ -18,10 +18,11 @@ export class ListWidget extends RovingTabContainerWidget {
 
     protected override appendChildToDOM(child: TChildWidget) {
         const listitem: HTMLDivElement = getDocument().createElement('div');
-        setAttribute(listitem, 'role', 'list');
+        setAttribute(listitem, 'role', 'listitem');
         setElementStyle(listitem, 'position', 'absolute');
         listitem.replaceChildren(child.getElement());
         this.elem.appendChild(listitem);
+        this.listitems.push(listitem);
     }
 
     protected override removeChildFromDOM(child: TChildWidget) {

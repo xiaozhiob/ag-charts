@@ -10,6 +10,7 @@ export type BaseAttributeTypeMap = {
         | 'group'
         | 'img'
         | 'list'
+        | 'listitem'
         | 'radio'
         | 'radiogroup'
         | 'status'
