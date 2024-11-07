@@ -4,4 +4,5 @@ export class ToolbarWidget extends RovingTabContainerWidget {
     constructor() {
         super('horizontal', 'toolbar');
     }
+    protected override destructor() {} // NOSONAR
 }

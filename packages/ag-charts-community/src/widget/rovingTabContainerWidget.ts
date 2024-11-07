@@ -13,7 +13,7 @@ type RovingDirection = Direction | 'both';
 
 type RovingKeys = (typeof PREV_NEXT_KEYS)[keyof typeof PREV_NEXT_KEYS];
 
-export class RovingTabContainerWidget extends Widget<HTMLDivElement, RovingChildWidgets> {
+export abstract class RovingTabContainerWidget extends Widget<HTMLDivElement, RovingChildWidgets> {
     private focusedChildIndex = 0;
 
     public get orientation(): RovingDirection {
@@ -32,8 +32,6 @@ export class RovingTabContainerWidget extends Widget<HTMLDivElement, RovingChild
     override focus() {
         this.children[this.focusedChildIndex]?.focus();
     }
-
-    protected override destructor() {} // NOSONAR
 
     protected override onChildAdded(child: RovingChildWidgets): void {
         child.addListener('focus', this.onChildFocus);
