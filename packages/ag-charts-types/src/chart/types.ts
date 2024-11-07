@@ -14,7 +14,27 @@ export type MarkerShape =
     | 'square'
     | 'star'
     | 'triangle'
-    | any;
+    | MarkerShapeFn;
+
+export interface Path {
+    readonly moveTo: (x: number, y: number) => void;
+    readonly lineTo: (x: number, y: number) => void;
+    readonly rect: (x: number, y: number, width: number, height: number) => void;
+    readonly roundRect: (x: number, y: number, width: number, height: number, radii: number) => void;
+    readonly arc: (x: number, y: number, r: number, sAngle: number, eAngle: number, counterClockwise?: boolean) => void;
+    readonly cubicCurveTo: (cx1: number, cy1: number, cx2: number, cy2: number, x: number, y: number) => void;
+    readonly closePath: () => void;
+    readonly clear: (trackChanges?: boolean) => void;
+}
+
+export type MarkerShapeFnParams = {
+    path: Path;
+    x: number;
+    y: number;
+    size: number;
+};
+
+export type MarkerShapeFn = (params: MarkerShapeFnParams) => void;
 
 export type LabelPlacement = 'top' | 'bottom' | 'left' | 'right';
 

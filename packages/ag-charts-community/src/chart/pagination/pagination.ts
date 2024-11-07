@@ -68,7 +68,7 @@ class PaginationMarker extends BaseProperties {
             }
         },
     })
-    shape: MarkerShape = Triangle;
+    shape: MarkerShape = 'triangle';
 
     @Validate(POSITIVE_NUMBER)
     size = 15;

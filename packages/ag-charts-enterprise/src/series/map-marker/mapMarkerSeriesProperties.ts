@@ -117,9 +117,9 @@ export class MapMarkerSeriesProperties extends SeriesProperties<AgMapMarkerSerie
     @Validate(AND(COLOR_STRING_ARRAY, ARRAY.restrict({ minLength: 1 })), { optional: true })
     colorRange: string[] | undefined = undefined;
 
-    /** One of the predefined marker names, or a marker constructor function (for user-defined markers). */
+    /** One of the predefined marker names, or a marker shape function (for user-defined markers). */
     @Validate(MARKER_SHAPE)
-    shape: _ModuleSupport.MarkerShape = Circle;
+    shape: _ModuleSupport.MarkerShape = 'circle';
 
     @Validate(POSITIVE_NUMBER)
     size: number = 6;
