@@ -61,16 +61,14 @@ export interface _IUtil {
 }
 
 export interface IntegratedModule<O extends AgChartInstanceOptions> {
-    AgCharts: {
-        setGridContext(gridContext: boolean): void;
-        setLicenseKey(licenseKey: string): void;
-    };
     VERSION: string;
     _Scene: _IScene;
     _Theme: _ITheme;
     _Util: _IUtil;
-    create: (options: O) => AgChartInstance<O>;
-    setup: () => void;
+    create(options: O): AgChartInstance<O>;
+    setup(): void;
+    setGridContext(gridContext: boolean): void;
+    setLicenseKey(licenseKey: string): void;
     isEnterprise: boolean;
 }
 
