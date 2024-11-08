@@ -20,8 +20,8 @@ export const ChartCommunityModule: IntegratedChartModule = {
     _Util,
     create: AgCharts.create.bind(AgCharts),
     setup: registerInbuiltModules,
-    setGridContext: AgCharts.setGridContext.bind(this),
-    setLicenseKey: AgCharts.setLicenseKey.bind(this),
+    setGridContext: AgCharts.setGridContext.bind(AgCharts),
+    setLicenseKey: AgCharts.setLicenseKey.bind(AgCharts),
     isEnterprise: false,
 };
 
@@ -34,7 +34,7 @@ export const SparklineModule: IntegratedSparklineModule = {
     _Util,
     create: AgCharts.__createSparkline.bind(AgCharts),
     setup: registerInbuiltModules,
-    setGridContext: AgCharts.setGridContext.bind(this),
-    setLicenseKey: AgCharts.setLicenseKey.bind(this),
+    setGridContext: AgCharts.setGridContext.bind(AgCharts),
+    setLicenseKey: AgCharts.setLicenseKey.bind(AgCharts),
     isEnterprise: false,
 };

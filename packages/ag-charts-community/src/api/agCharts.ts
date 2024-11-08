@@ -72,23 +72,23 @@ export abstract class AgCharts {
     private static gridContext = false;
 
     private static licenseCheck(options: AgChartOptions) {
-        if (AgCharts.licenseChecked) return;
+        if (this.licenseChecked) return;
 
-        AgCharts.licenseManager = enterpriseModule.licenseManager?.(options);
-        AgCharts.licenseManager?.setLicenseKey(AgCharts.licenseKey, AgCharts.gridContext);
-        AgCharts.licenseManager?.validateLicense();
-        AgCharts.licenseChecked = true;
+        this.licenseManager = enterpriseModule.licenseManager?.(options);
+        this.licenseManager?.setLicenseKey(this.licenseKey, this.gridContext);
+        this.licenseManager?.validateLicense();
+        this.licenseChecked = true;
     }
 
     /** @private - for use by Charts website dark-mode support. */
     static optionsMutationFn?: (opts: AgChartOptions, preset?: string) => AgChartOptions;
 
     public static setLicenseKey(licenseKey: string) {
-        AgCharts.licenseKey = licenseKey;
+        this.licenseKey = licenseKey;
     }
 
     public static setGridContext(gridContext: boolean) {
-        AgCharts.gridContext = gridContext;
+        this.gridContext = gridContext;
     }
 
     public static getLicenseDetails(licenseKey: string) {
@@ -109,34 +109,31 @@ export abstract class AgCharts {
         userOptions: O,
         optionsMetadata?: ChartInternalOptionMetadata
     ): AgChartInstance<O> {
-        AgCharts.licenseCheck(userOptions);
+        this.licenseCheck(userOptions);
         const chart = AgChartsInternal.createOrUpdate({
             userOptions,
-            licenseManager: AgCharts.licenseManager,
+            licenseManager: this.licenseManager,
             styles: enterpriseModule.styles != null ? [['ag-charts-enterprise', enterpriseModule.styles]] : [],
             optionsMetadata,
         });
 
-        if (AgCharts.licenseManager?.isDisplayWatermark() && AgCharts.licenseManager) {
-            enterpriseModule.injectWatermark?.(
-                chart.chart.ctx.domManager,
-                AgCharts.licenseManager.getWatermarkMessage()
-            );
+        if (this.licenseManager?.isDisplayWatermark() && this.licenseManager) {
+            enterpriseModule.injectWatermark?.(chart.chart.ctx.domManager, this.licenseManager.getWatermarkMessage());
         }
         return chart as unknown as AgChartInstance<O>;
     }
 
     public static createFinancialChart(options: AgFinancialChartOptions): AgChartInstance<AgFinancialChartOptions> {
-        return AgCharts.create(options as any, { presetType: 'price-volume' }) as any;
+        return this.create(options as any, { presetType: 'price-volume' }) as any;
     }
 
     public static createGauge(options: AgGaugeOptions): AgChartInstance<AgGaugeOptions> {
-        return AgCharts.create(options as AgChartOptions, { presetType: 'gauge' }) as any;
+        return this.create(options as AgChartOptions, { presetType: 'gauge' }) as any;
     }
 
     public static __createSparkline(options: AgSparklineOptions): AgChartInstance<AgSparklineOptions> {
         const { pool, ...normalOptions } = options as any;
-        return AgCharts.create(normalOptions as AgChartOptions, { presetType: 'sparkline', pool: pool ?? true }) as any;
+        return this.create(normalOptions as AgChartOptions, { presetType: 'sparkline', pool: pool ?? true }) as any;
     }
 }
 
