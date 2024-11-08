@@ -11,6 +11,9 @@ import { type WidgetEventMap, WidgetEventUtil } from './widgetEvents';
 import { WidgetListenerHTML } from './widgetListenerHTML';
 import { WidgetListenerInternal } from './widgetListenerInternal';
 
+type EventMap = WidgetEventMap;
+type EventType = keyof WidgetEventMap;
+
 interface IWidget<TElement extends HTMLElement> {
     index: number;
     destroy(): void;
@@ -131,15 +134,8 @@ export abstract class Widget<
     protected onChildAdded(_child: TChildWidget): void {}
     protected onChildRemoved(_child: TChildWidget): void {}
 
-    addListener<K extends keyof WidgetEventMap>(
-        type: K,
-        listener: (target: typeof this, ev: WidgetEventMap[K]) => unknown
-    ): void;
-
-    addListener<K extends keyof WidgetEventMap>(
-        type: K,
-        listener: (target: typeof this, ev: unknown) => unknown
-    ): void {
+    addListener<K extends EventType>(type: K, listener: (target: typeof this, ev: EventMap[K]) => unknown): void;
+    addListener<K extends EventType>(type: K, listener: (target: typeof this, ev: unknown) => unknown): void {
         if (WidgetEventUtil.isHTMLEvent(type)) {
             this.htmlListener ??= new WidgetListenerHTML();
             this.htmlListener.add(type, this, listener);
@@ -149,15 +145,8 @@ export abstract class Widget<
         }
     }
 
-    removeListener<K extends keyof WidgetEventMap>(
-        type: K,
-        listener: (target: typeof this, ev: WidgetEventMap[K]) => unknown
-    ): void;
-
-    removeListener<K extends keyof WidgetEventMap>(
-        type: K,
-        listener: (target: typeof this, ev: unknown) => unknown
-    ): void {
+    removeListener<K extends EventType>(type: K, listener: (target: typeof this, ev: EventMap[K]) => unknown): void;
+    removeListener<K extends EventType>(type: K, listener: (target: typeof this, ev: unknown) => unknown): void {
         if (WidgetEventUtil.isHTMLEvent(type)) {
             this.htmlListener?.remove(type, this, listener);
         } else if (this.htmlListener != null) {
