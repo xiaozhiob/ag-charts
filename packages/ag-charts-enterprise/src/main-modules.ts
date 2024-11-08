@@ -26,7 +26,7 @@ export const ChartEnterpriseModule: IntegratedChartModule = {
     _Util,
     create: AgCharts.create.bind(AgCharts),
     setup: setupEnterpriseModules,
-    setGridContext: AgCharts.setGridContext.bind(this),
-    setLicenseKey: AgCharts.setLicenseKey.bind(this),
+    setGridContext: AgCharts.setGridContext.bind(AgCharts),
+    setLicenseKey: AgCharts.setLicenseKey.bind(AgCharts),
     isEnterprise: true,
 };
