@@ -62,7 +62,6 @@ export class LegendDOMProxy {
             domManagerId: `${idPrefix}-toolbar`,
             classList: ['ag-charts-proxy-legend-toolbar'],
             ariaLabel: { id: 'ariaLabelLegend' },
-            ariaHidden: true,
         });
         this.paginationGroup = ctx.proxyInteractionService.createProxyContainer({
             type: 'group',
@@ -70,7 +69,6 @@ export class LegendDOMProxy {
             classList: ['ag-charts-proxy-legend-pagination'],
             ariaLabel: { id: 'ariaLabelLegendPagination' },
             ariaOrientation: 'horizontal',
-            ariaHidden: true,
         });
         this.itemDescription = createElement('p');
         this.itemDescription.style.display = 'none';
@@ -125,6 +123,7 @@ export class LegendDOMProxy {
 
     private updateVisibility(visible: boolean) {
         this.itemList.setHidden(!visible);
+        this.paginationGroup.setHidden(!visible);
     }
 
     private updateItemProxyButtons({ itemSelection, group, pagination, interactive }: LegendDOMProxyPageChangeParams) {

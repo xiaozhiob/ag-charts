@@ -42,7 +42,6 @@ type ContainerParams<T extends ProxyContainerType> = {
     readonly domManagerId: string;
     readonly classList: string[];
     readonly ariaLabel: TranslationKey;
-    readonly ariaHidden?: boolean;
 };
 
 type ProxyMeta = {
@@ -184,10 +183,6 @@ export class ProxyInteractionService {
 
         if (checkType('toolbar', meta)) {
             meta.result.orientation = meta.params.orientation;
-        }
-
-        if (typeof params.ariaHidden === 'boolean') {
-            div.ariaHidden = params.ariaHidden.toString();
         }
 
         this.addLocalisation(() => {
