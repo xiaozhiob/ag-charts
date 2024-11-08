@@ -1,4 +1,4 @@
-import { partialAssign } from '../module-support';
+import { partialAssign } from '../util/object';
 import { getWindow } from '../util/dom';
 import { partialAssign } from '../util/object';
 import { WidgetEventUtil } from './widgetEvents';
