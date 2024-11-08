@@ -6,15 +6,29 @@ export type KeyboardWidgetEvent = {
     sourceEvent: KeyboardEvent;
 };
 
+// `originDelta` is the offset relative to position of the HTML element when the drag initiated.
+// This is helpful for elements that move during drag actions, like navigator sliders.
 export type DragStartWidgetEvent = {
+    offsetX: number;
+    offsetY: number;
+    originDeltaX: number;
+    originDeltaY: number;
     sourceEvent: MouseEvent | TouchEvent;
 };
 
 export type DragMoveWidgetEvent = {
+    offsetX: number;
+    offsetY: number;
+    originDeltaX: number;
+    originDeltaY: number;
     sourceEvent: MouseEvent | TouchEvent;
 };
 
 export type DragEndWidgetEvent = {
+    offsetX: number;
+    offsetY: number;
+    originDeltaX: number;
+    originDeltaY: number;
     sourceEvent: MouseEvent | TouchEvent;
 };
 
@@ -37,13 +51,13 @@ export type WidgetSourceEventMap = {
 
 const WidgetAllocators: { [K in keyof WidgetEventMap]: (sourceEvent: WidgetSourceEventMap[K]) => WidgetEventMap[K] } = {
     'drag-start': (sourceEvent: MouseEvent | TouchEvent): DragStartWidgetEvent => {
-        return { sourceEvent };
+        return { offsetX: NaN, offsetY: NaN, originDeltaX: NaN, originDeltaY: NaN, sourceEvent };
     },
     'drag-move': (sourceEvent: MouseEvent | TouchEvent): DragMoveWidgetEvent => {
-        return { sourceEvent };
+        return { offsetX: NaN, offsetY: NaN, originDeltaX: NaN, originDeltaY: NaN, sourceEvent };
     },
     'drag-end': (sourceEvent: MouseEvent | TouchEvent): DragEndWidgetEvent => {
-        return { sourceEvent };
+        return { offsetX: NaN, offsetY: NaN, originDeltaX: NaN, originDeltaY: NaN, sourceEvent };
     },
     focus: (sourceEvent: FocusEvent): FocusWidgetEvent => {
         return { sourceEvent };

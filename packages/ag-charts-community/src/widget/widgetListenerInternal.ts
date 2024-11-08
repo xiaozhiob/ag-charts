@@ -1,12 +1,25 @@
 import { getWindow } from '../util/dom';
+import { partialAssign } from '../util/object';
 import { WidgetEventUtil } from './widgetEvents';
-import type { WidgetEventMap_Internal, WidgetSourceEventMap_Internal } from './widgetEvents';
+import type { WidgetEventMap_Internal } from './widgetEvents';
 
 type EventMap = WidgetEventMap_Internal;
 type EventType = keyof WidgetEventMap_Internal;
 type EventHandler<T> = (target: T, event: unknown) => unknown;
-type SourceEventMap = WidgetSourceEventMap_Internal;
 type TargetableWidget = { getElement(): HTMLElement };
+
+type DragOrigin = { pageX: number; pageY: number; offsetX: number; offsetY: number };
+function makeDragEvent<K extends EventType>(type: K, origin: DragOrigin, sourceEvent: MouseEvent): EventMap[K] {
+    const event = WidgetEventUtil.alloc(type, sourceEvent);
+    // [offsetX, offsetY] is relative to the sourceEvent.target, which can be another element
+    // such as a legend button. Therefore, calculate [offsetX, offsetY] relative to the axis
+    // element that fired the 'mousedown' event.
+    event.originDeltaX = sourceEvent.pageX - origin.pageX;
+    event.originDeltaY = sourceEvent.pageY - origin.pageY;
+    event.offsetX = origin.offsetX + event.originDeltaX;
+    event.offsetY = origin.offsetY + event.originDeltaY;
+    return event;
+}
 
 export class WidgetListenerInternal<T extends TargetableWidget> {
     private dragTriggerRemovers?: Map<EventHandler<T>, () => void>;
@@ -71,30 +84,39 @@ export class WidgetListenerInternal<T extends TargetableWidget> {
         );
     }
 
-    private startDrag(target: T, sourceEvent: SourceEventMap['drag-start']) {
+    private startDrag(target: T, downEvent: MouseEvent) {
         const window = getWindow();
-        const mousemove = (ev: MouseEvent) => this.dispatch('drag-move', target, ev);
-        const mouseup = (ev: MouseEvent) => {
-            if (ev.button === 0) {
+        const origin: DragOrigin = { pageX: NaN, pageY: NaN, offsetX: NaN, offsetY: NaN };
+        partialAssign(['pageX', 'pageY', 'offsetX', 'offsetY'], origin, downEvent);
+
+        const mousemove = (moveEvent: MouseEvent) => {
+            const dragMoveEvent = makeDragEvent('drag-move', origin, moveEvent);
+            this.dispatch('drag-move', target, dragMoveEvent);
+        };
+
+        const mouseup = (upEvent: MouseEvent) => {
+            if (upEvent.button === 0) {
                 window.removeEventListener('mousemove', mousemove);
                 window.removeEventListener('mouseup', mouseup);
-                this.dispatch('drag-end', target, ev);
+                const dragEndEvent = makeDragEvent('drag-end', origin, upEvent);
+                this.dispatch('drag-end', target, dragEndEvent);
             }
         };
+
         window.addEventListener('mousemove', mousemove);
         window.addEventListener('mouseup', mouseup);
-        this.dispatch('drag-start', target, sourceEvent);
+        const dragStartEvent = makeDragEvent('drag-end', origin, downEvent);
+        this.dispatch('drag-start', target, dragStartEvent);
     }
 
-    private dispatch<K extends EventType>(type: K, target: T, sourceEvent: SourceEventMap[K]): void {
-        const widgetEvent = WidgetEventUtil.alloc(type, sourceEvent);
+    private dispatch<K extends EventType>(type: K, target: T, event: EventMap[K]): void {
         switch (type) {
             case 'drag-start':
-                return this.dragStartListeners?.forEach((handler) => handler(target, widgetEvent));
+                return this.dragStartListeners?.forEach((handler) => handler(target, event));
             case 'drag-move':
-                return this.dragMoveListeners?.forEach((handler) => handler(target, widgetEvent));
+                return this.dragMoveListeners?.forEach((handler) => handler(target, event));
             case 'drag-end':
-                return this.dragEndListeners?.forEach((handler) => handler(target, widgetEvent));
+                return this.dragEndListeners?.forEach((handler) => handler(target, event));
         }
     }
 }
