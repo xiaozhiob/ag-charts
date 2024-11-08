@@ -56,10 +56,6 @@ export class Toolbar extends BaseModuleInstance implements ModuleInstance {
         this.onGroupChanged.bind(this, 'annotationOptions'),
         this.onGroupButtonsChanged.bind(this, 'annotationOptions')
     );
-    public ranges = new ToolbarGroupProperties(
-        this.onGroupChanged.bind(this, 'ranges'),
-        this.onGroupButtonsChanged.bind(this, 'ranges')
-    );
     public zoom = new ToolbarGroupProperties(
         this.onGroupChanged.bind(this, 'zoom'),
         this.onGroupButtonsChanged.bind(this, 'zoom')
@@ -108,7 +104,6 @@ export class Toolbar extends BaseModuleInstance implements ModuleInstance {
         seriesType: new Set(),
         annotations: new Set(),
         annotationOptions: new Set(),
-        ranges: new Set(),
         zoom: new Set(),
     };
 
@@ -116,7 +111,6 @@ export class Toolbar extends BaseModuleInstance implements ModuleInstance {
         seriesType: [],
         annotations: [],
         annotationOptions: [],
-        ranges: [],
         zoom: [],
     };
 
@@ -127,7 +121,6 @@ export class Toolbar extends BaseModuleInstance implements ModuleInstance {
     }[] = [
         { groups: ['seriesType', 'annotations'], destroyFns: [], resetListeners: () => {} },
         { groups: ['annotationOptions'], destroyFns: [], resetListeners: () => {} },
-        { groups: ['ranges'], destroyFns: [], resetListeners: () => {} },
         { groups: ['zoom'], destroyFns: [], resetListeners: () => {} },
     ];
 
@@ -818,7 +811,6 @@ export class Toolbar extends BaseModuleInstance implements ModuleInstance {
             seriesType: 'ariaLabelFinancialCharts',
             annotations: 'ariaLabelFinancialCharts',
             annotationOptions: 'ariaLabelAnnotationOptionsToolbar',
-            ranges: 'ariaLabelRangesToolbar',
             zoom: 'ariaLabelZoomToolbar',
         } as const;
         alignElement.ariaLabel = this.ctx.localeManager.t(map[group]);
