@@ -12,7 +12,6 @@ export { VERSION } from './version';
 export { registerInbuiltModules as setupCommunityModules } from './chart/factory/registerInbuiltModules';
 
 export const ChartCommunityModule: IntegratedChartModule = {
-    AgCharts,
     VERSION,
     // @ts-ignore
     _Scene,
@@ -21,11 +20,12 @@ export const ChartCommunityModule: IntegratedChartModule = {
     _Util,
     create: AgCharts.create.bind(AgCharts),
     setup: registerInbuiltModules,
+    setGridContext: AgCharts.setGridContext.bind(this),
+    setLicenseKey: AgCharts.setLicenseKey.bind(this),
     isEnterprise: false,
 };
 
 export const SparklineModule: IntegratedSparklineModule = {
-    AgCharts,
     VERSION,
     // @ts-ignore
     _Scene,
@@ -34,5 +34,7 @@ export const SparklineModule: IntegratedSparklineModule = {
     _Util,
     create: AgCharts.__createSparkline.bind(AgCharts),
     setup: registerInbuiltModules,
+    setGridContext: AgCharts.setGridContext.bind(this),
+    setLicenseKey: AgCharts.setLicenseKey.bind(this),
     isEnterprise: false,
 };

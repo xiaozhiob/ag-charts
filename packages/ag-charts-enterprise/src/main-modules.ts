@@ -18,7 +18,6 @@ export function setupEnterpriseModules() {
 }
 
 export const ChartEnterpriseModule: IntegratedChartModule = {
-    AgCharts,
     VERSION,
     // @ts-ignore
     _Scene,
@@ -27,5 +26,7 @@ export const ChartEnterpriseModule: IntegratedChartModule = {
     _Util,
     create: AgCharts.create.bind(AgCharts),
     setup: setupEnterpriseModules,
+    setGridContext: AgCharts.setGridContext.bind(this),
+    setLicenseKey: AgCharts.setLicenseKey.bind(this),
     isEnterprise: true,
 };
