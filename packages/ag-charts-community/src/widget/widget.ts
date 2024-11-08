@@ -59,10 +59,6 @@ export abstract class Widget<
 
     protected abstract destructor(): void;
 
-    protected setElementContainer(widget: WidgetBounds, elemContainer: HTMLDivElement) {
-        WidgetBounds.setElementContainer(widget, elemContainer);
-    }
-
     getElement(): TElement {
         return this.elem;
     }
