@@ -22,7 +22,7 @@ export class WidgetListenerInternal<T extends TargetableWidget> {
         this.dragEndListeners = undefined;
     }
 
-    add<K extends EventType>(type: K, target: T, handler: (target: T, widgetEvent: EventMap[K]) => unknown): void;
+    add<K extends EventType>(type: K, target: T, handler: (target: T, event: EventMap[K]) => unknown): void;
     add<K extends EventType>(type: K, target: T, handler: EventHandler<T>): void {
         switch (type) {
             case 'drag-start': {
@@ -44,7 +44,7 @@ export class WidgetListenerInternal<T extends TargetableWidget> {
         }
     }
 
-    remove<K extends EventType>(type: K, _target: T, handler: (target: T, widgetEvent: EventMap[K]) => unknown): void;
+    remove<K extends EventType>(type: K, _target: T, handler: (target: T, event: EventMap[K]) => unknown): void;
     remove<K extends EventType>(type: K, _target: T, handler: EventHandler<T>): void {
         switch (type) {
             case 'drag-start':
