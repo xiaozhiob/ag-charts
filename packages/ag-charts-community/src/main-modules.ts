@@ -19,7 +19,7 @@ export const ChartCommunityModule: IntegratedChartModule = {
     // @ts-ignore
     _Theme,
     _Util,
-    create: AgCharts.create,
+    create: AgCharts.create.bind(AgCharts),
     setup: registerInbuiltModules,
     isEnterprise: false,
 };
@@ -32,7 +32,7 @@ export const SparklineModule: IntegratedSparklineModule = {
     // @ts-ignore
     _Theme,
     _Util,
-    create: AgCharts.__createSparkline,
+    create: AgCharts.__createSparkline.bind(AgCharts),
     setup: registerInbuiltModules,
     isEnterprise: false,
 };
