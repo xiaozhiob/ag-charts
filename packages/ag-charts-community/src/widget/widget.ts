@@ -52,6 +52,8 @@ export abstract class Widget<
     public index: number = NaN;
 
     protected readonly children: TChildWidget[] = [];
+    protected htmlListener?: WidgetListenerHTML<typeof this>;
+    protected internalListener?: WidgetListenerInternal<typeof this>;
 
     constructor(protected override readonly elem: TElement) {
         super(elem);
@@ -111,25 +113,23 @@ export abstract class Widget<
         setAttribute(this.elem, 'tabindex', tabIndex);
     }
 
-    protected appendChildToDOM(child: TChildWidget) {
-        this.elem.appendChild(child.getElement());
-    }
     appendChild(child: TChildWidget) {
         this.appendChildToDOM(child);
         this.children.push(child);
         child.index = this.children.length - 1;
         this.onChildAdded(child);
     }
-    protected onChildAdded(_child: TChildWidget): void {}
+
+    protected appendChildToDOM(child: TChildWidget) {
+        this.elem.appendChild(child.getElement());
+    }
 
     protected removeChildFromDOM(child: TChildWidget): void {
         this.elem.removeChild(child.getElement());
     }
 
+    protected onChildAdded(_child: TChildWidget): void {}
     protected onChildRemoved(_child: TChildWidget): void {}
-
-    protected htmlListener?: WidgetListenerHTML<typeof this>;
-    protected internalListener?: WidgetListenerInternal<typeof this>;
 
     addListener<K extends keyof WidgetEventMap>(
         type: K,
