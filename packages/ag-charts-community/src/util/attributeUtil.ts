@@ -23,6 +23,7 @@ export type BaseAttributeTypeMap = {
     role: AriaRole;
     'aria-checked': boolean;
     'aria-controls': ElementID;
+    'aria-describedby': ElementID;
     'aria-disabled': boolean;
     'aria-expanded': boolean;
     'aria-haspopup': boolean;

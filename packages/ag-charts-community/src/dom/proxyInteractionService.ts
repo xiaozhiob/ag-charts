@@ -9,9 +9,12 @@ import { GroupWidget } from '../widget/groupWidget';
 import { ListWidget } from '../widget/listWidget';
 import { NativeWidget } from '../widget/nativeWidget';
 import { SliderWidget } from '../widget/sliderWidget';
+import { SwitchWidget } from '../widget/switchWidget';
 import { ToolbarWidget } from '../widget/toolbarWidget';
 import type { Widget } from '../widget/widget';
 import type { DOMManager } from './domManager';
+
+type IWidget = { getElement(): HTMLElement };
 
 type ParentProperties<T = NativeWidget<HTMLDivElement>> =
     | { readonly parent: T }
@@ -72,7 +75,7 @@ type ProxyMeta = {
                 readonly ariaChecked: boolean;
                 readonly ariaDescribedBy: string;
             };
-        result: ButtonWidget;
+        result: SwitchWidget;
     };
     region: {
         params: ParentProperties & ElemParams<'region'>;
@@ -127,7 +130,7 @@ function allocateResult<T extends keyof ProxyMeta>(type: T): ProxyMeta[T]['resul
     } else if ('text' === type) {
         return new BoundedTextWidget();
     } else if ('listswitch' === type) {
-        return new ButtonWidget();
+        return new SwitchWidget();
     } else {
         throw Error('AG Charts - error allocating meta');
     }
@@ -198,7 +201,7 @@ export class ProxyInteractionService {
         if (checkType('button', meta)) {
             const { params, result } = meta;
             const button = result.getElement();
-            this.initInteract(params, button);
+            this.initInteract(params, result);
 
             if (typeof params.textContent === 'string') {
                 button.textContent = params.textContent;
@@ -214,7 +217,7 @@ export class ProxyInteractionService {
         if (checkType('slider', meta)) {
             const { params, result } = meta;
             const slider = result.getElement();
-            this.initInteract(params, slider);
+            this.initInteract(params, result);
             slider.type = 'range';
             slider.role = 'presentation';
             slider.style.margin = '0px';
@@ -228,26 +231,22 @@ export class ProxyInteractionService {
 
         if (checkType('text', meta)) {
             const { params, result } = meta;
-            this.initElement(params, result.getElement());
+            this.initElement(params, result);
         }
 
         if (checkType('listswitch', meta)) {
-            const { params, result } = meta;
-            const button = result.getElement();
+            const { params, result: button } = meta;
             this.initInteract(params, button);
-            button.style.width = '100%';
-            button.style.height = '100%';
-            button.textContent = params.textContent;
-            button.role = 'switch';
-            button.ariaChecked = params.ariaChecked.toString();
-            button.setAttribute('aria-describedby', params.ariaDescribedBy);
+            button.setTextContent(params.textContent);
+            button.setChecked(params.ariaChecked);
+            button.setAriaDescribedBy(params.ariaDescribedBy);
             this.setParent(meta.params, meta.result);
         }
 
         if (checkType('region', meta)) {
             const { params, result } = meta;
             const region = result.getElement();
-            this.initInteract(params, region);
+            this.initInteract(params, result);
             region.role = 'region';
             this.setParent(meta.params, meta.result);
         }
@@ -312,19 +311,18 @@ export class ProxyInteractionService {
         };
     }
 
-    private initElement<T extends ProxyElementType, TElem extends HTMLElement>(params: ElemParams<T>, element: TElem) {
+    private initElement<T extends ProxyElementType>(params: ElemParams<T>, widget: IWidget) {
+        const element = widget.getElement();
         setAttribute(element, 'id', params.id);
         setElementStyle(element, 'cursor', params.cursor);
         element.classList.toggle('ag-charts-proxy-elem', true);
+        return element;
     }
 
-    private initInteract<T extends ProxyElementType, TElem extends HTMLElement>(
-        params: InteractParams<T>,
-        element: TElem
-    ) {
+    private initInteract<T extends ProxyElementType>(params: InteractParams<T>, widget: IWidget) {
         const { onclick, ondblclick, onmouseenter, onmouseleave, oncontextmenu, onchange, onfocus, onblur, tabIndex } =
             params;
-        this.initElement(params, element);
+        const element = this.initElement(params, widget);
 
         if (tabIndex !== undefined) {
             element.tabIndex = tabIndex;

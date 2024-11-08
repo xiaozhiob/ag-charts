@@ -9,6 +9,7 @@ import { createElement } from '../util/dom';
 import type { ButtonWidget } from '../widget/buttonWidget';
 import type { GroupWidget } from '../widget/groupWidget';
 import type { ListWidget } from '../widget/listWidget';
+import type { SwitchWidget } from '../widget/switchWidget';
 import type { Page } from './gridLayout';
 import type { CategoryLegendDatum } from './legendDatum';
 import type { LegendMarkerLabel } from './legendMarkerLabel';
@@ -18,7 +19,7 @@ type ItemSelection = Selection<LegendMarkerLabel, CategoryLegendDatum>;
 type CategoryLegendDatumReader = { getItemLabel(datum: CategoryLegendDatum): string | undefined };
 
 interface ButtonListener {
-    onClick(event: Event, datum: CategoryLegendDatum, proxyButton: HTMLButtonElement): void;
+    onClick(event: Event, datum: CategoryLegendDatum, proxyButton: SwitchWidget): void;
     onDoubleClick(event: MouseEvent, datum: CategoryLegendDatum): void;
     onHover(event: FocusEvent | MouseEvent, node: LegendMarkerLabel): void;
     onLeave(): void;
@@ -100,7 +101,7 @@ export class LegendDOMProxy {
                 // Retrieve the datum from the node rather than from the method parameter.
                 // The method parameter `datum` gets destroyed when the data is refreshed
                 // using Series.getLegendData(). But the scene node will stay the same.
-                onclick: (ev) => itemListener.onClick(ev, markerLabel.datum, markerLabel.proxyButton!.getElement()),
+                onclick: (ev) => itemListener.onClick(ev, markerLabel.datum, markerLabel.proxyButton!),
                 ondblclick: (ev) => itemListener.onDoubleClick(ev, markerLabel.datum),
                 onmouseenter: (ev) => itemListener.onHover(ev, markerLabel),
                 onmouseleave: () => itemListener.onLeave(),

@@ -86,6 +86,14 @@ export abstract class Widget<
         setElementStyle(this.elem, 'cursor', cursor);
     }
 
+    setTextContent(textContent: string | undefined) {
+        this.elem.textContent = textContent ?? null;
+    }
+
+    setAriaDescribedBy(ariaDescribedBy: BaseAttributeTypeMap['aria-describedby'] | undefined) {
+        setAttribute(this.elem, 'aria-describedby', ariaDescribedBy);
+    }
+
     cssLeft(): number {
         return parseFloat(this.elem.style.left);
     }

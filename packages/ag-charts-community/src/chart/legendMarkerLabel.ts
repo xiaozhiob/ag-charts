@@ -10,7 +10,7 @@ import { Translatable } from '../scene/transformable';
 import { arraysEqual } from '../util/array';
 import { iterate } from '../util/iterator';
 import { ProxyPropertyOnWrite } from '../util/proxy';
-import type { ButtonWidget } from '../widget/buttonWidget';
+import type { SwitchWidget } from '../widget/switchWidget';
 import type { Marker } from './marker/marker';
 import type { MarkerConstructor } from './marker/util';
 
@@ -48,7 +48,7 @@ export class LegendMarkerLabel extends Translatable(Group) {
         this.proxyButton?.destroy();
     }
 
-    proxyButton?: ButtonWidget;
+    proxyButton?: SwitchWidget;
 
     pageIndex: number = NaN;
 
