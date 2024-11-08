@@ -68,7 +68,7 @@ export class NavigatorDOMProxy {
             slider.setPreventsDefault(false);
             slider.addListener('drag-start', (target, ev) => this.onDragStart(target, ev, key));
             slider.addListener('drag-move', (target, ev) => this.onDrag(target, ev, key));
-            slider.addListener('drag-start', () => this.updateSliderRatios());
+            slider.addListener('drag-end', () => this.updateSliderRatios());
         }
         this.updateSliderRatios();
         this.updateVisibility(false);
