@@ -36,6 +36,7 @@ export abstract class RovingTabContainerWidget extends Widget<HTMLDivElement, Ro
     protected override onChildAdded(child: RovingChildWidgets): void {
         child.addListener('focus', this.onChildFocus);
         child.addListener('keydown', this.onChildKeyDown);
+        child.setTabIndex(this.children.length === 1 ? 0 : -1);
     }
 
     protected override onChildRemoved(child: RovingChildWidgets): void {
