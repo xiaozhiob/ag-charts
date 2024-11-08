@@ -9,6 +9,7 @@ import type { BBoxValues } from '../util/bboxinterface';
 import { getElementBBox, getWindow, setElementBBox } from '../util/dom';
 import { type WidgetEventMap, WidgetEventUtil } from './widgetEvents';
 import { WidgetListenerHTML } from './widgetListenerHTML';
+import { WidgetListenerInternal } from './widgetListenerInternal';
 
 interface IWidget<TElement extends HTMLElement> {
     index: number;
@@ -71,6 +72,7 @@ export abstract class Widget<
         this.destructor();
         this.elem.remove();
         this.elemContainer?.remove();
+        this.internalListener?.destroy();
         this.htmlListener?.destroy(this);
     }
 
@@ -131,6 +133,7 @@ export abstract class Widget<
     protected onChildRemoved(_child: TChildWidget): void {}
 
     protected htmlListener?: WidgetListenerHTML<typeof this>;
+    protected internalListener?: WidgetListenerInternal<typeof this>;
 
     addListener<K extends keyof WidgetEventMap>(
         type: K,
@@ -144,6 +147,9 @@ export abstract class Widget<
         if (WidgetEventUtil.isHTMLEvent(type)) {
             this.htmlListener ??= new WidgetListenerHTML();
             this.htmlListener.add(type, this, listener);
+        } else {
+            this.internalListener ??= new WidgetListenerInternal();
+            this.internalListener.add(type, this, listener);
         }
     }
 
@@ -158,6 +164,8 @@ export abstract class Widget<
     ): void {
         if (WidgetEventUtil.isHTMLEvent(type)) {
             this.htmlListener?.remove(type, this, listener);
+        } else if (this.htmlListener != null) {
+            this.internalListener?.remove(type, this, listener);
         }
     }
 }
