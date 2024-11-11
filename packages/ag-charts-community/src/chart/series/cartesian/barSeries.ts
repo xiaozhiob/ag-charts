@@ -607,7 +607,7 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
             const yDomain = this.getSeriesDomain(ChartAxisDirection.Y);
             format = callbackCache.call(itemStyler, {
                 seriesId,
-                ...datumStylerProperties(datum, xKey, yKey, xDomain, yDomain),
+                ...datumStylerProperties(nodeDatum, xKey, yKey, xDomain, yDomain),
                 stackGroup,
                 fill,
                 stroke,

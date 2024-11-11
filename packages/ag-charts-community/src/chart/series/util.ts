@@ -41,11 +41,13 @@ export function pickNode(
 }
 
 function datumBoundaryPoints(datum: any, domain: any[]) {
+    if (datum == null || domain.length === 0) {
+        return [false, false];
+    }
+
     const datumValue = datum.valueOf();
 
-    if (domain.length === 0) {
-        return [false, false];
-    } else if (typeof domain[0] === 'string') {
+    if (typeof domain[0] === 'string') {
         return [datumValue === domain[0], datumValue === domain[domain.length - 1]];
     }
 
