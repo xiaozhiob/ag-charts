@@ -43,7 +43,6 @@ export class NavigatorDOMProxy {
                 ariaOrientation: 'horizontal',
                 parent: this.toolbar,
                 cursor: 'ew-resize',
-                onchange: (ev) => this.onMinSliderChange(ev),
             }),
             ctx.proxyInteractionService.createProxyElement({
                 type: 'slider',
@@ -51,7 +50,6 @@ export class NavigatorDOMProxy {
                 ariaOrientation: 'horizontal',
                 parent: this.toolbar,
                 cursor: 'grab',
-                onchange: (ev) => this.onPanSliderChange(ev),
             }),
             ctx.proxyInteractionService.createProxyElement({
                 type: 'slider',
@@ -59,9 +57,9 @@ export class NavigatorDOMProxy {
                 ariaOrientation: 'horizontal',
                 parent: this.toolbar,
                 cursor: 'ew-resize',
-                onchange: (ev) => this.onMaxSliderChange(ev),
             }),
         ];
+
         for (const [index, key] of (['min', 'pan', 'max'] as const).entries()) {
             const slider = this.sliders[index];
             slider.step = SliderWidget.STEP_HUNDRETH;
@@ -70,6 +68,9 @@ export class NavigatorDOMProxy {
             slider.addListener('drag-move', (target, ev) => this.onDrag(target, ev, key));
             slider.addListener('drag-end', () => this.updateSliderRatios());
         }
+        this.sliders[0].addListener('change', () => this.onMinSliderChange());
+        this.sliders[1].addListener('change', () => this.onPanSliderChange());
+        this.sliders[2].addListener('change', () => this.onMaxSliderChange());
         this.updateSliderRatios();
         this.updateVisibility(false);
     }
@@ -126,7 +127,7 @@ export class NavigatorDOMProxy {
         this.sliderHandlers.onDrag(key, this.toCanvasOffsets(event));
     }
 
-    private onPanSliderChange(_event: Event) {
+    private onPanSliderChange() {
         const ratio = this.sliders[1].getValueRatio();
         const span = this._max - this._min;
         this._min = clamp(0, ratio, 1 - span);
@@ -134,12 +135,12 @@ export class NavigatorDOMProxy {
         this.updateZoom();
     }
 
-    private onMinSliderChange(_event: Event) {
+    private onMinSliderChange() {
         this._min = this.sliders[0].clampValueRatio(0, this._max - this.minRange);
         this.updateZoom();
     }
 
-    private onMaxSliderChange(_event: Event) {
+    private onMaxSliderChange() {
         this._max = this.sliders[2].clampValueRatio(this._min + this.minRange, 1);
         this.updateZoom();
     }

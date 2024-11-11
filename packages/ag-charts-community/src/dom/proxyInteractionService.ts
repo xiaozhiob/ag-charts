@@ -33,7 +33,6 @@ type InteractParams<T extends ProxyElementType> = ElemParams<T> & {
     readonly onmouseenter?: (ev: MouseEvent) => void;
     readonly onmouseleave?: (ev: MouseEvent) => void;
     readonly oncontextmenu?: (ev: MouseEvent) => void;
-    readonly onchange?: (ev: Event) => void;
     readonly onfocus?: (ev: FocusEvent) => void;
     readonly onblur?: (ev: FocusEvent) => void;
 };
@@ -243,8 +242,7 @@ export class ProxyInteractionService {
     }
 
     private initInteract<T extends ProxyElementType>(params: InteractParams<T>, widget: IWidget) {
-        const { onclick, ondblclick, onmouseenter, onmouseleave, oncontextmenu, onchange, onfocus, onblur, tabIndex } =
-            params;
+        const { onclick, ondblclick, onmouseenter, onmouseleave, oncontextmenu, onfocus, onblur, tabIndex } = params;
         const element = this.initElement(params, widget);
 
         if (tabIndex !== undefined) {
@@ -271,9 +269,6 @@ export class ProxyInteractionService {
         }
         if (onblur) {
             element.addEventListener('blur', onblur);
-        }
-        if (onchange) {
-            element.addEventListener('change', onchange);
         }
     }
 
