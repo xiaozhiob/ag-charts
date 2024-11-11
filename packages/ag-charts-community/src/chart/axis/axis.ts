@@ -35,6 +35,7 @@ import { StateMachine } from '../../util/stateMachine';
 import { createIdsGenerator } from '../../util/tempUtils';
 import { CachedTextMeasurerPool, TextUtils } from '../../util/textMeasurer';
 import { estimateTickCount } from '../../util/ticks';
+import { isArray } from '../../util/type-guards';
 import { BOOLEAN, OBJECT, STRING_ARRAY, Validate } from '../../util/validation';
 import { Caption } from '../caption';
 import type { ChartAnimationPhase } from '../chartAnimationPhase';
@@ -95,7 +96,7 @@ export type TickDatum = {
     translationY: number;
 };
 
-type LabelNodeDatum = {
+export type LabelNodeDatum = {
     tickId: string;
     fill?: CssColor;
     fontFamily?: FontFamily;
@@ -110,6 +111,7 @@ type LabelNodeDatum = {
     visible: boolean;
     x: number;
     y: number;
+    translationX?: number;
     translationY: number;
     range: number[];
 };
@@ -201,8 +203,9 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
 
     readonly axisGroup = new TransformableGroup({ name: `${this.id}-axis` });
 
-    protected lineNode = this.axisGroup.appendChild(new TranslatableLine({ name: `${this.id}-Axis-line` }));
+    // Order is important to apply the correct z-index.
     protected readonly tickLineGroup = this.axisGroup.appendChild(new Group({ name: `${this.id}-Axis-tick-lines` }));
+    protected readonly lineNode = this.axisGroup.appendChild(new TranslatableLine({ name: `${this.id}-Axis-line` }));
     protected readonly tickLabelGroup = this.axisGroup.appendChild(new Group({ name: `${this.id}-Axis-tick-labels` }));
     protected readonly labelGroup = new Group({
         name: `${this.id}-Labels`,
@@ -385,12 +388,12 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
 
     /**
      * Checks if a point or an object is in range.
-     * @param x A point (or object's starting point).
+     * @param value A point (or object's starting point).
      * @param tolerance Expands the range on both ends by this amount.
      */
-    inRange(x: number, tolerance = 0): boolean {
+    inRange(value: number, tolerance = 0): boolean {
         const [min, max] = findMinMax(this.range);
-        return x >= min - tolerance && x <= max + tolerance;
+        return value >= min - tolerance && value <= max + tolerance;
     }
 
     protected datumFormatter?: (datum: any) => string;
@@ -1008,7 +1011,7 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
             // instead hide ticks based on their translation.
             if (range.length > 0 && !this.inRange(translationY, 0.001)) continue;
 
-            const tickLabel = this.formatTick(tick, fractionDigits, start + i);
+            const tickLabel = this.formatTick(tick, start + i, fractionDigits);
 
             // Create a tick id from the label, or as an increment of the last label if this tick label is blank
             ticks.push({ tick, tickId: idGenerator(tickLabel), tickLabel, translationY: Math.floor(translationY) });
@@ -1095,7 +1098,7 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
         };
     }
 
-    updatePosition() {
+    protected updatePosition() {
         const { crossLineRangeGroup, crossLineLineGroup, crossLineLabelGroup, axisGroup, gridGroup, translation } =
             this;
         const { rotation } = this.calculateRotations();
@@ -1109,7 +1112,7 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
         axisGroup.datum = this.getAxisTransform();
     }
 
-    updateSecondaryAxisTicks(_primaryTickCount: number | undefined): any[] {
+    protected updateSecondaryAxisTicks(_primaryTickCount: number | undefined): any[] {
         throw new Error('AG Charts - unexpected call to updateSecondaryAxisTicks() - check axes configuration.');
     }
 
@@ -1184,7 +1187,7 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
     }
 
     // For formatting (nice rounded) tick values.
-    private formatTick(datum: any, fractionDigits: number, index: number): string {
+    protected formatTick(value: any, index: number, fractionDigits?: number): string {
         const {
             labelFormatter,
             label: { formatter },
@@ -1193,15 +1196,15 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
 
         let result: string | undefined;
         if (formatter) {
-            result = callbackCache.call(formatter, { value: datum, index, fractionDigits });
+            result = callbackCache.call(formatter, { value: value, index, fractionDigits });
         } else if (labelFormatter) {
-            result = callbackCache.call(labelFormatter, datum);
+            result = callbackCache.call(labelFormatter, value);
         }
-        return String(result ?? datum);
+        return String(result ?? value);
     }
 
     // For formatting arbitrary values between the ticks.
-    formatDatum(datum: any): string {
+    formatDatum(value: any): string {
         const {
             label: { formatter },
             moduleCtx: { callbackCache },
@@ -1210,14 +1213,17 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
 
         let result: string | undefined;
         if (formatter) {
-            result = callbackCache.call(formatter, { value: datum, index: NaN });
+            result = callbackCache.call(formatter, { value: value, index: NaN });
         } else if (valueFormatter) {
-            result = callbackCache.call(valueFormatter, datum);
+            result = callbackCache.call(valueFormatter, value);
+        } else if (isArray(value)) {
+            // Handle grouped categories value.
+            result = value.filter(Boolean).join(' - ');
         }
-        return String(result ?? datum);
+        return String(result ?? value);
     }
 
-    private getScaleValueFormatter(format?: string): (datum: any) => string {
+    private getScaleValueFormatter(format?: string): (value: any) => string {
         if (format && this.scale.tickFormat) {
             try {
                 return this.scale.tickFormat({ specifier: format });
@@ -1225,7 +1231,7 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
                 Logger.warnOnce(`the format string ${format} is invalid, ignoring.`);
             }
         }
-        return (datum) => this.formatDatum(datum);
+        return (value) => this.formatDatum(value);
     }
 
     getBBox(): BBox {
@@ -1351,13 +1357,12 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
     }
 
     protected resetSelectionNodes() {
-        const { gridLineGroupSelection, tickLineGroupSelection, tickLabelGroupSelection, lineNode } = this;
-
         const selectionCtx = prepareAxisAnimationContext(this);
+
         resetMotion([this.axisGroup], resetAxisGroupFn());
-        resetMotion([gridLineGroupSelection, tickLineGroupSelection], resetAxisSelectionFn(selectionCtx));
-        resetMotion([tickLabelGroupSelection], resetAxisLabelSelectionFn());
-        resetMotion([lineNode], resetAxisLineSelectionFn());
+        resetMotion([this.gridLineGroupSelection, this.tickLineGroupSelection], resetAxisSelectionFn(selectionCtx));
+        resetMotion([this.tickLabelGroupSelection], resetAxisLabelSelectionFn());
+        resetMotion([this.lineNode], resetAxisLineSelectionFn());
     }
 
     isReversed() {
