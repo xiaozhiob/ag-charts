@@ -119,6 +119,7 @@ export abstract class Widget<
     protected removeChildFromDOM(child: TChildWidget): void {
         this.elem.removeChild(child.getElement());
     }
+
     protected onChildRemoved(_child: TChildWidget): void {}
 
     protected map?: WidgetListenerMap<typeof this>;

@@ -126,6 +126,9 @@ export function priceVolume(
 
     const toolbarOpts = {
         chartToolbar: { enabled: true },
+        ranges: {
+            enabled: rangeButtons,
+        },
         toolbar: {
             seriesType: {
                 enabled: toolbar,
@@ -135,9 +138,6 @@ export function priceVolume(
             },
             annotations: {
                 enabled: toolbar,
-            },
-            ranges: {
-                enabled: rangeButtons,
             },
         } satisfies AgToolbarOptions,
     };

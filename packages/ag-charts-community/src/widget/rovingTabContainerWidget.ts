@@ -3,12 +3,13 @@ import type { Direction } from 'ag-charts-types';
 import { getAttribute, setAttribute } from '../util/attributeUtil';
 import { getDocument } from '../util/dom';
 import { PREV_NEXT_KEYS, hasNoModifiers } from '../util/keynavUtil';
+import type { ButtonWidget } from './buttonWidget';
 import type { NativeWidget } from './nativeWidget';
 import type { SliderWidget } from './sliderWidget';
 import { Widget } from './widget';
 import type { FocusWidgetEvent, KeyboardWidgetEvent } from './widgetEvents';
 
-type RovingChildWidgets = SliderWidget | NativeWidget;
+type RovingChildWidgets = SliderWidget | ButtonWidget | NativeWidget;
 type RovingDirection = Direction | 'both';
 
 type RovingKeys = (typeof PREV_NEXT_KEYS)[keyof typeof PREV_NEXT_KEYS];

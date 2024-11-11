@@ -48,6 +48,7 @@ export const EXPECTED_ENTERPRISE_MODULES: EnterpriseModuleStub[] = [
     },
     { type: 'root', optionsKey: 'sync', chartTypes: ['cartesian'] },
     { type: 'root', optionsKey: 'zoom', chartTypes: ['cartesian', 'topology'] },
+    { type: 'root', optionsKey: 'ranges', chartTypes: ['cartesian'] },
     {
         type: 'legend',
         optionsKey: 'gradientLegend',
