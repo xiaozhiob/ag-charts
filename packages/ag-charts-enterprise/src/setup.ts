@@ -15,6 +15,7 @@ import { DataSourceModule } from './features/data-source/main';
 import { ErrorBarsModule } from './features/error-bar/errorBarModule';
 import { ForegroundModule } from './features/foreground/main';
 import { NavigatorModule } from './features/navigator/navigatorModule';
+import { RangesModule } from './features/ranges/rangesModule';
 import { StatusBarModule } from './features/status-bar/main';
 import { SyncModule } from './features/sync/syncModule';
 import { ZoomModule } from './features/zoom/main';
@@ -91,6 +92,7 @@ export function setupEnterpriseModules() {
         RadiusNumberAxisModule,
         RangeBarModule,
         RangeAreaModule,
+        RangesModule,
         PyramidModule,
         SankeyModule,
         SunburstModule,

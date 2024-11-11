@@ -1,13 +1,8 @@
 /* eslint-disable sonarjs/no-duplicate-string */
-import type { AgToolbarGroupPosition, AgToolbarOptions } from 'ag-charts-types';
+import type { AgToolbarOptions } from 'ag-charts-types';
 
 import type { Module } from '../../module/module';
-import { DEFAULT_TOOLBAR_POSITION } from '../themes/symbols';
 import { Toolbar } from './toolbar';
-
-const DAY = 1000 * 60 * 60 * 24;
-const MONTH = DAY * 30;
-const YEAR = DAY * 365;
 
 const seriesType: AgToolbarOptions['seriesType'] = {
     enabled: false,
@@ -141,46 +136,6 @@ const annotationOptions: AgToolbarOptions['annotationOptions'] = {
     ],
 };
 
-const ranges: AgToolbarOptions['ranges'] = {
-    enabled: false,
-    position: DEFAULT_TOOLBAR_POSITION as AgToolbarGroupPosition,
-    align: 'start',
-    buttons: [
-        {
-            label: 'toolbarRange1Month',
-            ariaLabel: 'toolbarRange1MonthAria',
-            value: MONTH,
-        },
-        {
-            label: 'toolbarRange3Months',
-            ariaLabel: 'toolbarRange3MonthsAria',
-            value: 3 * MONTH,
-        },
-        {
-            label: 'toolbarRange6Months',
-            ariaLabel: 'toolbarRange6MonthsAria',
-            value: 6 * MONTH,
-        },
-        {
-            label: 'toolbarRangeYearToDate',
-            ariaLabel: 'toolbarRangeYearToDateAria',
-            value: (_start, end) => [new Date(`${new Date(end).getFullYear()}-01-01`).getTime(), end],
-            id: 'year-to-date',
-        },
-        {
-            label: 'toolbarRange1Year',
-            ariaLabel: 'toolbarRange1YearAria',
-            value: YEAR,
-        },
-        {
-            label: 'toolbarRangeAll',
-            ariaLabel: 'toolbarRangeAllAria',
-            value: (start, end) => [start, end],
-            id: 'all',
-        },
-    ],
-};
-
 const zoom: AgToolbarOptions['zoom'] = {
     enabled: true,
     position: 'top',
@@ -236,7 +191,6 @@ export const ToolbarModule: Module = {
             seriesType,
             annotations,
             annotationOptions,
-            ranges,
             zoom,
         },
     },

@@ -13,7 +13,6 @@ import type {
     Formatter,
 } from 'ag-charts-types';
 
-import type { ListSwitch } from '../dom/proxyInteractionService';
 import type { LayoutContext } from '../module/baseModule';
 import type { ModuleContext } from '../module/moduleContext';
 import { BBox } from '../scene/bbox';
@@ -44,7 +43,7 @@ import {
     UNION,
     Validate,
 } from '../util/validation';
-import type { NativeWidget } from '../widget/nativeWidget';
+import type { ButtonWidget } from '../widget/buttonWidget';
 import { ChartUpdateType } from './chartUpdateType';
 import type { Page } from './gridLayout';
 import { gridLayout } from './gridLayout';
@@ -880,7 +879,7 @@ export class Legend extends BaseProperties {
 
     private findNode(params: AgChartLegendContextMenuEvent): {
         datum: CategoryLegendDatum;
-        proxyButton: NativeWidget<HTMLElement, ListSwitch>;
+        proxyButton: ButtonWidget;
     } {
         const { datum, proxyButton } =
             this.itemSelection.select((ml): ml is LegendMarkerLabel => ml.datum?.itemId === params.itemId)[0] ?? {};
@@ -892,7 +891,7 @@ export class Legend extends BaseProperties {
 
     private contextToggleVisibility(params: AgChartLegendContextMenuEvent) {
         const { datum, proxyButton } = this.findNode(params);
-        this.doClick(params.event, datum, proxyButton.value.button);
+        this.doClick(params.event, datum, proxyButton.getElement());
     }
 
     private contextToggleOtherSeries(params: AgChartLegendContextMenuEvent) {
@@ -1220,7 +1219,7 @@ export class Legend extends BaseProperties {
             const bbox = Transformable.toCanvas(node);
             if (bbox.containsPoint(canvasX, canvasY)) {
                 const { x, y } = Transformable.fromCanvasPoint(node, canvasX, canvasY);
-                return { target: node.proxyButton?.value.button!, x, y };
+                return { target: node.proxyButton?.getElement()!, x, y };
             }
         }
     }
