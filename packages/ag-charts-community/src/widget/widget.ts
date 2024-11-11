@@ -1,4 +1,10 @@
-import { type BaseAttributeTypeMap, type BaseStyleTypeMap, setAttribute, setElementStyle } from '../util/attributeUtil';
+import {
+    type BaseAttributeTypeMap,
+    type BaseStyleTypeMap,
+    setAttribute,
+    setElementStyle,
+    setElementStyles,
+} from '../util/attributeUtil';
 import type { BBoxValues } from '../util/bboxinterface';
 import { getElementBBox, getWindow, setElementBBox } from '../util/dom';
 import type { WidgetEventMap } from './widgetEvents';
@@ -10,18 +16,51 @@ interface IWidget<TElement extends HTMLElement> {
     getElement(): TElement;
 }
 
+abstract class WidgetBounds {
+    protected readonly elem: HTMLElement;
+    protected elemContainer?: HTMLDivElement;
+    constructor(elem: HTMLElement) {
+        this.elem = elem;
+    }
+
+    setBounds(bounds: BBoxValues): void {
+        setElementBBox(this.elemContainer ?? this.elem, bounds);
+    }
+
+    getBounds(): BBoxValues {
+        return getElementBBox(this.elemContainer ?? this.elem);
+    }
+
+    protected static setElementContainer(widget: WidgetBounds, elemContainer: HTMLDivElement) {
+        const currentBounds = widget.getBounds();
+        setElementBBox(elemContainer, currentBounds);
+        setElementStyles(widget.elem, { width: '100%', height: '100%' });
+        widget.elem.remove();
+        widget.elemContainer = elemContainer;
+        widget.elemContainer.replaceChildren(widget.elem);
+    }
+}
+
 export abstract class Widget<
-    TElement extends HTMLElement = HTMLElement,
-    TChildWidget extends IWidget<HTMLElement> = IWidget<HTMLElement>,
-> implements IWidget<TElement>
+        TElement extends HTMLElement = HTMLElement,
+        TChildWidget extends IWidget<HTMLElement> = IWidget<HTMLElement>,
+    >
+    extends WidgetBounds
+    implements IWidget<TElement>
 {
     public index: number = NaN;
 
     protected readonly children: TChildWidget[] = [];
 
-    constructor(protected readonly elem: TElement) {}
+    constructor(protected override readonly elem: TElement) {
+        super(elem);
+    }
 
     protected abstract destructor(): void;
+
+    protected setElementContainer(widget: WidgetBounds, elemContainer: HTMLDivElement) {
+        WidgetBounds.setElementContainer(widget, elemContainer);
+    }
 
     getElement(): TElement {
         return this.elem;
@@ -31,6 +70,7 @@ export abstract class Widget<
         this.children.forEach((child) => child.destroy());
         this.destructor();
         this.elem.remove();
+        this.elemContainer?.remove();
         this.map?.destroy(this);
     }
 
@@ -40,14 +80,6 @@ export abstract class Widget<
 
     isHidden(): boolean {
         return getWindow()?.getComputedStyle?.(this.elem).display === 'none';
-    }
-
-    setBounds(bounds: BBoxValues): void {
-        setElementBBox(this.elem, bounds);
-    }
-
-    getBounds(): BBoxValues {
-        return getElementBBox(this.elem);
     }
 
     setCursor(cursor: BaseStyleTypeMap['cursor'] | undefined) {
@@ -73,13 +105,20 @@ export abstract class Widget<
         setAttribute(this.elem, 'tabindex', tabIndex);
     }
 
-    appendChild(child: TChildWidget) {
+    protected appendChildToDOM(child: TChildWidget) {
         this.elem.appendChild(child.getElement());
+    }
+    appendChild(child: TChildWidget) {
+        this.appendChildToDOM(child);
         this.children.push(child);
         child.index = this.children.length - 1;
         this.onChildAdded(child);
     }
     protected onChildAdded(_child: TChildWidget): void {}
+
+    protected removeChildFromDOM(child: TChildWidget): void {
+        this.elem.removeChild(child.getElement());
+    }
     protected onChildRemoved(_child: TChildWidget): void {}
 
     protected map?: WidgetListenerMap<typeof this>;
