@@ -63,6 +63,7 @@ export class NavigatorDOMProxy {
         for (const [index, key] of (['min', 'pan', 'max'] as const).entries()) {
             const slider = this.sliders[index];
             slider.step = SliderWidget.STEP_HUNDRETH;
+            slider.keyboardStep = SliderWidget.STEP_ONE;
             slider.setPreventsDefault(false);
             slider.addListener('drag-start', (target, ev) => this.onDragStart(target, ev, key));
             slider.addListener('drag-move', (target, ev) => this.onDrag(target, ev, key));
