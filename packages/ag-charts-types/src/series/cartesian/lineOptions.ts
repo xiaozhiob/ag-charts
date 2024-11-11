@@ -43,10 +43,22 @@ export interface AgLineSeriesOptionsKeys {
 }
 
 export interface AgLineSeriesMarkerItemStylerParams extends AgLineSeriesOptionsKeys {
-    /** The key to use to retrieve x-values from the data. */
+    /** The x value of the datum. */
+    xValue: any;
+    /** The y value of the datum. */
+    yValue: any;
+    /** The range of the x values of the data. */
     xDomain: any[];
-    /** The key to use to retrieve y-values from the data. */
+    /** The range of the y values of the data. */
     yDomain: any[];
+    /** Whether the item's x value is the minimum */
+    first: boolean;
+    /** Whether the item's x value is the maximum */
+    last: boolean;
+    /** Whether the item's y value is the minimum */
+    min: boolean;
+    /** Whether the item's y value is the maximum */
+    max: boolean;
 }
 
 export interface AgLineSeriesOptionsNames {

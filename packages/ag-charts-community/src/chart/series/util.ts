@@ -1,4 +1,5 @@
 import type { Point } from '../../scene/point';
+import { findMinMax } from '../../util/number';
 import type { Series, SeriesNodePickIntent } from './series';
 import type { SeriesNodeDatum } from './seriesTypes';
 
@@ -37,4 +38,42 @@ export function pickNode(
     }
 
     return result;
+}
+
+function datumBoundaryPoints(datum: any, domain: any[]) {
+    const datumValue = datum.valueOf();
+
+    if (domain.length === 0) {
+        return [false, false];
+    } else if (typeof domain[0] === 'string') {
+        return [datumValue === domain[0], datumValue === domain[domain.length - 1]];
+    }
+
+    const [min, max] = findMinMax(domain);
+    return [datumValue === min.valueOf(), datumValue === max.valueOf()];
+}
+
+export function datumStylerProperties<TDatum extends { xValue: any; yValue: any }>(
+    datum: TDatum,
+    xKey: string,
+    yKey: string,
+    xDomain: any[],
+    yDomain: any[]
+) {
+    const { xValue, yValue } = datum;
+    const [first, last] = datumBoundaryPoints(yValue, yDomain);
+    const [min, max] = datumBoundaryPoints(xValue, xDomain);
+    return {
+        datum,
+        xKey,
+        yKey,
+        xValue,
+        yValue,
+        xDomain,
+        yDomain,
+        first,
+        last,
+        min,
+        max,
+    };
 }
