@@ -105,7 +105,7 @@ export class Caption extends BaseProperties implements CaptionLike {
         this.truncated = wrappedText.includes(TextUtils.EllipsisChar);
     }
 
-    updateA11yText(moduleCtx: ModuleContext, where: 'beforebegin' | 'afterend') {
+    private updateA11yText(moduleCtx: ModuleContext, where: 'beforebegin' | 'afterend') {
         const { proxyInteractionService } = moduleCtx;
         if (this.enabled && this.text) {
             const bbox = Transformable.toCanvas(this.node);
@@ -123,7 +123,7 @@ export class Caption extends BaseProperties implements CaptionLike {
         }
     }
 
-    handleMouseMove(moduleCtx: ModuleContext, event: MouseWidgetEvent) {
+    private handleMouseMove(moduleCtx: ModuleContext, event: MouseWidgetEvent) {
         if (event !== undefined && this.enabled && this.node.visible && this.truncated) {
             const { x, y } = Transformable.toCanvas(this.node);
             const offsetX = event.sourceEvent.offsetX + x;
@@ -137,7 +137,7 @@ export class Caption extends BaseProperties implements CaptionLike {
         }
     }
 
-    handleMouseLeave(moduleCtx: ModuleContext, _event: MouseWidgetEvent) {
+    private handleMouseLeave(moduleCtx: ModuleContext, _event: MouseWidgetEvent) {
         moduleCtx.tooltipManager.removeTooltip(this.id);
     }
 }
