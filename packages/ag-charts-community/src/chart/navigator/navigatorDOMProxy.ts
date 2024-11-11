@@ -40,21 +40,18 @@ export class NavigatorDOMProxy {
             ctx.proxyInteractionService.createProxyElement({
                 type: 'slider',
                 ariaLabel: { id: 'ariaLabelNavigatorMinimum' },
-                ariaOrientation: 'horizontal',
                 parent: this.toolbar,
                 cursor: 'ew-resize',
             }),
             ctx.proxyInteractionService.createProxyElement({
                 type: 'slider',
                 ariaLabel: { id: 'ariaLabelNavigatorRange' },
-                ariaOrientation: 'horizontal',
                 parent: this.toolbar,
                 cursor: 'grab',
             }),
             ctx.proxyInteractionService.createProxyElement({
                 type: 'slider',
                 ariaLabel: { id: 'ariaLabelNavigatorMaximum' },
-                ariaOrientation: 'horizontal',
                 parent: this.toolbar,
                 cursor: 'ew-resize',
             }),
@@ -64,6 +61,7 @@ export class NavigatorDOMProxy {
             const slider = this.sliders[index];
             slider.step = SliderWidget.STEP_HUNDRETH;
             slider.keyboardStep = SliderWidget.STEP_ONE;
+            slider.orientation = 'horizontal';
             slider.setPreventsDefault(false);
             slider.addListener('drag-start', (target, ev) => this.onDragStart(target, ev, key));
             slider.addListener('drag-move', (target, ev) => this.onDrag(target, ev, key));

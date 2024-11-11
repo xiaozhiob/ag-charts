@@ -1,6 +1,8 @@
+import { getAttribute, setAttribute } from '../util/attributeUtil';
 import { getDocument } from '../util/dom';
 import { formatPercent } from '../util/format.util';
 import { clamp } from '../util/number';
+import type { RovingDirection } from './rovingTabContainerWidget';
 import { Widget } from './widget';
 import type { FocusWidgetEvent, KeyboardWidgetEvent } from './widgetEvents';
 
@@ -47,8 +49,17 @@ export class SliderWidget extends Widget<HTMLInputElement> {
         }
     }
 
+    public get orientation(): RovingDirection {
+        return getAttribute(this.elem, 'aria-orientation') ?? 'both';
+    }
+    public set orientation(orientation: RovingDirection) {
+        setAttribute(this.elem, 'aria-orientation', orientation !== 'both' ? orientation : undefined);
+        SliderWidget.registerDefaultPreventers(this, orientation);
+    }
+
     constructor() {
         super(getDocument().createElement('input'));
+        this.orientation = 'both';
     }
 
     protected override destructor() {} // NOSONAR
@@ -73,5 +84,27 @@ export class SliderWidget extends Widget<HTMLInputElement> {
 
     getValueRatio() {
         return parseFloat(this.getElement().value) / this.step.divider;
+    }
+
+    private static registerDefaultPreventers(target: SliderWidget, orientation: RovingDirection) {
+        if (orientation === 'both') {
+            target.removeListener('keydown', SliderWidget.onKeyDown);
+        } else {
+            target.addListener('keydown', SliderWidget.onKeyDown);
+        }
+    }
+
+    private static onKeyDown(target: SliderWidget, ev: KeyboardWidgetEvent) {
+        let ignoredKeys: string[] = [];
+        const { orientation } = target;
+        if (orientation === 'horizontal') {
+            ignoredKeys = ['ArrowUp', 'ArrowDown'];
+        } else if (orientation === 'vertical') {
+            ignoredKeys = ['ArrowLeft', 'ArrowRight'];
+        }
+
+        if (ignoredKeys.includes(ev.sourceEvent.code)) {
+            ev.sourceEvent.preventDefault();
+        }
     }
 }
