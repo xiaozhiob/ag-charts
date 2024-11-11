@@ -290,6 +290,8 @@ export class ChartTheme {
         }),
         'grouped-category': ChartTheme.getAxisDefaults({
             tick: { enabled: true },
+            paddingOuter: 0.1,
+            paddingInner: 0.2,
         }),
     };
 

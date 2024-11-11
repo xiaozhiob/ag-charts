@@ -7,7 +7,6 @@ const {
     ZIndexMap,
     ActionOnSet,
     CategoryAxis,
-    GroupedCategoryAxis,
     TextUtils,
     Padding,
     Logger,
@@ -274,7 +273,7 @@ export class MiniChart extends _ModuleSupport.BaseModuleInstance implements _Mod
                     break;
                 case 'right':
                 case 'left': {
-                    const isCategoryAxis = axis instanceof CategoryAxis || axis instanceof GroupedCategoryAxis;
+                    const isCategoryAxis = axis instanceof CategoryAxis;
                     axis.range = isCategoryAxis ? [0, seriesRect.height] : [seriesRect.height, 0];
                     axis.gridLength = seriesRect.width;
                     break;

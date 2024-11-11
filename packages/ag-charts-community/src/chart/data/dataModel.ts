@@ -34,6 +34,7 @@ export interface UngroupedData<D> {
     aggregation: [number, number][][] | undefined;
     invalidKeys: boolean[] | undefined;
     invalidDataScopes: Map<string, boolean[]> | undefined;
+    invalidData: boolean[] | undefined;
     keys: any[][];
     columns: any[][];
     domain: {
@@ -85,6 +86,7 @@ export interface GroupedData<D> {
     keys: any[][];
     invalidKeys: boolean[] | undefined;
     invalidDataScopes: Map<string, boolean[]> | undefined;
+    invalidData: boolean[] | undefined;
     columns: any[][];
     domain: UngroupedData<D>['domain'];
     reduced?: UngroupedData<D>['reduced'];
@@ -624,6 +626,7 @@ export class DataModel<
         let partialValidDataCount = 0;
 
         let invalidKeys: boolean[] | undefined;
+        let invalidData: boolean[] | undefined;
         const keys = keyDefs.map((def) => {
             const { invalidValue } = def;
 
@@ -634,6 +637,9 @@ export class DataModel<
 
                 invalidKeys ??= createArray(dataLength, false);
                 invalidKeys[datumIndex] = true;
+
+                invalidData ??= createArray(dataLength, false);
+                invalidData[datumIndex] = true;
 
                 return invalidValue;
             });
@@ -648,6 +654,9 @@ export class DataModel<
                 invalidDataScopes.set(scope, datumValidity);
             }
             datumValidity[datumIndex] = true;
+
+            invalidData ??= createArray(dataLength, false);
+            invalidData[datumIndex] = true;
         };
 
         const columns: any[][] = [];
@@ -704,6 +713,7 @@ export class DataModel<
             columns,
             invalidKeys,
             invalidDataScopes,
+            invalidData,
             domain: {
                 keys: keyDefs.map(propertyDomain),
                 values: valueDefs.map(propertyDomain),
@@ -721,7 +731,7 @@ export class DataModel<
     private groupData(data: UngroupedData<D>, groupingFn?: GroupingFn<D>): GroupedData<D> {
         const groups = new Map<string, { keys: D[K][]; datumIndices: number[]; validScopes?: Set<string> }>();
 
-        const { rawData, keys: dataKeys, invalidKeys, invalidDataScopes } = data;
+        const { rawData, keys: dataKeys, invalidKeys, invalidDataScopes, invalidData } = data;
         for (let datumIndex = 0; datumIndex < rawData.length; datumIndex += 1) {
             const datum = rawData[datumIndex];
             const keys = datumKeys(dataKeys, datumIndex);
@@ -741,7 +751,7 @@ export class DataModel<
             if (invalidKeys?.[datumIndex] === true) continue;
 
             let validScopes: Set<string> | undefined;
-            if (invalidDataScopes != null) {
+            if (invalidDataScopes != null && invalidData?.[datumIndex] === true) {
                 validScopes = new Set();
                 invalidDataScopes.forEach((invalidDatums, scope) => {
                     if (invalidDatums[datumIndex] === false) {
@@ -749,12 +759,7 @@ export class DataModel<
                     }
                 });
 
-                if (validScopes.size === 0) {
-                    continue;
-                } else if (validScopes.size === invalidDataScopes.size) {
-                    // Default to all being valid
-                    validScopes = undefined;
-                }
+                if (validScopes.size === 0) continue;
             }
 
             const existingGroup = groups.get(groupStr);
@@ -872,67 +877,30 @@ export class DataModel<
 
     private postProcessGroups(processedData: ProcessedData<any>) {
         const { groupProcessors } = this;
-        const updatedDomains = new Map<number, IDataDomain>();
-        const groupProcessorIndices = new Map<object, number[]>();
-        const groupProcessorInitFns = new Map<object, () => GroupValueAdjustFn<any, any>>();
 
+        const { rawData, columns, invalidData } = processedData;
         for (const processor of groupProcessors) {
-            const indices = this.valueGroupIdxLookup(processor);
-            groupProcessorIndices.set(processor, indices);
-            groupProcessorInitFns.set(processor, processor.adjust());
+            const valueIndexes = this.valueGroupIdxLookup(processor);
+            const adjustFn = processor.adjust()();
 
-            for (const idx of indices) {
-                const valueDef = this.values[idx];
+            for (let datumIndex = 0; datumIndex < rawData.length; datumIndex += 1) {
+                if (invalidData?.[datumIndex] === true) continue;
+                adjustFn(columns, valueIndexes, datumIndex);
+            }
+
+            for (const valueIndex of valueIndexes) {
+                const valueDef = this.values[valueIndex];
                 const isDiscrete = valueDef.valueType === 'category';
-                updatedDomains.set(idx, isDiscrete ? new DiscreteDomain() : new ContinuousDomain());
-            }
-        }
 
-        const { columns } = processedData;
-        if (columns != null) {
-            if (processedData.type === 'ungrouped') {
-                processedData.rawData.forEach((_datum, datumIndex) => {
-                    for (const processor of groupProcessors) {
-                        const valueIndexes = groupProcessorIndices.get(processor) ?? [];
-                        const adjustFn = groupProcessorInitFns.get(processor)?.();
-
-                        if (!adjustFn) continue;
-
-                        adjustFn(columns, valueIndexes, datumIndex);
-                    }
-
-                    for (const [valueIndex, domain] of updatedDomains) {
-                        const column = columns[valueIndex];
-                        domain.extend(column[datumIndex]);
-                    }
-                });
-            } else {
-                for (const group of processedData.groups) {
-                    for (const processor of groupProcessors) {
-                        if (group.validScopes) continue;
-
-                        const valueIndexes = groupProcessorIndices.get(processor) ?? [];
-                        const adjustFn = groupProcessorInitFns.get(processor)?.();
-
-                        if (!adjustFn) continue;
-
-                        for (const datumIndex of group.datumIndices) {
-                            adjustFn(columns, valueIndexes, datumIndex);
-                        }
-                    }
-
-                    for (const [valueIndex, domain] of updatedDomains) {
-                        const column = columns[valueIndex];
-                        for (const datumIndex of group.datumIndices) {
-                            domain.extend(column[datumIndex]);
-                        }
-                    }
+                const column = columns[valueIndex];
+                const domain = isDiscrete ? new DiscreteDomain() : new ContinuousDomain();
+                for (let datumIndex = 0; datumIndex < rawData.length; datumIndex += 1) {
+                    if (invalidData?.[datumIndex] === true) continue;
+                    domain.extend(column[datumIndex]);
                 }
-            }
-        }
 
-        for (const [idx, dataDomain] of updatedDomains) {
-            processedData.domain.values[idx] = dataDomain.getDomain();
+                processedData.domain.values[valueIndex] = domain.getDomain();
+            }
         }
     }
 
