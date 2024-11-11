@@ -1,3 +1,4 @@
+import { createElement } from '../util/dom';
 import { toIterable } from '../util/iterator';
 import type { Node, RenderContext } from './node';
 
@@ -13,11 +14,13 @@ export type SpriteDimensions = {
 
 export class SpriteRenderer {
     public static offscreenCanvasCount = 0;
-    private readonly offscreenCanvas: OffscreenCanvas;
+    private readonly offscreenCanvas: HTMLCanvasElement | OffscreenCanvas;
     private readonly renderCtx: RenderContext;
 
     constructor() {
-        this.offscreenCanvas = new OffscreenCanvas(1, 1);
+        // Safari 16 support
+        this.offscreenCanvas =
+            typeof OffscreenCanvas !== 'undefined' ? new OffscreenCanvas(0, 0) : createElement('canvas');
         SpriteRenderer.offscreenCanvasCount++;
 
         const ctx = this.offscreenCanvas.getContext('2d');
@@ -57,6 +60,20 @@ export class SpriteRenderer {
         ctx.closePath();
         ctx.restore();
 
-        return offscreenCanvas.transferToImageBitmap();
+        if ('transferToImageBitmap' in this.offscreenCanvas) {
+            return this.offscreenCanvas.transferToImageBitmap();
+        }
+
+        // Safari 16 support
+        // This is the only synchronous way to provide an argument to drawImage
+        // See notes in hdpiCanvas
+        const canvas = createElement('canvas');
+        canvas.style.display = 'block';
+        canvas.style.width = offscreenCanvas.width + 'px';
+        canvas.style.height = offscreenCanvas.height + 'px';
+        canvas
+            .getContext('2d')
+            ?.putImageData(ctx.getImageData(0, 0, offscreenCanvas.width, offscreenCanvas.height), 0, 0);
+        return canvas;
     }
 }

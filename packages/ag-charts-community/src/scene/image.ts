@@ -2,11 +2,16 @@ import type { RenderContext } from './node';
 import { Node, RedrawType, SceneChangeDetection } from './node';
 
 export class Image extends Node {
-    constructor(private sourceImage?: HTMLImageElement | ImageBitmap) {
+    constructor(private sourceImage?: HTMLImageElement | ImageBitmap | HTMLCanvasElement) {
         super();
     }
 
-    updateBitmap(newBitmap: ImageBitmap, bitmapPixelRatio: number, x: number, y: number) {
+    updateBitmap(
+        newBitmap: HTMLImageElement | ImageBitmap | HTMLCanvasElement,
+        bitmapPixelRatio: number,
+        x: number,
+        y: number
+    ) {
         this.sourceImage = newBitmap;
         this.width = newBitmap.width / bitmapPixelRatio;
         this.height = newBitmap.height / bitmapPixelRatio;
