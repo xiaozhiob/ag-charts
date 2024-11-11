@@ -44,17 +44,11 @@ export function formatPercent(value: number): string {
  * @returns A formatted string.
  */
 export function formatNumber(value: number, fractionOrSignificantDigits: number): string {
-    const absValue = Math.abs(value);
-    if (absValue === 0 || absValue >= 1) {
-        const numberFormatter =
-            fractionOrSignificantDigits === 2
-                ? defaultNumberFormatter
-                : new Intl.NumberFormat('en-US', {
-                      maximumFractionDigits: fractionOrSignificantDigits,
-                      useGrouping: false,
-                  } as object);
-        return numberFormatter.format(value);
+    if (fractionOrSignificantDigits === 2) {
+        return defaultNumberFormatter.format(value);
     }
-    const decimalPlaces = Math.abs(Math.floor(Math.log(absValue) / Math.LN10)) - 1;
-    return value.toFixed(decimalPlaces + fractionOrSignificantDigits); // significant digits
+    return new Intl.NumberFormat('en-US', {
+        maximumFractionDigits: fractionOrSignificantDigits,
+        useGrouping: false,
+    }).format(value);
 }
