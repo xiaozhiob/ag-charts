@@ -37,7 +37,7 @@ export type DragEndWidgetEvent = {
 };
 
 export type WidgetEventMap = {
-    'drag-start': DragEndWidgetEvent;
+    'drag-start': DragStartWidgetEvent;
     'drag-move': DragMoveWidgetEvent;
     'drag-end': DragEndWidgetEvent;
     blur: FocusWidgetEvent;
