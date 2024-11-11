@@ -387,7 +387,8 @@ export class SeriesAreaManager extends BaseManager {
 
         if (this.focusIndicator.isFocusVisible() && seriesRect) {
             const focusBBox = getPickedFocusBBox(pick);
-            if (!seriesRect.containsBBox(focusBBox)) {
+            const { x, y } = focusBBox.computeCenter();
+            if (!seriesRect.containsPoint(x, y)) {
                 this.chart.ctx.zoomManager.panToBBox(this.id, seriesRect, focusBBox);
             }
         }
