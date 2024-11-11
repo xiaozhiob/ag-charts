@@ -718,7 +718,7 @@ export class AreaSeries extends CartesianSeries<
         });
         const { fill: color } = this.getMarkerStyle(
             marker,
-            { ...datumStylerProperties(datum, xKey, yKey, xDomain, yDomain), highlighted: false },
+            { ...datumStylerProperties(nodeDatum, xKey, yKey, xDomain, yDomain), highlighted: false },
             baseStyle
         );
 
