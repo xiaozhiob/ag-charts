@@ -205,6 +205,7 @@ export class ProxyInteractionService {
         if (checkType('text', meta)) {
             const { params, result } = meta;
             this.initElement(params, result);
+            this.setParent(meta.params, meta.result);
         }
 
         if (checkType('listswitch', meta)) {
