@@ -38,7 +38,7 @@ export class CategoryAxis<
 
             if (normalizedNextIndex === -1) {
                 // All subsequent values must be extending (i.e. appending to) the normalized domain
-                normalizedIndex = Number.MAX_SAFE_INTEGER;
+                normalizedIndex = Infinity;
             } else if (normalizedNextIndex <= normalizedIndex) {
                 return false;
             } else {
