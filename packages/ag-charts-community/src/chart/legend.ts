@@ -43,7 +43,7 @@ import {
     UNION,
     Validate,
 } from '../util/validation';
-import type { ButtonWidget } from '../widget/buttonWidget';
+import type { SwitchWidget } from '../widget/switchWidget';
 import { ChartUpdateType } from './chartUpdateType';
 import type { Page } from './gridLayout';
 import { gridLayout } from './gridLayout';
@@ -879,7 +879,7 @@ export class Legend extends BaseProperties {
 
     private findNode(params: AgChartLegendContextMenuEvent): {
         datum: CategoryLegendDatum;
-        proxyButton: ButtonWidget;
+        proxyButton: SwitchWidget;
     } {
         const { datum, proxyButton } =
             this.itemSelection.select((ml): ml is LegendMarkerLabel => ml.datum?.itemId === params.itemId)[0] ?? {};
@@ -891,7 +891,7 @@ export class Legend extends BaseProperties {
 
     private contextToggleVisibility(params: AgChartLegendContextMenuEvent) {
         const { datum, proxyButton } = this.findNode(params);
-        this.doClick(params.event, datum, proxyButton.getElement());
+        this.doClick(params.event, datum, proxyButton);
     }
 
     private contextToggleOtherSeries(params: AgChartLegendContextMenuEvent) {
@@ -924,7 +924,7 @@ export class Legend extends BaseProperties {
         this.ctx.contextMenuRegistry.dispatchContext('legend', event, { legendItem });
     }
 
-    onClick(event: Event, datum: CategoryLegendDatum, proxyButton: HTMLButtonElement) {
+    onClick(event: Event, datum: CategoryLegendDatum, proxyButton: SwitchWidget) {
         if (this.doClick(event, datum, proxyButton)) {
             event.preventDefault();
         }
@@ -934,7 +934,7 @@ export class Legend extends BaseProperties {
         return this.ctx.chartService.series.flatMap((s) => s.getLegendData('category')).filter((d) => d.enabled).length;
     }
 
-    private doClick(event: Event, datum: CategoryLegendDatum, proxyButton: HTMLButtonElement): boolean {
+    private doClick(event: Event, datum: CategoryLegendDatum, proxyButton: SwitchWidget): boolean {
         const {
             listeners: { legendItemClick },
             ctx: { chartService, highlightManager },
@@ -968,7 +968,7 @@ export class Legend extends BaseProperties {
                 }
             }
 
-            proxyButton.ariaChecked = newEnabled.toString();
+            proxyButton.setChecked(newEnabled);
             this.ctx.chartEventManager.legendItemClick(series, itemId, newEnabled, datum.legendItemName);
         }
 
