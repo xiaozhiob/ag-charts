@@ -1,3 +1,7 @@
+export type WidgetEvent = {
+    sourceEvent: Event;
+};
+
 export type FocusWidgetEvent = {
     sourceEvent: FocusEvent;
 };
@@ -36,13 +40,19 @@ export type WidgetEventMap = {
     'drag-start': DragEndWidgetEvent;
     'drag-move': DragMoveWidgetEvent;
     'drag-end': DragEndWidgetEvent;
+    blur: FocusWidgetEvent;
+    change: WidgetEvent;
     focus: FocusWidgetEvent;
     keydown: KeyboardWidgetEvent;
+    keyup: KeyboardWidgetEvent;
 };
 
 export const WIDGET_HTML_EVENTS: readonly (keyof WidgetEventMap & keyof HTMLElementEventMap)[] = [
+    'blur',
+    'change',
     'focus',
     'keydown',
+    'keyup',
 ] satisfies (keyof WidgetEventMap & keyof HTMLElementEventMap)[];
 
 export type WidgetSourceEventMap = {
@@ -59,10 +69,19 @@ const WidgetAllocators: { [K in keyof WidgetEventMap]: (sourceEvent: WidgetSourc
     'drag-end': (sourceEvent: MouseEvent | TouchEvent): DragEndWidgetEvent => {
         return { offsetX: NaN, offsetY: NaN, originDeltaX: NaN, originDeltaY: NaN, sourceEvent };
     },
+    blur: (sourceEvent: FocusEvent): FocusWidgetEvent => {
+        return { sourceEvent };
+    },
+    change: (sourceEvent: Event): WidgetEvent => {
+        return { sourceEvent };
+    },
     focus: (sourceEvent: FocusEvent): FocusWidgetEvent => {
         return { sourceEvent };
     },
     keydown: (sourceEvent: KeyboardEvent): KeyboardWidgetEvent => {
+        return { sourceEvent };
+    },
+    keyup: (sourceEvent: KeyboardEvent): KeyboardWidgetEvent => {
         return { sourceEvent };
     },
 };
