@@ -127,9 +127,10 @@ export class LineSeries extends CartesianSeries<
         const common: Partial<DatumPropertyDefinition<unknown>> = { invalidValue: null };
         if (connectMissingData && stackCount > 1) {
             common.invalidValue = 0;
-        }
-        if (!visible) {
-            common.forceValue = 0;
+
+            if (!visible) {
+                common.forceValue = 0;
+            }
         }
 
         const props: DataModelOptions<any, false>['props'] = [];
