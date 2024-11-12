@@ -83,11 +83,30 @@ export function setWindow(window: Window) {
     verifiedGlobals.window = window;
 }
 
-export function setElementBBox(element: HTMLElement | undefined, bbox: BBoxValues) {
-    if (element) {
+export function setElementBBox(element: HTMLElement | undefined, bbox: Partial<BBoxValues>) {
+    if (!element) return;
+
+    if (bbox.width == null) {
+        element.style.removeProperty('width');
+    } else {
         element.style.width = `${bbox.width}px`;
+    }
+
+    if (bbox.height == null) {
+        element.style.removeProperty('height');
+    } else {
         element.style.height = `${bbox.height}px`;
+    }
+
+    if (bbox.x == null) {
+        element.style.removeProperty('left');
+    } else {
         element.style.left = `${bbox.x}px`;
+    }
+
+    if (bbox.y == null) {
+        element.style.removeProperty('top');
+    } else {
         element.style.top = `${bbox.y}px`;
     }
 }
