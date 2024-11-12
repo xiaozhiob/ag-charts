@@ -90,9 +90,7 @@
     },
     "dev:quick": {
       "executor": "nx:run-commands",
-      "dependsOn": [
-        "ag-charts-website-gallery_simple-bar_main.ts:generate-thumbnail"
-      ],
+      "dependsOn": ["ag-charts-website-gallery_simple-bar_main.ts:generate-thumbnail"],
       "inputs": [],
       "outputs": [],
       "options": {
