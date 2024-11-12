@@ -1,12 +1,5 @@
-import {
-    AgCharts,
-    type IntegratedChartModule,
-    VERSION,
-    _Scene,
-    _Theme,
-    _Util,
-    setupCommunityModules,
-} from 'ag-charts-community';
+import { AgCharts, VERSION, _Scene, _Theme, _Util, setupCommunityModules } from 'ag-charts-community';
+import type { IntegratedModule } from 'ag-charts-types';
 
 import { setupEnterpriseModules as internalSetup } from './setup';
 
@@ -17,7 +10,7 @@ export function setupEnterpriseModules() {
     setupCommunityModules();
 }
 
-export const ChartEnterpriseModule: IntegratedChartModule = {
+export const AgChartsEnterpriseModule: IntegratedModule = {
     VERSION,
     // @ts-ignore
     _Scene,
@@ -25,6 +18,7 @@ export const ChartEnterpriseModule: IntegratedChartModule = {
     _Theme,
     _Util,
     create: AgCharts.create.bind(AgCharts),
+    createSparkline: AgCharts.__createSparkline.bind(AgCharts),
     setup: setupEnterpriseModules,
     setGridContext: AgCharts.setGridContext.bind(AgCharts),
     setLicenseKey: AgCharts.setLicenseKey.bind(AgCharts),
