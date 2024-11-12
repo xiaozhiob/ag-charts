@@ -56,7 +56,7 @@ export function parser({
     return { bindings, typedBindings };
 }
 
-export function internalParser(js, html, exampleSettings, dirPath) {
+export function internalParser(js, html, exampleSettings: ExampleSettings, dirPath) {
     const domTree = cheerio.load(html, null, false);
     domTree('style').remove();
 
@@ -105,6 +105,9 @@ export function internalParser(js, html, exampleSettings, dirPath) {
         matches: (node) => tsNodeIsPropertyWithName(node, 'container'),
         apply: (bindings, node) => {
             const { initializer } = node;
+
+            if (exampleSettings.skipContainerCheck) return;
+
             if (
                 !tsNodeIsFunctionCall(initializer) ||
                 !tsNodeIsPropertyAccessExpressionOf(initializer.expression, ['document', 'getElementById'])

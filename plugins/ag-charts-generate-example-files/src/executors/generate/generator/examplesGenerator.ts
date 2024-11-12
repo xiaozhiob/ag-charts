@@ -111,6 +111,12 @@ export const getGeneratedContents = async (params: GeneratedContentParams): Prom
         }
     }
 
+    let skipContainerCheck = false;
+    if (entryFile.includes('@ag-skip-container-check')) {
+        entryFile = entryFile.replace(/^\s*\/\/ @ag-skip-container-check\s*\n*$/g, '');
+        skipContainerCheck = true;
+    }
+
     if (entryFile.includes('@ag-no-style')) {
         entryFile = entryFile.replace(/^\s*\/\/ @ag-no-style\s*\n*$/g, '');
         layout = 'none';
@@ -154,6 +160,7 @@ export const getGeneratedContents = async (params: GeneratedContentParams): Prom
         dirPath: folderPath,
         exampleSettings: {
             enterprise: isEnterprise,
+            skipContainerCheck,
         },
     });
 
