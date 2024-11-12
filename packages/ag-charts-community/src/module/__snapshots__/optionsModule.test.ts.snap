@@ -36,7 +36,7 @@ exports[`ChartOptions #prepareOptions for ADV_CHART_CUSTOMISATION it should prep
         "fontFamily": "Impact, Charcoal, Sans-Serif",
         "fontSize": 14,
         "fontWeight": "bold",
-        "padding": 5,
+        "padding": 11,
         "rotation": -30,
       },
       "line": {
@@ -78,7 +78,7 @@ exports[`ChartOptions #prepareOptions for ADV_CHART_CUSTOMISATION it should prep
         "fontFamily": "Impact, Charcoal, Sans-Serif",
         "fontSize": 14,
         "fontWeight": "bold",
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": true,
@@ -565,7 +565,7 @@ exports[`ChartOptions #prepareOptions for ADV_COMBINATION_SERIES_CHART_EXAMPLE i
         "color": "rgb(70, 70, 70)",
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": true,
@@ -609,7 +609,7 @@ exports[`ChartOptions #prepareOptions for ADV_COMBINATION_SERIES_CHART_EXAMPLE i
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
         "formatter": [Function],
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": false,
@@ -652,7 +652,7 @@ exports[`ChartOptions #prepareOptions for ADV_COMBINATION_SERIES_CHART_EXAMPLE i
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
         "formatter": [Function],
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": false,
@@ -1143,7 +1143,7 @@ exports[`ChartOptions #prepareOptions for ADV_CUSTOM_MARKER_SHAPES_EXAMPLE it sh
         "color": "rgb(70, 70, 70)",
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
-        "padding": 5,
+        "padding": 11,
         "rotation": -30,
       },
       "line": {
@@ -1184,7 +1184,7 @@ exports[`ChartOptions #prepareOptions for ADV_CUSTOM_MARKER_SHAPES_EXAMPLE it sh
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
         "formatter": [Function],
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": false,
@@ -1867,7 +1867,7 @@ exports[`ChartOptions #prepareOptions for ADV_CUSTOM_TOOLTIPS_EXAMPLE it should 
         "color": "rgb(70, 70, 70)",
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": true,
@@ -1907,7 +1907,7 @@ exports[`ChartOptions #prepareOptions for ADV_CUSTOM_TOOLTIPS_EXAMPLE it should 
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
         "formatter": [Function],
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": false,
@@ -2593,7 +2593,7 @@ exports[`ChartOptions #prepareOptions for ADV_PER_MARKER_CUSTOMISATION_EXAMPLE i
         "color": "rgb(70, 70, 70)",
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": false,
@@ -2632,7 +2632,7 @@ exports[`ChartOptions #prepareOptions for ADV_PER_MARKER_CUSTOMISATION_EXAMPLE i
         "color": "rgb(70, 70, 70)",
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": false,
@@ -2968,7 +2968,7 @@ exports[`ChartOptions #prepareOptions for ADV_TIME_AXIS_WITH_IRREGULAR_INTERVALS
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
         "format": "%d/%m",
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": true,
@@ -3007,7 +3007,7 @@ exports[`ChartOptions #prepareOptions for ADV_TIME_AXIS_WITH_IRREGULAR_INTERVALS
         "color": "rgb(70, 70, 70)",
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": false,
@@ -3532,7 +3532,7 @@ exports[`ChartOptions #prepareOptions for AREA_GRAPH_WITH_NEGATIVE_VALUES_EXAMPL
         "color": "rgb(70, 70, 70)",
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": true,
@@ -3571,7 +3571,7 @@ exports[`ChartOptions #prepareOptions for AREA_GRAPH_WITH_NEGATIVE_VALUES_EXAMPL
         "color": "rgb(70, 70, 70)",
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": false,
@@ -4216,7 +4216,7 @@ exports[`ChartOptions #prepareOptions for BAR_CHART_EXAMPLE it should prepare op
         "color": "rgb(70, 70, 70)",
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": true,
@@ -4255,7 +4255,7 @@ exports[`ChartOptions #prepareOptions for BAR_CHART_EXAMPLE it should prepare op
         "color": "rgb(70, 70, 70)",
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": false,
@@ -4605,7 +4605,7 @@ exports[`ChartOptions #prepareOptions for BAR_CHART_WITH_LABELS_EXAMPLE it shoul
         "color": "rgb(70, 70, 70)",
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": true,
@@ -4644,7 +4644,7 @@ exports[`ChartOptions #prepareOptions for BAR_CHART_WITH_LABELS_EXAMPLE it shoul
         "color": "rgb(70, 70, 70)",
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": false,
@@ -5362,7 +5362,7 @@ exports[`ChartOptions #prepareOptions for BUBBLE_GRAPH_WITH_NEGATIVE_VALUES_EXAM
         "color": "rgb(70, 70, 70)",
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": false,
@@ -5404,7 +5404,7 @@ exports[`ChartOptions #prepareOptions for BUBBLE_GRAPH_WITH_NEGATIVE_VALUES_EXAM
         "color": "rgb(70, 70, 70)",
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": false,
@@ -5739,7 +5739,7 @@ exports[`ChartOptions #prepareOptions for COLUMN_CHART_WITH_NEGATIVE_VALUES_EXAM
         "color": "rgb(70, 70, 70)",
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": true,
@@ -5778,7 +5778,7 @@ exports[`ChartOptions #prepareOptions for COLUMN_CHART_WITH_NEGATIVE_VALUES_EXAM
         "color": "rgb(70, 70, 70)",
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": false,
@@ -6232,7 +6232,7 @@ exports[`ChartOptions #prepareOptions for GROUPED_BAR_CHART_EXAMPLE it should pr
         "color": "rgb(70, 70, 70)",
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": true,
@@ -6271,7 +6271,7 @@ exports[`ChartOptions #prepareOptions for GROUPED_BAR_CHART_EXAMPLE it should pr
         "color": "rgb(70, 70, 70)",
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": false,
@@ -6729,7 +6729,7 @@ exports[`ChartOptions #prepareOptions for GROUPED_COLUMN_EXAMPLE it should prepa
         "color": "rgb(70, 70, 70)",
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": true,
@@ -6769,7 +6769,7 @@ exports[`ChartOptions #prepareOptions for GROUPED_COLUMN_EXAMPLE it should prepa
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
         "formatter": [Function],
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": false,
@@ -7470,7 +7470,7 @@ exports[`ChartOptions #prepareOptions for LINE_GRAPH_WITH_GAPS_EXAMPLE it should
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
         "formatter": [Function],
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": true,
@@ -7509,7 +7509,7 @@ exports[`ChartOptions #prepareOptions for LINE_GRAPH_WITH_GAPS_EXAMPLE it should
         "color": "rgb(70, 70, 70)",
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": false,
@@ -8629,7 +8629,7 @@ exports[`ChartOptions #prepareOptions for LOG_AXIS_EXAMPLE it should prepare opt
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 10,
         "format": ",.0f",
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": false,
@@ -8668,7 +8668,7 @@ exports[`ChartOptions #prepareOptions for LOG_AXIS_EXAMPLE it should prepare opt
         "color": "rgb(70, 70, 70)",
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 10,
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": false,
@@ -9005,7 +9005,7 @@ exports[`ChartOptions #prepareOptions for ONE_HUNDRED_PERCENT_STACKED_AREA_GRAPH
         "color": "rgb(70, 70, 70)",
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": true,
@@ -9045,7 +9045,7 @@ exports[`ChartOptions #prepareOptions for ONE_HUNDRED_PERCENT_STACKED_AREA_GRAPH
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
         "format": "#{.0f}%",
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": false,
@@ -9839,7 +9839,7 @@ exports[`ChartOptions #prepareOptions for ONE_HUNDRED_PERCENT_STACKED_BAR_EXAMPL
         "color": "rgb(70, 70, 70)",
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
-        "padding": 5,
+        "padding": 11,
         "rotation": -30,
       },
       "line": {
@@ -9880,7 +9880,7 @@ exports[`ChartOptions #prepareOptions for ONE_HUNDRED_PERCENT_STACKED_BAR_EXAMPL
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
         "format": ".0%",
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": false,
@@ -10390,7 +10390,7 @@ exports[`ChartOptions #prepareOptions for ONE_HUNDRED_PERCENT_STACKED_COLUMNS_EX
         "color": "rgb(70, 70, 70)",
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": true,
@@ -10430,7 +10430,7 @@ exports[`ChartOptions #prepareOptions for ONE_HUNDRED_PERCENT_STACKED_COLUMNS_EX
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
         "format": "#{.0f}%",
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": false,
@@ -11088,7 +11088,7 @@ exports[`ChartOptions #prepareOptions for SIMPLE_AREA_GRAPH_EXAMPLE it should pr
         "color": "rgb(70, 70, 70)",
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": true,
@@ -11128,7 +11128,7 @@ exports[`ChartOptions #prepareOptions for SIMPLE_AREA_GRAPH_EXAMPLE it should pr
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
         "formatter": [Function],
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": false,
@@ -11679,7 +11679,7 @@ exports[`ChartOptions #prepareOptions for SIMPLE_COLUMN_CHART_EXAMPLE it should 
         "color": "rgb(70, 70, 70)",
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": true,
@@ -11719,7 +11719,7 @@ exports[`ChartOptions #prepareOptions for SIMPLE_COLUMN_CHART_EXAMPLE it should 
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
         "formatter": [Function],
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": false,
@@ -12289,7 +12289,7 @@ exports[`ChartOptions #prepareOptions for SIMPLE_LINE_CHART_EXAMPLE it should pr
         "color": "rgb(70, 70, 70)",
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": true,
@@ -12329,7 +12329,7 @@ exports[`ChartOptions #prepareOptions for SIMPLE_LINE_CHART_EXAMPLE it should pr
         "color": "rgb(70, 70, 70)",
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": false,
@@ -12932,7 +12932,7 @@ exports[`ChartOptions #prepareOptions for SIMPLE_SCATTER_CHART_EXAMPLE it should
         "color": "rgb(70, 70, 70)",
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": false,
@@ -12971,7 +12971,7 @@ exports[`ChartOptions #prepareOptions for SIMPLE_SCATTER_CHART_EXAMPLE it should
         "color": "rgb(70, 70, 70)",
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": false,
@@ -13302,7 +13302,7 @@ exports[`ChartOptions #prepareOptions for STACKED_AREA_GRAPH_EXAMPLE it should p
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
         "format": "%b",
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": true,
@@ -13342,7 +13342,7 @@ exports[`ChartOptions #prepareOptions for STACKED_AREA_GRAPH_EXAMPLE it should p
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
         "formatter": [Function],
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": false,
@@ -14090,7 +14090,7 @@ exports[`ChartOptions #prepareOptions for STACKED_BAR_CHART_EXAMPLE it should pr
         "color": "rgb(70, 70, 70)",
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": true,
@@ -14129,7 +14129,7 @@ exports[`ChartOptions #prepareOptions for STACKED_BAR_CHART_EXAMPLE it should pr
         "color": "rgb(70, 70, 70)",
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": false,
@@ -14670,7 +14670,7 @@ exports[`ChartOptions #prepareOptions for STACKED_COLUMN_GRAPH_EXAMPLE it should
         "color": "rgb(70, 70, 70)",
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
-        "padding": 5,
+        "padding": 11,
         "rotation": 30,
       },
       "line": {
@@ -14711,7 +14711,7 @@ exports[`ChartOptions #prepareOptions for STACKED_COLUMN_GRAPH_EXAMPLE it should
         "fontFamily": "Verdana, sans-serif",
         "fontSize": 12,
         "formatter": [Function],
-        "padding": 5,
+        "padding": 11,
       },
       "line": {
         "enabled": false,
