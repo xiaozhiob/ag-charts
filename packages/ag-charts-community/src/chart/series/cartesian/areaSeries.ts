@@ -38,6 +38,7 @@ import { EMPTY_TOOLTIP_CONTENT, type TooltipContent } from '../../tooltip/toolti
 import { type PickFocusInputs, SeriesNodePickMode } from '../series';
 import { resetLabelFn, seriesLabelFadeInAnimation } from '../seriesLabelUtil';
 import { SeriesContentZIndexMap, SeriesZIndexMap } from '../seriesZIndexMap';
+import { datumStylerProperties } from '../util';
 import { AreaSeriesProperties } from './areaSeriesProperties';
 import {
     type AreaSeriesNodeDataContext,
@@ -645,9 +646,13 @@ export class AreaSeries extends CartesianSeries<
         });
 
         markerSelection.each((node, datum) => {
-            this.updateMarkerStyle(node, marker, { datum, highlighted, xKey, yKey, xDomain, yDomain }, baseStyle, {
-                selected: datum.selected,
-            });
+            this.updateMarkerStyle(
+                node,
+                marker,
+                { ...datumStylerProperties(datum, xKey, yKey, xDomain, yDomain), highlighted },
+                baseStyle,
+                { selected: datum.selected }
+            );
         });
 
         if (!highlighted) {
@@ -713,7 +718,7 @@ export class AreaSeries extends CartesianSeries<
         });
         const { fill: color } = this.getMarkerStyle(
             marker,
-            { datum: nodeDatum, xKey, yKey, xDomain, yDomain, highlighted: false },
+            { ...datumStylerProperties(nodeDatum, xKey, yKey, xDomain, yDomain), highlighted: false },
             baseStyle
         );
 
@@ -891,7 +896,10 @@ export class AreaSeries extends CartesianSeries<
         const { xKey, yKey } = datum;
         const xDomain = this.getSeriesDomain(ChartAxisDirection.X);
         const yDomain = this.getSeriesDomain(ChartAxisDirection.Y);
-        return this.getMarkerStyle(this.properties.marker, { datum, xKey, yKey, xDomain, yDomain, highlighted: true });
+        return this.getMarkerStyle(this.properties.marker, {
+            ...datumStylerProperties(datum, xKey, yKey, xDomain, yDomain),
+            highlighted: true,
+        });
     }
 
     protected computeFocusBounds(opts: PickFocusInputs): BBox | undefined {
