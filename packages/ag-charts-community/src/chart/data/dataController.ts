@@ -2,14 +2,14 @@ import { Debug } from '../../util/debug';
 import { getWindow } from '../../util/dom';
 import type { ChartMode } from '../chartMode';
 import { type CachedData, canReuseCachedData } from './caching';
-import type {
-    DataModelOptions,
-    DatumPropertyDefinition,
-    ProcessedData,
-    PropertyDefinition,
-    UngroupedData,
+import {
+    DataModel,
+    type DataModelOptions,
+    type DatumPropertyDefinition,
+    type ProcessedData,
+    type PropertyDefinition,
+    type UngroupedData,
 } from './dataModel';
-import { DataModel } from './dataModel';
 
 interface RequestedProcessing<
     D extends object,

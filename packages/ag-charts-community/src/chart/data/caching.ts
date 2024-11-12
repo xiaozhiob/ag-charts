@@ -1,4 +1,5 @@
 import { arraysEqual } from '../../util/array';
+import { objectsEqual } from '../../util/object';
 import type { DataModel, DataModelOptions, PropertyDefinition, UngroupedData } from './dataModel';
 
 export interface CachedDataItem<D extends object, K extends keyof D & string = keyof D & string> {
@@ -34,42 +35,22 @@ function idsMapEqual(a: Map<string, Set<string>> | undefined, b: Map<string, Set
     return true;
 }
 
-function scopesEqual(a: string[] | undefined, b: string[] | undefined) {
-    if (a != null) {
-        return b != null ? arraysEqual(a, b) : false;
-    }
-    return b == null;
-}
-
 function propsEqual(a: PropertyDefinition<any>[], b: PropertyDefinition<any>[]) {
     if (a.length !== b.length) return false;
 
     for (let i = 0; i < a.length; i += 1) {
-        const propA = a[i];
-        const propB = b[i];
-        if (propA.type !== propB.type) return false;
-        if (propA.id !== propB.id) return false;
-        if (propA.groupId !== propB.groupId) return false;
-    }
-
-    for (let i = 0; i < a.length; i += 1) {
-        const propA = a[i];
-        const propB = b[i];
-        if (!scopesEqual(propA.scopes, propB.scopes)) return false;
-        if (!idsMapEqual(propA.idsMap, propB.idsMap)) return false;
+        const { idsMap: idsMapA, ...propA } = a[i];
+        const { idsMap: idsMapB, ...propB } = b[i];
+        if (!objectsEqual(propA, propB) || !idsMapEqual(idsMapA, idsMapB)) return false;
     }
 
     return true;
 }
 
 function optsEqual(a: DataModelOptions<any, any>, b: DataModelOptions<any, any>) {
-    return (
-        a.groupByData === b.groupByData &&
-        a.groupByFn === b.groupByFn &&
-        a.groupByKeys === b.groupByKeys &&
-        scopesEqual(a.scopes, b.scopes) &&
-        propsEqual(a.props, b.props)
-    );
+    const { props: propsA, ...restA } = a;
+    const { props: propsB, ...restB } = b;
+    return objectsEqual(restA, restB) && propsEqual(propsA, propsB);
 }
 
 export function canReuseCachedData<D extends object, K extends keyof D & string = keyof D & string>(
