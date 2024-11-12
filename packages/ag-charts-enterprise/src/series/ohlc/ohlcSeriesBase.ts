@@ -1,14 +1,18 @@
 import { type AgCandlestickSeriesItemOptions, type AgOhlcSeriesItemType, _ModuleSupport } from 'ag-charts-community';
 
+import { visibleRange } from '../../utils/aggregation';
 import type { CandlestickBaseGroup } from '../candlestick/candlestickGroup';
 import type { CandlestickSeriesProperties } from '../candlestick/candlestickSeriesProperties';
 import type { CandlestickNodeBaseDatum } from '../candlestick/candlestickTypes';
 import { prepareCandlestickAnimationFunctions } from '../candlestick/candlestickUtil';
+import { CLOSE, HIGH, LOW, OPEN, type OhlcSeriesDataAggregationFilter, SPAN, aggregateData } from './ohlcAggregation';
 
 const {
     fixNumericExtent,
     keyProperty,
+    findMinMax,
     SeriesNodePickMode,
+    ChartAxisDirection,
     SMALLEST_KEY_INTERVAL,
     valueProperty,
     diff,
@@ -50,6 +54,8 @@ export abstract class OhlcSeriesBase<
     TNodeDatum extends CandlestickNodeBaseDatum,
 > extends _ModuleSupport.AbstractBarSeries<TItemShapeGroup, TSeriesOptions, TNodeDatum> {
     protected override readonly NodeEvent = CandlestickSeriesNodeEvent;
+
+    private dataAggregationFilters: OhlcSeriesDataAggregationFilter[] | undefined = undefined;
 
     constructor(
         moduleCtx: _ModuleSupport.ModuleContext,
@@ -130,7 +136,7 @@ export abstract class OhlcSeriesBase<
             );
         }
 
-        const { processedData } = await this.requestDataModel(dataController, this.data, {
+        const { dataModel, processedData } = await this.requestDataModel<any>(dataController, this.data, {
             props: [
                 keyProperty(xKey, xScaleType, { id: `xValue` }),
                 valueProperty(closeKey, yScaleType, { id: `closeValue` }),
@@ -143,7 +149,32 @@ export abstract class OhlcSeriesBase<
 
         this.smallestDataInterval = processedData.reduced?.smallestKeyInterval;
 
+        this.dataAggregationFilters = this.aggregateData(
+            dataModel,
+            processedData as any as _ModuleSupport.UngroupedData<any>
+        );
+
         this.animationState.transition('updateData');
+    }
+
+    private aggregateData(
+        dataModel: _ModuleSupport.DataModel<any, any, any>,
+        processedData: _ModuleSupport.UngroupedData<any>
+    ) {
+        if (processedData.rawData.length === 0) return;
+
+        const xAxis = this.axes[ChartAxisDirection.X];
+        // if (xAxis == null || !ContinuousScale.is(xAxis.scale)) return;
+        if (xAxis == null) return;
+
+        const xValues = dataModel.resolveKeysById(this, `xValue`, processedData);
+        const highValues = dataModel.resolveColumnById(this, `highValue`, processedData);
+        const lowValues = dataModel.resolveColumnById(this, `lowValue`, processedData);
+
+        const { index } = dataModel.resolveProcessedDataDefById(this, `xValue`);
+        const domain = processedData.domain.keys[index];
+
+        return aggregateData(xValues, highValues, lowValues, domain);
     }
 
     override getSeriesDomain(direction: _ModuleSupport.ChartAxisDirection) {
@@ -184,6 +215,7 @@ export abstract class OhlcSeriesBase<
 
         const nodeData: CandlestickNodeBaseDatum[] = [];
         const { xKey, highKey, lowKey } = this.properties;
+        const { rawData } = processedData;
         const xValues = dataModel.resolveKeysById(this, 'xValue', processedData);
         const openValues = dataModel.resolveColumnById(this, 'openValue', processedData);
         const closeValues = dataModel.resolveColumnById(this, 'closeValue', processedData);
@@ -203,33 +235,15 @@ export abstract class OhlcSeriesBase<
         };
         if (!visible) return context;
 
-        processedData.rawData.forEach((datum, datumIndex) => {
-            const xValue = xValues[datumIndex];
-            if (xValue == null) return;
-
-            const openValue = openValues[datumIndex];
-            const closeValue = closeValues[datumIndex];
-            const highValue = highValues[datumIndex];
-            const lowValue = lowValues[datumIndex];
-
-            // compare unscaled values
-            const validLowValue = lowValue != null && lowValue <= openValue && lowValue <= closeValue;
-            const validHighValue = highValue != null && highValue >= openValue && highValue >= closeValue;
-
-            if (!validLowValue) {
-                Logger.warnOnce(
-                    `invalid low value for key [${lowKey}] in data element, low value cannot be higher than datum open or close values`
-                );
-                return;
-            }
-
-            if (!validHighValue) {
-                Logger.warnOnce(
-                    `invalid high value for key [${highKey}] in data element, high value cannot be lower than datum open or close values.`
-                );
-                return;
-            }
-
+        const handleDatum = (
+            datum: any,
+            xValue: any,
+            openValue: any,
+            closeValue: any,
+            highValue: any,
+            lowValue: any,
+            thickness: number | undefined
+        ) => {
             const scaledValues = {
                 xValue: Math.round(xAxis.scale.convert(xValue)),
                 openValue: Math.round(yAxis.scale.convert(openValue)),
@@ -264,12 +278,94 @@ export abstract class OhlcSeriesBase<
                 highValue,
                 lowValue,
                 // CRT-340 Use atleast 1px width to prevent nothing being drawn.
-                bandwidth: barWidth >= 1 ? barWidth : groupScale.rawBandwidth,
+                bandwidth: thickness ?? (barWidth >= 1 ? barWidth : groupScale.rawBandwidth),
                 scaledValues,
                 midPoint,
                 aggregatedValue: closeValue,
             });
-        });
+        };
+
+        const { dataAggregationFilters } = this;
+        const xScale = xAxis.scale;
+        const [x0, x1] = findMinMax(xAxis.range);
+        const xFor = (index: number) => {
+            const xDatum = xValues[index];
+            return xScale.convert(xDatum) + barOffset;
+        };
+
+        const [r0, r1] = xScale.range;
+        const range = r1 - r0;
+
+        const dataAggregationFilter = dataAggregationFilters?.find((f) => f.maxRange > range);
+
+        if (dataAggregationFilter != null) {
+            const { maxRange, indexData } = dataAggregationFilter;
+            const [start, end] = visibleRange(maxRange, x0, x1, (index) => {
+                const aggIndex = index * SPAN;
+                const openIndex = indexData[aggIndex + OPEN];
+                const closeIndex = indexData[aggIndex + CLOSE];
+                const midDatumIndex = ((openIndex + closeIndex) / 2) | 0;
+                return openIndex !== -1 ? xFor(midDatumIndex) : NaN;
+            });
+
+            for (let i = start; i < end; i += 1) {
+                const aggIndex = i * SPAN;
+                const openIndex = indexData[aggIndex + OPEN];
+                const closeIndex = indexData[aggIndex + CLOSE];
+                const highIndex = indexData[aggIndex + HIGH];
+                const lowIndex = indexData[aggIndex + LOW];
+
+                if (openIndex === -1) continue;
+
+                const midDatumIndex = ((openIndex + closeIndex) / 2) | 0;
+
+                const xValue = xValues[midDatumIndex];
+                if (xValue == null) continue;
+
+                const datum = rawData[midDatumIndex];
+                const openValue = openValues[openIndex];
+                const closeValue = closeValues[closeIndex];
+                const highValue = highValues[highIndex];
+                const lowValue = lowValues[lowIndex];
+
+                const thickness = Math.abs(xScale.convert(xValues[closeIndex]) - xScale.convert(xValues[openIndex]));
+
+                handleDatum(datum, xValue, openValue, closeValue, highValue, lowValue, thickness);
+            }
+        } else {
+            const [start, end] = visibleRange(rawData.length, x0, x1, xFor);
+
+            for (let i = start; i < end; i += 1) {
+                const xValue = xValues[i];
+                if (xValue == null) continue;
+
+                const datum = rawData[i];
+                const openValue = openValues[i];
+                const closeValue = closeValues[i];
+                const highValue = highValues[i];
+                const lowValue = lowValues[i];
+
+                // compare unscaled values
+                const validLowValue = lowValue != null && lowValue <= openValue && lowValue <= closeValue;
+                const validHighValue = highValue != null && highValue >= openValue && highValue >= closeValue;
+
+                if (!validLowValue) {
+                    Logger.warnOnce(
+                        `invalid low value for key [${lowKey}] in data element, low value cannot be higher than datum open or close values`
+                    );
+                    return;
+                }
+
+                if (!validHighValue) {
+                    Logger.warnOnce(
+                        `invalid high value for key [${highKey}] in data element, high value cannot be lower than datum open or close values.`
+                    );
+                    return;
+                }
+
+                handleDatum(datum, xValue, openValue, closeValue, highValue, lowValue, undefined);
+            }
+        }
 
         return context;
     }

@@ -24,8 +24,7 @@ const options: AgChartOptions = {
             closeKey: 'close',
         },
     ],
+    axes: [{ type: 'number' }, { type: 'time', nice: false }],
 };
-
-console.log(options.data);
 
 AgCharts.create(options);
