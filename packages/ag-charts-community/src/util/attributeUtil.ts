@@ -1,17 +1,37 @@
+import type { Direction } from 'ag-charts-types';
+
 import type { Nullable } from './types';
 
 type ElementID = string;
 
+type AriaRole =
+    | 'figure'
+    | 'group'
+    | 'img'
+    | 'list'
+    | 'listitem'
+    | 'radio'
+    | 'radiogroup'
+    | 'status'
+    | 'switch'
+    | 'tab'
+    | 'tablist'
+    | 'tabpanel'
+    | 'toolbar';
+
 export type BaseAttributeTypeMap = {
-    role: 'figure' | 'img' | 'radio' | 'radiogroup' | 'status' | 'switch' | 'tab' | 'tablist' | 'tabpanel';
+    role: AriaRole;
     'aria-checked': boolean;
     'aria-controls': ElementID;
+    'aria-describedby': ElementID;
+    'aria-disabled': boolean;
     'aria-expanded': boolean;
     'aria-haspopup': boolean;
     'aria-hidden': boolean;
     'aria-label': string;
     'aria-labelledby': ElementID;
     'aria-live': 'assertive' | 'polite';
+    'aria-orientation': Direction;
     'aria-selected': boolean;
     'data-preventdefault': boolean;
     class: string;
@@ -27,10 +47,13 @@ type InputAttributeTypeMap = BaseAttributeTypeMap & {
 export type AttributeSet = Partial<{ [K in keyof BaseAttributeTypeMap]: BaseAttributeTypeMap[K] }>;
 export type InputAttributeSet = Partial<{ [K in keyof InputAttributeTypeMap]: InputAttributeTypeMap[K] }>;
 
-type BaseStyleTypeMap = {
-    cursor: 'pointer';
+export type BaseStyleTypeMap = {
+    cursor: 'pointer' | 'ew-resize' | 'ns-resize' | 'grab';
     display: 'none';
+    position: 'absolute';
     'pointer-events': 'auto' | 'none';
+    width: '100%';
+    height: '100%';
 };
 
 type StyleSet = Partial<{ [K in keyof BaseStyleTypeMap]: BaseStyleTypeMap[K] }>;
@@ -64,24 +87,29 @@ export function setAttributes(e: Nullable<HTMLTextAreaElement>, attrs: InputAttr
 export function setAttributes(e: Nullable<HTMLElement>, attrs: AttributeSet | undefined) {
     if (attrs == null) return;
 
-    let key: keyof typeof attrs;
-    for (key in attrs) {
+    for (const [key, value] of Object.entries(attrs)) {
         if (key === 'class') continue;
-        setAttribute(e as HTMLElement, key, attrs[key]);
+        setAttribute(e as HTMLElement, key as any, value as any);
     }
 }
 
-export function getAttribute<A extends keyof BaseAttributeTypeMap>(
+export function getAttribute<
+    A extends keyof BaseAttributeTypeMap,
+    DefaultType extends BaseAttributeTypeMap[A] | undefined,
+>(
     e: Nullable<HTMLElement | EventTarget>,
     qualifiedName: A,
-    defaultValue?: BaseAttributeTypeMap[A]
-): BaseAttributeTypeMap[A] | undefined;
+    defaultValue?: DefaultType
+): BaseAttributeTypeMap[A] | (DefaultType extends undefined ? undefined : never);
 
-export function getAttribute<A extends keyof InputAttributeTypeMap>(
+export function getAttribute<
+    A extends keyof InputAttributeTypeMap,
+    DefaultType extends InputAttributeTypeMap[A] | undefined,
+>(
     e: Nullable<HTMLTextAreaElement>,
     qualifiedName: A,
-    defaultValue?: InputAttributeTypeMap[A]
-): InputAttributeTypeMap[A] | undefined;
+    defaultValue?: DefaultType
+): InputAttributeTypeMap[A] | (DefaultType extends undefined ? undefined : never);
 
 export function getAttribute<A extends keyof BaseAttributeTypeMap>(
     e: Nullable<EventTarget>,
@@ -93,7 +121,7 @@ export function getAttribute<A extends keyof BaseAttributeTypeMap>(
     const value = e.getAttribute(qualifiedName);
     if (value === null) return defaultValue;
 
-    // Do not validate value. Tthis function assumes that setAttribute would be used.
+    // Do not validate value. This function assumes that setAttribute would be used.
     const type = typeof ({} as BaseAttributeTypeMap)[qualifiedName];
     if (type === 'boolean') return (value === 'true') as BaseAttributeTypeMap[A];
     if (type === 'number') return Number(value) as BaseAttributeTypeMap[A];
@@ -116,8 +144,7 @@ export function setElementStyle<P extends keyof BaseStyleTypeMap>(
     }
 }
 export function setElementStyles(e: Nullable<HTMLElement>, styles: StyleSet) {
-    let key: keyof typeof styles;
-    for (key in styles) {
-        setElementStyle(e as HTMLElement, key, styles[key]);
+    for (const [key, value] of Object.entries(styles)) {
+        setElementStyle(e as HTMLElement, key as any, value);
     }
 }

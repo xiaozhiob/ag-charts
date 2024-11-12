@@ -1,4 +1,4 @@
-import { _ModuleSupport, type _Scene } from 'ag-charts-community';
+import { _ModuleSupport } from 'ag-charts-community';
 
 import type { AxisZoomStates, ZoomCoords } from './zoomTypes';
 import { UNIT, constrainZoom, definedZoomState, dx, dy, pointToRatio, translateZoom } from './zoomUtils';
@@ -57,7 +57,7 @@ export class ZoomPanner {
         }
     }
 
-    update(event: _ModuleSupport.PointerInteractionEvent<'drag'>) {
+    update(event: _ModuleSupport.PointerOffsets) {
         this.updateCoords(event.offsetX, event.offsetY);
         const { x1 = 0, y1 = 0, x2 = 0, y2 = 0 } = this.coords ?? {};
         this.onUpdate?.({
@@ -151,7 +151,7 @@ export class ZoomPanner {
         }
     }
 
-    translateZooms(bbox: _Scene.BBox, currentZooms: AxisZoomStates, deltaX: number, deltaY: number) {
+    translateZooms(bbox: _ModuleSupport.BBox, currentZooms: AxisZoomStates, deltaX: number, deltaY: number) {
         const offset = pointToRatio(bbox, bbox.x + Math.abs(deltaX), bbox.y + bbox.height - Math.abs(deltaY));
 
         const offsetX = Math.sign(deltaX) * offset.x;

@@ -1,10 +1,10 @@
+import type { AgInitialStateThemeableOptions } from '../api/initialStateOptions';
 import type { AgLinearGaugeTarget, AgLinearGaugeThemeableOptions } from '../presets/gauge/linearGaugeOptions';
 import type { AgRadialGaugeTarget, AgRadialGaugeThemeableOptions } from '../presets/gauge/radialGaugeOptions';
 import type { AgAreaSeriesThemeableOptions } from '../series/cartesian/areaOptions';
 import type { AgBarSeriesThemeableOptions } from '../series/cartesian/barOptions';
 import type { AgBoxPlotSeriesThemeableOptions } from '../series/cartesian/boxPlotOptions';
 import type { AgBubbleSeriesThemeableOptions } from '../series/cartesian/bubbleOptions';
-import type { AgBulletSeriesThemeableOptions } from '../series/cartesian/bulletOptions';
 import type { AgCandlestickSeriesThemeableOptions } from '../series/cartesian/candlestickOptions';
 import type { AgBaseCartesianThemeOptions, AgCartesianAxesTheme } from '../series/cartesian/cartesianOptions';
 import type { AgCartesianSeriesOptions } from '../series/cartesian/cartesianSeriesTypes';
@@ -136,9 +136,6 @@ export interface AgRangeBarSeriesThemeOverrides extends AgBaseCartesianThemeOpti
 export interface AgRangeAreaSeriesThemeOverrides extends AgBaseCartesianThemeOptions {
     series?: AgRangeAreaSeriesThemeableOptions;
 }
-export interface AgBulletSeriesThemeOverrides extends AgBaseCartesianThemeOptions {
-    series?: AgBulletSeriesThemeableOptions;
-}
 export interface AgDonutSeriesThemeOverrides extends AgBaseThemeableChartOptions {
     series?: AgDonutSeriesThemeableOptions;
 }
@@ -227,6 +224,7 @@ export interface AgCommonThemeableAxisOptions extends AgCartesianAxesTheme, AgPo
 export interface AgCommonThemeableChartOptions extends AgBaseThemeableChartOptions {
     axes?: AgCommonThemeableAxisOptions;
     annotations?: AgAnnotationsThemeableOptions;
+    initialState?: AgInitialStateThemeableOptions;
     locale?: AgLocaleThemeableOptions;
 }
 
@@ -266,8 +264,6 @@ export interface AgChartThemeOverrides {
     'range-bar'?: AgRangeBarSeriesThemeOverrides;
     /** Range-area series theme overrides. */
     'range-area'?: AgRangeAreaSeriesThemeOverrides;
-    /** Bullet series theme overrides. */
-    bullet?: AgBulletSeriesThemeOverrides;
     /** Donut series theme overrides. */
     donut?: AgDonutSeriesThemeOverrides;
     /** Pie series theme overrides. */

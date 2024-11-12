@@ -9,7 +9,6 @@ import { arraysEqual, groupBy } from '../util/array';
 import { Logger } from '../util/logger';
 import { findMinMax } from '../util/number';
 import { CategoryAxis } from './axis/categoryAxis';
-import { GroupedCategoryAxis } from './axis/groupedCategoryAxis';
 import type { TransferableResources } from './chart';
 import { Chart } from './chart';
 import type { ChartAxis } from './chartAxis';
@@ -324,7 +323,7 @@ export class CartesianChart extends Chart {
     }
 
     private sizeAxis(axis: ChartAxis, seriesRect: BBox, position: AgCartesianAxisPosition) {
-        const isCategory = axis instanceof CategoryAxis || axis instanceof GroupedCategoryAxis;
+        const isCategory = axis instanceof CategoryAxis;
         const isLeftRight = position === 'left' || position === 'right';
 
         const { width, height } = seriesRect;
@@ -390,20 +389,17 @@ export class CartesianChart extends Chart {
 
         for (const axis of axes) {
             const minorOffset = axisAreaWidths.get(minorDimension === 'x' ? 'left' : 'top') ?? 0;
-            axis.translation[minorDimension] = axisBound[minorDimension] + minorOffset;
-
             const axisThickness = axisWidths.get(axis.id) ?? 0;
             const axisOffset = axisOffsets.get(axis.id) ?? 0;
+
+            axis.gridPadding = axisAreaWidth - axisOffset - axisThickness;
+            axis.translation[minorDimension] = axisBound[minorDimension] + minorOffset;
             axis.translation[mainDimension] = this.clampToOutsideSeriesRect(
                 seriesRect,
                 axisBoundMainOffset + direction * (axisOffset + axisThickness),
                 mainDimension,
                 direction
             );
-
-            axis.gridPadding = axisAreaWidth - axisOffset - axisThickness;
-
-            axis.updatePosition();
         }
     }
 

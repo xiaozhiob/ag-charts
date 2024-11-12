@@ -380,9 +380,37 @@ const ENABLED_FALSE_OPTIONS: AgCartesianChartOptions = {
     navigator: {
         enabled: false,
         height: 229,
-        min: 0.5,
-        max: 0.8,
     },
+    initialState: {
+        zoom: {
+            ratioX: {
+                start: 0.5,
+                end: 0.8,
+            },
+        },
+    },
+};
+
+const INTRINSIC_ENABLE_CROSSLINE_OPTIONS: AgCartesianChartOptions = {
+    ...examples.SIMPLE_LINE_CHART_EXAMPLE,
+    axes: [
+        {
+            position: 'bottom',
+            type: 'time',
+            crossLines: [
+                {
+                    type: 'range',
+                    label: {
+                        text: 'Custom Crossline Label',
+                    },
+                },
+            ],
+        },
+        {
+            position: 'left',
+            type: 'number',
+        },
+    ],
 };
 
 describe('ChartOptions', () => {
@@ -1637,16 +1665,18 @@ describe('ChartOptions', () => {
             expect(preparedOptions.tooltip?.enabled).toBe(false);
             expect(preparedOptions.tooltip?.range).toBe(theme.config.line.tooltip.range);
 
-            expect(preparedOptions.legend?.enabled).toBe(false);
-            expect(preparedOptions.legend?.maxHeight).toBe(theme.config.line.legend.maxHeight);
-            expect(preparedOptions.legend?.maxWidth).toBe(theme.config.line.legend.maxWidth);
-            expect(preparedOptions.legend?.orientation).toBe(theme.config.line.legend.orientation);
-            expect(preparedOptions.legend?.spacing).toBe(theme.config.line.legend.spacing);
-            expect(preparedOptions.legend?.reverseOrder).toBe(theme.config.line.legend.reverseOrder);
-            expect(preparedOptions.legend?.pagination!.marker!.shape).toBe(
-                theme.config.line.legend.pagination.marker.shape
-            );
-            expect(preparedOptions.legend?.item!.label!.maxLength).toBe(theme.config.line.legend.item.label.maxLength);
+            // AG-13304 - Disabled modules should not have any options object.
+            expect(preparedOptions.legend).toBeUndefined();
+        });
+
+        it('should intrinsically enable nested crossline options', () => {
+            const options = INTRINSIC_ENABLE_CROSSLINE_OPTIONS;
+            options.container = document.createElement('div');
+
+            const preparedOptions = prepareOptions(options);
+
+            expect(preparedOptions.axes?.[0].crossLines?.[0].enabled).toBe(true);
+            expect(preparedOptions.axes?.[0].crossLines?.[0].label?.enabled).toBe(true);
         });
     });
 });

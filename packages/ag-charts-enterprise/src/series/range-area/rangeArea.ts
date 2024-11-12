@@ -1,4 +1,4 @@
-import { _ModuleSupport, _Scene, _Util } from 'ag-charts-community';
+import { _ModuleSupport } from 'ag-charts-community';
 
 import { type RangeAreaMarkerDatum, RangeAreaProperties } from './rangeAreaProperties';
 import { type RangeAreaContext, type RangeAreaLabelDatum, prepareRangeAreaPathAnimation } from './rangeAreaUtil';
@@ -29,9 +29,13 @@ const {
     markerFadeInAnimation,
     fromToMotion,
     pathMotion,
+    sanitizeHtml,
+    extent,
+    getMarker,
+    PointerEvents,
+    Group,
+    BBox,
 } = _ModuleSupport;
-const { getMarker, PointerEvents } = _Scene;
-const { sanitizeHtml, extent } = _Util;
 
 class RangeAreaSeriesNodeEvent<
     TEvent extends string = _ModuleSupport.SeriesNodeEventTypes,
@@ -54,7 +58,7 @@ interface RangeAreaSpanPointDatum {
 }
 
 export class RangeAreaSeries extends _ModuleSupport.CartesianSeries<
-    _Scene.Group,
+    _ModuleSupport.Group,
     RangeAreaProperties,
     RangeAreaMarkerDatum,
     RangeAreaLabelDatum,
@@ -100,7 +104,7 @@ export class RangeAreaSeries extends _ModuleSupport.CartesianSeries<
         const extraProps = [];
         const animationEnabled = !this.ctx.animationManager.isSkipped();
         if (!this.ctx.animationManager.isSkipped() && this.processedData) {
-            extraProps.push(diff(this.processedData));
+            extraProps.push(diff(this.id, this.processedData));
         }
         if (animationEnabled) {
             extraProps.push(animationValidation());
@@ -149,12 +153,22 @@ export class RangeAreaSeries extends _ModuleSupport.CartesianSeries<
     }
 
     async createNodeData() {
-        const { data, dataModel, axes, visible } = this;
+        const { data, dataModel, processedData, axes, visible } = this;
 
         const xAxis = axes[ChartAxisDirection.X];
         const yAxis = axes[ChartAxisDirection.Y];
 
-        if (!(data && visible && xAxis && yAxis && dataModel)) {
+        if (
+            !(
+                data &&
+                visible &&
+                xAxis &&
+                yAxis &&
+                dataModel &&
+                processedData != null &&
+                processedData.rawData.length !== 0
+            )
+        ) {
             return;
         }
 
@@ -165,23 +179,29 @@ export class RangeAreaSeries extends _ModuleSupport.CartesianSeries<
 
         const xOffset = (xScale.bandwidth ?? 0) / 2;
 
-        const defs = dataModel.resolveProcessedDataDefsByIds(this, [`xValue`, `yHighValue`, `yLowValue`]);
+        const xValues = dataModel.resolveKeysById(this, 'xValue', processedData);
+        const yHighValues = dataModel.resolveColumnById(this, 'yHighValue', processedData);
+        const yLowValues = dataModel.resolveColumnById(this, 'yLowValue', processedData);
 
         if (!this.visible) return;
 
         const labelData: RangeAreaLabelDatum[] = [];
         const markerData: RangeAreaMarkerDatum[] = [];
         const spanPoints: Array<RangeAreaSpanPointDatum[] | { skip: number }> = [];
-        this.processedData?.data.forEach(({ keys, datum, values }, datumIdx) => {
-            const dataValues = dataModel.resolveProcessedDataDefsValues(defs, { keys, values });
-            const { xValue, yHighValue, yLowValue } = dataValues;
+
+        processedData.rawData.forEach((datum, datumIndex) => {
+            const xValue = xValues[datumIndex];
+            if (xValue == null) return;
+
+            const yHighValue = yHighValues[datumIndex];
+            const yLowValue = yLowValues[datumIndex];
 
             const currentSpanPoints: RangeAreaSpanPointDatum[] | { skip: number } | undefined =
                 spanPoints[spanPoints.length - 1];
             if (yHighValue != null || yLowValue != null) {
                 const appendMarker = (id: 'high' | 'low', yValue: any, y: number) => {
                     markerData.push({
-                        index: datumIdx,
+                        index: datumIndex,
                         series: this,
                         itemId: id,
                         datum,
@@ -280,7 +300,7 @@ export class RangeAreaSeries extends _ModuleSupport.CartesianSeries<
         datum,
         series,
     }: {
-        point: _Scene.Point;
+        point: _ModuleSupport.Point;
         value: any;
         yLowValue: any;
         yHighValue: any;
@@ -334,7 +354,11 @@ export class RangeAreaSeries extends _ModuleSupport.CartesianSeries<
         return new MarkerShape();
     }
 
-    protected override async updatePathNodes(opts: { paths: _Scene.Path[]; opacity: number; visible: boolean }) {
+    protected override async updatePathNodes(opts: {
+        paths: _ModuleSupport.Path[];
+        opacity: number;
+        visible: boolean;
+    }) {
         const { opacity, visible } = opts;
         const [fill, stroke] = opts.paths;
 
@@ -371,11 +395,11 @@ export class RangeAreaSeries extends _ModuleSupport.CartesianSeries<
         updateClipPath(this, fill);
     }
 
-    protected override async updatePaths(opts: { contextData: RangeAreaContext; paths: _Scene.Path[] }) {
+    protected override async updatePaths(opts: { contextData: RangeAreaContext; paths: _ModuleSupport.Path[] }) {
         this.updateAreaPaths(opts.paths, opts.contextData);
     }
 
-    private updateAreaPaths(paths: _Scene.Path[], contextData: RangeAreaContext) {
+    private updateAreaPaths(paths: _ModuleSupport.Path[], contextData: RangeAreaContext) {
         for (const path of paths) {
             path.visible = contextData.visible;
         }
@@ -391,14 +415,14 @@ export class RangeAreaSeries extends _ModuleSupport.CartesianSeries<
         }
     }
 
-    private updateFillPath(paths: _Scene.Path[], contextData: RangeAreaContext) {
+    private updateFillPath(paths: _ModuleSupport.Path[], contextData: RangeAreaContext) {
         const [fill] = paths;
         fill.path.clear();
         plotAreaPathFill(fill, contextData.fillData);
         fill.markDirty();
     }
 
-    private updateStrokePath(paths: _Scene.Path[], contextData: RangeAreaContext) {
+    private updateStrokePath(paths: _ModuleSupport.Path[], contextData: RangeAreaContext) {
         const [, stroke] = paths;
         stroke.path.clear();
         plotLinePathStroke(stroke, contextData.highStrokeData.spans);
@@ -408,7 +432,7 @@ export class RangeAreaSeries extends _ModuleSupport.CartesianSeries<
 
     protected override async updateMarkerSelection(opts: {
         nodeData: RangeAreaMarkerDatum[];
-        markerSelection: _Scene.Selection<_Scene.Marker, RangeAreaMarkerDatum>;
+        markerSelection: _ModuleSupport.Selection<_ModuleSupport.Marker, RangeAreaMarkerDatum>;
     }) {
         const { nodeData, markerSelection } = opts;
         if (this.properties.marker.isDirty()) {
@@ -419,7 +443,7 @@ export class RangeAreaSeries extends _ModuleSupport.CartesianSeries<
     }
 
     protected override async updateMarkerNodes(opts: {
-        markerSelection: _Scene.Selection<_Scene.Marker, RangeAreaMarkerDatum>;
+        markerSelection: _ModuleSupport.Selection<_ModuleSupport.Marker, RangeAreaMarkerDatum>;
         isHighlight: boolean;
     }) {
         const { markerSelection, isHighlight: highlighted } = opts;
@@ -445,7 +469,7 @@ export class RangeAreaSeries extends _ModuleSupport.CartesianSeries<
 
     protected async updateLabelSelection(opts: {
         labelData: RangeAreaLabelDatum[];
-        labelSelection: _Scene.Selection<_Scene.Text, RangeAreaLabelDatum>;
+        labelSelection: _ModuleSupport.Selection<_ModuleSupport.Text, RangeAreaLabelDatum>;
     }) {
         const { labelData, labelSelection } = opts;
 
@@ -454,7 +478,9 @@ export class RangeAreaSeries extends _ModuleSupport.CartesianSeries<
         });
     }
 
-    protected async updateLabelNodes(opts: { labelSelection: _Scene.Selection<_Scene.Text, RangeAreaLabelDatum> }) {
+    protected async updateLabelNodes(opts: {
+        labelSelection: _ModuleSupport.Selection<_ModuleSupport.Text, RangeAreaLabelDatum>;
+    }) {
         opts.labelSelection.each((textNode, datum) => {
             updateLabelNode(textNode, this.properties.label, datum);
         });
@@ -585,12 +611,12 @@ export class RangeAreaSeries extends _ModuleSupport.CartesianSeries<
     override onDataChange() {}
 
     protected nodeFactory() {
-        return new _Scene.Group();
+        return new Group();
     }
 
     override animateEmptyUpdateReady(
         animationData: _ModuleSupport.CartesianAnimationData<
-            _Scene.Group,
+            _ModuleSupport.Group,
             RangeAreaMarkerDatum,
             RangeAreaLabelDatum,
             RangeAreaContext
@@ -608,7 +634,7 @@ export class RangeAreaSeries extends _ModuleSupport.CartesianSeries<
 
     protected override animateReadyResize(
         animationData: _ModuleSupport.CartesianAnimationData<
-            _Scene.Group,
+            _ModuleSupport.Group,
             RangeAreaMarkerDatum,
             RangeAreaLabelDatum,
             RangeAreaContext
@@ -622,7 +648,7 @@ export class RangeAreaSeries extends _ModuleSupport.CartesianSeries<
 
     override animateWaitingUpdateReady(
         animationData: _ModuleSupport.CartesianAnimationData<
-            _Scene.Group,
+            _ModuleSupport.Group,
             RangeAreaMarkerDatum,
             RangeAreaLabelDatum,
             RangeAreaContext
@@ -696,11 +722,11 @@ export class RangeAreaSeries extends _ModuleSupport.CartesianSeries<
         return this.getMarkerStyle(this.properties.marker, { datum, xKey, yLowKey, yHighKey, highlighted: true });
     }
 
-    protected computeFocusBounds(opts: _ModuleSupport.PickFocusInputs): _Scene.BBox | undefined {
+    protected computeFocusBounds(opts: _ModuleSupport.PickFocusInputs): _ModuleSupport.BBox | undefined {
         const hiBox = computeMarkerFocusBounds(this, opts);
         const loBox = computeMarkerFocusBounds(this, { ...opts, datumIndex: opts.datumIndex + 1 });
         if (hiBox && loBox) {
-            return _Scene.BBox.merge([hiBox, loBox]);
+            return BBox.merge([hiBox, loBox]);
         }
         return undefined;
     }

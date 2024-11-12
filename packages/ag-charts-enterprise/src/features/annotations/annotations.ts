@@ -1,6 +1,5 @@
-import { type AgAnnotationLineStyleType, type Direction, _ModuleSupport, _Scene, _Util } from 'ag-charts-community';
+import { type AgAnnotation, type AgAnnotationLineStyleType, type Direction, _ModuleSupport } from 'ag-charts-community';
 
-import { buildBounds } from '../../utils/position';
 import { TextInput } from '../text-input/textInput';
 import { AxesButtons } from './annotationAxesButtons';
 import { AnnotationDefaults } from './annotationDefaults';
@@ -39,6 +38,8 @@ const {
     isValidDate,
     keyProperty,
     valueProperty,
+    Selection,
+    BBox,
 } = _ModuleSupport;
 
 type AnnotationPropertiesArray = _ModuleSupport.PropertiesArray<AnnotationProperties>;
@@ -46,7 +47,7 @@ type AnnotationPropertiesArray = _ModuleSupport.PropertiesArray<AnnotationProper
 type AnnotationAxis = {
     layout: _ModuleSupport.AxisLayout;
     context: _ModuleSupport.AxisContext;
-    bounds: _Scene.BBox;
+    bounds: _ModuleSupport.BBox;
     button?: AxisButton;
 };
 
@@ -89,9 +90,9 @@ export class Annotations extends _ModuleSupport.BaseModuleInstance implements _M
     private processedData?: _ModuleSupport.ProcessedData<any>;
 
     // Elements
-    private seriesRect?: _Scene.BBox;
-    private readonly container = new _Scene.Group({ name: 'static-annotations' });
-    private readonly annotations = new _Scene.Selection<AnnotationScene, AnnotationProperties>(
+    private seriesRect?: _ModuleSupport.BBox;
+    private readonly container = new _ModuleSupport.Group({ name: 'static-annotations' });
+    private readonly annotations = new Selection<AnnotationScene, AnnotationProperties>(
         this.container,
         this.createAnnotationScene.bind(this)
     );
@@ -346,7 +347,7 @@ export class Annotations extends _ModuleSupport.BaseModuleInstance implements _M
                 this.state.transition('updateTextInputBBox', bbox);
             },
 
-            updateTextInputBBox: (bbox?: _Scene.BBox) => {
+            updateTextInputBBox: (bbox?: _ModuleSupport.BBox) => {
                 this.state.transition('updateTextInputBBox', bbox);
             },
 
@@ -434,17 +435,7 @@ export class Annotations extends _ModuleSupport.BaseModuleInstance implements _M
         const seriesRegion = ctx.regionManager.getRegion(REGIONS.SERIES);
 
         const otherRegions = Object.values(REGIONS)
-            .filter(
-                (region) =>
-                    ![
-                        REGIONS.SERIES,
-
-                        // TODO: Navigator wrongly enchroaches on the top of the chart, even if it is disabled. We
-                        // have to ignore it to prevent it immediately calling `onCancel()` when the top-left
-                        // annotations toolbar button is clicked.
-                        REGIONS.NAVIGATOR,
-                    ].includes(region)
-            )
+            .filter((region) => REGIONS.SERIES !== region)
             .map((region) => ctx.regionManager.getRegion(region));
 
         const annotationsState = Default | ZoomDrag | AnnotationsState | AnnotationsSelected;
@@ -534,7 +525,9 @@ export class Annotations extends _ModuleSupport.BaseModuleInstance implements _M
             valueProperty(this.volumeKey, 'number', { id: 'volume' }),
         ];
 
-        const { dataModel, processedData } = await dataController.request('annotations', this.data, { props });
+        const { dataModel, processedData } = await dataController.request('annotations', this.data, {
+            props,
+        });
         this.dataModel = dataModel;
         this.processedData = processedData;
     }
@@ -596,19 +589,21 @@ export class Annotations extends _ModuleSupport.BaseModuleInstance implements _M
     }
 
     private getDatumRangeVolume(from: Point['x'], to: Point['x']) {
-        if (!isValidDate(from) || !isValidDate(to) || !this.dataModel || !this.processedData) return;
+        const { dataModel, processedData } = this;
+
+        if (!isValidDate(from) || !isValidDate(to) || !dataModel || !processedData) return;
 
         if (from > to) {
             [from, to] = [to, from];
         }
 
-        const dateDef = this.dataModel.resolveProcessedDataDefById({ id: 'annotations' }, 'date');
-        const volumeDef = this.dataModel.resolveProcessedDataDefById({ id: 'annotations' }, 'volume');
+        const dateValues = dataModel.resolveKeysById<Date>({ id: 'annotations' }, 'date', processedData);
+        const volumeValues = dataModel.resolveColumnById({ id: 'annotations' }, 'volume', processedData);
 
-        return this.processedData.data.reduce((sum, datum) => {
-            const key = datum.keys[dateDef.index];
+        return processedData.rawData.reduce((sum, _datum, datumIndex) => {
+            const key = dateValues[datumIndex];
             if (isValidDate(key) && key >= from && key <= to) {
-                return sum + datum.values[volumeDef.index];
+                return sum + volumeValues[datumIndex];
             }
             return sum;
         }, 0);
@@ -655,7 +650,7 @@ export class Annotations extends _ModuleSupport.BaseModuleInstance implements _M
         );
     }
 
-    private onRestoreAnnotations(event: { annotations?: any }) {
+    private onRestoreAnnotations(event: { annotations: Array<AgAnnotation> }) {
         if (!this.enabled) return;
 
         this.clear();
@@ -683,14 +678,14 @@ export class Annotations extends _ModuleSupport.BaseModuleInstance implements _M
 
     private getAxis(
         axisLayout: _ModuleSupport.AxisLayout,
-        seriesRect: _Scene.BBox,
+        seriesRect: _ModuleSupport.BBox,
         button?: AxisButton
     ): AnnotationAxis {
         const axisCtx = this.ctx.axisManager.getAxisContext(axisLayout.direction)[0];
 
         const { position: axisPosition = 'bottom', direction } = axisCtx;
         const padding = axisLayout.gridPadding + axisLayout.seriesAreaPadding;
-        const bounds = buildBounds(new _Scene.BBox(0, 0, seriesRect.width, seriesRect.height), axisPosition, padding);
+        const bounds = new BBox(0, 0, seriesRect.width, seriesRect.height).grow(padding, axisPosition);
 
         const lineDirection = axisCtx.direction === ChartAxisDirection.X ? 'vertical' : 'horizontal';
 

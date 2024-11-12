@@ -105,6 +105,28 @@ function getAxisIndices({ data }: SpanContext, values: any[]): SpanIndices[] {
     }));
 }
 
+function validateCategorySorting(newData: SpanContext, oldData: SpanContext) {
+    const oldScale = oldData.scales.x;
+    const newScale = newData.scales.x;
+
+    if (oldScale?.type !== 'category' || newScale?.type !== 'category') return true;
+
+    let x0 = -Infinity;
+    for (const oldValue of oldScale.domain) {
+        const x = scale(oldValue, newScale);
+        if (!Number.isFinite(x)) {
+            continue;
+        } else if (x < x0) {
+            // Unsorted
+            return false;
+        } else {
+            x0 = x;
+        }
+    }
+
+    return true;
+}
+
 function validateAxisEntriesOrder(axisValues: ValueEntry[], data: SpanContext) {
     let x0 = -Infinity;
     for (const axisValue of axisValues) {
@@ -122,7 +144,7 @@ function validateAxisEntriesOrder(axisValues: ValueEntry[], data: SpanContext) {
     return true;
 }
 
-function getAxisValues(newData: SpanContext, oldData: SpanContext): AxisContext | undefined {
+function spanAxisContext(newData: SpanContext, oldData: SpanContext): AxisContext | undefined {
     // Old and new axis values might not be directly comparable
     // Array.sort does not handle this case
     const allAxisEntries = new Map<AxisValue, any>();
@@ -429,9 +451,14 @@ function phaseAnimation(
     axisContext: AxisContext,
     newData: SpanContext,
     oldData: SpanContext,
-    collapseMode: CollapseMode,
-    out: SpanInterpolationResult
-) {
+    collapseMode: CollapseMode
+): SpanInterpolationResult {
+    const out: SpanInterpolationResult = {
+        removed: [],
+        moved: [],
+        added: [],
+    };
+
     const { axisValues, oldDataAxisIndices, newDataAxisIndices } = axisContext;
     const range = {
         xValue0Index: Math.max(
@@ -456,35 +483,56 @@ function phaseAnimation(
             out
         );
     }
+
+    return out;
 }
 
-function resetAnimation(newData: SpanContext, oldData: SpanContext, out: SpanInterpolationResult) {
+function resetSpan(data: SpanContext, spanDatum: SpanDatum, collapseMode: CollapseMode) {
+    const { span } = spanDatum;
+    switch (collapseMode) {
+        case CollapseMode.Zero:
+            return zeroDataSpan(spanDatum, data.zeroData) ?? axisZeroSpan(span, data);
+        case CollapseMode.Split:
+            return collapseSpanToMidpoint(span);
+    }
+}
+
+function resetAnimation(
+    newData: SpanContext,
+    oldData: SpanContext,
+    collapseMode: CollapseMode
+): SpanInterpolationResult {
+    const added: SpanInterpolationResult['added'] = [];
+    const removed: SpanInterpolationResult['removed'] = [];
+
     for (const oldSpanDatum of oldData.data) {
         const oldSpan = oldSpanDatum.span;
-        const zeroSpan = zeroDataSpan(oldSpanDatum, oldData.zeroData) ?? axisZeroSpan(oldSpan, oldData);
-        out.removed.push({ from: oldSpan, to: zeroSpan });
+        const collapsedSpan = resetSpan(oldData, oldSpanDatum, collapseMode);
+        removed.push({ from: oldSpan, to: collapsedSpan });
     }
 
     for (const newSpanDatum of newData.data) {
         const newSpan = newSpanDatum.span;
-        const zeroSpan = zeroDataSpan(newSpanDatum, newData.zeroData) ?? axisZeroSpan(newSpan, newData);
-        out.added.push({ from: zeroSpan, to: newSpan });
+        const collapsedSpan = resetSpan(newData, newSpanDatum, collapseMode);
+        added.push({ from: collapsedSpan, to: newSpan });
     }
+
+    return {
+        removed,
+        moved: [],
+        added,
+    };
 }
 
-export function pairUpSpans(newData: SpanContext, oldData: SpanContext, collapseMode: CollapseMode) {
-    const out: SpanInterpolationResult = {
-        removed: [],
-        moved: [],
-        added: [],
-    };
+export function pairUpSpans(
+    newData: SpanContext,
+    oldData: SpanContext,
+    collapseMode: CollapseMode
+): SpanInterpolationResult | undefined {
+    if (!validateCategorySorting(newData, oldData)) return;
 
-    const axisContext = getAxisValues(newData, oldData);
-    if (axisContext == null) {
-        resetAnimation(newData, oldData, out);
-    } else {
-        phaseAnimation(axisContext, newData, oldData, collapseMode, out);
-    }
-
-    return out;
+    const axisContext = spanAxisContext(newData, oldData);
+    return axisContext == null
+        ? resetAnimation(newData, oldData, collapseMode)
+        : phaseAnimation(axisContext, newData, oldData, collapseMode);
 }

@@ -176,6 +176,23 @@
       "options": {
         "commands": ["npx tsc -p {projectRoot}/tsconfig.examples.json"]
       }
+    },
+    "update-algolia": {
+      "command": "node update-algolia.js -d --local",
+      "options": {
+        "cwd": "{projectRoot}"
+      },
+      "configurations": {
+        "staging": {
+          "command": "node update-algolia.js -i ag-charts-dev"
+        },
+        "archive": {
+          "command": "node update-algolia.js -i ag-charts-dev"
+        },
+        "production": {
+          "command": "node update-algolia.js -i ag-charts"
+        }
+      }
     }
   },
   "implicitDependencies": [

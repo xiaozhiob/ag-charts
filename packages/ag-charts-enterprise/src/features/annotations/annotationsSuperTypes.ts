@@ -1,4 +1,4 @@
-import type { _ModuleSupport, _Scene } from 'ag-charts-community';
+import type { _ModuleSupport } from 'ag-charts-community';
 
 import type { AnnotationContext, AnnotationType, Constructor, Point } from './annotationTypes';
 import type { ArrowDownProperties } from './arrow-down/arrowDownProperties';
@@ -30,7 +30,7 @@ import type { AnnotationScene as AnnotationSceneNode } from './scenes/annotation
 import type { TextProperties } from './text/textProperties';
 import type { TextScene } from './text/textScene';
 
-export type ShapePropertiesType = ArrowUpProperties | ArrowDownProperties;
+type ShapePropertiesType = ArrowUpProperties | ArrowDownProperties;
 export type TextualPropertiesType = CalloutProperties | CommentProperties | NoteProperties | TextProperties;
 export type LinePropertiesType = LineProperties | HorizontalLineProperties | VerticalLineProperties | ArrowProperties;
 export type ChannelPropertiesType = ParallelChannelProperties | DisjointChannelProperties;
@@ -98,7 +98,7 @@ export interface AnnotationsStateMachineContext {
     hideTextInput: () => void;
     updateTextInputColor: (color: string) => void;
     updateTextInputFontSize: (fontSize: number) => void;
-    updateTextInputBBox: (bbox?: _Scene.BBox) => void;
+    updateTextInputBBox: (bbox?: _ModuleSupport.BBox) => void;
 
     showAnnotationOptions: (index: number) => void;
     showAnnotationSettings: (index: number, sourceEvent?: Event, initialTab?: 'line' | 'text') => void;

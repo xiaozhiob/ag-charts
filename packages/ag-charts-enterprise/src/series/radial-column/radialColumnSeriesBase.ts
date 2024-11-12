@@ -1,11 +1,12 @@
 import type { AgRadialSeriesStyle } from 'ag-charts-community';
-import { _ModuleSupport, _Scale, _Scene, _Util } from 'ag-charts-community';
+import { _ModuleSupport } from 'ag-charts-community';
 
 import { AngleCategoryAxis } from '../../axes/angle-category/angleCategoryAxis';
 import type { RadialColumnSeriesBaseProperties } from './radialColumnSeriesBaseProperties';
 
 const {
     isDefined,
+    isFiniteNumber,
     ChartAxisDirection,
     PolarAxis,
     diff,
@@ -20,11 +21,11 @@ const {
     valueProperty,
     animationValidation,
     SeriesNodePickMode,
+    normalizeAngle360,
+    sanitizeHtml,
+    BandScale,
+    motion,
 } = _ModuleSupport;
-
-const { BandScale } = _Scale;
-const { motion } = _Scene;
-const { isNumber, normalizeAngle360, sanitizeHtml } = _Util;
 
 class RadialColumnSeriesNodeEvent<
     TEvent extends string = _ModuleSupport.SeriesNodeEventTypes,
@@ -64,7 +65,7 @@ export interface RadialColumnNodeDatum extends _ModuleSupport.SeriesNodeDatum {
 }
 
 export abstract class RadialColumnSeriesBase<
-    ItemPathType extends _Scene.Sector | _Scene.RadialColumnShape,
+    ItemPathType extends _ModuleSupport.Sector | _ModuleSupport.RadialColumnShape,
 > extends _ModuleSupport.PolarSeries<RadialColumnNodeDatum, RadialColumnSeriesBaseProperties<any>, ItemPathType> {
     protected override readonly NodeEvent = RadialColumnSeriesNodeEvent;
 
@@ -134,7 +135,7 @@ export abstract class RadialColumnSeriesBase<
         }
 
         if (animationEnabled && this.processedData) {
-            extraProps.push(diff(this.processedData));
+            extraProps.push(diff(this.id, this.processedData));
         }
         if (animationEnabled) {
             extraProps.push(animationValidation());
@@ -221,7 +222,13 @@ export abstract class RadialColumnSeriesBase<
     async createNodeData() {
         const { processedData, dataModel, groupScale } = this;
 
-        if (!processedData || !dataModel || !this.properties.isValid()) {
+        if (
+            !dataModel ||
+            !processedData ||
+            processedData.type !== 'ungrouped' ||
+            processedData.rawData.length === 0 ||
+            !this.properties.isValid()
+        ) {
             return;
         }
 
@@ -234,10 +241,11 @@ export abstract class RadialColumnSeriesBase<
             return;
         }
 
-        const radiusStartIndex = dataModel.resolveProcessedDataIndexById(this, `radiusValue-start`);
-        const radiusEndIndex = dataModel.resolveProcessedDataIndexById(this, `radiusValue-end`);
+        const angleValues = dataModel.resolveKeysById(this, `angleValue`, processedData);
+        const radiusStartValues = dataModel.resolveColumnById(this, `radiusValue-start`, processedData);
+        const radiusEndValues = dataModel.resolveColumnById(this, `radiusValue-end`, processedData);
+        const radiusRawValues = dataModel.resolveColumnById(this, `radiusValue-raw`, processedData);
         const radiusRangeIndex = dataModel.resolveProcessedDataIndexById(this, `radiusValue-range`);
-        const radiusRawIndex = dataModel.resolveProcessedDataIndexById(this, `radiusValue-raw`);
 
         let groupPaddingInner = 0;
         let groupPaddingOuter = 0;
@@ -286,23 +294,23 @@ export abstract class RadialColumnSeriesBase<
         const context = { itemId: radiusKey, nodeData, labelData: nodeData };
         if (!this.visible) return context;
 
-        processedData.data.forEach((group, index, data) => {
-            const { datum, keys, values, aggValues } = group;
+        const { rawData, aggregation } = processedData;
+        rawData.forEach((datum, datumIndex) => {
+            const angleDatum = angleValues[datumIndex];
+            if (angleDatum == null) return;
 
-            const angleDatum = keys[0];
-            const radiusDatum = values[radiusRawIndex];
+            const radiusDatum = radiusRawValues[datumIndex];
             const isPositive = radiusDatum >= 0 && !Object.is(radiusDatum, -0);
-            const innerRadiusDatum = values[radiusStartIndex];
-            const outerRadiusDatum = values[radiusEndIndex];
-            const radiusRange = aggValues?.[radiusRangeIndex][isPositive ? 1 : 0] ?? 0;
+            const innerRadiusDatum = radiusStartValues[datumIndex];
+            const outerRadiusDatum = radiusEndValues[datumIndex];
+            const datumAggregation = aggregation![datumIndex];
+            const radiusRange = datumAggregation[radiusRangeIndex][isPositive ? 1 : 0] ?? 0;
             const negative = isPositive === radiusAxisReversed;
-            if (innerRadiusDatum === undefined || outerRadiusDatum === undefined) {
-                return;
-            }
+            if (innerRadiusDatum === undefined || outerRadiusDatum === undefined) return;
 
             let startAngle: number;
             let endAngle: number;
-            if (data.length === 1) {
+            if (rawData.length === 1) {
                 startAngle = -0.5 * Math.PI;
                 endAngle = 1.5 * Math.PI;
             } else {
@@ -346,7 +354,7 @@ export abstract class RadialColumnSeriesBase<
                 axisInnerRadius,
                 axisOuterRadius,
                 columnWidth,
-                index,
+                index: datumIndex,
             });
         });
 
@@ -357,7 +365,7 @@ export abstract class RadialColumnSeriesBase<
         return NaN;
     }
 
-    async update({ seriesRect }: { seriesRect?: _Scene.BBox }) {
+    async update({ seriesRect }: { seriesRect?: _ModuleSupport.BBox }) {
         const resize = this.checkResize(seriesRect);
         await this.maybeRefreshNodeData();
 
@@ -388,7 +396,7 @@ export abstract class RadialColumnSeriesBase<
     ): void;
 
     protected updateSectorSelection(
-        selection: _Scene.Selection<ItemPathType, RadialColumnNodeDatum>,
+        selection: _ModuleSupport.Selection<ItemPathType, RadialColumnNodeDatum>,
         highlighted: boolean
     ) {
         let selectionData: RadialColumnNodeDatum[] = [];
@@ -472,8 +480,8 @@ export abstract class RadialColumnSeriesBase<
     }
 
     protected abstract getColumnTransitionFunctions(): {
-        fromFn: _Scene.FromToMotionPropFn<any, any, any>;
-        toFn: _Scene.FromToMotionPropFn<any, any, any>;
+        fromFn: _ModuleSupport.FromToMotionPropFn<any, any, any>;
+        toFn: _ModuleSupport.FromToMotionPropFn<any, any, any>;
     };
 
     protected override animateEmptyUpdateReady() {
@@ -517,7 +525,7 @@ export abstract class RadialColumnSeriesBase<
         const xAxis = axes[ChartAxisDirection.X];
         const yAxis = axes[ChartAxisDirection.Y];
 
-        if (!this.properties.isValid() || !(xAxis && yAxis && isNumber(radiusValue)) || !dataModel) {
+        if (!this.properties.isValid() || !(xAxis && yAxis && isFiniteNumber(radiusValue)) || !dataModel) {
             return _ModuleSupport.EMPTY_TOOLTIP_CONTENT;
         }
 
@@ -561,7 +569,9 @@ export abstract class RadialColumnSeriesBase<
         );
     }
 
-    protected override pickNodeClosestDatum(point: _Scene.Point): _ModuleSupport.SeriesNodePickMatch | undefined {
+    protected override pickNodeClosestDatum(
+        point: _ModuleSupport.Point
+    ): _ModuleSupport.SeriesNodePickMatch | undefined {
         return this.pickNodeNearestDistantObject(point, this.itemSelection.nodes());
     }
 

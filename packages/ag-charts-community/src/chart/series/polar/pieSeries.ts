@@ -4,8 +4,7 @@ import type { ModuleContext } from '../../../module/moduleContext';
 import { fromToMotion } from '../../../motion/fromToMotion';
 import { LinearScale } from '../../../scale/linearScale';
 import { BBox } from '../../../scene/bbox';
-import { Group } from '../../../scene/group';
-import { TranslatableGroup } from '../../../scene/group';
+import { Group, TranslatableGroup } from '../../../scene/group';
 import { Node, PointerEvents } from '../../../scene/node';
 import type { Point } from '../../../scene/point';
 import { Selection } from '../../../scene/selection';
@@ -24,7 +23,7 @@ import type { Has } from '../../../util/types';
 import { ChartAxisDirection } from '../../chartAxisDirection';
 import { ChartUpdateType } from '../../chartUpdateType';
 import type { DataController } from '../../data/dataController';
-import { DataModel, getMissCount } from '../../data/dataModel';
+import { DataModel, type ProcessedData, getMissCount } from '../../data/dataModel';
 import {
     accumulativeValueProperty,
     animationValidation,
@@ -215,9 +214,12 @@ export class PieSeries extends PolarSeries<PieNodeDatum, PieSeriesProperties, Se
             return;
         }
 
-        let { data } = this;
         const { visible, seriesItemEnabled } = this;
         const { angleKey, angleFilterKey, radiusKey, calloutLabelKey, sectorLabelKey, legendItemKey } = this.properties;
+
+        const validSector = (_value: unknown, _datum: unknown, index: number) => {
+            return visible && seriesItemEnabled[index];
+        };
 
         const animationEnabled = !this.ctx.animationManager.isSkipped();
         const extraKeyProps = [];
@@ -233,7 +235,7 @@ export class PieSeries extends PolarSeries<PieNodeDatum, PieSeriesProperties, Se
         }
 
         const radiusScaleType = this.radiusScale.type;
-        const angleScaleType = this.radiusScale.type;
+        const angleScaleType = this.angleScale.type;
 
         if (radiusKey) {
             extraProps.push(
@@ -260,6 +262,8 @@ export class PieSeries extends PolarSeries<PieNodeDatum, PieSeriesProperties, Se
                 accumulativeValueProperty(angleFilterKey, angleScaleType, {
                     id: `angleFilterValue`,
                     onlyPositive: true,
+                    validation: validSector,
+                    invalidValue: 0,
                 }),
                 valueProperty(angleFilterKey, angleScaleType, { id: `angleFilterRaw` }),
                 normalisePropertyTo('angleFilterValue', [0, 1], 0, 0)
@@ -270,16 +274,19 @@ export class PieSeries extends PolarSeries<PieNodeDatum, PieSeriesProperties, Se
             this.processedData?.reduced?.animationValidation?.uniqueKeys &&
             extraKeyProps.length > 0
         ) {
-            extraProps.push(diff(this.processedData));
+            extraProps.push(diff(this.id, this.processedData));
         }
         extraProps.push(animationValidation());
 
-        data = data.map((d, idx) => (visible && seriesItemEnabled[idx] ? d : { ...d, [angleKey]: 0 }));
-
-        await this.requestDataModel<any, any, true>(dataController, data, {
+        await this.requestDataModel<any, any, true>(dataController, this.data, {
             props: [
                 ...extraKeyProps,
-                accumulativeValueProperty(angleKey, angleScaleType, { id: `angleValue`, onlyPositive: true }),
+                accumulativeValueProperty(angleKey, angleScaleType, {
+                    id: `angleValue`,
+                    onlyPositive: true,
+                    validation: validSector,
+                    invalidValue: 0,
+                }),
                 valueProperty(angleKey, angleScaleType, { id: `angleRaw` }), // Raw value pass-through.
                 normalisePropertyTo('angleValue', [0, 1], 0, 0),
                 ...extraProps,
@@ -313,43 +320,43 @@ export class PieSeries extends PolarSeries<PieNodeDatum, PieSeriesProperties, Se
         this.nodeDataRefresh = false;
     }
 
-    private getProcessedDataIndexes(dataModel: DataModel<any>) {
-        const angleIdx = dataModel.resolveProcessedDataIndexById(this, `angleValue`);
-        const angleRawIdx = dataModel.resolveProcessedDataIndexById(this, `angleRaw`);
-        const angleFilterIdx =
+    private getProcessedDataValues(dataModel: DataModel<any>, processedData: ProcessedData<any>) {
+        const angleValues = dataModel.resolveColumnById<number>(this, `angleValue`, processedData);
+        const angleRawValues = dataModel.resolveColumnById<number>(this, `angleRaw`, processedData);
+        const angleFilterValues =
             this.properties.angleFilterKey != null
-                ? dataModel.resolveProcessedDataIndexById(this, `angleFilterValue`)
+                ? dataModel.resolveColumnById<number>(this, `angleFilterValue`, processedData)
                 : undefined;
-        const angleFilterRawIdx =
+        const angleFilterRawValues =
             this.properties.angleFilterKey != null
-                ? dataModel.resolveProcessedDataIndexById(this, `angleFilterRaw`)
+                ? dataModel.resolveColumnById<number>(this, `angleFilterRaw`, processedData)
                 : undefined;
-        const radiusIdx = this.properties.radiusKey
-            ? dataModel.resolveProcessedDataIndexById(this, `radiusValue`)
+        const radiusValues = this.properties.radiusKey
+            ? dataModel.resolveColumnById<number>(this, `radiusValue`, processedData)
             : undefined;
-        const radiusRawIdx = this.properties.radiusKey
-            ? dataModel.resolveProcessedDataIndexById(this, `radiusRaw`)
+        const radiusRawValues = this.properties.radiusKey
+            ? dataModel.resolveColumnById<number>(this, `radiusRaw`, processedData)
             : undefined;
-        const calloutLabelIdx = this.properties.calloutLabelKey
-            ? dataModel.resolveProcessedDataIndexById(this, `calloutLabelValue`)
+        const calloutLabelValues = this.properties.calloutLabelKey
+            ? dataModel.resolveColumnById<string>(this, `calloutLabelValue`, processedData)
             : undefined;
-        const sectorLabelIdx = this.properties.sectorLabelKey
-            ? dataModel.resolveProcessedDataIndexById(this, `sectorLabelValue`)
+        const sectorLabelValues = this.properties.sectorLabelKey
+            ? dataModel.resolveColumnById<string>(this, `sectorLabelValue`, processedData)
             : undefined;
-        const legendItemIdx = this.properties.legendItemKey
-            ? dataModel.resolveProcessedDataIndexById(this, `legendItemValue`)
+        const legendItemValues = this.properties.legendItemKey
+            ? dataModel.resolveColumnById<string>(this, `legendItemValue`, processedData)
             : undefined;
 
         return {
-            angleIdx,
-            angleRawIdx,
-            angleFilterIdx,
-            angleFilterRawIdx,
-            radiusIdx,
-            radiusRawIdx,
-            calloutLabelIdx,
-            sectorLabelIdx,
-            legendItemIdx,
+            angleValues,
+            angleRawValues,
+            angleFilterValues,
+            angleFilterRawValues,
+            radiusValues,
+            radiusRawValues,
+            calloutLabelValues,
+            sectorLabelValues,
+            legendItemValues,
         };
     }
 
@@ -357,36 +364,34 @@ export class PieSeries extends PolarSeries<PieNodeDatum, PieSeriesProperties, Se
         const { id: seriesId, processedData, dataModel, angleScale } = this;
         const { rotation } = this.properties;
 
-        if (!processedData || !dataModel || processedData.type !== 'ungrouped') return;
+        if (!processedData?.rawData.length || !dataModel || processedData.type !== 'ungrouped') return;
 
         const {
-            angleIdx,
-            angleRawIdx,
-            angleFilterIdx,
-            angleFilterRawIdx,
-            radiusIdx,
-            radiusRawIdx,
-            calloutLabelIdx,
-            sectorLabelIdx,
-            legendItemIdx,
-        } = this.getProcessedDataIndexes(dataModel);
+            angleValues,
+            angleRawValues,
+            angleFilterValues,
+            angleFilterRawValues,
+            radiusValues,
+            radiusRawValues,
+            calloutLabelValues,
+            sectorLabelValues,
+            legendItemValues,
+        } = this.getProcessedDataValues(dataModel, processedData);
 
         const useFilterAngles =
-            angleFilterRawIdx != null &&
-            processedData.data.some(({ values }) => {
-                return values[angleFilterRawIdx] > values[angleRawIdx];
-            });
+            angleFilterRawValues?.some((filterRawValue, index) => {
+                return filterRawValue > angleRawValues[index];
+            }) ?? false;
 
         let currentStart = 0;
         let sum = 0;
         const nodes: PieNodeDatum[] = [];
-        const phantomNodes: PieNodeDatum[] | undefined = angleFilterRawIdx != null ? [] : undefined;
-        processedData.data.forEach((group, index) => {
-            const { datum, values } = group;
-            const currentValue = useFilterAngles ? values[angleFilterIdx!] : values[angleIdx];
+        const phantomNodes: PieNodeDatum[] | undefined = angleFilterRawValues != null ? [] : undefined;
+        processedData.rawData.forEach((datum, datumIndex) => {
+            const currentValue = useFilterAngles ? angleFilterValues![datumIndex] : angleValues[datumIndex];
             const crossFilterScale =
-                angleFilterRawIdx != null && !useFilterAngles
-                    ? Math.sqrt(values[angleFilterRawIdx] / values[angleRawIdx])
+                angleFilterRawValues != null && !useFilterAngles
+                    ? Math.sqrt(angleFilterRawValues[datumIndex] / angleRawValues[datumIndex])
                     : 1;
 
             const startAngle = angleScale.convert(currentStart) + toRadians(rotation);
@@ -396,28 +401,28 @@ export class PieSeries extends PolarSeries<PieNodeDatum, PieSeriesProperties, Se
             const span = Math.abs(endAngle - startAngle);
             const midAngle = startAngle + span / 2;
 
-            const angleValue = values[angleRawIdx];
-            const radiusRaw = radiusIdx != null ? values[radiusIdx] ?? 1 : 1;
+            const angleValue = angleRawValues[datumIndex];
+            const radiusRaw = radiusValues?.[datumIndex] ?? 1;
             const radius = radiusRaw * crossFilterScale;
-            const radiusValue = radiusRawIdx != null ? values[radiusRawIdx] : undefined;
-            const legendItemValue = legendItemIdx != null ? values[legendItemIdx] : undefined;
+            const radiusValue = radiusRawValues?.[datumIndex];
+            const legendItemValue = legendItemValues?.[datumIndex];
 
             const nodeLabels = this.getLabels(
                 datum,
                 midAngle,
                 span,
                 true,
-                calloutLabelIdx != null ? values[calloutLabelIdx] : undefined,
-                sectorLabelIdx != null ? values[sectorLabelIdx] : undefined,
+                calloutLabelValues?.[datumIndex],
+                sectorLabelValues?.[datumIndex],
                 legendItemValue
             );
-            const sectorFormat = this.getSectorFormat(datum, index, false);
+            const sectorFormat = this.getSectorFormat(datum, datumIndex, false);
 
             const node = {
-                itemId: index,
+                itemId: datumIndex,
                 series: this,
                 datum,
-                index,
+                index: datumIndex,
                 angleValue,
                 midAngle,
                 midCos: Math.cos(midAngle),
@@ -430,7 +435,7 @@ export class PieSeries extends PolarSeries<PieNodeDatum, PieSeriesProperties, Se
                 sectorFormat,
                 radiusValue,
                 legendItemValue,
-                enabled: this.seriesItemEnabled[index],
+                enabled: this.seriesItemEnabled[datumIndex],
                 ...nodeLabels,
             };
             nodes.push(node);
@@ -460,8 +465,8 @@ export class PieSeries extends PolarSeries<PieNodeDatum, PieSeriesProperties, Se
         midAngle: number,
         span: number,
         skipDisabled: boolean,
-        calloutLabelValue: string,
-        sectorLabelValue: string,
+        calloutLabelValue?: string,
+        sectorLabelValue?: string,
         legendItemValue?: string
     ) {
         const { calloutLabel, sectorLabel, legendItemKey } = this.properties;
@@ -1312,7 +1317,7 @@ export class PieSeries extends PolarSeries<PieNodeDatum, PieSeriesProperties, Se
     getLegendData(legendType: ChartLegendType): CategoryLegendDatum[] {
         const { visible, processedData, dataModel } = this;
 
-        if (!dataModel || !processedData?.data.length || legendType !== 'category') {
+        if (!dataModel || !processedData || !processedData.rawData.length || legendType !== 'category') {
             return [];
         }
 
@@ -1326,13 +1331,22 @@ export class PieSeries extends PolarSeries<PieNodeDatum, PieSeriesProperties, Se
             return [];
         }
 
-        const { calloutLabelIdx, sectorLabelIdx, legendItemIdx } = this.getProcessedDataIndexes(dataModel);
+        const { calloutLabelValues, sectorLabelValues, legendItemValues, angleRawValues } = this.getProcessedDataValues(
+            dataModel,
+            processedData
+        );
 
         const titleText = this.properties.title?.showInLegend && this.properties.title.text;
         const legendData: CategoryLegendDatum[] = [];
 
-        for (let index = 0; index < processedData.data.length; index++) {
-            const { datum, values } = processedData.data[index];
+        const hideZeros = this.properties.hideZeroValueSectorsInLegend;
+        for (let datumIndex = 0; datumIndex < processedData.rawData.length; datumIndex++) {
+            const datum = processedData.rawData[datumIndex];
+            const angleRawValue = angleRawValues[datumIndex];
+
+            if (hideZeros && angleRawValue === 0) {
+                continue;
+            }
 
             const labelParts = [];
             if (titleText) {
@@ -1343,9 +1357,9 @@ export class PieSeries extends PolarSeries<PieNodeDatum, PieSeriesProperties, Se
                 2 * Math.PI,
                 2 * Math.PI,
                 false,
-                calloutLabelIdx != null ? values[calloutLabelIdx] : undefined,
-                sectorLabelIdx != null ? values[sectorLabelIdx] : undefined,
-                legendItemIdx != null ? values[legendItemIdx] : undefined
+                calloutLabelValues?.[datumIndex],
+                sectorLabelValues?.[datumIndex],
+                legendItemValues?.[datumIndex]
             );
 
             if (legendItemKey && labels.legendItem !== undefined) {
@@ -1358,15 +1372,15 @@ export class PieSeries extends PolarSeries<PieNodeDatum, PieSeriesProperties, Se
 
             if (labelParts.length === 0) continue;
 
-            const sectorFormat = this.getSectorFormat(datum, index, false);
+            const sectorFormat = this.getSectorFormat(datum, datumIndex, false);
 
             legendData.push({
                 legendType: 'category',
                 id: this.id,
                 datum,
-                itemId: index,
+                itemId: datumIndex,
                 seriesId: this.id,
-                enabled: visible && this.legendItemEnabled[index],
+                enabled: visible && this.legendItemEnabled[datumIndex],
                 label: {
                     text: labelParts.join(' - '),
                 },
@@ -1418,10 +1432,13 @@ export class PieSeries extends PolarSeries<PieNodeDatum, PieSeriesProperties, Se
             return;
         }
 
-        const legendItemIdx = this.dataModel.resolveProcessedDataIndexById(this, `legendItemValue`);
-        this.processedData?.data.forEach(({ values }, datumItemId) => {
-            if (values[legendItemIdx] === legendItemName) {
-                this.toggleSeriesItem(datumItemId, enabled);
+        const { processedData } = this;
+        if (!processedData?.rawData.length) return;
+
+        const legendItemValues = this.dataModel.resolveColumnById(this, `legendItemValue`, processedData);
+        legendItemValues.forEach((value, datumIndex) => {
+            if (value === legendItemName) {
+                this.toggleSeriesItem(datumIndex, enabled);
             }
         });
     }

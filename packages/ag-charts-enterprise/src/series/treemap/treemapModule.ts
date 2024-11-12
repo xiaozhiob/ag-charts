@@ -1,4 +1,4 @@
-import { type _ModuleSupport, _Theme } from 'ag-charts-community';
+import { _ModuleSupport } from 'ag-charts-community';
 
 import { TreemapSeries } from './treemapSeries';
 
@@ -9,8 +9,7 @@ const {
     DEFAULT_HIERARCHY_STROKES,
     DEFAULT_INSIDE_SERIES_LABEL_COLOUR,
     DEFAULT_LABEL_COLOUR,
-    FONT_WEIGHT,
-} = _Theme;
+} = _ModuleSupport.ThemeSymbols;
 
 export const TreemapModule: _ModuleSupport.SeriesModule<'treemap'> = {
     type: 'series',
@@ -28,7 +27,7 @@ export const TreemapModule: _ModuleSupport.SeriesModule<'treemap'> = {
                     enabled: true,
                     color: DEFAULT_LABEL_COLOUR,
                     fontStyle: undefined,
-                    fontWeight: FONT_WEIGHT.NORMAL,
+                    fontWeight: 'normal' as const,
                     fontSize: 12,
                     fontFamily: DEFAULT_FONT_FAMILY,
                     spacing: 4,
@@ -45,7 +44,7 @@ export const TreemapModule: _ModuleSupport.SeriesModule<'treemap'> = {
                     enabled: true,
                     color: DEFAULT_INSIDE_SERIES_LABEL_COLOUR,
                     fontStyle: undefined,
-                    fontWeight: FONT_WEIGHT.NORMAL,
+                    fontWeight: 'normal' as const,
                     fontSize: 18,
                     minimumFontSize: 10,
                     fontFamily: DEFAULT_FONT_FAMILY,

@@ -11,7 +11,6 @@ import {
     dx,
     isZoomEqual,
     isZoomLess,
-    isZoomRangeEqual,
     scaleZoom,
     scaleZoomAxisWithAnchor,
     translateZoom,
@@ -21,9 +20,6 @@ import {
 const { ChartAxisDirection, ToolbarManager } = _ModuleSupport;
 
 export class ZoomToolbar {
-    private selectedZoom: { id: string; range: { min: number; max: number } } | undefined = undefined;
-    private readonly destroyFns: (() => void)[] = [];
-
     constructor(
         private readonly toolbarManager: _ModuleSupport.ToolbarManager,
         private readonly zoomManager: _ModuleSupport.ZoomManager,
@@ -34,15 +30,7 @@ export class ZoomToolbar {
             direction: _ModuleSupport.ChartAxisDirection,
             partialZoom: _ModuleSupport.ZoomState | undefined
         ) => void
-    ) {
-        this.destroyFns.push(zoomManager.addListener('zoom-change', this.onZoomChanged.bind(this)));
-    }
-
-    destroy() {
-        for (const fn of this.destroyFns) {
-            fn();
-        }
-    }
+    ) {}
 
     public toggle(enabled: boolean | undefined, zoom: DefinedZoomState, props: ZoomProperties) {
         this.toggleGroups(enabled);
@@ -68,47 +56,11 @@ export class ZoomToolbar {
     }
 
     public onButtonPress(event: _ModuleSupport.ToolbarButtonPressedEvent, props: ZoomProperties) {
-        this.onButtonPressRanges(event);
         this.onButtonPressZoom(event, props);
     }
 
     private toggleGroups(enabled?: boolean) {
-        this.toolbarManager?.toggleGroup('zoom', 'ranges', { visible: Boolean(enabled) });
         this.toolbarManager?.toggleGroup('zoom', 'zoom', { visible: Boolean(enabled) });
-    }
-
-    private onButtonPressRanges(event: _ModuleSupport.ToolbarButtonPressedEvent) {
-        if (!ToolbarManager.isGroup('ranges', event)) return;
-
-        const { id } = event;
-
-        const time = event.value;
-        if (typeof time === 'number') {
-            this.zoomManager.extendToEnd('zoom-buttons', ChartAxisDirection.X, time);
-        } else if (Array.isArray(time)) {
-            this.zoomManager.updateWith('zoom-buttons', ChartAxisDirection.X, () => time);
-        } else if (typeof time === 'function') {
-            this.zoomManager.updateWith('zoom-buttons', ChartAxisDirection.X, time);
-        }
-
-        const zoom = this.zoomManager.getZoom();
-        this.selectedZoom = zoom?.x == null ? undefined : { id, range: zoom.x };
-
-        this.toolbarManager.toggleGroup('zoom-toolbar', 'ranges', { active: false });
-        this.toolbarManager.toggleButton('ranges', id, { active: true });
-    }
-
-    private onZoomChanged(event: _ModuleSupport.ZoomChangeEvent) {
-        const { selectedZoom } = this;
-        const { x } = event;
-
-        this.toolbarManager.toggleGroup('zoom-toolbar', 'ranges', { active: false });
-
-        if (selectedZoom != null && x != null && isZoomRangeEqual(selectedZoom.range, x)) {
-            this.toolbarManager.toggleButton('ranges', selectedZoom.id, { active: true });
-        } else {
-            this.selectedZoom = undefined;
-        }
     }
 
     private onButtonPressZoom(event: _ModuleSupport.ToolbarButtonPressedEvent, props: ZoomProperties) {

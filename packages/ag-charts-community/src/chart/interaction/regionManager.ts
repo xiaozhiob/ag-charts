@@ -80,10 +80,10 @@ type EventUpcast<K extends keyof HTMLElement> = PointerInteractionEvent & {
     sourceEvent: RegionEvent['sourceEvent'] & { target: (EventTarget & { [P in K]?: unknown }) | null };
 };
 
-function shouldIgnore(event: EventUpcast<'id' | 'className' | 'classList' | 'ariaHidden'>): 'none' | 'leave' | 'wait' {
+function shouldIgnore(event: EventUpcast<'className' | 'classList' | 'ariaHidden'>): 'none' | 'leave' | 'wait' {
     const { type, sourceEvent } = event;
-    const { id, className, classList, ariaHidden } = sourceEvent?.target ?? {};
-    if (!(classList instanceof DOMTokenList)) return 'leave';
+    const { className, classList, ariaHidden } = sourceEvent?.target ?? {};
+    if (className === 'ag-charts-proxy-elem' || !(classList instanceof DOMTokenList)) return 'leave';
 
     const dragTypes: readonly string[] = DRAG_INTERACTION_TYPES;
     if (
@@ -91,7 +91,6 @@ function shouldIgnore(event: EventUpcast<'id' | 'className' | 'classList' | 'ari
         (classList.contains('ag-charts-annotations__axis-button-icon') && !dragTypes.includes(type)) ||
         className === 'ag-charts-swapchain' ||
         className === 'ag-charts-canvas-proxy' ||
-        (className === 'ag-charts-proxy-elem' && !id?.toString().startsWith('ag-charts-legend-item-')) || // legend <buttons>
         sourceEvent?.target instanceof HTMLCanvasElement // This case is for nodeCanvas tests
     ) {
         return 'none';
@@ -154,6 +153,10 @@ export class RegionManager {
         } else {
             throw new Error('AG Charts - unknown region: ' + name);
         }
+    }
+
+    public removeRegion(region: RegionName): void {
+        this.regions.delete(region);
     }
 
     public getRegion(name: RegionName) {
@@ -272,14 +275,14 @@ export class RegionManager {
     }
 
     private processPointerEvent(event: PointerInteractionEvent) {
-        if (this.handleDragging(event)) {
+        const ignore = shouldIgnore(event);
+        if (ignore === 'none' && this.handleDragging(event)) {
             // We are current dragging, so do not send leave/enter events until dragging is done.
             return;
         }
 
         const { current } = this;
 
-        const ignore = shouldIgnore(event);
         let newCurrent: ReturnType<RegionManager['pickRegion']>;
         switch (ignore) {
             case 'wait':

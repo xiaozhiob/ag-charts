@@ -1,4 +1,4 @@
-import type { AgChartLegendOrientation, FontStyle, FontWeight } from 'ag-charts-types';
+import type { AgChartLegendOrientation, AgMarkerShape, FontStyle, FontWeight } from 'ag-charts-types';
 
 import { TranslatableGroup } from '../../scene/group';
 import type { Node } from '../../scene/node';
@@ -21,7 +21,7 @@ import {
 import { ChartUpdateType } from '../chartUpdateType';
 import type { Marker } from '../marker/marker';
 import { Triangle } from '../marker/triangle';
-import { type MarkerShape, getMarker } from '../marker/util';
+import { getMarker } from '../marker/util';
 
 class PaginationLabel extends BaseProperties {
     @Validate(COLOR_STRING)
@@ -68,7 +68,7 @@ class PaginationMarker extends BaseProperties {
             }
         },
     })
-    shape: MarkerShape = Triangle;
+    shape: AgMarkerShape = 'triangle';
 
     @Validate(POSITIVE_NUMBER)
     size = 15;
@@ -299,7 +299,7 @@ export class Pagination extends BaseProperties {
     }
 
     public setPage(pageNumber: number) {
-        pageNumber = clamp(0, pageNumber, this.totalPages - 1);
+        pageNumber = clamp(0, pageNumber, Math.max(0, this.totalPages - 1));
         if (this.currentPage !== pageNumber) {
             this.currentPage = pageNumber;
             this.onPaginationChanged();

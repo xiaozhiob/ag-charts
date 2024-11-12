@@ -6,12 +6,13 @@ import type {
     AgChartLegendListeners,
     AgChartLegendOrientation,
     AgChartLegendPosition,
+    AgMarkerShape,
+    AgMarkerShapeFn,
     FontStyle,
     FontWeight,
     Formatter,
 } from 'ag-charts-types';
 
-import type { ListSwitch } from '../dom/proxyInteractionService';
 import type { LayoutContext } from '../module/baseModule';
 import type { ModuleContext } from '../module/moduleContext';
 import { BBox } from '../scene/bbox';
@@ -42,6 +43,7 @@ import {
     UNION,
     Validate,
 } from '../util/validation';
+import type { SwitchWidget } from '../widget/switchWidget';
 import { ChartUpdateType } from './chartUpdateType';
 import type { Page } from './gridLayout';
 import { gridLayout } from './gridLayout';
@@ -52,7 +54,7 @@ import { LegendDOMProxy } from './legendDOMProxy';
 import type { CategoryLegendDatum, LegendSymbolOptions } from './legendDatum';
 import { LegendMarkerLabel } from './legendMarkerLabel';
 import type { Marker } from './marker/marker';
-import { type MarkerConstructor, getMarker } from './marker/util';
+import { getMarker } from './marker/util';
 import { Pagination } from './pagination/pagination';
 import { type TooltipMeta, type TooltipPointerEvent, toTooltipHtml } from './tooltip/tooltip';
 import { ZIndexMap } from './zIndexMap';
@@ -86,7 +88,7 @@ class LegendMarker extends BaseProperties {
      * regardless of the type that comes from the `data`.
      */
     @ObserveChanges<LegendMarker>((target) => target.parent?.onMarkerShapeChange())
-    shape?: string | MarkerConstructor;
+    shape?: AgMarkerShape;
 
     @Validate(POSITIVE_NUMBER)
     size = 15;
@@ -345,11 +347,12 @@ export class Legend extends BaseProperties {
         } = this;
         const { formatter } = this.item.label;
         if (formatter) {
+            const seriesDatum = datum.datum;
             return callbackCache.call(formatter, {
                 itemId: datum.itemId,
-                datum: datum.datum,
                 value: datum.label.text,
                 seriesId: datum.seriesId,
+                ...(seriesDatum && { datum: seriesDatum }),
             });
         }
         return datum.label.text;
@@ -453,7 +456,7 @@ export class Legend extends BaseProperties {
     private isCustomMarker(
         markerEnabled: boolean,
         shape: LegendSymbolOptions['marker']['shape']
-    ): shape is typeof Marker {
+    ): shape is AgMarkerShapeFn {
         return markerEnabled && shape !== undefined && typeof shape !== 'string';
     }
 
@@ -475,7 +478,8 @@ export class Legend extends BaseProperties {
         const { shape } = symbol.marker;
         // Calculate the marker size of a custom marker shape:
         if (this.isCustomMarker(markerEnabled, shape)) {
-            const tmpShape = new shape();
+            const Marker = getMarker(shape);
+            const tmpShape = new Marker();
             tmpShape.updatePath();
             const bbox = tmpShape.getBBox();
             customMarkerSize = Math.max(bbox.width, bbox.height);
@@ -873,7 +877,10 @@ export class Legend extends BaseProperties {
         return actualBBox;
     }
 
-    private findNode(params: AgChartLegendContextMenuEvent): { datum: CategoryLegendDatum; proxyButton: ListSwitch } {
+    private findNode(params: AgChartLegendContextMenuEvent): {
+        datum: CategoryLegendDatum;
+        proxyButton: SwitchWidget;
+    } {
         const { datum, proxyButton } =
             this.itemSelection.select((ml): ml is LegendMarkerLabel => ml.datum?.itemId === params.itemId)[0] ?? {};
         if (datum === undefined || proxyButton === undefined) {
@@ -884,7 +891,7 @@ export class Legend extends BaseProperties {
 
     private contextToggleVisibility(params: AgChartLegendContextMenuEvent) {
         const { datum, proxyButton } = this.findNode(params);
-        this.doClick(params.event, datum, proxyButton.button);
+        this.doClick(params.event, datum, proxyButton);
     }
 
     private contextToggleOtherSeries(params: AgChartLegendContextMenuEvent) {
@@ -917,7 +924,7 @@ export class Legend extends BaseProperties {
         this.ctx.contextMenuRegistry.dispatchContext('legend', event, { legendItem });
     }
 
-    onClick(event: Event, datum: CategoryLegendDatum, proxyButton: HTMLButtonElement) {
+    onClick(event: Event, datum: CategoryLegendDatum, proxyButton: SwitchWidget) {
         if (this.doClick(event, datum, proxyButton)) {
             event.preventDefault();
         }
@@ -927,7 +934,7 @@ export class Legend extends BaseProperties {
         return this.ctx.chartService.series.flatMap((s) => s.getLegendData('category')).filter((d) => d.enabled).length;
     }
 
-    private doClick(event: Event, datum: CategoryLegendDatum, proxyButton: HTMLButtonElement): boolean {
+    private doClick(event: Event, datum: CategoryLegendDatum, proxyButton: SwitchWidget): boolean {
         const {
             listeners: { legendItemClick },
             ctx: { chartService, highlightManager },
@@ -961,7 +968,7 @@ export class Legend extends BaseProperties {
                 }
             }
 
-            proxyButton.ariaChecked = newEnabled.toString();
+            proxyButton.setChecked(newEnabled);
             this.ctx.chartEventManager.legendItemClick(series, itemId, newEnabled, datum.legendItemName);
         }
 
@@ -975,7 +982,10 @@ export class Legend extends BaseProperties {
             highlightManager.updateHighlight(this.id);
         }
 
-        this.ctx.updateService.update(ChartUpdateType.PROCESS_DATA, { forceNodeDataRefresh: true });
+        this.ctx.updateService.update(ChartUpdateType.PROCESS_DATA, {
+            forceNodeDataRefresh: true,
+            skipAnimations: datum.skipAnimations ?? false,
+        });
 
         return true;
     }
@@ -1202,5 +1212,15 @@ export class Legend extends BaseProperties {
         }
 
         return [legendWidth, legendHeight];
+    }
+
+    testFindTarget(canvasX: number, canvasY: number): { target: HTMLElement; x: number; y: number } | undefined {
+        for (const node of Selection.selectByClass(this.group, LegendMarkerLabel)) {
+            const bbox = Transformable.toCanvas(node);
+            if (bbox.containsPoint(canvasX, canvasY)) {
+                const { x, y } = Transformable.fromCanvasPoint(node, canvasX, canvasY);
+                return { target: node.proxyButton?.getElement()!, x, y };
+            }
+        }
     }
 }

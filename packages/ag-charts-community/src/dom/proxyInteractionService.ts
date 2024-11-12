@@ -1,16 +1,29 @@
 import type { Direction } from 'ag-charts-types';
 
 import type { LocaleManager } from '../locale/localeManager';
+import { type BaseStyleTypeMap, setAttribute, setElementStyle } from '../util/attributeUtil';
 import { createElement } from '../util/dom';
-import { BoundedText } from './boundedText';
+import { BoundedTextWidget } from '../widget/boundedTextWidget';
+import { ButtonWidget } from '../widget/buttonWidget';
+import { GroupWidget } from '../widget/groupWidget';
+import { ListWidget } from '../widget/listWidget';
+import { NativeWidget } from '../widget/nativeWidget';
+import { SliderWidget } from '../widget/sliderWidget';
+import { SwitchWidget } from '../widget/switchWidget';
+import { ToolbarWidget } from '../widget/toolbarWidget';
+import type { Widget } from '../widget/widget';
 import type { DOMManager } from './domManager';
 
-export type ListSwitch = { button: HTMLButtonElement; listitem: HTMLElement };
+type IWidget = { getElement(): HTMLElement };
+
+type ParentProperties<T = NativeWidget<HTMLDivElement>> =
+    | { readonly parent: T }
+    | { readonly domManagerId: string; readonly where: 'beforebegin' | 'afterend' };
 
 type ElemParams<T extends ProxyElementType> = {
     readonly type: T;
-    readonly id: string;
-    readonly parent: HTMLElement | 'beforebegin' | 'afterend';
+    readonly id?: string;
+    readonly cursor?: BaseStyleTypeMap['cursor'];
 };
 
 type InteractParams<T extends ProxyElementType> = ElemParams<T> & {
@@ -29,52 +42,62 @@ type TranslationKey = { id: string; params?: Record<string, any> };
 
 type ContainerParams<T extends ProxyContainerType> = {
     readonly type: T;
-    readonly id: string;
+    readonly domManagerId: string;
     readonly classList: string[];
     readonly ariaLabel: TranslationKey;
-    readonly ariaOrientation: Direction;
-    readonly ariaHidden?: boolean;
 };
 
 type ProxyMeta = {
     // Elements
     button: {
-        params: InteractParams<'button'> & { readonly textContent: string | TranslationKey };
-        result: HTMLButtonElement;
+        params: ParentProperties<GroupWidget> &
+            InteractParams<'button'> & {
+                readonly textContent: string | TranslationKey;
+            };
+        result: ButtonWidget;
     };
     slider: {
-        params: InteractParams<'slider'> & { readonly ariaLabel: TranslationKey; readonly ariaOrientation: Direction };
-        result: HTMLInputElement;
+        params: ParentProperties<ToolbarWidget> &
+            InteractParams<'slider'> & {
+                readonly ariaLabel: TranslationKey;
+                readonly ariaOrientation: Direction;
+            };
+        result: SliderWidget;
     };
     text: {
-        params: ElemParams<'text'>;
-        result: BoundedText;
+        params: ParentProperties & ElemParams<'text'>;
+        result: BoundedTextWidget;
     };
     listswitch: {
-        params: InteractParams<'listswitch'> & {
-            readonly textContent: string;
-            readonly ariaChecked: boolean;
-            readonly ariaDescribedBy: string;
-        };
-        result: ListSwitch;
+        params: ParentProperties<ListWidget> &
+            InteractParams<'listswitch'> & {
+                readonly textContent: string;
+                readonly ariaChecked: boolean;
+                readonly ariaDescribedBy: string;
+            };
+        result: SwitchWidget;
+    };
+    region: {
+        params: ParentProperties & ElemParams<'region'>;
+        result: NativeWidget<HTMLDivElement>;
     };
 
     // Containers
     toolbar: {
-        params: ContainerParams<'toolbar'>;
-        result: HTMLDivElement;
+        params: ContainerParams<'toolbar'> & { readonly orientation: Direction };
+        result: ToolbarWidget;
     };
     group: {
-        params: ContainerParams<'group'>;
-        result: HTMLDivElement;
+        params: ContainerParams<'group'> & { readonly ariaOrientation: Direction };
+        result: GroupWidget;
     };
     list: {
-        params: Omit<ContainerParams<'list'>, 'ariaOrientation'>;
-        result: HTMLDivElement;
+        params: ContainerParams<'list'>;
+        result: ListWidget;
     };
 };
 
-type ProxyElementType = 'button' | 'slider' | 'text' | 'listswitch';
+type ProxyElementType = 'button' | 'slider' | 'text' | 'listswitch' | 'region';
 type ProxyContainerType = 'toolbar' | 'group' | 'list';
 
 function checkType<T extends keyof ProxyMeta>(type: T, meta: ProxyMeta[keyof ProxyMeta]): meta is ProxyMeta[T] {
@@ -83,15 +106,21 @@ function checkType<T extends keyof ProxyMeta>(type: T, meta: ProxyMeta[keyof Pro
 
 function allocateResult<T extends keyof ProxyMeta>(type: T): ProxyMeta[T]['result'] {
     if ('button' === type) {
-        return createElement('button');
+        return new ButtonWidget();
     } else if ('slider' === type) {
-        return createElement('input');
-    } else if (['toolbar', 'group', 'list'].includes(type)) {
-        return createElement('div');
+        return new SliderWidget();
+    } else if ('toolbar' === type) {
+        return new ToolbarWidget();
+    } else if ('group' === type) {
+        return new GroupWidget();
+    } else if ('list' === type) {
+        return new ListWidget();
+    } else if ('region' === type) {
+        return new NativeWidget<HTMLDivElement>(createElement('div'));
     } else if ('text' === type) {
-        return new BoundedText();
+        return new BoundedTextWidget();
     } else if ('listswitch' === type) {
-        return { button: createElement('button'), listitem: createElement('div') };
+        return new SwitchWidget();
     } else {
         throw Error('AG Charts - error allocating meta');
     }
@@ -125,33 +154,34 @@ export class ProxyInteractionService {
         args: { type: T } & ProxyMeta[T]['params']
     ): ProxyMeta[T]['result'] {
         const meta: ProxyMeta[T] = allocateMeta(args);
-        const { params, result: div } = meta;
+        const { params, result } = meta;
+        const div = result.getElement();
 
-        this.domManager.addChild('canvas-proxy', params.id, div);
+        this.domManager.addChild('canvas-proxy', params.domManagerId, div);
         div.classList.add(...params.classList, 'ag-charts-proxy-container');
         div.role = params.type;
         if ('ariaOrientation' in params) {
             div.ariaOrientation = params.ariaOrientation;
         }
 
-        if (typeof params.ariaHidden === 'boolean') {
-            div.ariaHidden = params.ariaHidden.toString();
+        if (checkType('toolbar', meta)) {
+            meta.result.orientation = meta.params.orientation;
         }
 
         this.addLocalisation(() => {
             div.ariaLabel = this.localeManager.t(params.ariaLabel.id, params.ariaLabel.params);
         });
 
-        return div;
+        return result;
     }
 
     createProxyElement<T extends ProxyElementType>(args: { type: T } & ProxyMeta[T]['params']): ProxyMeta[T]['result'] {
         const meta: ProxyMeta[T] = allocateMeta(args);
 
         if (checkType('button', meta)) {
-            const { params, result: button } = meta;
-            this.initInteract(params, button);
-            button.style.pointerEvents = 'auto'; // TODO(olegat) this should be part of CSS once all element types support pointer events.
+            const { params, result } = meta;
+            const button = result.getElement();
+            this.initInteract(params, result);
 
             if (typeof params.textContent === 'string') {
                 button.textContent = params.textContent;
@@ -161,12 +191,13 @@ export class ProxyInteractionService {
                     button.textContent = this.localeManager.t(textContent.id, textContent.params);
                 });
             }
-            this.setParent(params, button);
+            this.setParent(meta.params, meta.result);
         }
 
         if (checkType('slider', meta)) {
-            const { params, result: slider } = meta;
-            this.initInteract(params, slider);
+            const { params, result } = meta;
+            const slider = result.getElement();
+            this.initInteract(params, result);
             slider.type = 'range';
             slider.role = 'presentation';
             slider.style.margin = '0px';
@@ -175,51 +206,46 @@ export class ProxyInteractionService {
             this.addLocalisation(() => {
                 slider.ariaLabel = this.localeManager.t(params.ariaLabel.id, params.ariaLabel.params);
             });
-            this.setParent(params, slider);
+            this.setParent(meta.params, meta.result);
         }
 
         if (checkType('text', meta)) {
-            const { params, result: text } = meta;
-            this.initElement(params, text.getContainer());
-            this.setParent(params, text.getContainer());
+            const { params, result } = meta;
+            this.initElement(params, result);
         }
 
         if (checkType('listswitch', meta)) {
-            const {
-                params,
-                result: { button, listitem },
-            } = meta;
+            const { params, result: button } = meta;
             this.initInteract(params, button);
-            button.style.width = '100%';
-            button.style.height = '100%';
-            button.textContent = params.textContent;
-            button.role = 'switch';
-            button.ariaChecked = params.ariaChecked.toString();
-            button.style.pointerEvents = 'auto'; // TODO(olegat) this should be part of CSS once all element types support pointer events.
-            button.setAttribute('aria-describedby', params.ariaDescribedBy);
+            button.setTextContent(params.textContent);
+            button.setChecked(params.ariaChecked);
+            button.setAriaDescribedBy(params.ariaDescribedBy);
+            this.setParent(meta.params, meta.result);
+        }
 
-            listitem.role = 'listitem';
-            listitem.style.position = 'absolute';
-            listitem.replaceChildren(button);
-            this.setParent(params, listitem);
+        if (checkType('region', meta)) {
+            const { params, result } = meta;
+            const region = result.getElement();
+            this.initInteract(params, result);
+            region.role = 'region';
+            this.setParent(meta.params, meta.result);
         }
 
         return meta.result;
     }
 
-    private initElement<T extends ProxyElementType, TElem extends HTMLElement>(params: ElemParams<T>, element: TElem) {
-        const { id } = params;
-        element.id = id;
+    private initElement<T extends ProxyElementType>(params: ElemParams<T>, widget: IWidget) {
+        const element = widget.getElement();
+        setAttribute(element, 'id', params.id);
+        setElementStyle(element, 'cursor', params.cursor);
         element.classList.toggle('ag-charts-proxy-elem', true);
+        return element;
     }
 
-    private initInteract<T extends ProxyElementType, TElem extends HTMLElement>(
-        params: InteractParams<T>,
-        element: TElem
-    ) {
+    private initInteract<T extends ProxyElementType>(params: InteractParams<T>, widget: IWidget) {
         const { onclick, ondblclick, onmouseenter, onmouseleave, oncontextmenu, onchange, onfocus, onblur, tabIndex } =
             params;
-        this.initElement(params, element);
+        const element = this.initElement(params, widget);
 
         if (tabIndex !== undefined) {
             element.tabIndex = tabIndex;
@@ -251,13 +277,15 @@ export class ProxyInteractionService {
         }
     }
 
-    private setParent<T extends ProxyElementType, TElem extends HTMLElement>(params: ElemParams<T>, element: TElem) {
-        const { id, parent } = params;
-        if (typeof parent === 'string') {
-            const insert = { where: parent, query: '.ag-charts-series-area' };
-            this.domManager.addChild('canvas-proxy', id, element, insert);
+    private setParent<TParent extends Widget, TChild extends Widget>(
+        params: ParentProperties<TParent>,
+        element: TChild
+    ) {
+        if ('parent' in params) {
+            params.parent?.appendChild(element);
         } else {
-            parent.appendChild(element);
+            const insert = { where: params.where, query: '.ag-charts-series-area' };
+            this.domManager.addChild('canvas-proxy', params.domManagerId, element.getElement(), insert);
         }
     }
 }

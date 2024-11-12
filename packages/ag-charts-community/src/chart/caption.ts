@@ -1,6 +1,5 @@
 import type { FontStyle, FontWeight, TextAlign, TextWrap } from 'ag-charts-types';
 
-import type { BoundedText } from '../dom/boundedText';
 import type { ProxyInteractionService } from '../dom/proxyInteractionService';
 import type { ModuleContext } from '../module/moduleContext';
 import { PointerEvents } from '../scene/node';
@@ -23,6 +22,7 @@ import {
     TEXT_WRAP,
     Validate,
 } from '../util/validation';
+import type { BoundedTextWidget } from '../widget/boundedTextWidget';
 import type { CaptionLike } from './captionLike';
 import type { PointerInteractionEvent } from './interaction/interactionManager';
 import { toTooltipHtml } from './tooltip/tooltip';
@@ -88,7 +88,7 @@ export class Caption extends BaseProperties implements CaptionLike {
     layoutStyle: 'block' | 'overlay' = 'block';
 
     private truncated = false;
-    private proxyText?: BoundedText;
+    private proxyText?: BoundedTextWidget;
 
     registerInteraction(moduleCtx: ModuleContext, where: 'beforebegin' | 'afterend') {
         const { regionManager, proxyInteractionService, layoutManager } = moduleCtx;
@@ -119,13 +119,13 @@ export class Caption extends BaseProperties implements CaptionLike {
         if (this.enabled && this.text) {
             const bbox = Transformable.toCanvas(this.node);
             if (bbox) {
-                const { id } = this;
-                this.proxyText ??= proxyService.createProxyElement({ type: 'text', id, parent: where });
+                const { id: domManagerId } = this;
+                this.proxyText ??= proxyService.createProxyElement({ type: 'text', domManagerId, where });
                 this.proxyText.textContent = this.text;
-                this.proxyText.updateBounds(bbox);
+                this.proxyText.setBounds(bbox);
             }
         } else {
-            this.proxyText?.remove();
+            this.proxyText?.destroy();
             this.proxyText = undefined;
         }
     }

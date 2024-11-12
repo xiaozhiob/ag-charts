@@ -482,45 +482,6 @@ exports[`ChartOptions #prepareOptions for ADV_CHART_CUSTOMISATION it should prep
       "position": "left",
     },
     "enabled": true,
-    "ranges": {
-      "align": "start",
-      "buttons": [
-        {
-          "ariaLabel": "toolbarRange1MonthAria",
-          "label": "toolbarRange1Month",
-          "value": 2592000000,
-        },
-        {
-          "ariaLabel": "toolbarRange3MonthsAria",
-          "label": "toolbarRange3Months",
-          "value": 7776000000,
-        },
-        {
-          "ariaLabel": "toolbarRange6MonthsAria",
-          "label": "toolbarRange6Months",
-          "value": 15552000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeYearToDateAria",
-          "id": "year-to-date",
-          "label": "toolbarRangeYearToDate",
-          "value": [Function],
-        },
-        {
-          "ariaLabel": "toolbarRange1YearAria",
-          "label": "toolbarRange1Year",
-          "value": 31536000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeAllAria",
-          "id": "all",
-          "label": "toolbarRangeAll",
-          "value": [Function],
-        },
-      ],
-      "enabled": false,
-      "position": "top",
-    },
     "seriesType": {
       "align": "start",
       "buttons": [
@@ -1099,45 +1060,6 @@ exports[`ChartOptions #prepareOptions for ADV_COMBINATION_SERIES_CHART_EXAMPLE i
       "position": "left",
     },
     "enabled": true,
-    "ranges": {
-      "align": "start",
-      "buttons": [
-        {
-          "ariaLabel": "toolbarRange1MonthAria",
-          "label": "toolbarRange1Month",
-          "value": 2592000000,
-        },
-        {
-          "ariaLabel": "toolbarRange3MonthsAria",
-          "label": "toolbarRange3Months",
-          "value": 7776000000,
-        },
-        {
-          "ariaLabel": "toolbarRange6MonthsAria",
-          "label": "toolbarRange6Months",
-          "value": 15552000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeYearToDateAria",
-          "id": "year-to-date",
-          "label": "toolbarRangeYearToDate",
-          "value": [Function],
-        },
-        {
-          "ariaLabel": "toolbarRange1YearAria",
-          "label": "toolbarRange1Year",
-          "value": 31536000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeAllAria",
-          "id": "all",
-          "label": "toolbarRangeAll",
-          "value": [Function],
-        },
-      ],
-      "enabled": false,
-      "position": "top",
-    },
     "seriesType": {
       "align": "start",
       "buttons": [
@@ -1862,45 +1784,6 @@ exports[`ChartOptions #prepareOptions for ADV_CUSTOM_MARKER_SHAPES_EXAMPLE it sh
       "position": "left",
     },
     "enabled": true,
-    "ranges": {
-      "align": "start",
-      "buttons": [
-        {
-          "ariaLabel": "toolbarRange1MonthAria",
-          "label": "toolbarRange1Month",
-          "value": 2592000000,
-        },
-        {
-          "ariaLabel": "toolbarRange3MonthsAria",
-          "label": "toolbarRange3Months",
-          "value": 7776000000,
-        },
-        {
-          "ariaLabel": "toolbarRange6MonthsAria",
-          "label": "toolbarRange6Months",
-          "value": 15552000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeYearToDateAria",
-          "id": "year-to-date",
-          "label": "toolbarRangeYearToDate",
-          "value": [Function],
-        },
-        {
-          "ariaLabel": "toolbarRange1YearAria",
-          "label": "toolbarRange1Year",
-          "value": 31536000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeAllAria",
-          "id": "all",
-          "label": "toolbarRangeAll",
-          "value": [Function],
-        },
-      ],
-      "enabled": false,
-      "position": "top",
-    },
     "seriesType": {
       "align": "start",
       "buttons": [
@@ -2628,45 +2511,6 @@ exports[`ChartOptions #prepareOptions for ADV_CUSTOM_TOOLTIPS_EXAMPLE it should 
       "position": "left",
     },
     "enabled": true,
-    "ranges": {
-      "align": "start",
-      "buttons": [
-        {
-          "ariaLabel": "toolbarRange1MonthAria",
-          "label": "toolbarRange1Month",
-          "value": 2592000000,
-        },
-        {
-          "ariaLabel": "toolbarRange3MonthsAria",
-          "label": "toolbarRange3Months",
-          "value": 7776000000,
-        },
-        {
-          "ariaLabel": "toolbarRange6MonthsAria",
-          "label": "toolbarRange6Months",
-          "value": 15552000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeYearToDateAria",
-          "id": "year-to-date",
-          "label": "toolbarRangeYearToDate",
-          "value": [Function],
-        },
-        {
-          "ariaLabel": "toolbarRange1YearAria",
-          "label": "toolbarRange1Year",
-          "value": 31536000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeAllAria",
-          "id": "all",
-          "label": "toolbarRangeAll",
-          "value": [Function],
-        },
-      ],
-      "enabled": false,
-      "position": "top",
-    },
     "seriesType": {
       "align": "start",
       "buttons": [
@@ -2832,45 +2676,6 @@ exports[`ChartOptions #prepareOptions for ADV_PER_MARKER_CUSTOMISATION_EXAMPLE i
   },
   "keyboard": {
     "enabled": true,
-  },
-  "legend": {
-    "enabled": false,
-    "item": {
-      "label": {
-        "color": "rgb(70, 70, 70)",
-        "fontFamily": "Verdana, sans-serif",
-        "fontSize": 12,
-      },
-      "marker": {
-        "padding": 8,
-        "size": 15,
-      },
-      "paddingX": 16,
-      "paddingY": 8,
-      "showSeriesStroke": true,
-    },
-    "listeners": {},
-    "pagination": {
-      "activeStyle": {
-        "fill": "rgb(70, 70, 70)",
-      },
-      "highlightStyle": {
-        "fill": "rgb(70, 70, 70)",
-      },
-      "inactiveStyle": {
-        "fill": "rgb(140, 140, 140)",
-      },
-      "label": {
-        "color": "rgb(70, 70, 70)",
-      },
-      "marker": {
-        "size": 12,
-      },
-    },
-    "position": "bottom",
-    "reverseOrder": false,
-    "spacing": 30,
-    "toggleSeries": true,
   },
   "listeners": {},
   "minHeight": 300,
@@ -3081,45 +2886,6 @@ exports[`ChartOptions #prepareOptions for ADV_PER_MARKER_CUSTOMISATION_EXAMPLE i
       "position": "left",
     },
     "enabled": true,
-    "ranges": {
-      "align": "start",
-      "buttons": [
-        {
-          "ariaLabel": "toolbarRange1MonthAria",
-          "label": "toolbarRange1Month",
-          "value": 2592000000,
-        },
-        {
-          "ariaLabel": "toolbarRange3MonthsAria",
-          "label": "toolbarRange3Months",
-          "value": 7776000000,
-        },
-        {
-          "ariaLabel": "toolbarRange6MonthsAria",
-          "label": "toolbarRange6Months",
-          "value": 15552000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeYearToDateAria",
-          "id": "year-to-date",
-          "label": "toolbarRangeYearToDate",
-          "value": [Function],
-        },
-        {
-          "ariaLabel": "toolbarRange1YearAria",
-          "label": "toolbarRange1Year",
-          "value": 31536000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeAllAria",
-          "id": "all",
-          "label": "toolbarRangeAll",
-          "value": [Function],
-        },
-      ],
-      "enabled": false,
-      "position": "top",
-    },
     "seriesType": {
       "align": "start",
       "buttons": [
@@ -3683,45 +3449,6 @@ exports[`ChartOptions #prepareOptions for ADV_TIME_AXIS_WITH_IRREGULAR_INTERVALS
       "position": "left",
     },
     "enabled": true,
-    "ranges": {
-      "align": "start",
-      "buttons": [
-        {
-          "ariaLabel": "toolbarRange1MonthAria",
-          "label": "toolbarRange1Month",
-          "value": 2592000000,
-        },
-        {
-          "ariaLabel": "toolbarRange3MonthsAria",
-          "label": "toolbarRange3Months",
-          "value": 7776000000,
-        },
-        {
-          "ariaLabel": "toolbarRange6MonthsAria",
-          "label": "toolbarRange6Months",
-          "value": 15552000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeYearToDateAria",
-          "id": "year-to-date",
-          "label": "toolbarRangeYearToDate",
-          "value": [Function],
-        },
-        {
-          "ariaLabel": "toolbarRange1YearAria",
-          "label": "toolbarRange1Year",
-          "value": 31536000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeAllAria",
-          "id": "all",
-          "label": "toolbarRangeAll",
-          "value": [Function],
-        },
-      ],
-      "enabled": false,
-      "position": "top",
-    },
     "seriesType": {
       "align": "start",
       "buttons": [
@@ -4406,45 +4133,6 @@ exports[`ChartOptions #prepareOptions for AREA_GRAPH_WITH_NEGATIVE_VALUES_EXAMPL
       "position": "left",
     },
     "enabled": true,
-    "ranges": {
-      "align": "start",
-      "buttons": [
-        {
-          "ariaLabel": "toolbarRange1MonthAria",
-          "label": "toolbarRange1Month",
-          "value": 2592000000,
-        },
-        {
-          "ariaLabel": "toolbarRange3MonthsAria",
-          "label": "toolbarRange3Months",
-          "value": 7776000000,
-        },
-        {
-          "ariaLabel": "toolbarRange6MonthsAria",
-          "label": "toolbarRange6Months",
-          "value": 15552000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeYearToDateAria",
-          "id": "year-to-date",
-          "label": "toolbarRangeYearToDate",
-          "value": [Function],
-        },
-        {
-          "ariaLabel": "toolbarRange1YearAria",
-          "label": "toolbarRange1Year",
-          "value": 31536000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeAllAria",
-          "id": "all",
-          "label": "toolbarRangeAll",
-          "value": [Function],
-        },
-      ],
-      "enabled": false,
-      "position": "top",
-    },
     "seriesType": {
       "align": "start",
       "buttons": [
@@ -4611,45 +4299,6 @@ exports[`ChartOptions #prepareOptions for BAR_CHART_EXAMPLE it should prepare op
   },
   "keyboard": {
     "enabled": true,
-  },
-  "legend": {
-    "enabled": false,
-    "item": {
-      "label": {
-        "color": "rgb(70, 70, 70)",
-        "fontFamily": "Verdana, sans-serif",
-        "fontSize": 12,
-      },
-      "marker": {
-        "padding": 8,
-        "size": 15,
-      },
-      "paddingX": 16,
-      "paddingY": 8,
-      "showSeriesStroke": true,
-    },
-    "listeners": {},
-    "pagination": {
-      "activeStyle": {
-        "fill": "rgb(70, 70, 70)",
-      },
-      "highlightStyle": {
-        "fill": "rgb(70, 70, 70)",
-      },
-      "inactiveStyle": {
-        "fill": "rgb(140, 140, 140)",
-      },
-      "label": {
-        "color": "rgb(70, 70, 70)",
-      },
-      "marker": {
-        "size": 12,
-      },
-    },
-    "position": "bottom",
-    "reverseOrder": false,
-    "spacing": 30,
-    "toggleSeries": true,
   },
   "listeners": {},
   "minHeight": 300,
@@ -4873,45 +4522,6 @@ by Occupation",
       "position": "left",
     },
     "enabled": true,
-    "ranges": {
-      "align": "start",
-      "buttons": [
-        {
-          "ariaLabel": "toolbarRange1MonthAria",
-          "label": "toolbarRange1Month",
-          "value": 2592000000,
-        },
-        {
-          "ariaLabel": "toolbarRange3MonthsAria",
-          "label": "toolbarRange3Months",
-          "value": 7776000000,
-        },
-        {
-          "ariaLabel": "toolbarRange6MonthsAria",
-          "label": "toolbarRange6Months",
-          "value": 15552000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeYearToDateAria",
-          "id": "year-to-date",
-          "label": "toolbarRangeYearToDate",
-          "value": [Function],
-        },
-        {
-          "ariaLabel": "toolbarRange1YearAria",
-          "label": "toolbarRange1Year",
-          "value": 31536000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeAllAria",
-          "id": "all",
-          "label": "toolbarRangeAll",
-          "value": [Function],
-        },
-      ],
-      "enabled": false,
-      "position": "top",
-    },
     "seriesType": {
       "align": "start",
       "buttons": [
@@ -5078,45 +4688,6 @@ exports[`ChartOptions #prepareOptions for BAR_CHART_WITH_LABELS_EXAMPLE it shoul
   },
   "keyboard": {
     "enabled": true,
-  },
-  "legend": {
-    "enabled": false,
-    "item": {
-      "label": {
-        "color": "rgb(70, 70, 70)",
-        "fontFamily": "Verdana, sans-serif",
-        "fontSize": 12,
-      },
-      "marker": {
-        "padding": 8,
-        "size": 15,
-      },
-      "paddingX": 16,
-      "paddingY": 8,
-      "showSeriesStroke": true,
-    },
-    "listeners": {},
-    "pagination": {
-      "activeStyle": {
-        "fill": "rgb(70, 70, 70)",
-      },
-      "highlightStyle": {
-        "fill": "rgb(70, 70, 70)",
-      },
-      "inactiveStyle": {
-        "fill": "rgb(140, 140, 140)",
-      },
-      "label": {
-        "color": "rgb(70, 70, 70)",
-      },
-      "marker": {
-        "size": 12,
-      },
-    },
-    "position": "bottom",
-    "reverseOrder": false,
-    "spacing": 30,
-    "toggleSeries": true,
   },
   "listeners": {},
   "minHeight": 300,
@@ -5337,45 +4908,6 @@ exports[`ChartOptions #prepareOptions for BAR_CHART_WITH_LABELS_EXAMPLE it shoul
       "position": "left",
     },
     "enabled": true,
-    "ranges": {
-      "align": "start",
-      "buttons": [
-        {
-          "ariaLabel": "toolbarRange1MonthAria",
-          "label": "toolbarRange1Month",
-          "value": 2592000000,
-        },
-        {
-          "ariaLabel": "toolbarRange3MonthsAria",
-          "label": "toolbarRange3Months",
-          "value": 7776000000,
-        },
-        {
-          "ariaLabel": "toolbarRange6MonthsAria",
-          "label": "toolbarRange6Months",
-          "value": 15552000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeYearToDateAria",
-          "id": "year-to-date",
-          "label": "toolbarRangeYearToDate",
-          "value": [Function],
-        },
-        {
-          "ariaLabel": "toolbarRange1YearAria",
-          "label": "toolbarRange1Year",
-          "value": 31536000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeAllAria",
-          "id": "all",
-          "label": "toolbarRangeAll",
-          "value": [Function],
-        },
-      ],
-      "enabled": false,
-      "position": "top",
-    },
     "seriesType": {
       "align": "start",
       "buttons": [
@@ -5547,45 +5079,6 @@ exports[`ChartOptions #prepareOptions for BUBBLE_GRAPH_WITH_CATEGORIES_EXAMPLE i
   },
   "keyboard": {
     "enabled": true,
-  },
-  "legend": {
-    "enabled": false,
-    "item": {
-      "label": {
-        "color": "rgb(70, 70, 70)",
-        "fontFamily": "Verdana, sans-serif",
-        "fontSize": 12,
-      },
-      "marker": {
-        "padding": 8,
-        "size": 15,
-      },
-      "paddingX": 16,
-      "paddingY": 8,
-      "showSeriesStroke": true,
-    },
-    "listeners": {},
-    "pagination": {
-      "activeStyle": {
-        "fill": "rgb(70, 70, 70)",
-      },
-      "highlightStyle": {
-        "fill": "rgb(70, 70, 70)",
-      },
-      "inactiveStyle": {
-        "fill": "rgb(140, 140, 140)",
-      },
-      "label": {
-        "color": "rgb(70, 70, 70)",
-      },
-      "marker": {
-        "size": 12,
-      },
-    },
-    "position": "bottom",
-    "reverseOrder": false,
-    "spacing": 30,
-    "toggleSeries": true,
   },
   "listeners": {},
   "minHeight": 300,
@@ -5788,45 +5281,6 @@ exports[`ChartOptions #prepareOptions for BUBBLE_GRAPH_WITH_CATEGORIES_EXAMPLE i
       "position": "left",
     },
     "enabled": true,
-    "ranges": {
-      "align": "start",
-      "buttons": [
-        {
-          "ariaLabel": "toolbarRange1MonthAria",
-          "label": "toolbarRange1Month",
-          "value": 2592000000,
-        },
-        {
-          "ariaLabel": "toolbarRange3MonthsAria",
-          "label": "toolbarRange3Months",
-          "value": 7776000000,
-        },
-        {
-          "ariaLabel": "toolbarRange6MonthsAria",
-          "label": "toolbarRange6Months",
-          "value": 15552000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeYearToDateAria",
-          "id": "year-to-date",
-          "label": "toolbarRangeYearToDate",
-          "value": [Function],
-        },
-        {
-          "ariaLabel": "toolbarRange1YearAria",
-          "label": "toolbarRange1Year",
-          "value": 31536000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeAllAria",
-          "id": "all",
-          "label": "toolbarRangeAll",
-          "value": [Function],
-        },
-      ],
-      "enabled": false,
-      "position": "top",
-    },
     "seriesType": {
       "align": "start",
       "buttons": [
@@ -5997,45 +5451,6 @@ exports[`ChartOptions #prepareOptions for BUBBLE_GRAPH_WITH_NEGATIVE_VALUES_EXAM
   },
   "keyboard": {
     "enabled": true,
-  },
-  "legend": {
-    "enabled": false,
-    "item": {
-      "label": {
-        "color": "rgb(70, 70, 70)",
-        "fontFamily": "Verdana, sans-serif",
-        "fontSize": 12,
-      },
-      "marker": {
-        "padding": 8,
-        "size": 15,
-      },
-      "paddingX": 16,
-      "paddingY": 8,
-      "showSeriesStroke": true,
-    },
-    "listeners": {},
-    "pagination": {
-      "activeStyle": {
-        "fill": "rgb(70, 70, 70)",
-      },
-      "highlightStyle": {
-        "fill": "rgb(70, 70, 70)",
-      },
-      "inactiveStyle": {
-        "fill": "rgb(140, 140, 140)",
-      },
-      "label": {
-        "color": "rgb(70, 70, 70)",
-      },
-      "marker": {
-        "size": 12,
-      },
-    },
-    "position": "bottom",
-    "reverseOrder": false,
-    "spacing": 30,
-    "toggleSeries": true,
   },
   "listeners": {},
   "minHeight": 300,
@@ -6241,45 +5656,6 @@ exports[`ChartOptions #prepareOptions for BUBBLE_GRAPH_WITH_NEGATIVE_VALUES_EXAM
       "position": "left",
     },
     "enabled": true,
-    "ranges": {
-      "align": "start",
-      "buttons": [
-        {
-          "ariaLabel": "toolbarRange1MonthAria",
-          "label": "toolbarRange1Month",
-          "value": 2592000000,
-        },
-        {
-          "ariaLabel": "toolbarRange3MonthsAria",
-          "label": "toolbarRange3Months",
-          "value": 7776000000,
-        },
-        {
-          "ariaLabel": "toolbarRange6MonthsAria",
-          "label": "toolbarRange6Months",
-          "value": 15552000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeYearToDateAria",
-          "id": "year-to-date",
-          "label": "toolbarRangeYearToDate",
-          "value": [Function],
-        },
-        {
-          "ariaLabel": "toolbarRange1YearAria",
-          "label": "toolbarRange1Year",
-          "value": 31536000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeAllAria",
-          "id": "all",
-          "label": "toolbarRangeAll",
-          "value": [Function],
-        },
-      ],
-      "enabled": false,
-      "position": "top",
-    },
     "seriesType": {
       "align": "start",
       "buttons": [
@@ -6773,45 +6149,6 @@ exports[`ChartOptions #prepareOptions for COLUMN_CHART_WITH_NEGATIVE_VALUES_EXAM
       "position": "left",
     },
     "enabled": true,
-    "ranges": {
-      "align": "start",
-      "buttons": [
-        {
-          "ariaLabel": "toolbarRange1MonthAria",
-          "label": "toolbarRange1Month",
-          "value": 2592000000,
-        },
-        {
-          "ariaLabel": "toolbarRange3MonthsAria",
-          "label": "toolbarRange3Months",
-          "value": 7776000000,
-        },
-        {
-          "ariaLabel": "toolbarRange6MonthsAria",
-          "label": "toolbarRange6Months",
-          "value": 15552000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeYearToDateAria",
-          "id": "year-to-date",
-          "label": "toolbarRangeYearToDate",
-          "value": [Function],
-        },
-        {
-          "ariaLabel": "toolbarRange1YearAria",
-          "label": "toolbarRange1Year",
-          "value": 31536000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeAllAria",
-          "id": "all",
-          "label": "toolbarRangeAll",
-          "value": [Function],
-        },
-      ],
-      "enabled": false,
-      "position": "top",
-    },
     "seriesType": {
       "align": "start",
       "buttons": [
@@ -7309,45 +6646,6 @@ exports[`ChartOptions #prepareOptions for GROUPED_BAR_CHART_EXAMPLE it should pr
       "position": "left",
     },
     "enabled": true,
-    "ranges": {
-      "align": "start",
-      "buttons": [
-        {
-          "ariaLabel": "toolbarRange1MonthAria",
-          "label": "toolbarRange1Month",
-          "value": 2592000000,
-        },
-        {
-          "ariaLabel": "toolbarRange3MonthsAria",
-          "label": "toolbarRange3Months",
-          "value": 7776000000,
-        },
-        {
-          "ariaLabel": "toolbarRange6MonthsAria",
-          "label": "toolbarRange6Months",
-          "value": 15552000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeYearToDateAria",
-          "id": "year-to-date",
-          "label": "toolbarRangeYearToDate",
-          "value": [Function],
-        },
-        {
-          "ariaLabel": "toolbarRange1YearAria",
-          "label": "toolbarRange1Year",
-          "value": 31536000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeAllAria",
-          "id": "all",
-          "label": "toolbarRangeAll",
-          "value": [Function],
-        },
-      ],
-      "enabled": false,
-      "position": "top",
-    },
     "seriesType": {
       "align": "start",
       "buttons": [
@@ -8088,45 +7386,6 @@ exports[`ChartOptions #prepareOptions for GROUPED_COLUMN_EXAMPLE it should prepa
       "position": "left",
     },
     "enabled": true,
-    "ranges": {
-      "align": "start",
-      "buttons": [
-        {
-          "ariaLabel": "toolbarRange1MonthAria",
-          "label": "toolbarRange1Month",
-          "value": 2592000000,
-        },
-        {
-          "ariaLabel": "toolbarRange3MonthsAria",
-          "label": "toolbarRange3Months",
-          "value": 7776000000,
-        },
-        {
-          "ariaLabel": "toolbarRange6MonthsAria",
-          "label": "toolbarRange6Months",
-          "value": 15552000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeYearToDateAria",
-          "id": "year-to-date",
-          "label": "toolbarRangeYearToDate",
-          "value": [Function],
-        },
-        {
-          "ariaLabel": "toolbarRange1YearAria",
-          "label": "toolbarRange1Year",
-          "value": 31536000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeAllAria",
-          "id": "all",
-          "label": "toolbarRangeAll",
-          "value": [Function],
-        },
-      ],
-      "enabled": false,
-      "position": "top",
-    },
     "seriesType": {
       "align": "start",
       "buttons": [
@@ -9284,45 +8543,6 @@ exports[`ChartOptions #prepareOptions for LINE_GRAPH_WITH_GAPS_EXAMPLE it should
       "position": "left",
     },
     "enabled": true,
-    "ranges": {
-      "align": "start",
-      "buttons": [
-        {
-          "ariaLabel": "toolbarRange1MonthAria",
-          "label": "toolbarRange1Month",
-          "value": 2592000000,
-        },
-        {
-          "ariaLabel": "toolbarRange3MonthsAria",
-          "label": "toolbarRange3Months",
-          "value": 7776000000,
-        },
-        {
-          "ariaLabel": "toolbarRange6MonthsAria",
-          "label": "toolbarRange6Months",
-          "value": 15552000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeYearToDateAria",
-          "id": "year-to-date",
-          "label": "toolbarRangeYearToDate",
-          "value": [Function],
-        },
-        {
-          "ariaLabel": "toolbarRange1YearAria",
-          "label": "toolbarRange1Year",
-          "value": 31536000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeAllAria",
-          "id": "all",
-          "label": "toolbarRangeAll",
-          "value": [Function],
-        },
-      ],
-      "enabled": false,
-      "position": "top",
-    },
     "seriesType": {
       "align": "start",
       "buttons": [
@@ -9492,45 +8712,6 @@ exports[`ChartOptions #prepareOptions for LOG_AXIS_EXAMPLE it should prepare opt
   },
   "keyboard": {
     "enabled": true,
-  },
-  "legend": {
-    "enabled": false,
-    "item": {
-      "label": {
-        "color": "rgb(70, 70, 70)",
-        "fontFamily": "Verdana, sans-serif",
-        "fontSize": 12,
-      },
-      "marker": {
-        "padding": 8,
-        "size": 15,
-      },
-      "paddingX": 16,
-      "paddingY": 8,
-      "showSeriesStroke": true,
-    },
-    "listeners": {},
-    "pagination": {
-      "activeStyle": {
-        "fill": "rgb(70, 70, 70)",
-      },
-      "highlightStyle": {
-        "fill": "rgb(70, 70, 70)",
-      },
-      "inactiveStyle": {
-        "fill": "rgb(140, 140, 140)",
-      },
-      "label": {
-        "color": "rgb(70, 70, 70)",
-      },
-      "marker": {
-        "size": 12,
-      },
-    },
-    "position": "bottom",
-    "reverseOrder": false,
-    "spacing": 30,
-    "toggleSeries": true,
   },
   "listeners": {},
   "minHeight": 300,
@@ -9741,45 +8922,6 @@ exports[`ChartOptions #prepareOptions for LOG_AXIS_EXAMPLE it should prepare opt
       "position": "left",
     },
     "enabled": true,
-    "ranges": {
-      "align": "start",
-      "buttons": [
-        {
-          "ariaLabel": "toolbarRange1MonthAria",
-          "label": "toolbarRange1Month",
-          "value": 2592000000,
-        },
-        {
-          "ariaLabel": "toolbarRange3MonthsAria",
-          "label": "toolbarRange3Months",
-          "value": 7776000000,
-        },
-        {
-          "ariaLabel": "toolbarRange6MonthsAria",
-          "label": "toolbarRange6Months",
-          "value": 15552000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeYearToDateAria",
-          "id": "year-to-date",
-          "label": "toolbarRangeYearToDate",
-          "value": [Function],
-        },
-        {
-          "ariaLabel": "toolbarRange1YearAria",
-          "label": "toolbarRange1Year",
-          "value": 31536000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeAllAria",
-          "id": "all",
-          "label": "toolbarRangeAll",
-          "value": [Function],
-        },
-      ],
-      "enabled": false,
-      "position": "top",
-    },
     "seriesType": {
       "align": "start",
       "buttons": [
@@ -10614,45 +9756,6 @@ exports[`ChartOptions #prepareOptions for ONE_HUNDRED_PERCENT_STACKED_AREA_GRAPH
       "position": "left",
     },
     "enabled": true,
-    "ranges": {
-      "align": "start",
-      "buttons": [
-        {
-          "ariaLabel": "toolbarRange1MonthAria",
-          "label": "toolbarRange1Month",
-          "value": 2592000000,
-        },
-        {
-          "ariaLabel": "toolbarRange3MonthsAria",
-          "label": "toolbarRange3Months",
-          "value": 7776000000,
-        },
-        {
-          "ariaLabel": "toolbarRange6MonthsAria",
-          "label": "toolbarRange6Months",
-          "value": 15552000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeYearToDateAria",
-          "id": "year-to-date",
-          "label": "toolbarRangeYearToDate",
-          "value": [Function],
-        },
-        {
-          "ariaLabel": "toolbarRange1YearAria",
-          "label": "toolbarRange1Year",
-          "value": 31536000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeAllAria",
-          "id": "all",
-          "label": "toolbarRangeAll",
-          "value": [Function],
-        },
-      ],
-      "enabled": false,
-      "position": "top",
-    },
     "seriesType": {
       "align": "start",
       "buttons": [
@@ -11204,45 +10307,6 @@ exports[`ChartOptions #prepareOptions for ONE_HUNDRED_PERCENT_STACKED_BAR_EXAMPL
       "position": "left",
     },
     "enabled": true,
-    "ranges": {
-      "align": "start",
-      "buttons": [
-        {
-          "ariaLabel": "toolbarRange1MonthAria",
-          "label": "toolbarRange1Month",
-          "value": 2592000000,
-        },
-        {
-          "ariaLabel": "toolbarRange3MonthsAria",
-          "label": "toolbarRange3Months",
-          "value": 7776000000,
-        },
-        {
-          "ariaLabel": "toolbarRange6MonthsAria",
-          "label": "toolbarRange6Months",
-          "value": 15552000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeYearToDateAria",
-          "id": "year-to-date",
-          "label": "toolbarRangeYearToDate",
-          "value": [Function],
-        },
-        {
-          "ariaLabel": "toolbarRange1YearAria",
-          "label": "toolbarRange1Year",
-          "value": 31536000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeAllAria",
-          "id": "all",
-          "label": "toolbarRangeAll",
-          "value": [Function],
-        },
-      ],
-      "enabled": false,
-      "position": "top",
-    },
     "seriesType": {
       "align": "start",
       "buttons": [
@@ -11936,45 +11000,6 @@ exports[`ChartOptions #prepareOptions for ONE_HUNDRED_PERCENT_STACKED_COLUMNS_EX
       "position": "left",
     },
     "enabled": true,
-    "ranges": {
-      "align": "start",
-      "buttons": [
-        {
-          "ariaLabel": "toolbarRange1MonthAria",
-          "label": "toolbarRange1Month",
-          "value": 2592000000,
-        },
-        {
-          "ariaLabel": "toolbarRange3MonthsAria",
-          "label": "toolbarRange3Months",
-          "value": 7776000000,
-        },
-        {
-          "ariaLabel": "toolbarRange6MonthsAria",
-          "label": "toolbarRange6Months",
-          "value": 15552000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeYearToDateAria",
-          "id": "year-to-date",
-          "label": "toolbarRangeYearToDate",
-          "value": [Function],
-        },
-        {
-          "ariaLabel": "toolbarRange1YearAria",
-          "label": "toolbarRange1Year",
-          "value": 31536000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeAllAria",
-          "id": "all",
-          "label": "toolbarRangeAll",
-          "value": [Function],
-        },
-      ],
-      "enabled": false,
-      "position": "top",
-    },
     "seriesType": {
       "align": "start",
       "buttons": [
@@ -12571,45 +11596,6 @@ exports[`ChartOptions #prepareOptions for SIMPLE_AREA_GRAPH_EXAMPLE it should pr
       "position": "left",
     },
     "enabled": true,
-    "ranges": {
-      "align": "start",
-      "buttons": [
-        {
-          "ariaLabel": "toolbarRange1MonthAria",
-          "label": "toolbarRange1Month",
-          "value": 2592000000,
-        },
-        {
-          "ariaLabel": "toolbarRange3MonthsAria",
-          "label": "toolbarRange3Months",
-          "value": 7776000000,
-        },
-        {
-          "ariaLabel": "toolbarRange6MonthsAria",
-          "label": "toolbarRange6Months",
-          "value": 15552000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeYearToDateAria",
-          "id": "year-to-date",
-          "label": "toolbarRangeYearToDate",
-          "value": [Function],
-        },
-        {
-          "ariaLabel": "toolbarRange1YearAria",
-          "label": "toolbarRange1Year",
-          "value": 31536000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeAllAria",
-          "id": "all",
-          "label": "toolbarRangeAll",
-          "value": [Function],
-        },
-      ],
-      "enabled": false,
-      "position": "top",
-    },
     "seriesType": {
       "align": "start",
       "buttons": [
@@ -12777,45 +11763,6 @@ exports[`ChartOptions #prepareOptions for SIMPLE_COLUMN_CHART_EXAMPLE it should 
   },
   "keyboard": {
     "enabled": true,
-  },
-  "legend": {
-    "enabled": false,
-    "item": {
-      "label": {
-        "color": "rgb(70, 70, 70)",
-        "fontFamily": "Verdana, sans-serif",
-        "fontSize": 12,
-      },
-      "marker": {
-        "padding": 8,
-        "size": 15,
-      },
-      "paddingX": 16,
-      "paddingY": 8,
-      "showSeriesStroke": true,
-    },
-    "listeners": {},
-    "pagination": {
-      "activeStyle": {
-        "fill": "rgb(70, 70, 70)",
-      },
-      "highlightStyle": {
-        "fill": "rgb(70, 70, 70)",
-      },
-      "inactiveStyle": {
-        "fill": "rgb(140, 140, 140)",
-      },
-      "label": {
-        "color": "rgb(70, 70, 70)",
-      },
-      "marker": {
-        "size": 12,
-      },
-    },
-    "position": "bottom",
-    "reverseOrder": false,
-    "spacing": 30,
-    "toggleSeries": true,
   },
   "listeners": {},
   "minHeight": 300,
@@ -13031,45 +11978,6 @@ exports[`ChartOptions #prepareOptions for SIMPLE_COLUMN_CHART_EXAMPLE it should 
       "position": "left",
     },
     "enabled": true,
-    "ranges": {
-      "align": "start",
-      "buttons": [
-        {
-          "ariaLabel": "toolbarRange1MonthAria",
-          "label": "toolbarRange1Month",
-          "value": 2592000000,
-        },
-        {
-          "ariaLabel": "toolbarRange3MonthsAria",
-          "label": "toolbarRange3Months",
-          "value": 7776000000,
-        },
-        {
-          "ariaLabel": "toolbarRange6MonthsAria",
-          "label": "toolbarRange6Months",
-          "value": 15552000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeYearToDateAria",
-          "id": "year-to-date",
-          "label": "toolbarRangeYearToDate",
-          "value": [Function],
-        },
-        {
-          "ariaLabel": "toolbarRange1YearAria",
-          "label": "toolbarRange1Year",
-          "value": 31536000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeAllAria",
-          "id": "all",
-          "label": "toolbarRangeAll",
-          "value": [Function],
-        },
-      ],
-      "enabled": false,
-      "position": "top",
-    },
     "seriesType": {
       "align": "start",
       "buttons": [
@@ -13779,45 +12687,6 @@ exports[`ChartOptions #prepareOptions for SIMPLE_LINE_CHART_EXAMPLE it should pr
       "position": "left",
     },
     "enabled": true,
-    "ranges": {
-      "align": "start",
-      "buttons": [
-        {
-          "ariaLabel": "toolbarRange1MonthAria",
-          "label": "toolbarRange1Month",
-          "value": 2592000000,
-        },
-        {
-          "ariaLabel": "toolbarRange3MonthsAria",
-          "label": "toolbarRange3Months",
-          "value": 7776000000,
-        },
-        {
-          "ariaLabel": "toolbarRange6MonthsAria",
-          "label": "toolbarRange6Months",
-          "value": 15552000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeYearToDateAria",
-          "id": "year-to-date",
-          "label": "toolbarRangeYearToDate",
-          "value": [Function],
-        },
-        {
-          "ariaLabel": "toolbarRange1YearAria",
-          "label": "toolbarRange1Year",
-          "value": 31536000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeAllAria",
-          "id": "all",
-          "label": "toolbarRangeAll",
-          "value": [Function],
-        },
-      ],
-      "enabled": false,
-      "position": "top",
-    },
     "seriesType": {
       "align": "start",
       "buttons": [
@@ -13901,45 +12770,6 @@ exports[`ChartOptions #prepareOptions for SIMPLE_PIE_CHART_EXAMPLE it should pre
   },
   "keyboard": {
     "enabled": true,
-  },
-  "legend": {
-    "enabled": false,
-    "item": {
-      "label": {
-        "color": "rgb(70, 70, 70)",
-        "fontFamily": "Verdana, sans-serif",
-        "fontSize": 12,
-      },
-      "marker": {
-        "padding": 8,
-        "size": 15,
-      },
-      "paddingX": 16,
-      "paddingY": 8,
-      "showSeriesStroke": true,
-    },
-    "listeners": {},
-    "pagination": {
-      "activeStyle": {
-        "fill": "rgb(70, 70, 70)",
-      },
-      "highlightStyle": {
-        "fill": "rgb(70, 70, 70)",
-      },
-      "inactiveStyle": {
-        "fill": "rgb(140, 140, 140)",
-      },
-      "label": {
-        "color": "rgb(70, 70, 70)",
-      },
-      "marker": {
-        "size": 12,
-      },
-    },
-    "position": "bottom",
-    "reverseOrder": false,
-    "spacing": 30,
-    "toggleSeries": true,
   },
   "listeners": {},
   "minHeight": 300,
@@ -14186,45 +13016,6 @@ exports[`ChartOptions #prepareOptions for SIMPLE_SCATTER_CHART_EXAMPLE it should
   "keyboard": {
     "enabled": true,
   },
-  "legend": {
-    "enabled": false,
-    "item": {
-      "label": {
-        "color": "rgb(70, 70, 70)",
-        "fontFamily": "Verdana, sans-serif",
-        "fontSize": 12,
-      },
-      "marker": {
-        "padding": 8,
-        "size": 15,
-      },
-      "paddingX": 16,
-      "paddingY": 8,
-      "showSeriesStroke": true,
-    },
-    "listeners": {},
-    "pagination": {
-      "activeStyle": {
-        "fill": "rgb(70, 70, 70)",
-      },
-      "highlightStyle": {
-        "fill": "rgb(70, 70, 70)",
-      },
-      "inactiveStyle": {
-        "fill": "rgb(140, 140, 140)",
-      },
-      "label": {
-        "color": "rgb(70, 70, 70)",
-      },
-      "marker": {
-        "size": 12,
-      },
-    },
-    "position": "bottom",
-    "reverseOrder": false,
-    "spacing": 30,
-    "toggleSeries": true,
-  },
   "listeners": {},
   "minHeight": 300,
   "minWidth": 300,
@@ -14421,45 +13212,6 @@ exports[`ChartOptions #prepareOptions for SIMPLE_SCATTER_CHART_EXAMPLE it should
       "position": "left",
     },
     "enabled": true,
-    "ranges": {
-      "align": "start",
-      "buttons": [
-        {
-          "ariaLabel": "toolbarRange1MonthAria",
-          "label": "toolbarRange1Month",
-          "value": 2592000000,
-        },
-        {
-          "ariaLabel": "toolbarRange3MonthsAria",
-          "label": "toolbarRange3Months",
-          "value": 7776000000,
-        },
-        {
-          "ariaLabel": "toolbarRange6MonthsAria",
-          "label": "toolbarRange6Months",
-          "value": 15552000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeYearToDateAria",
-          "id": "year-to-date",
-          "label": "toolbarRangeYearToDate",
-          "value": [Function],
-        },
-        {
-          "ariaLabel": "toolbarRange1YearAria",
-          "label": "toolbarRange1Year",
-          "value": 31536000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeAllAria",
-          "id": "all",
-          "label": "toolbarRangeAll",
-          "value": [Function],
-        },
-      ],
-      "enabled": false,
-      "position": "top",
-    },
     "seriesType": {
       "align": "start",
       "buttons": [
@@ -15255,45 +14007,6 @@ exports[`ChartOptions #prepareOptions for STACKED_AREA_GRAPH_EXAMPLE it should p
       "position": "left",
     },
     "enabled": true,
-    "ranges": {
-      "align": "start",
-      "buttons": [
-        {
-          "ariaLabel": "toolbarRange1MonthAria",
-          "label": "toolbarRange1Month",
-          "value": 2592000000,
-        },
-        {
-          "ariaLabel": "toolbarRange3MonthsAria",
-          "label": "toolbarRange3Months",
-          "value": 7776000000,
-        },
-        {
-          "ariaLabel": "toolbarRange6MonthsAria",
-          "label": "toolbarRange6Months",
-          "value": 15552000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeYearToDateAria",
-          "id": "year-to-date",
-          "label": "toolbarRangeYearToDate",
-          "value": [Function],
-        },
-        {
-          "ariaLabel": "toolbarRange1YearAria",
-          "label": "toolbarRange1Year",
-          "value": 31536000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeAllAria",
-          "id": "all",
-          "label": "toolbarRangeAll",
-          "value": [Function],
-        },
-      ],
-      "enabled": false,
-      "position": "top",
-    },
     "seriesType": {
       "align": "start",
       "buttons": [
@@ -15874,45 +14587,6 @@ exports[`ChartOptions #prepareOptions for STACKED_BAR_CHART_EXAMPLE it should pr
       "position": "left",
     },
     "enabled": true,
-    "ranges": {
-      "align": "start",
-      "buttons": [
-        {
-          "ariaLabel": "toolbarRange1MonthAria",
-          "label": "toolbarRange1Month",
-          "value": 2592000000,
-        },
-        {
-          "ariaLabel": "toolbarRange3MonthsAria",
-          "label": "toolbarRange3Months",
-          "value": 7776000000,
-        },
-        {
-          "ariaLabel": "toolbarRange6MonthsAria",
-          "label": "toolbarRange6Months",
-          "value": 15552000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeYearToDateAria",
-          "id": "year-to-date",
-          "label": "toolbarRangeYearToDate",
-          "value": [Function],
-        },
-        {
-          "ariaLabel": "toolbarRange1YearAria",
-          "label": "toolbarRange1Year",
-          "value": 31536000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeAllAria",
-          "id": "all",
-          "label": "toolbarRangeAll",
-          "value": [Function],
-        },
-      ],
-      "enabled": false,
-      "position": "top",
-    },
     "seriesType": {
       "align": "start",
       "buttons": [
@@ -16563,45 +15237,6 @@ exports[`ChartOptions #prepareOptions for STACKED_COLUMN_GRAPH_EXAMPLE it should
       "position": "left",
     },
     "enabled": true,
-    "ranges": {
-      "align": "start",
-      "buttons": [
-        {
-          "ariaLabel": "toolbarRange1MonthAria",
-          "label": "toolbarRange1Month",
-          "value": 2592000000,
-        },
-        {
-          "ariaLabel": "toolbarRange3MonthsAria",
-          "label": "toolbarRange3Months",
-          "value": 7776000000,
-        },
-        {
-          "ariaLabel": "toolbarRange6MonthsAria",
-          "label": "toolbarRange6Months",
-          "value": 15552000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeYearToDateAria",
-          "id": "year-to-date",
-          "label": "toolbarRangeYearToDate",
-          "value": [Function],
-        },
-        {
-          "ariaLabel": "toolbarRange1YearAria",
-          "label": "toolbarRange1Year",
-          "value": 31536000000,
-        },
-        {
-          "ariaLabel": "toolbarRangeAllAria",
-          "id": "all",
-          "label": "toolbarRangeAll",
-          "value": [Function],
-        },
-      ],
-      "enabled": false,
-      "position": "top",
-    },
     "seriesType": {
       "align": "start",
       "buttons": [

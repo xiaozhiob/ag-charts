@@ -1,4 +1,4 @@
-import { type PixelSize, _ModuleSupport, type _Scene } from 'ag-charts-community';
+import { type PixelSize, _ModuleSupport } from 'ag-charts-community';
 
 import {
     Background,
@@ -23,7 +23,7 @@ const { BOOLEAN, OBJECT, STRING, BaseProperties, Validate, isObject } = _ModuleS
 
 class MeasurerStatisticsDivider extends Stroke(BaseProperties) {}
 
-export class MeasurerStatistics extends Font(Fill(Stroke(BaseProperties))) {
+class MeasurerStatistics extends Font(Fill(Stroke(BaseProperties))) {
     @Validate(OBJECT, { optional: true })
     public divider = new MeasurerStatisticsDivider();
 }
@@ -66,7 +66,7 @@ export class MeasurerTypeProperties extends Localisable(Background(Stroke(LineSt
         return getLineDash(this.lineDash, this.computedLineDash, this.lineStyle, this.strokeWidth);
     }
 
-    getLineCap(): _Scene.ShapeLineCap | undefined {
+    getLineCap(): _ModuleSupport.ShapeLineCap | undefined {
         return getLineCap(this.lineCap, this.lineDash, this.lineStyle);
     }
 }

@@ -69,11 +69,13 @@ export class AgChartInstanceProxy implements AgChartProxy {
             AgChartInstanceProxy.chartInstances.delete(chart);
         },
         newValue(chart) {
+            if (!chart) return;
             chart.publicApi = this;
             AgChartInstanceProxy.chartInstances.set(chart, this);
         },
     })
     chart: Chart;
+    releaseChart?: () => void;
 
     constructor(
         chart: Chart,
@@ -95,7 +97,7 @@ export class AgChartInstanceProxy implements AgChartProxy {
 
     getOptions() {
         const options = deepClone(this.chart.getOptions());
-        for (const key in options) {
+        for (const key of Object.keys(options)) {
             if (key.startsWith('_')) {
                 delete (options as any)[key];
             }
@@ -135,25 +137,11 @@ export class AgChartInstanceProxy implements AgChartProxy {
     }
 
     getState() {
-        const {
-            factoryApi: { caretaker },
-            chart: {
-                ctx: { annotationManager, zoomManager },
-            },
-        } = this;
-
-        return caretaker.save(annotationManager, zoomManager) as Required<AgChartState>;
+        return this.factoryApi.caretaker.save(...this.getEnabledOriginators());
     }
 
     async setState(state: AgChartState) {
-        const {
-            factoryApi: { caretaker },
-            chart: {
-                ctx: { annotationManager, zoomManager },
-            },
-        } = this;
-
-        caretaker.restore(state, annotationManager, zoomManager);
+        this.factoryApi.caretaker.restore(state, ...this.getEnabledOriginators());
         await this.chart.waitForUpdate();
     }
 
@@ -166,8 +154,13 @@ export class AgChartInstanceProxy implements AgChartProxy {
     }
 
     destroy() {
-        this.chart.publicApi = undefined;
-        this.chart.destroy();
+        if (this.releaseChart) {
+            this.releaseChart();
+            (this as any).chart = null;
+        } else {
+            this.chart.publicApi = undefined;
+            this.chart.destroy();
+        }
     }
 
     private async prepareResizedChart(proxy: AgChartInstanceProxy, opts: DownloadOptions = {}) {
@@ -224,8 +217,44 @@ export class AgChartInstanceProxy implements AgChartProxy {
                 cloneProxy.chart.series[index].visible = false; // sync series visibility
             }
         });
+
+        // Sync legend pagingation
+        const legendPages = [];
+        for (const legend of chart.modulesManager.legends()) {
+            legendPages.push(legend.legend.pagination?.currentPage ?? 0);
+        }
+        for (const legend of cloneProxy.chart.modulesManager.legends()) {
+            const page = legendPages.shift() ?? 0;
+            if (!legend.legend.pagination) continue;
+            legend.legend.pagination.setPage(page);
+        }
+
         cloneProxy.chart.update(ChartUpdateType.FULL, { forceNodeDataRefresh: true });
         await cloneProxy.waitForUpdate();
         return cloneProxy;
+    }
+
+    private getEnabledOriginators() {
+        const {
+            chartOptions: { processedOptions, optionMetadata },
+            ctx: { annotationManager, chartTypeOriginator, zoomManager },
+        } = this.chart;
+
+        const originators = [];
+
+        if ('annotations' in processedOptions && processedOptions.annotations?.enabled) {
+            originators.push(annotationManager);
+        }
+
+        const isFinancialChart = optionMetadata.presetType === 'price-volume';
+        if (isFinancialChart) {
+            originators.push(chartTypeOriginator);
+        }
+
+        if (processedOptions.navigator?.enabled || processedOptions.zoom?.enabled) {
+            originators.push(zoomManager);
+        }
+
+        return originators;
     }
 }

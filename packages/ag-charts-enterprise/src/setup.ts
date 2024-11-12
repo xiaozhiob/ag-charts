@@ -15,6 +15,7 @@ import { DataSourceModule } from './features/data-source/main';
 import { ErrorBarsModule } from './features/error-bar/errorBarModule';
 import { ForegroundModule } from './features/foreground/main';
 import { NavigatorModule } from './features/navigator/navigatorModule';
+import { RangesModule } from './features/ranges/rangesModule';
 import { StatusBarModule } from './features/status-bar/main';
 import { SyncModule } from './features/sync/syncModule';
 import { ZoomModule } from './features/zoom/main';
@@ -22,7 +23,6 @@ import { GradientLegendModule } from './gradient-legend/gradientLegendModule';
 import { LicenseManager } from './license/licenseManager';
 import { injectWatermark } from './license/watermark';
 import { BoxPlotModule } from './series/box-plot/main';
-import { BulletModule } from './series/bullet/bulletModule';
 import { CandlestickModule } from './series/candlestick/main';
 import { ChordModule } from './series/chord/main';
 import { ConeFunnelModule } from './series/cone-funnel/coneFunnelModule';
@@ -65,7 +65,6 @@ export function setupEnterpriseModules() {
         ConeFunnelModule,
         FunnelModule,
         OhlcModule,
-        BulletModule,
         ChartToolbarModule,
         ContextMenuModule,
         CrosshairModule,
@@ -93,6 +92,7 @@ export function setupEnterpriseModules() {
         RadiusNumberAxisModule,
         RangeBarModule,
         RangeAreaModule,
+        RangesModule,
         PyramidModule,
         SankeyModule,
         SunburstModule,

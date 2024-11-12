@@ -1,4 +1,4 @@
-import { _ModuleSupport, _Scale, _Scene, _Util } from 'ag-charts-community';
+import { _ModuleSupport } from 'ag-charts-community';
 import type { AgMapShapeSeriesStyle } from 'ag-charts-types';
 
 import { GeoGeometry, GeoGeometryRenderMode } from '../map-util/geoGeometry';
@@ -24,10 +24,14 @@ const {
     Validate,
     CachedTextMeasurerPool,
     TextUtils,
+    sanitizeHtml,
+    Logger,
+    ColorScale,
+    Group,
+    Selection,
+    Text,
+    PointerEvents,
 } = _ModuleSupport;
-const { ColorScale } = _Scale;
-const { Group, Selection, Text, PointerEvents } = _Scene;
-const { sanitizeHtml, Logger } = _Util;
 
 export interface MapShapeNodeDataContext
     extends _ModuleSupport.SeriesNodeDataContext<MapShapeNodeDatum, MapShapeNodeLabelDatum> {}
@@ -81,14 +85,15 @@ export class MapShapeSeries
     private readonly itemGroup = this.contentGroup.appendChild(new Group({ name: 'itemGroup' }));
     private readonly itemLabelGroup = this.contentGroup.appendChild(new Group({ name: 'itemLabelGroup' }));
 
-    public datumSelection: _Scene.Selection<GeoGeometry, MapShapeNodeDatum> = Selection.select(this.itemGroup, () =>
-        this.nodeFactory()
+    public datumSelection: _ModuleSupport.Selection<GeoGeometry, MapShapeNodeDatum> = Selection.select(
+        this.itemGroup,
+        () => this.nodeFactory()
     );
-    private labelSelection: _Scene.Selection<_Scene.Text, MapShapeNodeLabelDatum> = Selection.select(
+    private labelSelection: _ModuleSupport.Selection<_ModuleSupport.Text, MapShapeNodeLabelDatum> = Selection.select(
         this.itemLabelGroup,
         Text
     );
-    private highlightDatumSelection: _Scene.Selection<GeoGeometry, MapShapeNodeDatum> = Selection.select(
+    private highlightDatumSelection: _ModuleSupport.Selection<GeoGeometry, MapShapeNodeDatum> = Selection.select(
         this.highlightNode,
         () => this.nodeFactory()
     );
@@ -178,16 +183,15 @@ export class MapShapeSeries
             ],
         });
 
-        const featureIdx = dataModel.resolveProcessedDataIndexById(this, `featureValue`);
-        this.topologyBounds = (processedData.data as any[]).reduce<_ModuleSupport.LonLatBBox | undefined>(
-            (current, { values }) => {
-                const feature: _ModuleSupport.Feature | undefined = values[featureIdx];
-                const geometry = feature?.geometry;
-                if (geometry == null) return current;
-                return geometryBbox(geometry, current);
-            },
-            undefined
-        );
+        const featureValues =
+            processedData.rawData.length !== 0
+                ? dataModel.resolveColumnById<_ModuleSupport.Feature | undefined>(this, `featureValue`, processedData)
+                : undefined;
+        this.topologyBounds = featureValues?.reduce<_ModuleSupport.LonLatBBox | undefined>((current, feature) => {
+            const geometry = feature?.geometry;
+            if (geometry == null) return current;
+            return geometryBbox(geometry, current);
+        }, undefined);
 
         if (colorRange != null && this.isColorScaleValid()) {
             const colorKeyIdx = dataModel.resolveProcessedDataIndexById(this, 'colorValue');
@@ -213,7 +217,7 @@ export class MapShapeSeries
         }
 
         const colorIdx = dataModel.resolveProcessedDataIndexById(this, 'colorValue');
-        const dataCount = processedData.data.length;
+        const dataCount = processedData.rawData.length;
         const missCount = getMissCount(this, processedData.defs.values[colorIdx].missing);
         const colorDataMissing = dataCount === 0 || dataCount === missCount;
         return !colorDataMissing;
@@ -317,16 +321,22 @@ export class MapShapeSeries
         const { id: seriesId, dataModel, processedData, colorScale, properties, scale, previousLabelLayouts } = this;
         const { idKey, colorKey, labelKey, label, fill: fillProperty } = properties;
 
-        if (dataModel == null || processedData == null) return;
+        if (dataModel == null || processedData == null || processedData.rawData.length === 0) return;
 
         const scaling = scale != null ? (scale.range[1][0] - scale.range[0][0]) / scale.bounds.width : NaN;
 
         const colorScaleValid = this.isColorScaleValid();
 
-        const idIdx = dataModel.resolveProcessedDataIndexById(this, `idValue`);
-        const featureIdx = dataModel.resolveProcessedDataIndexById(this, `featureValue`);
-        const labelIdx = labelKey != null ? dataModel.resolveProcessedDataIndexById(this, `labelValue`) : undefined;
-        const colorIdx = colorKey != null ? dataModel.resolveProcessedDataIndexById(this, `colorValue`) : undefined;
+        const idValues = dataModel.resolveColumnById<string>(this, `idValue`, processedData);
+        const featureValues = dataModel.resolveColumnById<_ModuleSupport.Feature | undefined>(
+            this,
+            `featureValue`,
+            processedData
+        );
+        const labelValues =
+            labelKey != null ? dataModel.resolveColumnById<string>(this, `labelValue`, processedData) : undefined;
+        const colorValues =
+            colorKey != null ? dataModel.resolveColumnById<number>(this, `colorValue`, processedData) : undefined;
 
         const font = label.getFont();
 
@@ -336,12 +346,12 @@ export class MapShapeSeries
         const nodeData: MapShapeNodeDatum[] = [];
         const labelData: MapShapeNodeLabelDatum[] = [];
         const missingGeometries: string[] = [];
-        processedData.data.forEach(({ datum, values }) => {
-            const idValue = values[idIdx];
-            const colorValue: number | undefined = colorIdx != null ? values[colorIdx] : undefined;
-            const labelValue: string | undefined = labelIdx != null ? values[labelIdx] : undefined;
+        processedData.rawData.forEach((datum, datumIndex) => {
+            const idValue = idValues[datumIndex];
+            const colorValue: number | undefined = colorValues?.[datumIndex];
+            const labelValue: string | undefined = labelValues?.[datumIndex];
 
-            const geometry = values[featureIdx]?.geometry;
+            const geometry = featureValues[datumIndex]?.geometry ?? undefined;
             if (geometry == null) {
                 missingGeometries.push(idValue);
             }
@@ -435,13 +445,13 @@ export class MapShapeSeries
 
     private async updateDatumSelection(opts: {
         nodeData: MapShapeNodeDatum[];
-        datumSelection: _Scene.Selection<GeoGeometry, MapShapeNodeDatum>;
+        datumSelection: _ModuleSupport.Selection<GeoGeometry, MapShapeNodeDatum>;
     }) {
         return opts.datumSelection.update(opts.nodeData, undefined, (datum) => createDatumId(datum.idValue));
     }
 
     private async updateDatumNodes(opts: {
-        datumSelection: _Scene.Selection<GeoGeometry, MapShapeNodeDatum>;
+        datumSelection: _ModuleSupport.Selection<GeoGeometry, MapShapeNodeDatum>;
         isHighlight: boolean;
     }) {
         const {
@@ -496,13 +506,15 @@ export class MapShapeSeries
 
     private async updateLabelSelection(opts: {
         labelData: MapShapeNodeLabelDatum[];
-        labelSelection: _Scene.Selection<_Scene.Text, MapShapeNodeLabelDatum>;
+        labelSelection: _ModuleSupport.Selection<_ModuleSupport.Text, MapShapeNodeLabelDatum>;
     }) {
         const labels = this.isLabelEnabled() ? opts.labelData : [];
         return opts.labelSelection.update(labels);
     }
 
-    private async updateLabelNodes(opts: { labelSelection: _Scene.Selection<_Scene.Text, MapShapeNodeLabelDatum> }) {
+    private async updateLabelNodes(opts: {
+        labelSelection: _ModuleSupport.Selection<_ModuleSupport.Text, MapShapeNodeLabelDatum>;
+    }) {
         const { labelSelection } = opts;
         const { color: fill, fontStyle, fontWeight, fontFamily } = this.properties.label;
 
@@ -553,7 +565,7 @@ export class MapShapeSeries
         // No animations
     }
 
-    override getLabelData(): _Util.PointLabelDatum[] {
+    override getLabelData(): _ModuleSupport.PointLabelDatum[] {
         return [];
     }
 
@@ -561,7 +573,7 @@ export class MapShapeSeries
         return [NaN, NaN];
     }
 
-    override pickNodeClosestDatum({ x, y }: _Scene.Point): _ModuleSupport.SeriesNodePickMatch | undefined {
+    override pickNodeClosestDatum({ x, y }: _ModuleSupport.Point): _ModuleSupport.SeriesNodePickMatch | undefined {
         let minDistanceSquared = Infinity;
         let minDatum: _ModuleSupport.SeriesNodeDatum | undefined;
 
@@ -577,9 +589,9 @@ export class MapShapeSeries
     }
 
     private _previousDatumMidPoint:
-        | { datum: _ModuleSupport.SeriesNodeDatum; point: _Scene.Point | undefined }
+        | { datum: _ModuleSupport.SeriesNodeDatum; point: _ModuleSupport.Point | undefined }
         | undefined = undefined;
-    datumMidPoint(datum: _ModuleSupport.SeriesNodeDatum): _Scene.Point | undefined {
+    datumMidPoint(datum: _ModuleSupport.SeriesNodeDatum): _ModuleSupport.Point | undefined {
         const { _previousDatumMidPoint } = this;
         if (_previousDatumMidPoint?.datum === datum) {
             return _previousDatumMidPoint.point;
@@ -738,7 +750,7 @@ export class MapShapeSeries
         );
     }
 
-    protected override computeFocusBounds(opts: _ModuleSupport.PickFocusInputs): _Scene.Path | undefined {
+    protected override computeFocusBounds(opts: _ModuleSupport.PickFocusInputs): _ModuleSupport.Path | undefined {
         return findFocusedGeoGeometry(this, opts);
     }
 }

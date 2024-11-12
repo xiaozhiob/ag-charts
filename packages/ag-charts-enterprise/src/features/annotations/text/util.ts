@@ -1,7 +1,6 @@
-import { type TextAlign, _ModuleSupport, _Scene } from 'ag-charts-community';
+import { type TextAlign, _ModuleSupport } from 'ag-charts-community';
 
-const { TextWrapper, CachedTextMeasurerPool } = _ModuleSupport;
-const { BBox } = _Scene;
+const { TextWrapper, CachedTextMeasurerPool, BBox } = _ModuleSupport;
 
 export type AnnotationTextPosition = 'top' | 'center' | 'bottom';
 export type AnnotationTextAlignment = 'left' | 'center' | 'right';
@@ -10,7 +9,7 @@ export type TextOptions = _ModuleSupport.FontOptions & { textAlign: TextAlign; p
 
 export const ANNOTATION_TEXT_LINE_HEIGHT = 1.38;
 
-export function getTextWrapOptions(options: TextOptions): Omit<_ModuleSupport.WrapOptions, 'maxWidth'> {
+function getTextWrapOptions(options: TextOptions): Omit<_ModuleSupport.WrapOptions, 'maxWidth'> {
     return {
         font: {
             fontFamily: options.fontFamily,
@@ -35,7 +34,7 @@ export function wrapText(options: TextOptions, text: string, width: number) {
         : text;
 }
 
-export function measureAnnotationText(options: TextOptions, text: string) {
+function measureAnnotationText(options: TextOptions, text: string) {
     const textOptions = getTextWrapOptions(options);
 
     const { lineMetrics, width } = CachedTextMeasurerPool.measureLines(text, textOptions);
@@ -51,7 +50,7 @@ export function getBBox(
     options: TextOptions & { width?: number },
     text: string,
     coords: _ModuleSupport.Vec2,
-    bbox?: _Scene.BBox
+    bbox?: _ModuleSupport.BBox
 ) {
     let width = bbox?.width ?? 0;
     let height = bbox?.height ?? 0;
@@ -65,7 +64,7 @@ export function getBBox(
 }
 
 export function updateTextNode(
-    node: _Scene.Text,
+    node: _ModuleSupport.Text,
     text: string,
     isPlaceholder: boolean,
     config: TextOptions & { visible?: boolean; color?: string; getPlaceholderColor: () => string | undefined },

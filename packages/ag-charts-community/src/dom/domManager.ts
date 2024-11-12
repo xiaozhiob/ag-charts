@@ -5,6 +5,7 @@ import { BBox } from '../scene/bbox';
 import STYLES from '../styles.css';
 import { setAttribute } from '../util/attributeUtil';
 import { createElement, getDocument, getWindow } from '../util/dom';
+import { GuardedElement } from '../util/guardedElement';
 import { stopPageScrolling } from '../util/keynavUtil';
 import { type Size, SizeMonitor } from '../util/sizeMonitor';
 // TODO move to utils
@@ -71,6 +72,13 @@ const NULL_DOMRECT: DOMRect = {
     },
 };
 
+function createTabGuardElement(guardedElem: HTMLElement, where: 'beforebegin' | 'afterend') {
+    const div = createElement('div');
+    div.className = 'ag-charts-tab-guard';
+    guardedElem.insertAdjacentElement(where, div);
+    return div;
+}
+
 export class DOMManager extends BaseManager<Events['type'], Events> {
     private readonly rootElements: Record<DOMElementClass, LiveDOMElement>;
     private readonly styles = new Map<string, string>();
@@ -78,6 +86,7 @@ export class DOMManager extends BaseManager<Events['type'], Events> {
     private readonly styleRootElement?: HTMLElement;
     private container?: HTMLElement = undefined;
     containerSize?: Size = undefined;
+    private readonly tabGuards: GuardedElement;
 
     private readonly observer?: IntersectionObserver;
     private readonly sizeMonitor = new SizeMonitor();
@@ -122,6 +131,12 @@ export class DOMManager extends BaseManager<Events['type'], Events> {
         }
 
         this.destroyFns.push(stopPageScrolling(this.element));
+
+        const guardedElement = this.element.querySelector('.ag-charts-canvas-center') as HTMLElement | null;
+        if (guardedElement == null) throw new Error('Error initializing tab guards');
+        const topGuard = createTabGuardElement(guardedElement, 'beforebegin');
+        const botGuard = createTabGuardElement(guardedElement, 'afterend');
+        this.tabGuards = new GuardedElement(guardedElement, topGuard, botGuard);
     }
 
     override destroy() {
@@ -152,6 +167,10 @@ export class DOMManager extends BaseManager<Events['type'], Events> {
 
         centerStyle.width = `${this.containerSize?.width ?? 0}px`;
         centerStyle.height = `${this.containerSize?.height ?? 0}px`;
+    }
+
+    setTabGuardIndex(tabIndex: number) {
+        this.tabGuards.tabIndex = tabIndex;
     }
 
     setContainer(newContainer: HTMLElement) {
@@ -331,9 +350,9 @@ export class DOMManager extends BaseManager<Events['type'], Events> {
         return search != null && el.contains(search);
     }
 
-    isEventOverElement(event: Event | MouseEvent | TouchEvent) {
-        const element = event.target as HTMLElement | null;
-        return element != null && this.element.contains(element);
+    contains(element: HTMLElement, domElementClass?: DOMElementClass) {
+        if (domElementClass == null) return this.element.contains(element);
+        return this.rootElements[domElementClass].element.contains(element);
     }
 
     addStyles(id: string, styles: string) {

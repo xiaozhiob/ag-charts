@@ -1,4 +1,4 @@
-import type { AgAnnotationLineStyleType, _ModuleSupport, _Scene } from 'ag-charts-community';
+import type { AgAnnotationLineStyleType, _ModuleSupport } from 'ag-charts-community';
 
 export type Constructor<T = object> = new (...args: any[]) => T;
 
@@ -30,27 +30,27 @@ export enum AnnotationType {
     QuickDatePriceRange = 'quick-date-price-range',
 }
 
-export type TextualAnnotationType =
+type TextualAnnotationType =
     | AnnotationType.Callout
     | AnnotationType.Comment
     | AnnotationType.Note
     | AnnotationType.Text;
 
-export type LineAnnotationType =
+type LineAnnotationType =
     | AnnotationType.Line
     | AnnotationType.HorizontalLine
     | AnnotationType.VerticalLine
     | AnnotationType.Arrow;
 
-export type ChannelAnnotationType = AnnotationType.DisjointChannel | AnnotationType.ParallelChannel;
+type ChannelAnnotationType = AnnotationType.DisjointChannel | AnnotationType.ParallelChannel;
 
-export type MeasurerAnnotationType =
+type MeasurerAnnotationType =
     | AnnotationType.DateRange
     | AnnotationType.PriceRange
     | AnnotationType.DatePriceRange
     | AnnotationType.QuickDatePriceRange;
 
-export type EphemeralAnnotationType = AnnotationType.QuickDatePriceRange;
+type EphemeralAnnotationType = AnnotationType.QuickDatePriceRange;
 
 export type HasColorAnnotationType = AnnotationType;
 export type HasLineStyleAnnotationType = Exclude<
@@ -69,7 +69,7 @@ export type HasFontSizeAnnotationType = Exclude<
     EphemeralAnnotationType
 >;
 
-export const ANNOTATION_TYPES = Object.values(AnnotationType);
+const ANNOTATION_TYPES = Object.values(AnnotationType);
 export const ANNOTATION_BUTTONS = [
     // Lines
     AnnotationType.Line,
@@ -131,12 +131,12 @@ export interface AnnotationAxisContext
         | 'attachLabel'
         | 'inRange'
     > {
-    bounds: _Scene.BBox;
+    bounds: _ModuleSupport.BBox;
     labelPadding: number;
 }
 
 export type AnnotationContext = {
-    seriesRect: _Scene.BBox;
+    seriesRect: _ModuleSupport.BBox;
     xAxis: AnnotationAxisContext;
     yAxis: AnnotationAxisContext;
 };

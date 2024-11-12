@@ -1,13 +1,16 @@
-import type { AgChartLegendListeners } from 'ag-charts-types';
+import type { AgChartLegendListeners, AgMarkerShape } from 'ag-charts-types';
 
 import type { Scene } from '../scene/scene';
-import type { MarkerConstructor } from './marker/util';
 
 export interface ChartLegend {
     attachLegend(scene: Scene): void;
     destroy(): void;
     data: any;
     listeners?: AgChartLegendListeners;
+    pagination?: {
+        currentPage: number;
+        setPage: (pageNumber: number) => void;
+    };
 }
 
 export type ChartLegendType = 'category' | 'gradient';
@@ -25,7 +28,7 @@ export interface BaseChartLegendDatum {
 
 export interface LegendSymbolOptions {
     marker: {
-        shape?: string | MarkerConstructor;
+        shape?: AgMarkerShape;
         fill?: string;
         stroke?: string;
         fillOpacity: number;
@@ -52,6 +55,7 @@ export interface CategoryLegendDatum extends BaseChartLegendDatum {
     label: {
         text: string; // display name for the sub-component
     };
+    skipAnimations?: boolean;
 }
 
 export interface GradientLegendDatum extends BaseChartLegendDatum {

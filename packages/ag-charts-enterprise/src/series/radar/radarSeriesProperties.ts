@@ -3,10 +3,8 @@ import type {
     AgRadarSeriesLabelFormatterParams,
     AgRadarSeriesTooltipRendererParams,
     AgRadialSeriesOptionsKeys,
-    FillOptions,
-    StrokeOptions,
 } from 'ag-charts-community';
-import { _ModuleSupport, _Scene } from 'ag-charts-community';
+import { _ModuleSupport } from 'ag-charts-community';
 
 export interface RadarNodeDatum extends _ModuleSupport.SeriesNodeDatum {
     readonly label?: {
@@ -16,13 +14,13 @@ export interface RadarNodeDatum extends _ModuleSupport.SeriesNodeDatum {
         textAlign: CanvasTextAlign;
         textBaseline: CanvasTextBaseline;
     };
-    readonly point: Readonly<_Scene.SizedPoint>;
+    readonly point: Readonly<_ModuleSupport.SizedPoint>;
     readonly angleValue: any;
     readonly radiusValue: any;
 }
 
-const { Label } = _Scene;
 const {
+    Label,
     SeriesMarker,
     SeriesProperties,
     SeriesTooltip,
@@ -36,8 +34,6 @@ const {
     RATIO,
     STRING,
 } = _ModuleSupport;
-
-export type AgRadarSeriesFormat = FillOptions & StrokeOptions;
 
 export class RadarSeriesProperties<T extends AgBaseRadarSeriesOptions> extends SeriesProperties<T> {
     @Validate(STRING)

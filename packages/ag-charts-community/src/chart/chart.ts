@@ -1,20 +1,21 @@
-import type { AgBaseAxisOptions, AgChartInstance, AgChartOptions, AgInitialStateOptions } from 'ag-charts-types';
+import type { AgBaseAxisOptions, AgChartInstance, AgChartOptions } from 'ag-charts-types';
 
+import type { AxisOptionModule } from '../module/axisOptionModule';
 import type { LayoutContext } from '../module/baseModule';
 import type { LegendModule, RootModule } from '../module/coreModules';
 import { moduleRegistry } from '../module/module';
 import type { ModuleContext } from '../module/moduleContext';
-import type { AxisOptionModule, ChartOptions } from '../module/optionsModule';
+import type { ChartOptions } from '../module/optionsModule';
 import type { SeriesOptionModule } from '../module/optionsModuleTypes';
 import { BBox } from '../scene/bbox';
 import { Group, TranslatableGroup } from '../scene/group';
-import type { Node } from '../scene/node';
 import type { Scene } from '../scene/scene';
 import type { PlacedLabel, PointLabelDatum } from '../scene/util/labelPlacement';
 import { isPointLabelDatum, placeLabels } from '../scene/util/labelPlacement';
 import { groupBy } from '../util/array';
-import { sleep } from '../util/async';
+import { AsyncAwaitQueue, pause } from '../util/async';
 import { Debug } from '../util/debug';
+import { isInputPending } from '../util/dom';
 import { createId } from '../util/id';
 import { jsonApply, jsonDiff } from '../util/json';
 import { Logger } from '../util/logger';
@@ -28,7 +29,6 @@ import { ActionOnSet, ProxyProperty } from '../util/proxy';
 import { debouncedCallback } from '../util/render';
 import { isDefined, isFiniteNumber, isFunction } from '../util/type-guards';
 import { BOOLEAN, OBJECT, UNION, Validate } from '../util/validation';
-import { CartesianAxis } from './axis/cartesianAxis';
 import { Caption } from './caption';
 import type { ChartAnimationPhase } from './chartAnimationPhase';
 import type { ChartAxis } from './chartAxis';
@@ -178,6 +178,7 @@ export abstract class Chart extends Observable {
 
     private _lastAutoSize?: [number, number];
     private _firstAutoSize = true;
+    private readonly _autoSizeNotify = new AsyncAwaitQueue();
 
     download(fileName?: string, fileFormat?: string) {
         this.ctx.scene.download(fileName, fileFormat);
@@ -231,6 +232,7 @@ export abstract class Chart extends Observable {
 
     queuedUserOptions: AgChartOptions[] = [];
     chartOptions: ChartOptions;
+    private firstApply = true;
 
     /**
      * Public API for this Chart instance. NOTE: This is initialized after construction by the
@@ -308,8 +310,6 @@ export abstract class Chart extends Observable {
             new SimpleRegionBBoxProvider(this.seriesRoot, () => this.seriesRect ?? BBox.zero),
             this.ctx.axisManager.axisGridGroup
         );
-        ctx.regionManager.addRegion(REGIONS.HORIZONTAL_AXES);
-        ctx.regionManager.addRegion(REGIONS.VERTICAL_AXES);
         ctx.regionManager.addRegion('root', root);
 
         // The 'data-animating' is used by e2e tests to wait for the animation to end before starting kbm interactions
@@ -400,6 +400,11 @@ export abstract class Chart extends Observable {
         this._performUpdateSkipAnimations = true;
     }
 
+    detachAndClear() {
+        this.container = undefined;
+        this.ctx.scene.clear();
+    }
+
     destroy(opts?: { keepTransferableResources: boolean }): TransferableResources | undefined {
         if (this.destroyed) {
             return;
@@ -451,17 +456,22 @@ export abstract class Chart extends Observable {
         this.updateMutex
             .acquire(async () => {
                 if (this.destroyed) return;
-                await cb(this);
-                if (this.destroyed) return;
-                this._pendingFactoryUpdatesCount--;
+                try {
+                    await cb(this);
+                } finally {
+                    if (!this.destroyed) {
+                        this._pendingFactoryUpdatesCount--;
+                    }
+                }
             })
             .catch((e) => Logger.errorOnce(e));
     }
 
     private _pendingFactoryUpdatesCount = 0;
-    private _performUpdateNoRenderCount = 0;
     private _performUpdateSkipAnimations: boolean = false;
+    private readonly _performUpdateNotify = new AsyncAwaitQueue();
     private performUpdateType: ChartUpdateType = ChartUpdateType.NONE;
+    private runningUpdateType: ChartUpdateType = ChartUpdateType.NONE;
 
     private updateShortcutCount = 0;
     private readonly seriesToUpdate: Set<ISeries<any, any>> = new Set();
@@ -527,6 +537,7 @@ export abstract class Chart extends Observable {
         // Clear state immediately so that side effects can be detected prior to SCENE_RENDER.
         this.performUpdateType = ChartUpdateType.NONE;
         this.seriesToUpdate.clear();
+        this.runningUpdateType = performUpdateType;
 
         if (this.updateShortcutCount === 0 && performUpdateType < ChartUpdateType.SCENE_RENDER) {
             ctx.animationManager.startBatch(this._performUpdateSkipAnimations);
@@ -542,30 +553,32 @@ export abstract class Chart extends Observable {
             previousSplit = performance.now();
         };
 
-        let updateDeferred = false;
         switch (performUpdateType) {
             case ChartUpdateType.FULL:
+                if (this.checkUpdateShortcut(ChartUpdateType.FULL)) break;
+
                 this.ctx.updateService.dispatchPreDomUpdate();
                 this.updateDOM();
             // fallthrough
 
             case ChartUpdateType.UPDATE_DATA:
+                if (this.checkUpdateShortcut(ChartUpdateType.UPDATE_DATA)) break;
+
                 await this.updateData();
                 updateSplits('⬇️');
             // fallthrough
 
             case ChartUpdateType.PROCESS_DATA:
+                if (this.checkUpdateShortcut(ChartUpdateType.PROCESS_DATA)) break;
+
                 await this.processData();
                 this.seriesAreaManager.dataChanged();
                 updateSplits('🏭');
             // fallthrough
 
             case ChartUpdateType.PERFORM_LAYOUT:
+                await this.checkFirstAutoSize();
                 if (this.checkUpdateShortcut(ChartUpdateType.PERFORM_LAYOUT)) break;
-                if (!this.checkFirstAutoSize(seriesToUpdate)) {
-                    updateDeferred = true;
-                    break;
-                }
 
                 await this.processLayout();
                 updateSplits('⌖');
@@ -602,7 +615,7 @@ export abstract class Chart extends Observable {
                 extraDebugStats['updateShortcutCount'] = this.updateShortcutCount;
                 await ctx.scene.render({ debugSplitTimes: splits, extraDebugStats, seriesRect: this.seriesRect });
                 this.extraDebugStats = {};
-                for (const key in splits) {
+                for (const key of Object.keys(splits)) {
                     delete splits[key];
                 }
 
@@ -617,10 +630,12 @@ export abstract class Chart extends Observable {
                 ctx.animationManager.endBatch();
         }
 
-        if (!updateDeferred) {
+        if (!this.destroyed) {
             ctx.updateService.dispatchUpdateComplete(this.getMinRects());
             this.ctx.domManager.setDataBoolean('updatePending', false);
+            this.runningUpdateType = ChartUpdateType.NONE;
         }
+        this._performUpdateNotify.notify();
 
         const end = performance.now();
         this.debug('Chart.performUpdate() - end', {
@@ -659,7 +674,7 @@ export abstract class Chart extends Observable {
         this.updateThemeClassName();
 
         const { enabled, tabIndex } = this.keyboard;
-        this.seriesAreaManager.setTabIndex(enabled ? tabIndex ?? 0 : -1);
+        this.ctx.domManager.setTabGuardIndex(enabled ? tabIndex ?? 0 : -1);
     }
 
     private updateAriaLabels() {
@@ -668,6 +683,8 @@ export abstract class Chart extends Observable {
 
     private checkUpdateShortcut(checkUpdateType: ChartUpdateType) {
         const maxShortcuts = 3;
+
+        if (this.destroyed) return true;
 
         if (this.updateShortcutCount > maxShortcuts) {
             Logger.warn(
@@ -688,29 +705,19 @@ export abstract class Chart extends Observable {
         return false;
     }
 
-    private checkFirstAutoSize(seriesToUpdate: ISeries<any, any>[]) {
+    private async checkFirstAutoSize() {
         if (this.width != null && this.height != null) {
             // Auto-size isn't in use in this case, don't wait for it.
         } else if (!this._lastAutoSize) {
-            const count = this._performUpdateNoRenderCount++;
-            const backOffMs = (count + 1) ** 2 * 40;
+            const success = await this._autoSizeNotify.await(500);
 
-            if (count < 8) {
-                // Reschedule if canvas size hasn't been set yet to avoid a race.
-                this.update(ChartUpdateType.PERFORM_LAYOUT, { seriesToUpdate, backOffMs });
-
-                this.debug('Chart.checkFirstAutoSize() - backing off until first size update', backOffMs);
-                return false;
+            if (!success) {
+                // After several failed passes, continue and accept there maybe a redundant
+                // render. Sometimes this case happens when we already have the correct
+                // width/height, and we end up never rendering the chart in that scenario.
+                this.debug('Chart.checkFirstAutoSize() - timeout for first size update.');
             }
-
-            // After several failed passes, continue and accept there maybe a redundant
-            // render. Sometimes this case happens when we already have the correct
-            // width/height, and we end up never rendering the chart in that scenario.
-            this.debug('Chart.checkFirstAutoSize() - timeout for first size update.');
         }
-        this._performUpdateNoRenderCount = 0;
-
-        return true;
     }
 
     @ActionOnSet<Chart>({
@@ -875,6 +882,7 @@ export abstract class Chart extends Observable {
             }
 
             this.update(ChartUpdateType.PERFORM_LAYOUT, { forceNodeDataRefresh: true, skipAnimations });
+            this._autoSizeNotify.notify();
         }
     }
 
@@ -1018,12 +1026,20 @@ export abstract class Chart extends Observable {
     async waitForUpdate(timeoutMs = 10_000, failOnTimeout = false): Promise<void> {
         const start = performance.now();
 
-        if (this._pendingFactoryUpdatesCount > 0) {
-            // wait until any pending updates are flushed through.
-            await this.updateMutex.waitForClearAcquireQueue();
-        }
+        while (
+            this._pendingFactoryUpdatesCount > 0 ||
+            this.performUpdateType !== ChartUpdateType.NONE ||
+            this.runningUpdateType !== ChartUpdateType.NONE
+        ) {
+            if (this._pendingFactoryUpdatesCount > 0) {
+                // wait until any pending updates are flushed through.
+                await this.updateMutex.waitForClearAcquireQueue();
+            }
 
-        while (this.performUpdateType !== ChartUpdateType.NONE) {
+            if (this.performUpdateType !== ChartUpdateType.NONE || this.runningUpdateType !== ChartUpdateType.NONE) {
+                await this._performUpdateNotify.await();
+            }
+
             if (performance.now() - start > timeoutMs) {
                 const message = `Chart.waitForUpdate() timeout of ${timeoutMs} reached - first chart update taking too long.`;
                 if (failOnTimeout) {
@@ -1032,11 +1048,11 @@ export abstract class Chart extends Observable {
                     Logger.warnOnce(message);
                 }
             }
-            await sleep(50);
-        }
 
-        // wait until any remaining updates are flushed through.
-        await this.updateMutex.waitForClearAcquireQueue();
+            if (isInputPending()) {
+                await pause();
+            }
+        }
     }
 
     protected getMinRects() {
@@ -1073,14 +1089,13 @@ export abstract class Chart extends Observable {
     }
 
     applyOptions(newChartOptions: ChartOptions) {
-        // Detect first creation case.
-        const isDifferentOpts = newChartOptions !== this.chartOptions;
+        const deltaOptions = this.firstApply
+            ? newChartOptions.processedOptions
+            : newChartOptions.diffOptions(this.chartOptions);
+        if (deltaOptions == null || Object.keys(deltaOptions).length === 0) return;
 
-        const oldOpts = isDifferentOpts ? this.chartOptions.processedOptions : {};
+        const oldOpts = this.firstApply ? {} : this.chartOptions.processedOptions;
         const newOpts = newChartOptions.processedOptions;
-        const deltaOptions = newChartOptions.diffOptions(oldOpts);
-
-        if (deltaOptions == null) return;
 
         debug('Chart.applyOptions() - applying delta', deltaOptions);
 
@@ -1120,7 +1135,7 @@ export abstract class Chart extends Observable {
         if (seriesStatus === 'replaced') {
             this.resetAnimations();
         }
-        if (this.applyAxes(this, newOpts, oldOpts, seriesStatus, [], true)) {
+        if (this.applyAxes(this, newOpts, oldOpts, seriesStatus, [])) {
             forceNodeDataRefresh = true;
         }
 
@@ -1167,14 +1182,17 @@ export abstract class Chart extends Observable {
         this.update(updateType, { forceNodeDataRefresh, newAnimationBatch: true });
 
         if (deltaOptions.initialState || deltaOptions.theme) {
-            this.applyInitialState(newChartOptions.userOptions.initialState);
+            this.applyInitialState(newOpts);
         }
+
+        this.firstApply = false;
     }
 
-    private applyInitialState(initialState?: AgInitialStateOptions) {
-        const { annotationManager, historyManager, stateManager, zoomManager } = this.ctx;
+    private applyInitialState(options: AgChartOptions) {
+        const { annotationManager, chartTypeOriginator, historyManager, stateManager, zoomManager } = this.ctx;
+        const { initialState } = options;
 
-        if (initialState?.annotations != null) {
+        if ('annotations' in options && options.annotations?.enabled && initialState?.annotations != null) {
             const annotations = initialState.annotations.map((annotation) => {
                 const annotationTheme = annotationManager.getAnnotationTypeStyles(annotation.type);
                 return mergeDefaults(annotation, annotationTheme);
@@ -1183,7 +1201,11 @@ export abstract class Chart extends Observable {
             stateManager.setState(annotationManager, annotations);
         }
 
-        if (initialState?.zoom != null) {
+        if (initialState?.chartType != null) {
+            stateManager.setState(chartTypeOriginator, initialState.chartType);
+        }
+
+        if ((options.navigator?.enabled || options.zoom?.enabled) && initialState?.zoom != null) {
             stateManager.setState(zoomManager, initialState.zoom);
         }
 
@@ -1387,8 +1409,7 @@ export abstract class Chart extends Observable {
         options: AgChartOptions,
         oldOpts: AgChartOptions,
         seriesStatus: SeriesChangeType,
-        skip: string[] = [],
-        registerRegions = false
+        skip: string[] = []
     ) {
         if (!('axes' in options) || !options.axes) {
             return false;
@@ -1417,23 +1438,6 @@ export abstract class Chart extends Observable {
 
         debug(`Chart.applyAxes() - creating new axes instances; seriesStatus: ${seriesStatus}`);
         chart.axes = this.createAxis(axes, skip);
-
-        if (registerRegions) {
-            const axisGroups: { [Key in ChartAxisDirection]: { id: string; node: Node }[] } = {
-                [ChartAxisDirection.X]: [],
-                [ChartAxisDirection.Y]: [],
-            };
-
-            for (const axis of chart.axes) {
-                if (axis instanceof CartesianAxis) {
-                    axisGroups[axis.direction].push({ id: axis.id, node: axis.axisGroup });
-                }
-            }
-
-            this.ctx.regionManager.updateRegion(REGIONS.HORIZONTAL_AXES, ...axisGroups[ChartAxisDirection.X]);
-            this.ctx.regionManager.updateRegion(REGIONS.VERTICAL_AXES, ...axisGroups[ChartAxisDirection.Y]);
-        }
-
         return true;
     }
 

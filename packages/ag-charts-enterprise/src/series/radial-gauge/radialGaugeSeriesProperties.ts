@@ -1,4 +1,4 @@
-import { _ModuleSupport, _Scene, _Util } from 'ag-charts-community';
+import { _ModuleSupport } from 'ag-charts-community';
 import type {
     AgChartLabelFormatterParams,
     AgGaugeFillMode,
@@ -12,7 +12,6 @@ import type {
     FontStyle,
     FontWeight,
     Formatter,
-    MarkerShape,
     Styler,
 } from 'ag-charts-types';
 
@@ -39,9 +38,9 @@ const {
     RATIO,
     STRING,
     UNION,
+    Logger,
+    Label,
 } = _ModuleSupport;
-const { Label } = _Scene;
-const { Logger } = _Util;
 
 const TARGET_PLACEMENT = UNION(['inside', 'outside', 'middle'], 'a placement');
 
@@ -67,7 +66,7 @@ export interface RadialGaugeNodeDatum extends _ModuleSupport.SeriesNodeDatum {
     clipEndAngle: number | undefined;
     startCornerRadius: number;
     endCornerRadius: number;
-    fill: string | _Scene.Gradient | undefined;
+    fill: string | _ModuleSupport.Gradient | undefined;
 }
 
 export interface RadialGaugeTargetDatumLabel {
@@ -89,7 +88,7 @@ export interface RadialGaugeTargetDatum extends _ModuleSupport.SeriesNodeDatum {
     text: string | undefined;
     centerX: number;
     centerY: number;
-    shape: MarkerShape;
+    shape: AgRadialGaugeMarkerShape;
     radius: number;
     angle: number;
     size: number;
@@ -124,7 +123,7 @@ export type RadialGaugeLabelDatum = {
         | undefined;
 };
 
-export class RadialGaugeDefaultTargetLabelProperties extends Label<never> {
+class RadialGaugeDefaultTargetLabelProperties extends Label<never> {
     @Validate(NUMBER, { optional: true })
     spacing: number | undefined;
 }
@@ -176,7 +175,7 @@ export class RadialGaugeTargetProperties extends BaseProperties {
     readonly label = new RadialGaugeDefaultTargetLabelProperties();
 }
 
-export class RadialGaugeBarProperties extends BaseProperties {
+class RadialGaugeBarProperties extends BaseProperties {
     @Validate(BOOLEAN)
     enabled = true;
 
@@ -208,7 +207,7 @@ export class RadialGaugeBarProperties extends BaseProperties {
     lineDashOffset: number = 0;
 }
 
-export class RadialGaugeScaleProperties extends BaseProperties {
+class RadialGaugeScaleProperties extends BaseProperties {
     @Validate(OBJECT_ARRAY)
     fills = new PropertiesArray<GaugeStopProperties>(GaugeStopProperties);
 
@@ -240,7 +239,7 @@ export class RadialGaugeScaleProperties extends BaseProperties {
     defaultFill: string = 'black';
 }
 
-export class RadialGaugeNeedleProperties extends BaseProperties {
+class RadialGaugeNeedleProperties extends BaseProperties {
     @Validate(BOOLEAN)
     enabled = true;
 
@@ -272,12 +271,12 @@ export class RadialGaugeNeedleProperties extends BaseProperties {
     lineDashOffset: number = 0;
 }
 
-export class RadialGaugeLabelProperties extends AutoSizedLabel<AgRadialGaugeLabelFormatterParams> {
+class RadialGaugeLabelProperties extends AutoSizedLabel<AgRadialGaugeLabelFormatterParams> {
     @Validate(STRING, { optional: true })
     text?: string;
 }
 
-export class RadialGaugeSecondaryLabelProperties extends AutoSizedSecondaryLabel<AgRadialGaugeLabelFormatterParams> {
+class RadialGaugeSecondaryLabelProperties extends AutoSizedSecondaryLabel<AgRadialGaugeLabelFormatterParams> {
     @Validate(STRING, { optional: true })
     text?: string;
 }

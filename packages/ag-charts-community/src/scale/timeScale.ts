@@ -17,7 +17,8 @@ export class TimeScale extends ContinuousScale<Date, TimeInterval | number> {
     }
 
     override convert(value: Date, clamp?: boolean): number {
-        return super.convert(new Date(value), clamp);
+        if (!(value instanceof Date)) value = new Date(value as any);
+        return super.convert(value, clamp);
     }
 
     override invert(value: number): Date {

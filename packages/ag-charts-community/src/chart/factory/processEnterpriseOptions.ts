@@ -1,5 +1,7 @@
 import type { AgChartOptions } from 'ag-charts-types';
 
+import type { LegendModule, RootModule } from '../../module/coreModules';
+import { moduleRegistry } from '../../module/module';
 import { Logger } from '../../util/logger';
 import { isAgGaugeChartOptions, optionsType } from '../mapping/types';
 import { chartTypes } from './chartTypes';
@@ -84,5 +86,17 @@ export function removeUsedEnterpriseOptions<T extends Partial<AgChartOptions>>(o
                 `See: ${enterpriseReferenceUrl}`,
             ].join('\n')
         );
+    }
+}
+
+export function removeUnusedEnterpriseOptions<T extends Partial<AgChartOptions>>(options: T) {
+    for (const module of moduleRegistry.byType<RootModule | LegendModule>('root', 'legend')) {
+        const moduleOptions = options[module.optionsKey as keyof AgChartOptions] as { enabled?: boolean };
+        const isPresentAndDisabled = moduleOptions != null && moduleOptions.enabled === false;
+        const removable = !('removable' in module) || module.removable !== false;
+
+        if (isPresentAndDisabled && removable) {
+            delete options[module.optionsKey as keyof AgChartOptions];
+        }
     }
 }

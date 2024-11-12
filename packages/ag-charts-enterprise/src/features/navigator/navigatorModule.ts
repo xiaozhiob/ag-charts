@@ -1,6 +1,8 @@
-import { _ModuleSupport, _Theme } from 'ag-charts-community';
+import { _ModuleSupport } from 'ag-charts-community';
 
 import { Navigator } from './navigator';
+
+const { DEFAULT_FONT_FAMILY, DEFAULT_LABEL_COLOUR } = _ModuleSupport.ThemeSymbols;
 
 export const NavigatorModule: _ModuleSupport.RootModule = {
     type: 'root',
@@ -8,6 +10,7 @@ export const NavigatorModule: _ModuleSupport.RootModule = {
     packageType: 'enterprise',
     chartTypes: ['cartesian'],
     moduleFactory: (ctx) => new Navigator(ctx),
+    removable: false, // Toggling this module causes zoom state flakiness.
     themeTemplate: {
         ..._ModuleSupport.NavigatorModule.themeTemplate,
         navigator: {
@@ -15,12 +18,9 @@ export const NavigatorModule: _ModuleSupport.RootModule = {
             miniChart: {
                 enabled: false,
                 label: {
-                    color: _Theme.DEFAULT_LABEL_COLOUR,
-                    fontStyle: undefined,
-                    fontWeight: undefined,
+                    color: DEFAULT_LABEL_COLOUR,
                     fontSize: 10,
-                    fontFamily: _Theme.DEFAULT_FONT_FAMILY,
-                    formatter: undefined,
+                    fontFamily: DEFAULT_FONT_FAMILY,
                     padding: 0,
                 },
                 padding: {

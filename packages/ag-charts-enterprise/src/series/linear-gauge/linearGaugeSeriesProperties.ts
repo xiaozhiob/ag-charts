@@ -1,4 +1,4 @@
-import { _ModuleSupport, _Scene } from 'ag-charts-community';
+import { _ModuleSupport } from 'ag-charts-community';
 import type {
     AgChartLabelFormatterParams,
     AgGaugeFillMode,
@@ -13,7 +13,6 @@ import type {
     FontStyle,
     FontWeight,
     Formatter,
-    MarkerShape,
     OverflowStrategy,
     Styler,
     TextWrap,
@@ -42,8 +41,8 @@ const {
     RATIO,
     STRING,
     UNION,
+    Label,
 } = _ModuleSupport;
-const { Label } = _Scene;
 
 const TARGET_PLACEMENT = UNION(['before', 'after', 'middle'], 'a placement');
 const LABEL_PLACEMENT = UNION(
@@ -81,7 +80,7 @@ export interface LinearGaugeNodeDatum extends _ModuleSupport.SeriesNodeDatum {
     topRightCornerRadius: number;
     bottomRightCornerRadius: number;
     bottomLeftCornerRadius: number;
-    fill: string | _Scene.Gradient | undefined;
+    fill: string | _ModuleSupport.Gradient | undefined;
     horizontalInset: number;
     verticalInset: number;
 }
@@ -105,7 +104,7 @@ export interface LinearGaugeTargetDatum extends _ModuleSupport.SeriesNodeDatum {
     text: string | undefined;
     x: number;
     y: number;
-    shape: MarkerShape;
+    shape: AgLinearGaugeMarkerShape;
     size: number;
     rotation: number;
     fill: string;
@@ -191,7 +190,7 @@ export class LinearGaugeTargetProperties extends BaseProperties {
     readonly label = new LinearGaugeDefaultTargetLabelProperties();
 }
 
-export class LinearGaugeBarProperties extends BaseProperties {
+class LinearGaugeBarProperties extends BaseProperties {
     @Validate(BOOLEAN)
     enabled = true;
 
@@ -229,7 +228,7 @@ export class LinearGaugeBarProperties extends BaseProperties {
     lineDashOffset: number = 0;
 }
 
-export class LinearGaugeScaleProperties extends BaseProperties {
+class LinearGaugeScaleProperties extends BaseProperties {
     @Validate(OBJECT_ARRAY)
     fills = new PropertiesArray<GaugeStopProperties>(GaugeStopProperties);
 

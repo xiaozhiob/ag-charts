@@ -1,16 +1,12 @@
-import type { AgChartTheme, AgChartThemeName } from 'ag-charts-types';
+import { themes } from './chart/mapping/themes';
 
-import { themes as themeFactories } from './chart/mapping/themes';
-import { mapValues } from './util/object';
-
+// Only these imports are used by ag-grid.
+// DO NOT ADD EXPORTS UNLESS REQUIRED BY INTEGRATED CHARTS.
 export { getChartTheme } from './chart/mapping/themes';
-export { ChartTheme } from './chart/themes/chartTheme';
-export * from './chart/themes/symbols';
-export * from './chart/themes/constants';
-export * from './chart/themes/util';
-export * from './module/theme';
+export * as themeSymbols from './chart/themes/symbols';
+export const themeNames = Object.keys(themes);
 
-export const themes: Record<AgChartThemeName, AgChartTheme> = mapValues(
-    themeFactories,
-    (themeFactory) => themeFactory?.()!
-);
+// TODO remove once ag-grid codebase has been updated
+export { ChartTheme } from './chart/themes/chartTheme';
+export { themes } from './chart/mapping/themes';
+export * from './chart/themes/symbols';

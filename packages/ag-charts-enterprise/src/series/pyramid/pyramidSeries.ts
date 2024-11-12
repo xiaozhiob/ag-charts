@@ -3,27 +3,34 @@ import {
     type AgPyramidSeriesStyle,
     type AgTooltipRendererResult,
     _ModuleSupport,
-    _Scene,
-    _Util,
 } from 'ag-charts-community';
 
 import { FunnelConnector } from '../funnel/funnelConnector';
 import { PyramidProperties } from './pyramidProperties';
 
-const { valueProperty, SeriesNodePickMode, CachedTextMeasurerPool, TextUtils } = _ModuleSupport;
-const { BBox, Group, Selection, Text, PointerEvents } = _Scene;
-const { sanitizeHtml } = _Util;
+const {
+    valueProperty,
+    SeriesNodePickMode,
+    CachedTextMeasurerPool,
+    TextUtils,
+    sanitizeHtml,
+    BBox,
+    Group,
+    Selection,
+    Text,
+    PointerEvents,
+} = _ModuleSupport;
 
 type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 
-export type PyramidNodeLabelDatum = Readonly<_Scene.Point> & {
+export type PyramidNodeLabelDatum = Readonly<_ModuleSupport.Point> & {
     readonly text: string;
     readonly textAlign: CanvasTextAlign;
     readonly textBaseline: CanvasTextBaseline;
     readonly visible: boolean;
 };
 
-export interface PyramidNodeDatum extends _ModuleSupport.SeriesNodeDatum, Readonly<_Scene.Point> {
+export interface PyramidNodeDatum extends _ModuleSupport.SeriesNodeDatum, Readonly<_ModuleSupport.Point> {
     readonly index: number;
     readonly xValue: string;
     readonly yValue: number;
@@ -53,18 +60,17 @@ export class PyramidSeries extends _ModuleSupport.DataModelSeries<
     private readonly itemLabelGroup = this.contentGroup.appendChild(new Group({ name: 'itemLabelGroup' }));
     private readonly stageLabelGroup = this.contentGroup.appendChild(new Group({ name: 'stageLabelGroup' }));
 
-    public datumSelection: _Scene.Selection<FunnelConnector, PyramidNodeDatum> = Selection.select(this.itemGroup, () =>
-        this.nodeFactory()
+    public datumSelection: _ModuleSupport.Selection<FunnelConnector, PyramidNodeDatum> = Selection.select(
+        this.itemGroup,
+        () => this.nodeFactory()
     );
-    private labelSelection: _Scene.Selection<_Scene.Text, PyramidNodeLabelDatum> = Selection.select(
+    private labelSelection: _ModuleSupport.Selection<_ModuleSupport.Text, PyramidNodeLabelDatum> = Selection.select(
         this.itemLabelGroup,
         Text
     );
-    private stageLabelSelection: _Scene.Selection<_Scene.Text, PyramidNodeLabelDatum> = Selection.select(
-        this.stageLabelGroup,
-        Text
-    );
-    private highlightDatumSelection: _Scene.Selection<FunnelConnector, PyramidNodeDatum> = Selection.select(
+    private stageLabelSelection: _ModuleSupport.Selection<_ModuleSupport.Text, PyramidNodeLabelDatum> =
+        Selection.select(this.stageLabelGroup, Text);
+    private highlightDatumSelection: _ModuleSupport.Selection<FunnelConnector, PyramidNodeDatum> = Selection.select(
         this.highlightNode,
         () => this.nodeFactory()
     );
@@ -141,12 +147,12 @@ export class PyramidSeries extends _ModuleSupport.DataModelSeries<
             stageLabel,
         } = properties;
 
-        if (dataModel == null || processedData == null) return;
+        if (dataModel == null || processedData == null || processedData.rawData.length === 0) return;
 
         const horizontal = direction === 'horizontal';
 
-        const xIdx = dataModel.resolveProcessedDataIndexById(this, `xValue`);
-        const yIdx = dataModel.resolveProcessedDataIndexById(this, `yValue`);
+        const xValues = dataModel.resolveColumnById<string>(this, `xValue`, processedData);
+        const yValues = dataModel.resolveColumnById<number>(this, `yValue`, processedData);
 
         const textMeasurer = CachedTextMeasurerPool.getMeasurer({ font: stageLabel.getFont() });
 
@@ -165,10 +171,10 @@ export class PyramidSeries extends _ModuleSupport.DataModelSeries<
         let maxLabelHeight = 0;
         let yTotal = 0;
 
-        processedData.data.forEach(({ datum, values }, index) => {
-            const xValue: string = values[xIdx];
-            const yValue = Number(values[yIdx]);
-            const enabled = visible && seriesItemEnabled[index];
+        processedData.rawData.forEach((datum, datumIndex) => {
+            const xValue = xValues[datumIndex];
+            const yValue = yValues[datumIndex];
+            const enabled = visible && seriesItemEnabled[datumIndex];
 
             yTotal += yValue;
 
@@ -198,9 +204,9 @@ export class PyramidSeries extends _ModuleSupport.DataModelSeries<
 
         const seriesRectWidth = this._nodeDataDependencies?.seriesRectWidth ?? 0;
         const seriesRectHeight = this._nodeDataDependencies?.seriesRectHeight ?? 0;
-        const totalSpacing = spacing * (processedData.data.length - 1);
+        const totalSpacing = spacing * (processedData.rawData.length - 1);
 
-        let bounds: _Scene.BBox;
+        let bounds: _ModuleSupport.BBox;
         if (horizontal) {
             const verticalInset = maxLabelHeight + stageLabel.spacing;
             bounds = new BBox(
@@ -254,25 +260,25 @@ export class PyramidSeries extends _ModuleSupport.DataModelSeries<
         const nodeData: PyramidNodeDatum[] = [];
         const labelData: PyramidNodeLabelDatum[] = [];
         let yStart = 0;
-        processedData.data.forEach(({ datum, values }, index) => {
-            const xValue: string = values[xIdx];
-            const yValue = Number(values[yIdx]);
+        processedData.rawData.forEach((datum, datumIndex) => {
+            const xValue = xValues[datumIndex];
+            const yValue = yValues[datumIndex];
 
-            const enabled = visible && seriesItemEnabled[index];
+            const enabled = visible && seriesItemEnabled[datumIndex];
 
             const yEnd = yStart + yValue;
 
             const yMidRatio = (yStart + yEnd) / (2 * yTotal);
             const yRangeRatio = (yEnd - yStart) / yTotal;
 
-            const xOffset = horizontal ? availableWidth * yMidRatio + spacing * index : availableWidth * 0.5;
-            const yOffset = horizontal ? availableHeight * 0.5 : availableHeight * yMidRatio + spacing * index;
+            const xOffset = horizontal ? availableWidth * yMidRatio + spacing * datumIndex : availableWidth * 0.5;
+            const yOffset = horizontal ? availableHeight * 0.5 : availableHeight * yMidRatio + spacing * datumIndex;
 
             const x = bounds.x + xOffset;
             const y = bounds.y + yOffset;
 
             if (stageLabelData != null) {
-                const stageLabelDatum = stageLabelData[index] as Writeable<PyramidNodeLabelDatum>;
+                const stageLabelDatum = stageLabelData[datumIndex] as Writeable<PyramidNodeLabelDatum>;
                 stageLabelDatum.x = labelX ?? x;
                 stageLabelDatum.y = labelY ?? y;
             }
@@ -318,14 +324,14 @@ export class PyramidSeries extends _ModuleSupport.DataModelSeries<
 
             labelData.push(labelDatum);
 
-            const fill = fills[index % fills.length] ?? 'black';
-            const stroke = strokes[index % strokes.length] ?? 'black';
+            const fill = fills[datumIndex % fills.length] ?? 'black';
+            const stroke = strokes[datumIndex % strokes.length] ?? 'black';
 
             nodeData.push({
                 series: this,
                 itemId: valueKey,
                 datum,
-                index,
+                index: datumIndex,
                 xValue,
                 yValue,
                 x,
@@ -362,7 +368,7 @@ export class PyramidSeries extends _ModuleSupport.DataModelSeries<
         }
     }
 
-    override async update({ seriesRect }: { seriesRect?: _Scene.BBox }): Promise<void> {
+    override async update({ seriesRect }: { seriesRect?: _ModuleSupport.BBox }): Promise<void> {
         this.checkResize(seriesRect);
 
         const { datumSelection, labelSelection, stageLabelSelection, highlightDatumSelection } = this;
@@ -402,13 +408,13 @@ export class PyramidSeries extends _ModuleSupport.DataModelSeries<
 
     private async updateDatumSelection(opts: {
         nodeData: PyramidNodeDatum[];
-        datumSelection: _Scene.Selection<FunnelConnector, PyramidNodeDatum>;
+        datumSelection: _ModuleSupport.Selection<FunnelConnector, PyramidNodeDatum>;
     }) {
         return opts.datumSelection.update(opts.nodeData);
     }
 
     private async updateDatumNodes(opts: {
-        datumSelection: _Scene.Selection<FunnelConnector, PyramidNodeDatum>;
+        datumSelection: _ModuleSupport.Selection<FunnelConnector, PyramidNodeDatum>;
         isHighlight: boolean;
     }) {
         const { datumSelection, isHighlight } = opts;
@@ -467,21 +473,21 @@ export class PyramidSeries extends _ModuleSupport.DataModelSeries<
 
     private async updateLabelSelection(opts: {
         labelData: PyramidNodeLabelDatum[];
-        labelSelection: _Scene.Selection<_Scene.Text, PyramidNodeLabelDatum>;
+        labelSelection: _ModuleSupport.Selection<_ModuleSupport.Text, PyramidNodeLabelDatum>;
     }) {
         return opts.labelSelection.update(this.properties.label.enabled ? opts.labelData : []);
     }
 
     private async updateStageLabelSelection(opts: {
         stageLabelData: PyramidNodeLabelDatum[];
-        stageLabelSelection: _Scene.Selection<_Scene.Text, PyramidNodeLabelDatum>;
+        stageLabelSelection: _ModuleSupport.Selection<_ModuleSupport.Text, PyramidNodeLabelDatum>;
     }) {
         return opts.stageLabelSelection.update(opts.stageLabelData);
     }
 
     private async updateLabelNodes(opts: {
-        labelSelection: _Scene.Selection<_Scene.Text, PyramidNodeLabelDatum>;
-        labelProperties: _Scene.Label<AgPyramidSeriesLabelFormatterParams>;
+        labelSelection: _ModuleSupport.Selection<_ModuleSupport.Text, PyramidNodeLabelDatum>;
+        labelProperties: _ModuleSupport.Label<AgPyramidSeriesLabelFormatterParams>;
     }) {
         const { labelSelection, labelProperties } = opts;
         const { color: fill, fontSize, fontStyle, fontWeight, fontFamily } = labelProperties;
@@ -505,7 +511,9 @@ export class PyramidSeries extends _ModuleSupport.DataModelSeries<
         // Does not reset any animations
     }
 
-    protected override computeFocusBounds(opts: _ModuleSupport.PickFocusInputs): _Scene.BBox | _Scene.Path | undefined {
+    protected override computeFocusBounds(
+        opts: _ModuleSupport.PickFocusInputs
+    ): _ModuleSupport.BBox | _ModuleSupport.Path | undefined {
         const datum = this.getNodeData()?.[opts.datumIndex];
         if (datum === undefined) return;
 
@@ -570,15 +578,15 @@ export class PyramidSeries extends _ModuleSupport.DataModelSeries<
         });
     }
 
-    override getLabelData(): _Util.PointLabelDatum[] {
+    override getLabelData(): _ModuleSupport.PointLabelDatum[] {
         return [];
     }
 
-    override getSeriesDomain(_direction: _ModuleSupport.ChartAxisDirection): any[] {
+    override getSeriesDomain(): any[] {
         return [NaN, NaN];
     }
 
-    override pickNodeClosestDatum({ x, y }: _Scene.Point): _ModuleSupport.SeriesNodePickMatch | undefined {
+    override pickNodeClosestDatum({ x, y }: _ModuleSupport.Point): _ModuleSupport.SeriesNodePickMatch | undefined {
         let minDistanceSquared = Infinity;
         let minDatum: _ModuleSupport.SeriesNodeDatum | undefined;
 
@@ -598,7 +606,7 @@ export class PyramidSeries extends _ModuleSupport.DataModelSeries<
 
         if (
             !dataModel ||
-            !processedData?.data.length ||
+            !processedData?.rawData.length ||
             legendType !== 'category' ||
             !this.properties.isValid() ||
             !this.properties.showInLegend
@@ -609,25 +617,23 @@ export class PyramidSeries extends _ModuleSupport.DataModelSeries<
         const { fills, strokes, strokeWidth, fillOpacity, strokeOpacity, visible } = this.properties;
 
         const legendData: _ModuleSupport.CategoryLegendDatum[] = [];
-        const stageIdx = dataModel.resolveProcessedDataIndexById(this, `xValue`);
+        const stageValues = dataModel.resolveColumnById<string>(this, `xValue`, processedData);
 
-        for (let index = 0; index < processedData.data.length; index++) {
-            const { values } = processedData.data[index];
-
-            const stageValue: string = values[stageIdx];
-            const fill = fills[index % fills.length] ?? 'black';
-            const stroke = strokes[index % strokes.length] ?? 'black';
+        processedData.rawData.forEach((_datum, datumIndex) => {
+            const stageValue = stageValues[datumIndex];
+            const fill = fills[datumIndex % fills.length] ?? 'black';
+            const stroke = strokes[datumIndex % strokes.length] ?? 'black';
 
             legendData.push({
                 legendType: 'category',
                 id,
-                itemId: index,
+                itemId: datumIndex,
                 seriesId: id,
-                enabled: visible && legendItemEnabled[index],
+                enabled: visible && legendItemEnabled[datumIndex],
                 label: { text: stageValue },
                 symbols: [{ marker: { fill, fillOpacity, stroke, strokeWidth, strokeOpacity } }],
             });
-        }
+        });
 
         return legendData;
     }

@@ -1,10 +1,19 @@
-import { _ModuleSupport, _Scene, _Util } from 'ag-charts-community';
+import { _ModuleSupport } from 'ag-charts-community';
 
-const { Validate, BOOLEAN, POSITIVE_NUMBER, ZIndexMap, ActionOnSet, CategoryAxis, GroupedCategoryAxis, TextUtils } =
-    _ModuleSupport;
-
-const { Padding, Logger } = _Util;
-const { Group, TranslatableGroup, BBox } = _Scene;
+const {
+    Validate,
+    BOOLEAN,
+    POSITIVE_NUMBER,
+    ZIndexMap,
+    ActionOnSet,
+    CategoryAxis,
+    TextUtils,
+    Padding,
+    Logger,
+    Group,
+    TranslatableGroup,
+    BBox,
+} = _ModuleSupport;
 
 class MiniChartPadding {
     @Validate(POSITIVE_NUMBER)
@@ -264,7 +273,7 @@ export class MiniChart extends _ModuleSupport.BaseModuleInstance implements _Mod
                     break;
                 case 'right':
                 case 'left': {
-                    const isCategoryAxis = axis instanceof CategoryAxis || axis instanceof GroupedCategoryAxis;
+                    const isCategoryAxis = axis instanceof CategoryAxis;
                     axis.range = isCategoryAxis ? [0, seriesRect.height] : [seriesRect.height, 0];
                     axis.gridLength = seriesRect.width;
                     break;
@@ -282,7 +291,6 @@ export class MiniChart extends _ModuleSupport.BaseModuleInstance implements _Mod
             }
 
             axis.calculateLayout();
-            axis.updatePosition();
             axis.update(animated);
         });
 
@@ -290,5 +298,5 @@ export class MiniChart extends _ModuleSupport.BaseModuleInstance implements _Mod
     }
 
     // Should be available after the first layout.
-    protected seriesRect?: _Scene.BBox;
+    protected seriesRect?: _ModuleSupport.BBox;
 }

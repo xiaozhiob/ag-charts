@@ -5,6 +5,7 @@ import { fromToMotion } from '../../../motion/fromToMotion';
 import { pathMotion } from '../../../motion/pathMotion';
 import { resetMotion } from '../../../motion/resetMotion';
 import type { BBox } from '../../../scene/bbox';
+import type { ExtendedPath2D } from '../../../scene/extendedPath2D';
 import { Group } from '../../../scene/group';
 import { PointerEvents } from '../../../scene/node';
 import type { Selection } from '../../../scene/selection';
@@ -18,13 +19,7 @@ import { isDefined } from '../../../util/type-guards';
 import type { RequireOptional } from '../../../util/types';
 import { ChartAxisDirection } from '../../chartAxisDirection';
 import type { DataController } from '../../data/dataController';
-import type {
-    DataModel,
-    DataModelOptions,
-    DatumPropertyDefinition,
-    UngroupedData,
-    UngroupedDataItem,
-} from '../../data/dataModel';
+import type { DataModel, DataModelOptions, DatumPropertyDefinition, UngroupedData } from '../../data/dataModel';
 import { fixNumericExtent } from '../../data/dataModel';
 import {
     animationValidation,
@@ -69,6 +64,8 @@ import { buildResetPathFn, pathFadeInAnimation, pathSwipeInAnimation, updateClip
 const CROSS_FILTER_LINE_STROKE_OPACITY_FACTOR = 0.25;
 
 type LineAnimationData = CartesianAnimationData<Group, LineNodeDatum, LineNodeDatum, LineSeriesNodeDataContext>;
+
+type SpanPoints = Array<LineSpanPointDatum[] | { skip: number }>;
 
 export interface LineSeriesDataAggregationFilter {
     indices: number[];
@@ -196,7 +193,7 @@ export class LineSeries extends CartesianSeries<
         if (animationEnabled) {
             props.push(animationValidation(isContinuousX ? ['xValue'] : undefined));
             if (this.processedData) {
-                props.push(diff(this.processedData));
+                props.push(diff(this.id, this.processedData));
             }
         }
 
@@ -211,7 +208,7 @@ export class LineSeries extends CartesianSeries<
 
     override getSeriesDomain(direction: ChartAxisDirection): any[] {
         const { dataModel, processedData } = this;
-        if (!dataModel || !processedData?.data.length) return [];
+        if (!dataModel || !processedData?.rawData.length) return [];
 
         const xDef = dataModel.resolveProcessedDataDefById(this, `xValue`);
         if (direction === ChartAxisDirection.X) {
@@ -248,13 +245,11 @@ export class LineSeries extends CartesianSeries<
     }
 
     async createNodeData() {
-        const { dataModel, axes, dataAggregationFilters } = this;
-        const ungroupedData = this.processedData?.data;
-
+        const { dataModel, processedData, axes, dataAggregationFilters } = this;
         const xAxis = axes[ChartAxisDirection.X];
         const yAxis = axes[ChartAxisDirection.Y];
 
-        if (!ungroupedData || !dataModel || !xAxis || !yAxis) {
+        if (!dataModel || !processedData || processedData.rawData.length === 0 || !xAxis || !yAxis) {
             return;
         }
 
@@ -277,38 +272,43 @@ export class LineSeries extends CartesianSeries<
         const yOffset = (yScale.bandwidth ?? 0) / 2;
         const size = marker.enabled ? marker.size : 0;
 
-        const xIdx = dataModel.resolveProcessedDataIndexById(this, `xValue`);
-        const yIdx = dataModel.resolveProcessedDataIndexById(this, `yValueRaw`);
-        const ySelectionIdx =
-            yFilterKey != null ? dataModel.resolveProcessedDataIndexById(this, `yFilterRaw`) : undefined;
-        const yCumulativeIdx = stacked ? dataModel.resolveProcessedDataIndexById(this, `yValueCumulative`) : yIdx;
-        const yEndIdx = stacked ? dataModel.resolveProcessedDataIndexById(this, `yValueEnd`) : undefined;
+        const { rawData } = processedData;
+        const xValues = dataModel.resolveColumnById(this, `xValue`, processedData);
+        const yValues = dataModel.resolveColumnById(this, `yValueRaw`, processedData);
+        const yEndValues = stacked ? dataModel.resolveColumnById<number>(this, `yValueEnd`, processedData) : undefined;
+        const yCumulativeValues = stacked
+            ? dataModel.resolveColumnById<number>(this, `yValueCumulative`, processedData)
+            : yValues;
+        const selectionValues =
+            yFilterKey != null ? dataModel.resolveColumnById(this, `yFilterRaw`, processedData) : undefined;
 
         const nodeData: LineNodeDatum[] = [];
-        const spanPoints: Array<LineSpanPointDatum[] | { skip: number }> = [];
-        const handleDatum = ({ datum, values }: UngroupedDataItem<any, any[]>) => {
-            const xDatum = values[xIdx];
-            const yDatum = values[yIdx];
-            const yEndDatum = yEndIdx != null ? values[yEndIdx] : undefined;
-            const yCumulativeDatum = values[yCumulativeIdx];
-            const selected = ySelectionIdx != null ? values[ySelectionIdx] === yDatum : undefined;
+        let spanPoints: SpanPoints | undefined;
+        const handleDatum = (index: number) => {
+            const datum = rawData[index];
+            const xDatum = xValues[index];
+            const yDatum = yValues[index];
+            const yEndDatum = yEndValues?.[index];
+            const yCumulativeDatum = yCumulativeValues?.[index];
+            const selected = selectionValues?.[index];
 
             const x = xScale.convert(xDatum) + xOffset;
             const y = yScale.convert(yCumulativeDatum) + yOffset;
 
-            const currentSpanPoints: LineSpanPointDatum[] | { skip: number } | undefined =
-                spanPoints[spanPoints.length - 1];
+            if (!Number.isFinite(x)) return;
 
-            if (yDatum != null && Number.isFinite(x)) {
-                const labelText = this.getLabelText(label, {
-                    value: yDatum,
-                    datum,
-                    xKey,
-                    yKey,
-                    xName,
-                    yName,
-                    legendItemName,
-                });
+            if (yDatum != null) {
+                const labelText = label.enabled
+                    ? this.getLabelText(label, {
+                          value: yDatum,
+                          datum,
+                          xKey,
+                          yKey,
+                          xName,
+                          yName,
+                          legendItemName,
+                      })
+                    : undefined;
 
                 nodeData.push({
                     series: this,
@@ -327,7 +327,13 @@ export class LineSeries extends CartesianSeries<
                     labelText,
                     selected,
                 });
+            }
 
+            if (spanPoints == null) return;
+
+            const currentSpanPoints: LineSpanPointDatum[] | { skip: number } | undefined =
+                spanPoints[spanPoints.length - 1];
+            if (yDatum != null) {
                 const spanPoint: LineSpanPointDatum = {
                     point: { x, y },
                     xDatum,
@@ -353,8 +359,7 @@ export class LineSeries extends CartesianSeries<
 
         const [x0, x1] = findMinMax(xAxis.range);
         const xFor = (index: number) => {
-            const { values } = ungroupedData[index];
-            const xDatum = values[xIdx];
+            const xDatum = xValues[index];
             return xScale.convert(xDatum) + xOffset;
         };
 
@@ -367,27 +372,30 @@ export class LineSeries extends CartesianSeries<
             const [start, end] = this.visibleRange(indices.length, x0, x1, (index) => xFor(indices[index]));
 
             for (let i = start; i < end; i += 1) {
-                handleDatum(ungroupedData[indices[i]]);
+                handleDatum(indices[i]);
             }
         } else {
-            const [start, end] = this.visibleRange(ungroupedData.length, x0, x1, xFor);
+            spanPoints = [];
+            const [start, end] = this.visibleRange(rawData.length, x0, x1, xFor);
 
             for (let i = start; i < end; i += 1) {
-                handleDatum(ungroupedData[i]);
+                handleDatum(i);
             }
         }
-        const strokeSpans = spanPoints.flatMap((p): LinePathSpan[] => {
+
+        const strokeSpans = spanPoints?.flatMap((p): LinePathSpan[] => {
             return Array.isArray(p) ? interpolatePoints(p, interpolation) : [];
         });
+        const strokeData = strokeSpans != null ? { itemId: yKey, spans: strokeSpans } : undefined;
 
         const crossFiltering =
-            ySelectionIdx != null && ungroupedData.some(({ values }) => values[ySelectionIdx] === values[yIdx]);
+            selectionValues?.some((selectionValue, index) => selectionValue === yValues[index]) ?? false;
 
         return {
             itemId: yKey,
             nodeData,
             labelData: nodeData,
-            strokeData: { itemId: yKey, spans: strokeSpans },
+            strokeData,
             scales: this.calculateScaling(),
             visible: this.visible,
             crossFiltering,
@@ -463,6 +471,8 @@ export class LineSeries extends CartesianSeries<
     }) {
         const { markerSelection, isHighlight: highlighted } = opts;
         const { xKey, yKey, stroke, strokeWidth, strokeOpacity, marker, highlightStyle } = this.properties;
+        const xDomain = this.getSeriesDomain(ChartAxisDirection.X);
+        const yDomain = this.getSeriesDomain(ChartAxisDirection.Y);
         const baseStyle = mergeDefaults(highlighted && highlightStyle.item, marker.getStyle(), {
             stroke,
             strokeWidth,
@@ -471,7 +481,7 @@ export class LineSeries extends CartesianSeries<
 
         const applyTranslation = this.ctx.animationManager.isSkipped();
         markerSelection.each((node, datum) => {
-            this.updateMarkerStyle(node, marker, { datum, highlighted, xKey, yKey }, baseStyle, {
+            this.updateMarkerStyle(node, marker, { datum, highlighted, xKey, yKey, xDomain, yDomain }, baseStyle, {
                 applyTranslation,
                 selected: datum.selected,
             });
@@ -521,6 +531,8 @@ export class LineSeries extends CartesianSeries<
 
         const { xKey, yKey, xName, yName, strokeWidth, marker, tooltip } = this.properties;
         const { datum, xValue, yValue, itemId } = nodeDatum;
+        const xDomain = this.getSeriesDomain(ChartAxisDirection.X);
+        const yDomain = this.getSeriesDomain(ChartAxisDirection.Y);
         const xString = xAxis.formatDatum(xValue);
         const yString = yAxis.formatDatum(yValue);
         const title = sanitizeHtml(this.properties.title ?? yName);
@@ -529,7 +541,7 @@ export class LineSeries extends CartesianSeries<
         const baseStyle = mergeDefaults({ fill: marker.stroke }, marker.getStyle(), { strokeWidth });
         const { fill: color } = this.getMarkerStyle(
             marker,
-            { datum: nodeDatum, xKey, yKey, highlighted: false },
+            { datum: nodeDatum, xKey, yKey, xDomain, yDomain, highlighted: false },
             baseStyle
         );
 
@@ -597,12 +609,29 @@ export class LineSeries extends CartesianSeries<
         this.updateLinePaths(opts.paths, opts.contextData);
     }
 
+    private plotNodeDataPoints(path: ExtendedPath2D, nodeData: LineNodeDatum[]) {
+        if (nodeData.length === 0) return;
+
+        const initialPoint = nodeData[0].point;
+        path.moveTo(initialPoint.x, initialPoint.y);
+
+        for (let i = 1; i < nodeData.length; i += 1) {
+            const { x, y } = nodeData[i].point;
+            path.lineTo(x, y);
+        }
+    }
+
     private updateLinePaths(paths: Path[], contextData: LineSeriesNodeDataContext) {
-        const { spans } = contextData.strokeData;
+        const spans = contextData.strokeData?.spans;
         const [lineNode] = paths;
 
         lineNode.path.clear();
-        plotLinePathStroke(lineNode, spans);
+        if (spans != null) {
+            plotLinePathStroke(lineNode, spans);
+        } else {
+            this.plotNodeDataPoints(lineNode.path, contextData.nodeData);
+        }
+
         lineNode.markDirty();
     }
 
@@ -674,7 +703,6 @@ export class LineSeries extends CartesianSeries<
             return;
         }
 
-        markerFadeInAnimation(this, animationManager, undefined, markerSelections);
         fromToMotion(this.id, 'path_properties', animationManager, [path], fns.stroke.pathProperties);
 
         if (fns.status === 'added') {
@@ -686,6 +714,7 @@ export class LineSeries extends CartesianSeries<
         }
 
         if (fns.hasMotion) {
+            markerFadeInAnimation(this, animationManager, undefined, markerSelections);
             seriesLabelFadeInAnimation(this, 'labels', animationManager, labelSelections);
             seriesLabelFadeInAnimation(this, 'annotations', animationManager, ...annotationSelections);
         }
@@ -705,7 +734,9 @@ export class LineSeries extends CartesianSeries<
 
     public getFormattedMarkerStyle(datum: LineNodeDatum) {
         const { xKey, yKey } = this.properties;
-        return this.getMarkerStyle(this.properties.marker, { datum, xKey, yKey, highlighted: true });
+        const xDomain = this.getSeriesDomain(ChartAxisDirection.X);
+        const yDomain = this.getSeriesDomain(ChartAxisDirection.Y);
+        return this.getMarkerStyle(this.properties.marker, { datum, xKey, yKey, xDomain, yDomain, highlighted: true });
     }
 
     protected computeFocusBounds(opts: PickFocusInputs): BBox | undefined {

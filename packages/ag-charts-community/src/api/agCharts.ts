@@ -31,7 +31,7 @@ import { enterpriseModule } from '../module/enterpriseModule';
 import { type ChartInternalOptionMetadata, ChartOptions, type ChartSpecialOverrides } from '../module/optionsModule';
 import { Debug } from '../util/debug';
 import { deepClone, jsonWalk } from '../util/json';
-import { mergeDefaults } from '../util/object';
+import { Pool } from '../util/pool';
 import type { DeepPartial } from '../util/types';
 import { VERSION } from '../version';
 import { MementoCaretaker } from './state/memento';
@@ -132,7 +132,8 @@ export abstract class AgCharts {
     }
 
     public static __createSparkline(options: AgSparklineOptions): AgChartInstance<AgSparklineOptions> {
-        return this.create(options as AgChartOptions, { presetType: 'sparkline' }) as any;
+        const { pool, ...normalOptions } = options as any;
+        return this.create(normalOptions as AgChartOptions, { presetType: 'sparkline', pool: pool ?? true }) as any;
     }
 }
 
@@ -173,7 +174,8 @@ class AgChartsInternal {
     };
 
     static createOrUpdate(opts: {
-        userOptions: AgChartOptions & Partial<ChartSpecialOverrides>;
+        userOptions?: AgChartOptions & Partial<ChartSpecialOverrides>;
+        deltaOptions?: DeepPartial<AgChartOptions>;
         processedOverrides?: Partial<AgChartOptions>;
         proxy?: AgChartInstanceProxy;
         licenseManager?: LicenseManager;
@@ -189,6 +191,7 @@ class AgChartsInternal {
             processedOverrides = proxy?.chart.chartOptions.processedOverrides ?? {},
             specialOverrides = proxy?.chart.chartOptions.specialOverrides ?? {},
             optionsMetadata = proxy?.chart.chartOptions.optionMetadata ?? {},
+            deltaOptions,
         } = opts;
         const { presetType } = optionsMetadata;
 
@@ -197,14 +200,21 @@ class AgChartsInternal {
         debug('>>> AgCharts.createOrUpdate() user options', userOptions);
 
         let mutableOptions = userOptions;
-        if (AgCharts.optionsMutationFn) {
-            mutableOptions = AgCharts.optionsMutationFn(mutableOptions, presetType);
+        if (AgCharts.optionsMutationFn && mutableOptions) {
+            mutableOptions = AgCharts.optionsMutationFn(deepClone(mutableOptions), presetType);
             debug('>>> AgCharts.createOrUpdate() MUTATED user options', mutableOptions);
         }
 
-        const { overrideDevicePixelRatio, document, window: userWindow, styleContainer, ...options } = mutableOptions;
+        const {
+            overrideDevicePixelRatio,
+            document,
+            window: userWindow,
+            styleContainer,
+            ...options
+        } = mutableOptions ?? {};
+        const baseOptions = (deltaOptions ? proxy?.chart.chartOptions : options) ?? options;
         const chartOptions = new ChartOptions(
-            options,
+            baseOptions,
             processedOverrides,
             {
                 ...specialOverrides,
@@ -213,15 +223,25 @@ class AgChartsInternal {
                 overrideDevicePixelRatio,
                 styleContainer,
             },
-            optionsMetadata
+            optionsMetadata,
+            deltaOptions
         );
 
+        let create = false;
         let chart = proxy?.chart;
+        let poolResult;
         if (
             chart == null ||
             chartType(chartOptions.processedOptions) !== chartType(chart?.chartOptions.processedOptions)
         ) {
-            chart = AgChartsInternal.createChartInstance(chartOptions, chart);
+            poolResult = this.getPool(chartOptions)?.obtain(chartOptions);
+            if (poolResult) {
+                chart = poolResult.item;
+            } else {
+                create = true;
+                chart = AgChartsInternal.createChartInstance(chartOptions, chart);
+            }
+
             styles?.forEach(([id, css]) => {
                 chart?.ctx.domManager.addStyles(id, css);
             });
@@ -229,8 +249,11 @@ class AgChartsInternal {
 
         if (proxy == null) {
             proxy = new AgChartInstanceProxy(chart, AgChartsInternal.callbackApi, licenseManager);
-        } else {
+            proxy.releaseChart = poolResult?.release;
+        } else if (poolResult || create) {
+            proxy.releaseChart?.();
             proxy.chart = chart;
+            proxy.releaseChart = poolResult?.release;
         }
 
         if (debug.check() && typeof window !== 'undefined') {
@@ -238,40 +261,34 @@ class AgChartsInternal {
             (window as any).agChartInstances[chart.id] = chart;
         }
 
-        chart.queuedUserOptions.push(userOptions);
+        chart.queuedUserOptions.push(chartOptions.userOptions);
         chart.requestFactoryUpdate((chartRef) => {
             chartRef.applyOptions(chartOptions);
             // If there are a lot of update calls, `requestFactoryUpdate()` may skip callbacks,
             // so we need to remove all queue items up to the last successfully applied item.
-            const queueIdx = chartRef.queuedUserOptions.indexOf(userOptions) + 1;
+            const queueIdx = chartRef.queuedUserOptions.indexOf(chartOptions.userOptions) + 1;
             chartRef.queuedUserOptions.splice(0, queueIdx);
         });
 
         return proxy;
     }
 
+    private static markRemovedProperties(node: any) {
+        if (typeof node !== 'object') return;
+        for (const [key, value] of Object.entries(node)) {
+            if (typeof value === 'undefined') {
+                Object.assign(node, { [key]: Symbol('UNSET') });
+            }
+        }
+    }
+
     static updateUserDelta(proxy: AgChartInstanceProxy, deltaOptions: DeepPartial<AgChartOptions>) {
-        deltaOptions = deepClone(deltaOptions, { shallow: ['data'] });
+        deltaOptions = deepClone(deltaOptions, new Set(['data']));
 
-        jsonWalk(
-            deltaOptions,
-            (node) => {
-                if (typeof node !== 'object') return;
-                for (const [key, value] of Object.entries(node)) {
-                    if (typeof value === 'undefined') {
-                        Object.assign(node, { [key]: Symbol('UNSET') });
-                    }
-                }
-            },
-            { skip: ['data'] }
-        );
+        jsonWalk(deltaOptions, AgChartsInternal.markRemovedProperties, new Set(['data']));
 
-        const { chart } = proxy;
-        const lastUpdateOptions = chart.getOptions();
-        const userOptions = mergeDefaults(deltaOptions, lastUpdateOptions);
         debug('>>> AgCharts.updateUserDelta() user delta', deltaOptions);
-        debug('AgCharts.updateUserDelta() - base options', lastUpdateOptions);
-        AgChartsInternal.createOrUpdate({ userOptions, proxy });
+        AgChartsInternal.createOrUpdate({ proxy, deltaOptions });
     }
 
     private static createChartInstance(options: ChartOptions, oldChart?: Chart): Chart {
@@ -299,6 +316,20 @@ class AgChartsInternal {
 
         throw new Error(
             `AG Charts - couldn't apply configuration, check options are correctly structured and series types are specified`
+        );
+    }
+
+    private static readonly detachAndClear = (chart: Chart) => chart.detachAndClear();
+    private static readonly destroy = (chart: Chart) => chart.destroy();
+    private static getPool(options: ChartOptions) {
+        if (options.optionMetadata.pool !== true) return;
+
+        return Pool.getPool<Chart, ChartOptions>(
+            options.optionMetadata.presetType ?? 'default',
+            this.createChartInstance,
+            this.detachAndClear,
+            this.destroy,
+            50
         );
     }
 }

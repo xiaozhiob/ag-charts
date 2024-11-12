@@ -1,4 +1,4 @@
-import { _ModuleSupport, _Scene } from 'ag-charts-community';
+import { _ModuleSupport } from 'ag-charts-community';
 
 import {
     BaseFunnelSeries,
@@ -10,10 +10,9 @@ import {
 import { ConeFunnelProperties } from './coneFunnelProperties';
 import { resetLineSelectionsFn } from './coneFunnelUtil';
 
-const { isFiniteNumber } = _ModuleSupport;
-const { Line } = _Scene;
+const { formatValue, Line } = _ModuleSupport;
 
-export class ConeFunnelSeries extends BaseFunnelSeries<_Scene.Line> {
+export class ConeFunnelSeries extends BaseFunnelSeries<_ModuleSupport.Line> {
     static readonly className = 'ConeFunnelSeries';
     static readonly type = 'cone-funnel' as const;
 
@@ -26,6 +25,10 @@ export class ConeFunnelSeries extends BaseFunnelSeries<_Scene.Line> {
                 datum: resetLineSelectionsFn,
             },
         });
+    }
+
+    override get hasData() {
+        return this.data != null && this.data.length > 1;
     }
 
     override getBandScalePadding() {
@@ -61,7 +64,7 @@ export class ConeFunnelSeries extends BaseFunnelSeries<_Scene.Line> {
         };
     }
 
-    protected override nodeFactory(): _Scene.Line {
+    protected override nodeFactory(): _ModuleSupport.Line {
         return new Line();
     }
 
@@ -126,8 +129,8 @@ export class ConeFunnelSeries extends BaseFunnelSeries<_Scene.Line> {
             y,
             textAlign,
             textBaseline,
-            text: this.getLabelText(label, { itemId: valueKey, value: yDatum, datum, stageKey, valueKey }, (v) =>
-                isFiniteNumber(v) ? v.toFixed(0) : String(v)
+            text: this.getLabelText(label, { itemId: valueKey, value: yDatum, datum, stageKey, valueKey }, (value) =>
+                formatValue(value, 0)
             ),
             itemId: valueKey,
             datum,
@@ -137,7 +140,7 @@ export class ConeFunnelSeries extends BaseFunnelSeries<_Scene.Line> {
     }
 
     protected override async updateDatumNodes(opts: {
-        datumSelection: _Scene.Selection<_Scene.Line, FunnelNodeDatum>;
+        datumSelection: _ModuleSupport.Selection<_ModuleSupport.Line, FunnelNodeDatum>;
         isHighlight: boolean;
     }) {
         const highlightStyle = opts.isHighlight ? this.properties.highlightStyle.item : undefined;

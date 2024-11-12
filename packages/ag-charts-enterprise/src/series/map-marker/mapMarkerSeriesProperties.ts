@@ -4,9 +4,10 @@ import type {
     AgMapMarkerSeriesOptions,
     AgMapMarkerSeriesStyle,
     AgMapMarkerSeriesTooltipRendererParams,
+    AgMarkerShape,
     Styler,
 } from 'ag-charts-community';
-import { _ModuleSupport, _Scene, _Util } from 'ag-charts-community';
+import { _ModuleSupport } from 'ag-charts-community';
 
 import { GEOJSON_OBJECT } from '../map-util/validation';
 
@@ -25,11 +26,11 @@ const {
     Validate,
     SeriesProperties,
     SeriesTooltip,
+    Logger,
+    Label,
 } = _ModuleSupport;
-const { Label, Circle } = _Scene;
-const { Logger } = _Util;
 
-export interface MapMarkerNodeLabelDatum extends _Util.PointLabelDatum {}
+export interface MapMarkerNodeLabelDatum extends _ModuleSupport.PointLabelDatum {}
 
 export interface MapMarkerNodeDatum extends _ModuleSupport.SeriesNodeDatum {
     readonly index: number;
@@ -40,12 +41,12 @@ export interface MapMarkerNodeDatum extends _ModuleSupport.SeriesNodeDatum {
     readonly labelValue: string | undefined;
     readonly colorValue: number | undefined;
     readonly sizeValue: number | undefined;
-    readonly point: Readonly<_Scene.SizedPoint>;
+    readonly point: Readonly<_ModuleSupport.SizedPoint>;
 }
 
 class MapMarkerSeriesLabel extends Label<AgMapMarkerSeriesLabelFormatterParams> {
     @Validate(STRING)
-    placement: _Util.LabelPlacement = 'bottom';
+    placement: _ModuleSupport.LabelPlacement = 'bottom';
 }
 
 export class MapMarkerSeriesProperties extends SeriesProperties<AgMapMarkerSeriesOptions> {
@@ -116,9 +117,9 @@ export class MapMarkerSeriesProperties extends SeriesProperties<AgMapMarkerSerie
     @Validate(AND(COLOR_STRING_ARRAY, ARRAY.restrict({ minLength: 1 })), { optional: true })
     colorRange: string[] | undefined = undefined;
 
-    /** One of the predefined marker names, or a marker constructor function (for user-defined markers). */
+    /** One of the predefined marker names, or a marker shape function (for user-defined markers). */
     @Validate(MARKER_SHAPE)
-    shape: _Scene.MarkerShape = Circle;
+    shape: AgMarkerShape = 'circle';
 
     @Validate(POSITIVE_NUMBER)
     size: number = 6;

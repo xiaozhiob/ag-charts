@@ -1,5 +1,5 @@
 import type { AgWaterfallSeriesItemType } from 'ag-charts-community';
-import { _ModuleSupport, _Scene, _Util } from 'ag-charts-community';
+import { _ModuleSupport } from 'ag-charts-community';
 
 import type { WaterfallSeriesItem, WaterfallSeriesTotal } from './waterfallSeriesProperties';
 import { WaterfallSeriesProperties } from './waterfallSeriesProperties';
@@ -26,11 +26,13 @@ const {
     DEFAULT_CARTESIAN_DIRECTION_KEYS,
     DEFAULT_CARTESIAN_DIRECTION_NAMES,
     computeBarFocusBounds,
+    sanitizeHtml,
+    isContinuous,
+    Rect,
+    motion,
 } = _ModuleSupport;
-const { Rect, motion } = _Scene;
-const { sanitizeHtml, isContinuous } = _Util;
 
-type WaterfallNodeLabelDatum = Readonly<_Scene.Point> & {
+type WaterfallNodeLabelDatum = Readonly<_ModuleSupport.Point> & {
     readonly text: string;
     readonly textAlign: CanvasTextAlign;
     readonly textBaseline: CanvasTextBaseline;
@@ -41,7 +43,7 @@ type WaterfallNodePointDatum = _ModuleSupport.SeriesNodeDatum['point'] & {
     readonly y2: number;
 };
 
-interface WaterfallNodeDatum extends _ModuleSupport.CartesianSeriesNodeDatum, Readonly<_Scene.Point> {
+interface WaterfallNodeDatum extends _ModuleSupport.CartesianSeriesNodeDatum, Readonly<_ModuleSupport.Point> {
     readonly index: number;
     readonly itemId: AgWaterfallSeriesItemType;
     readonly cumulativeValue: number;
@@ -52,7 +54,7 @@ interface WaterfallNodeDatum extends _ModuleSupport.CartesianSeriesNodeDatum, Re
     readonly stroke: string;
     readonly strokeWidth: number;
     readonly opacity: number;
-    readonly clipBBox?: _Scene.BBox;
+    readonly clipBBox?: _ModuleSupport.BBox;
 }
 
 interface WaterfallContext extends _ModuleSupport.CartesianSeriesNodeDataContext<WaterfallNodeDatum> {
@@ -60,14 +62,14 @@ interface WaterfallContext extends _ModuleSupport.CartesianSeriesNodeDataContext
 }
 
 type WaterfallAnimationData = _ModuleSupport.CartesianAnimationData<
-    _Scene.Rect,
+    _ModuleSupport.Rect,
     WaterfallNodeDatum,
     WaterfallNodeDatum,
     WaterfallContext
 >;
 
 export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
-    _Scene.Rect,
+    _ModuleSupport.Rect,
     WaterfallSeriesProperties,
     WaterfallNodeDatum,
     WaterfallNodeDatum,
@@ -206,11 +208,20 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
     }
 
     async createNodeData() {
-        const { data, dataModel } = this;
+        const { data, dataModel, processedData } = this;
         const categoryAxis = this.getCategoryAxis();
         const valueAxis = this.getValueAxis();
 
-        if (!data || !categoryAxis || !valueAxis || !dataModel) return;
+        if (
+            !data ||
+            !categoryAxis ||
+            !valueAxis ||
+            !dataModel ||
+            processedData == null ||
+            processedData.rawData.length === 0
+        ) {
+            return;
+        }
 
         const { line } = this.properties;
         const xScale = categoryAxis.scale;
@@ -220,7 +231,7 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
         const categoryAxisReversed = categoryAxis.isReversed();
         const valueAxisReversed = valueAxis.isReversed();
 
-        if (this.processedData?.type !== 'ungrouped') return;
+        if (processedData.type !== 'ungrouped') return;
 
         const context: WaterfallContext = {
             itemId: this.properties.yKey,
@@ -233,31 +244,34 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
 
         if (!this.visible) return context;
 
-        const yRawIndex = dataModel.resolveProcessedDataIndexById(this, `yRaw`);
-        const xIndex = dataModel.resolveProcessedDataIndexById(this, `xValue`);
-        const totalTypeIndex = dataModel.resolveProcessedDataIndexById(this, `totalTypeValue`);
-
         const pointData: WaterfallNodePointDatum[] = [];
 
-        const yCurrIndex = dataModel.resolveProcessedDataIndexById(this, 'yCurrent');
-        const yPrevIndex = dataModel.resolveProcessedDataIndexById(this, 'yPrevious');
-        const yCurrTotalIndex = dataModel.resolveProcessedDataIndexById(this, 'yCurrentTotal');
+        const xValues = dataModel.resolveKeysById(this, `xValue`, processedData);
+        const yRawValues = dataModel.resolveColumnById(this, `yRaw`, processedData);
+        const totalTypeValues = dataModel.resolveColumnById<AgWaterfallSeriesItemType>(
+            this,
+            `totalTypeValue`,
+            processedData
+        );
+        const yCurrValues = dataModel.resolveColumnById<number>(this, 'yCurrent', processedData);
+        const yPrevValues = dataModel.resolveColumnById<number>(this, 'yPrevious', processedData);
+        const yCurrTotalValues = dataModel.resolveColumnById<number>(this, 'yCurrentTotal', processedData);
 
         function getValues(
             isTotal: boolean,
             isSubtotal: boolean,
-            values: any[]
+            datumIndex: number
         ): { cumulativeValue: number | undefined; trailingValue: number | undefined } {
             if (isTotal || isSubtotal) {
                 return {
-                    cumulativeValue: values[yCurrTotalIndex],
+                    cumulativeValue: yCurrTotalValues[datumIndex],
                     trailingValue: isSubtotal ? trailingSubtotal : 0,
                 };
             }
 
             return {
-                cumulativeValue: values[yCurrIndex],
-                trailingValue: values[yPrevIndex],
+                cumulativeValue: yCurrValues[datumIndex],
+                trailingValue: yPrevValues[datumIndex],
             };
         }
 
@@ -280,19 +294,21 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
         let trailingSubtotal = 0;
         const { xKey, yKey, xName, yName } = this.properties;
 
-        this.processedData?.data.forEach(({ keys, datum, values }, dataIndex) => {
-            const datumType = values[totalTypeIndex];
+        processedData.rawData.forEach((datum, datumIndex) => {
+            const datumType = totalTypeValues[datumIndex];
 
             const isSubtotal = this.isSubtotal(datumType);
             const isTotal = this.isTotal(datumType);
             const isTotalOrSubtotal = isTotal || isSubtotal;
 
-            const xDatum = keys[xIndex];
+            const xDatum = xValues[datumIndex];
+            if (xDatum == null) return;
+
             const x = Math.round(xScale.convert(xDatum));
 
-            const rawValue = values[yRawIndex];
+            const rawValue = yRawValues[datumIndex];
 
-            const { cumulativeValue, trailingValue } = getValues(isTotal, isSubtotal, values);
+            const { cumulativeValue, trailingValue } = getValues(isTotal, isSubtotal, datumIndex);
 
             if (isTotalOrSubtotal) {
                 trailingSubtotal = cumulativeValue ?? 0;
@@ -367,7 +383,7 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
             const labelText = this.getLabelText(label, { itemId, value, datum, xKey, yKey, xName, yName });
 
             const nodeDatum: WaterfallNodeDatum = {
-                index: dataIndex,
+                index: datumIndex,
                 series: this,
                 itemId: seriesItemType,
                 datum,
@@ -402,7 +418,7 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
         });
 
         const connectorLinesEnabled = this.properties.line.enabled;
-        if (yCurrIndex !== undefined && connectorLinesEnabled) {
+        if (yCurrValues !== undefined && connectorLinesEnabled) {
             context.pointData = pointData;
         }
 
@@ -478,7 +494,7 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
 
     protected override async updateDatumSelection(opts: {
         nodeData: WaterfallNodeDatum[];
-        datumSelection: _Scene.Selection<_Scene.Rect, WaterfallNodeDatum>;
+        datumSelection: _ModuleSupport.Selection<_ModuleSupport.Rect, WaterfallNodeDatum>;
     }) {
         const { nodeData, datumSelection } = opts;
         const data = nodeData ?? [];
@@ -486,7 +502,7 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
     }
 
     protected override async updateDatumNodes(opts: {
-        datumSelection: _Scene.Selection<_Scene.Rect, WaterfallNodeDatum>;
+        datumSelection: _ModuleSupport.Selection<_ModuleSupport.Rect, WaterfallNodeDatum>;
         isHighlight: boolean;
     }) {
         const { datumSelection, isHighlight } = opts;
@@ -551,7 +567,7 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
 
     protected async updateLabelSelection(opts: {
         labelData: WaterfallNodeDatum[];
-        labelSelection: _Scene.Selection<_Scene.Text, WaterfallNodeDatum>;
+        labelSelection: _ModuleSupport.Selection<_ModuleSupport.Text, WaterfallNodeDatum>;
     }) {
         const { labelData, labelSelection } = opts;
 
@@ -567,7 +583,9 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
         return labelSelection.update(data);
     }
 
-    protected async updateLabelNodes(opts: { labelSelection: _Scene.Selection<_Scene.Text, WaterfallNodeDatum> }) {
+    protected async updateLabelNodes(opts: {
+        labelSelection: _ModuleSupport.Selection<_ModuleSupport.Text, WaterfallNodeDatum>;
+    }) {
         opts.labelSelection.each((textNode, datum) => {
             updateLabelNode(textNode, this.getItemConfig(datum.itemId).label, datum.label);
         });
@@ -691,7 +709,7 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
         }
     }
 
-    protected animateConnectorLinesHorizontal(lineNode: _Scene.Path, pointData: WaterfallNodePointDatum[]) {
+    protected animateConnectorLinesHorizontal(lineNode: _ModuleSupport.Path, pointData: WaterfallNodePointDatum[]) {
         const { path: linePath } = lineNode;
 
         this.updateLineNode(lineNode);
@@ -740,7 +758,7 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
         });
     }
 
-    protected animateConnectorLinesVertical(lineNode: _Scene.Path, pointData: WaterfallNodePointDatum[]) {
+    protected animateConnectorLinesVertical(lineNode: _ModuleSupport.Path, pointData: WaterfallNodePointDatum[]) {
         const { path: linePath } = lineNode;
 
         this.updateLineNode(lineNode);
@@ -798,13 +816,19 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
         seriesHighlighted?: boolean;
         itemId?: string;
         contextData: WaterfallContext;
-        paths: _Scene.Path[];
+        paths: _ModuleSupport.Path[];
         seriesIdx: number;
     }): Promise<void> {
         this.resetConnectorLinesPath({ contextData: opts.contextData, paths: opts.paths });
     }
 
-    resetConnectorLinesPath({ contextData, paths }: { contextData: WaterfallContext; paths: Array<_Scene.Path> }) {
+    resetConnectorLinesPath({
+        contextData,
+        paths,
+    }: {
+        contextData: WaterfallContext;
+        paths: Array<_ModuleSupport.Path>;
+    }) {
         if (paths.length === 0) {
             return;
         }
@@ -830,7 +854,7 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
         lineNode.checkPathDirty();
     }
 
-    protected updateLineNode(lineNode: _Scene.Path) {
+    protected updateLineNode(lineNode: _ModuleSupport.Path) {
         const { stroke, strokeWidth, strokeOpacity, lineDash, lineDashOffset } = this.properties.line;
         lineNode.setProperties({
             fill: undefined,
@@ -840,7 +864,7 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
             lineDash,
             lineDashOffset,
             lineJoin: 'round',
-            pointerEvents: _Scene.PointerEvents.None,
+            pointerEvents: _ModuleSupport.PointerEvents.None,
         });
     }
 
@@ -851,7 +875,10 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
 
     protected override onDataChange() {}
 
-    protected computeFocusBounds({ datumIndex, seriesRect }: _ModuleSupport.PickFocusInputs): _Scene.BBox | undefined {
+    protected computeFocusBounds({
+        datumIndex,
+        seriesRect,
+    }: _ModuleSupport.PickFocusInputs): _ModuleSupport.BBox | undefined {
         return computeBarFocusBounds(this.contextNodeData?.nodeData[datumIndex], this.contentGroup, seriesRect);
     }
 }

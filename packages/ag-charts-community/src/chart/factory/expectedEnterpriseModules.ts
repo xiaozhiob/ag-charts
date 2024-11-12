@@ -48,6 +48,7 @@ export const EXPECTED_ENTERPRISE_MODULES: EnterpriseModuleStub[] = [
     },
     { type: 'root', optionsKey: 'sync', chartTypes: ['cartesian'] },
     { type: 'root', optionsKey: 'zoom', chartTypes: ['cartesian', 'topology'] },
+    { type: 'root', optionsKey: 'ranges', chartTypes: ['cartesian'] },
     {
         type: 'legend',
         optionsKey: 'gradientLegend',
@@ -67,7 +68,6 @@ export const EXPECTED_ENTERPRISE_MODULES: EnterpriseModuleStub[] = [
     { type: 'series', optionsKey: 'series[]', chartTypes: ['cartesian'], identifier: 'cone-funnel' },
     { type: 'series', optionsKey: 'series[]', chartTypes: ['cartesian'], identifier: 'funnel' },
     { type: 'series', optionsKey: 'series[]', chartTypes: ['cartesian'], identifier: 'ohlc' },
-    { type: 'series', optionsKey: 'series[]', chartTypes: ['cartesian'], identifier: 'bullet' },
     { type: 'series', optionsKey: 'series[]', chartTypes: ['cartesian'], identifier: 'heatmap' },
     { type: 'series', optionsKey: 'series[]', chartTypes: ['cartesian'], identifier: 'range-area' },
     { type: 'series', optionsKey: 'series[]', chartTypes: ['cartesian'], identifier: 'range-bar' },
@@ -96,12 +96,8 @@ export function isEnterpriseSeriesType(type: string) {
     return EXPECTED_ENTERPRISE_MODULES.some((s) => s.type === 'series' && s.identifier === type);
 }
 
-export function getEnterpriseSeriesChartTypes(type: string) {
+function getEnterpriseSeriesChartTypes(type: string) {
     return EXPECTED_ENTERPRISE_MODULES.find((s) => s.type === 'series' && s.identifier === type)?.chartTypes;
-}
-
-export function isEnterpriseSeriesTypeLoaded(type: string) {
-    return (EXPECTED_ENTERPRISE_MODULES.find((s) => s.type === 'series' && s.identifier === type)?.useCount ?? 0) > 0;
 }
 
 export function isEnterpriseCartesian(seriesType: string) {

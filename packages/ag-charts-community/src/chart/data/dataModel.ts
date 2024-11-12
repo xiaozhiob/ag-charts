@@ -6,20 +6,37 @@ import { isFiniteNumber, isObject } from '../../util/type-guards';
 import type { ChartMode } from '../chartMode';
 import { ContinuousDomain, DiscreteDomain, type IDataDomain } from './dataDomain';
 
-export type ScopeProvider = { id: string };
+export interface ScopeProvider {
+    id: string;
+}
 
-export type UngroupedDataItem<D, V> = {
+export interface DataGroup {
+    keys: any[];
+    datumIndices: number[];
+    aggregation: any[][];
+    validScopes: Set<string> | undefined;
+}
+
+export interface UngroupedDataItem<I, D, V> {
+    index: I;
     keys: any[];
     values: V;
     aggValues?: [number, number][];
     datum: D;
     validScopes?: Set<string>;
-};
+}
 
 export interface UngroupedData<D> {
     type: 'ungrouped';
     input: { count: number };
-    data: UngroupedDataItem<D, any[]>[];
+    rawData: any[];
+    rawDataSources?: Map<string, any[]>;
+    aggregation: [number, number][][] | undefined;
+    invalidKeys: boolean[] | undefined;
+    invalidDataScopes: Map<string, boolean[]> | undefined;
+    invalidData: boolean[] | undefined;
+    keys: any[][];
+    columns: any[][];
     domain: {
         keys: any[][];
         values: any[][];
@@ -47,13 +64,13 @@ export interface UngroupedData<D> {
 
 export type ProcessedOutputDiff = {
     changed: boolean;
-    added: Map<string, any>;
-    updated: Map<string, any>;
-    removed: Map<string, any>;
-    moved: Map<string, any>;
+    added: Set<string>;
+    updated: Set<string>;
+    removed: Set<string>;
+    moved: Set<string>;
 };
 
-type GroupedDataItem<D> = UngroupedDataItem<D[], any[][]> & { area?: number };
+export type GroupedDataItem<D> = UngroupedDataItem<number[], D[], any[][]> & { area?: number };
 
 export interface ProcessedDataDef {
     index: number;
@@ -63,7 +80,14 @@ export interface ProcessedDataDef {
 export interface GroupedData<D> {
     type: 'grouped';
     input: UngroupedData<D>['input'];
-    data: GroupedDataItem<D>[];
+    rawData: any[];
+    rawDataSources?: Map<string, any[]>;
+    groups: DataGroup[];
+    keys: any[][];
+    invalidKeys: boolean[] | undefined;
+    invalidDataScopes: Map<string, boolean[]> | undefined;
+    invalidData: boolean[] | undefined;
+    columns: any[][];
     domain: UngroupedData<D>['domain'];
     reduced?: UngroupedData<D>['reduced'];
     defs: UngroupedData<D>['defs'];
@@ -109,7 +133,7 @@ export function getMissCount(scopeProvider: ScopeProvider, missMap: MissMap | un
     return missMap?.get(scopeProvider.id) ?? 0;
 }
 
-type GroupingFn<K> = (data: UngroupedDataItem<K, any[]>) => K[];
+type GroupingFn<K> = (data: UngroupedDataItem<number, K, any[]>) => K[];
 export type GroupByFn = (extractedData: UngroupedData<any>) => GroupingFn<any>;
 export type DataModelOptions<K, Grouped extends boolean | undefined> = {
     scopes?: string[];
@@ -181,6 +205,8 @@ export type AggregatePropertyDefinition<
         finalFunction?: (result: R2) => [number, number];
     };
 
+type GroupValueAdjustFn<D, K extends keyof D & string> = (columns: D[K][][], indexes: number[], index: number) => void;
+
 export type GroupValueProcessorDefinition<D, K extends keyof D & string> = PropertyIdentifiers &
     PropertySelectors & {
         type: 'group-value-processor';
@@ -188,13 +214,15 @@ export type GroupValueProcessorDefinition<D, K extends keyof D & string> = Prope
          * Outer function called once per all data processing; inner function called once per group;
          * innermost called once per datum.
          */
-        adjust: () => () => (values: D[K][], indexes: number[]) => void;
+        adjust: () => () => GroupValueAdjustFn<D, K>;
     };
+
+type PropertyValueAdjustFn<D> = (processedData: ProcessedData<D>, valueIndex: number) => void;
 
 export type PropertyValueProcessorDefinition<D> = PropertyIdentifiers & {
     type: 'property-value-processor';
     property: string;
-    adjust: () => (processedData: ProcessedData<D>, valueIndex: number) => void;
+    adjust: () => PropertyValueAdjustFn<D>;
 };
 
 type ReducerOutputTypes = NonNullable<UngroupedData<any>['reduced']>;
@@ -203,7 +231,7 @@ export type ReducerOutputPropertyDefinition<P extends ReducerOutputKeys = Reduce
     type: 'reducer';
     property: P;
     initialValue?: ReducerOutputTypes[P];
-    reducer: () => (acc: ReducerOutputTypes[P], next: UngroupedDataItem<any, any>) => ReducerOutputTypes[P];
+    reducer: () => (acc: ReducerOutputTypes[P], next: UngroupedDataItem<any, any, any>) => ReducerOutputTypes[P];
 };
 
 export type ProcessorOutputPropertyDefinition<P extends ReducerOutputKeys = ReducerOutputKeys> = PropertyIdentifiers & {
@@ -214,17 +242,31 @@ export type ProcessorOutputPropertyDefinition<P extends ReducerOutputKeys = Redu
 
 const INVALID_VALUE = Symbol('invalid');
 
+function createArray<T>(length: number, value: T): T[] {
+    const out: T[] = [];
+    for (let i = 0; i < length; i += 1) {
+        out[i] = value;
+    }
+    return out;
+}
+
+export function datumKeys(keys: any[][], datumIndex: number): any[] | undefined {
+    const out: any = [];
+
+    for (const k of keys) {
+        const key = k[datumIndex];
+        if (key == null) return;
+        out.push(key);
+    }
+
+    return out;
+}
+
 export function getPathComponents(path: string) {
     const components: string[] = [];
     let matchIndex = 0;
     let matchGroup: RegExpExecArray | null;
-    // This regex is a slightly less correct version of the commented out version below
-    // Safari <16.4 does not support negative look behinds
-    // Look at the skipped tests for what cases are not supported by this version
-    const regExp = /((?:(?:^|\.)\s*\w+|\[\s*(?:'(?:[^']|\\')*'|"(?:[^"]|\\")*"|-?\d+)\s*\])\s*)/g;
-    /*
     const regExp = /((?:(?:^|\.)\s*\w+|\[\s*(?:'(?:[^']|(?<!\\)\\')*'|"(?:[^"]|(?<!\\)\\")*"|-?\d+)\s*\])\s*)/g;
-    */
     /**              ^                         ^                      ^                      ^
      *               |                         |                      |                      |
      *                - .dotAccessor or initial property (i.e. a in "a.b")                   |
@@ -248,14 +290,10 @@ export function getPathComponents(path: string) {
             const accessor = match.slice(1, -1).trim();
             if (accessor.startsWith(`'`)) {
                 // ['string-property']
-                // See Safari <16.4 note above
-                components.push(accessor.slice(1, -1).replace(/\\'/g, `'`));
-                // components.push(accessor.slice(1, -1).replace(/(?<!\\)\\'/g, `'`));
+                components.push(accessor.slice(1, -1).replace(/(?<!\\)\\'/g, `'`));
             } else if (accessor.startsWith(`"`)) {
                 // ["string-property"]
-                // See Safari <16.4 note above
-                components.push(accessor.slice(1, -1).replace(/\\"/g, `"`));
-                // components.push(accessor.slice(1, -1).replace(/(?<!\\)\\"/g, `"`));
+                components.push(accessor.slice(1, -1).replace(/(?<!\\)\\"/g, `"`));
             } else {
                 // ["number-property"]
                 components.push(accessor);
@@ -381,6 +419,32 @@ export class DataModel<
 
     resolveProcessedDataDefsByIds<T extends string>(scope: ScopeProvider, searchIds: T[]): [T, ProcessedDataDef][] {
         return searchIds.map((searchId) => [searchId, this.resolveProcessedDataDefById(scope, searchId)]);
+    }
+
+    resolveKeysById<T = string>(
+        scope: ScopeProvider,
+        searchId: string,
+        processedData: UngroupedData<any> | GroupedData<any>
+    ): (T | undefined)[] {
+        const index = this.resolveProcessedDataIndexById(scope, searchId);
+        const keys = processedData.keys[index];
+        if (keys == null) {
+            throw new Error(`AG Charts - didn't find keys for [${searchId}, ${scope.id}]`);
+        }
+        return keys;
+    }
+
+    resolveColumnById<T = any>(
+        scope: ScopeProvider,
+        searchId: string,
+        processedData: UngroupedData<any> | GroupedData<any>
+    ): T[] {
+        const index = this.resolveProcessedDataIndexById(scope, searchId);
+        const column = processedData.columns?.[index];
+        if (column == null) {
+            throw new Error(`AG Charts - didn't find column for [${searchId}, ${scope.id}]`);
+        }
+        return column;
     }
 
     resolveProcessedDataDefsValues<T extends string>(
@@ -529,16 +593,19 @@ export class DataModel<
             return false;
         };
 
-        const result = this.values.findIndex((def) => {
+        const result = this.values.reduce((res, def, index) => {
             const validDefScopes =
                 def.scopes == null ||
                 (noScopesToMatch && !def.scopes.length) ||
                 def.scopes.some((s) => scopes?.includes(s));
 
-            return validDefScopes && (def.property === propId || def.id === propId || hasMatchingScopeId(def));
-        });
+            if (validDefScopes && (def.property === propId || def.id === propId || hasMatchingScopeId(def))) {
+                res.push(index);
+            }
+            return res;
+        }, [] as number[]);
 
-        if (result === -1) {
+        if (result.length === 0) {
             throw new Error(
                 `AG Charts - configuration error, unknown property ${JSON.stringify(prop)} in scope(s) ${JSON.stringify(
                     scopes
@@ -553,70 +620,78 @@ export class DataModel<
         const { dataDomain, processValue, scopes, allScopesHaveSameDefs } = this.initDataDomainProcessor();
         const sourcesById = new Map(sources?.map((s) => [s.id, s]));
         const { keys: keyDefs, values: valueDefs } = this;
-        const resultData = new Array(data.length);
 
-        let resultDataIdx = 0;
+        const dataLength = data.length;
+
         let partialValidDataCount = 0;
 
-        for (const [datumIdx, datum] of data.entries()) {
-            const sourceDatums: Record<string, any> = {};
+        let invalidKeys: boolean[] | undefined;
+        let invalidData: boolean[] | undefined;
+        const keys = keyDefs.map((def) => {
+            const { invalidValue } = def;
 
-            const validScopes = scopes.size > 0 ? new Set(scopes) : undefined;
-            const keys = new Array(keyDefs.length);
-            let keyIdx = 0;
-            let key;
-            for (const def of keyDefs) {
-                key = processValue(def, datum, datumIdx, key);
-                if (key === INVALID_VALUE) break;
-                if (keys) {
-                    keys[keyIdx++] = key;
-                }
+            return data.map((datum, datumIndex) => {
+                const key = processValue(def, datum, datumIndex);
+
+                if (key !== INVALID_VALUE) return key;
+
+                invalidKeys ??= createArray(dataLength, false);
+                invalidKeys[datumIndex] = true;
+
+                invalidData ??= createArray(dataLength, false);
+                invalidData[datumIndex] = true;
+
+                return invalidValue;
+            });
+        });
+
+        let invalidDataScopes: Map<string, boolean[]> | undefined;
+        const markScopeDatumInvalid = (scope: string, datumIndex: number) => {
+            invalidDataScopes ??= new Map();
+            let datumValidity = invalidDataScopes.get(scope);
+            if (datumValidity == null) {
+                datumValidity = createArray(dataLength, false);
+                invalidDataScopes.set(scope, datumValidity);
             }
-            if (key === INVALID_VALUE) continue;
+            datumValidity[datumIndex] = true;
 
-            const values = valueDefs.length > 0 ? new Array(valueDefs.length) : undefined;
-            let value;
+            invalidData ??= createArray(dataLength, false);
+            invalidData[datumIndex] = true;
+        };
 
-            for (const [valueDefIdx, def] of valueDefs.entries()) {
+        const columns: any[][] = [];
+        valueDefs.forEach((def) => {
+            const { invalidValue } = def;
+
+            const previousColumn = columns.length > 0 ? columns[columns.length - 1] : undefined;
+
+            const column = data.map((datum, datumIndex) => {
+                const invalidKey = invalidKeys?.[datumIndex] === true;
+                let value = previousColumn?.[datumIndex];
                 for (const scope of def.scopes ?? scopes) {
                     const source = sourcesById.get(scope);
-                    const valueDatum = source?.data[datumIdx] ?? datum;
+                    const valueDatum = source?.data[datumIndex] ?? datum;
 
-                    value = processValue(def, valueDatum, datumIdx, value, scope);
+                    value = processValue(def, valueDatum, datumIndex, value, scope);
 
-                    if (value === INVALID_VALUE || !values) continue;
-
-                    if (source != null && def.includeProperty !== false) {
-                        const property = def.includeProperty && def.id != null ? def.id : def.property;
-                        sourceDatums[scope] ??= {};
-                        sourceDatums[scope][property] = value;
+                    if (invalidKey || value === INVALID_VALUE) {
+                        markScopeDatumInvalid(scope, datumIndex);
                     }
-
-                    values[valueDefIdx] = value;
                 }
 
-                if (value === INVALID_VALUE) {
-                    if (allScopesHaveSameDefs) break;
-                    for (const scope of def.scopes ?? scopes) {
-                        validScopes?.delete(scope);
-                    }
-                    if (validScopes?.size === 0) break;
+                if (invalidKey) {
+                    return invalidValue;
+                } else if (value === INVALID_VALUE) {
+                    partialValidDataCount += 1;
+
+                    return invalidValue;
                 }
-            }
 
-            if (value === INVALID_VALUE && allScopesHaveSameDefs) continue;
-            if (validScopes?.size === 0) continue;
+                return value;
+            });
 
-            const result: UngroupedDataItem<D, any> = { datum: { ...datum, ...sourceDatums }, keys, values };
-
-            if (!allScopesHaveSameDefs && validScopes && validScopes.size < scopes.size) {
-                partialValidDataCount++;
-                result.validScopes = new Set(validScopes);
-            }
-
-            resultData[resultDataIdx++] = result;
-        }
-        resultData.length = resultDataIdx;
+            columns.push(column);
+        });
 
         const propertyDomain = (def: InternalDatumPropertyDefinition<K>) => {
             const defDomain = dataDomain.get(def)!;
@@ -631,7 +706,14 @@ export class DataModel<
         return {
             type: 'ungrouped',
             input: { count: data.length },
-            data: resultData,
+            rawData: data,
+            rawDataSources: sources != null ? new Map(sources.map((s) => [s.id, s.data])) : undefined,
+            aggregation: undefined,
+            keys,
+            columns,
+            invalidKeys,
+            invalidDataScopes,
+            invalidData,
             domain: {
                 keys: keyDefs.map(propertyDomain),
                 values: valueDefs.map(propertyDomain),
@@ -647,166 +729,186 @@ export class DataModel<
     }
 
     private groupData(data: UngroupedData<D>, groupingFn?: GroupingFn<D>): GroupedData<D> {
-        const processedData = new Map<
-            string,
-            { keys: D[K][]; values: D[K][][]; datum: D[]; validScopes?: Set<string> }
-        >();
+        const groups = new Map<string, { keys: D[K][]; datumIndices: number[]; validScopes?: Set<string> }>();
 
-        for (const dataEntry of data.data) {
-            const { keys, values, datum, validScopes } = dataEntry;
-            const group = groupingFn?.(dataEntry) ?? keys;
+        const { rawData, keys: dataKeys, invalidKeys, invalidDataScopes, invalidData } = data;
+        for (let datumIndex = 0; datumIndex < rawData.length; datumIndex += 1) {
+            const datum = rawData[datumIndex];
+            const keys = datumKeys(dataKeys, datumIndex);
+            if (keys == null || keys.length === 0) continue;
+
+            const group =
+                groupingFn?.({
+                    index: datumIndex,
+                    keys,
+                    values: undefined!,
+                    aggValues: undefined!,
+                    datum,
+                    validScopes: undefined!,
+                }) ?? keys;
             const groupStr = toKeyString(group);
 
-            if (processedData.has(groupStr)) {
-                const existingData = processedData.get(groupStr)!;
-                existingData.values.push(values);
-                existingData.datum.push(datum);
-                if (validScopes != null && existingData.validScopes != null) {
+            if (invalidKeys?.[datumIndex] === true) continue;
+
+            let validScopes: Set<string> | undefined;
+            if (invalidDataScopes != null && invalidData?.[datumIndex] === true) {
+                validScopes = new Set();
+                invalidDataScopes.forEach((invalidDatums, scope) => {
+                    if (invalidDatums[datumIndex] === false) {
+                        validScopes!.add(scope);
+                    }
+                });
+
+                if (validScopes.size === 0) continue;
+            }
+
+            const existingGroup = groups.get(groupStr);
+            if (existingGroup != null) {
+                existingGroup.datumIndices.push(datumIndex);
+
+                if (validScopes != null && existingGroup.validScopes != null) {
                     // Intersection of existing validScopes with new validScopes.
-                    for (const scope of existingData.validScopes) {
+                    for (const scope of existingGroup.validScopes) {
                         if (!validScopes.has(scope)) {
-                            existingData.validScopes.delete(scope);
+                            existingGroup.validScopes.delete(scope);
                         }
                     }
                 }
             } else {
-                processedData.set(groupStr, {
+                groups.set(groupStr, {
                     keys: group,
-                    values: [values],
-                    datum: [datum],
+                    datumIndices: [datumIndex],
                     validScopes,
                 });
             }
         }
 
-        const resultData = new Array(processedData.size);
-        const resultGroups = new Array(processedData.size);
-        let dataIndex = 0;
-        for (const { keys, values, datum, validScopes } of processedData.values()) {
+        const resultGroups = [];
+        const resultData = [];
+        for (const { keys, datumIndices, validScopes } of groups.values()) {
             if (validScopes?.size === 0) continue;
 
-            resultGroups[dataIndex] = keys;
-            resultData[dataIndex++] = {
+            resultGroups.push(keys);
+            resultData.push({
+                datumIndices,
                 keys,
-                values,
-                datum,
+                aggregation: [],
                 validScopes,
-            };
+            });
         }
 
         return {
             ...data,
             type: 'grouped',
-            data: resultData,
             domain: {
                 ...data.domain,
                 groups: resultGroups,
             },
+            groups: resultData,
         };
     }
 
     private aggregateData(processedData: ProcessedData<any>) {
-        const isUngrouped = processedData.type === 'ungrouped';
+        const domainAggValues = this.aggregates.map((): [number, number] => [Infinity, -Infinity]);
+        processedData.domain.aggValues = domainAggValues;
 
-        processedData.domain.aggValues = [];
+        const { keys, columns, rawData } = processedData;
 
-        for (const [index, def] of this.aggregates.entries()) {
-            const indices = this.valueGroupIdxLookup(def);
-            const domain: [number, number] = [Infinity, -Infinity];
+        if (processedData.type === 'ungrouped') {
+            const resultAggregation = rawData.map((_datum, datumIndex) => {
+                const aggregation: [number, number][] = [];
 
-            for (const datum of processedData.data) {
-                datum.aggValues ??= new Array(this.aggregates.length);
-
-                if (datum.validScopes) continue;
-
-                const values = isUngrouped ? [datum.values] : datum.values;
-                let groupAggValues = def.groupAggregateFunction?.() ?? [Infinity, -Infinity];
-
-                for (const distinctValues of values) {
-                    const valuesToAgg = indices.map((valueIdx) => distinctValues[valueIdx] as D[K]);
-                    const valuesAgg = def.aggregateFunction(valuesToAgg, datum.keys);
+                for (const [index, def] of this.aggregates.entries()) {
+                    const indices = this.valueGroupIdxLookup(def);
+                    let groupAggValues = def.groupAggregateFunction?.() ?? [Infinity, -Infinity];
+                    const valuesToAgg = indices.map((columnIndex) => columns![columnIndex][datumIndex] as D[K]);
+                    const k = datumKeys(keys, datumIndex);
+                    const valuesAgg = k != null ? def.aggregateFunction(valuesToAgg, k) : undefined;
                     if (valuesAgg) {
                         groupAggValues =
                             def.groupAggregateFunction?.(valuesAgg, groupAggValues) ??
                             ContinuousDomain.extendDomain(valuesAgg, groupAggValues);
                     }
+
+                    const finalValues = (def.finalFunction?.(groupAggValues) ?? groupAggValues).map((v) =>
+                        round(v)
+                    ) as [number, number];
+
+                    aggregation[index] = finalValues;
+                    ContinuousDomain.extendDomain(finalValues, domainAggValues[index]);
                 }
 
-                const finalValues = (def.finalFunction?.(groupAggValues) ?? groupAggValues).map((v) => round(v)) as [
-                    number,
-                    number,
-                ];
+                return aggregation;
+            });
 
-                datum.aggValues[index] = finalValues;
-                ContinuousDomain.extendDomain(finalValues, domain);
+            processedData.aggregation = resultAggregation;
+        } else {
+            for (const [index, def] of this.aggregates.entries()) {
+                const indices = this.valueGroupIdxLookup(def);
+
+                for (const group of processedData.groups) {
+                    group.aggregation ??= [];
+
+                    if (group.validScopes != null) continue;
+
+                    const groupKeys = group.keys;
+
+                    let groupAggValues = def.groupAggregateFunction?.() ?? [Infinity, -Infinity];
+                    for (const datumIndex of group.datumIndices) {
+                        const valuesToAgg = indices.map((columnIndex) => columns![columnIndex][datumIndex] as D[K]);
+                        const valuesAgg = def.aggregateFunction(valuesToAgg, groupKeys);
+                        if (valuesAgg) {
+                            groupAggValues =
+                                def.groupAggregateFunction?.(valuesAgg, groupAggValues) ??
+                                ContinuousDomain.extendDomain(valuesAgg, groupAggValues);
+                        }
+                    }
+
+                    const finalValues = (def.finalFunction?.(groupAggValues) ?? groupAggValues).map((v) =>
+                        round(v)
+                    ) as [number, number];
+
+                    group.aggregation[index] = finalValues;
+                    ContinuousDomain.extendDomain(finalValues, domainAggValues[index]);
+                }
             }
-
-            processedData.domain.aggValues.push(domain);
         }
     }
 
     private postProcessGroups(processedData: ProcessedData<any>) {
         const { groupProcessors } = this;
-        const affectedIndices = new Set<number>();
-        const updatedDomains = new Map<number, IDataDomain>();
-        const groupProcessorIndices = new Map<object, number[]>();
-        const groupProcessorInitFns = new Map<object, () => (v: any[], i: number[]) => void>();
 
+        const { rawData, columns, invalidData } = processedData;
         for (const processor of groupProcessors) {
-            const indices = this.valueGroupIdxLookup(processor);
-            groupProcessorIndices.set(processor, indices);
-            groupProcessorInitFns.set(processor, processor.adjust());
+            const valueIndexes = this.valueGroupIdxLookup(processor);
+            const adjustFn = processor.adjust()();
 
-            for (const idx of indices) {
-                const valueDef = this.values[idx];
+            for (let datumIndex = 0; datumIndex < rawData.length; datumIndex += 1) {
+                if (invalidData?.[datumIndex] === true) continue;
+                adjustFn(columns, valueIndexes, datumIndex);
+            }
+
+            for (const valueIndex of valueIndexes) {
+                const valueDef = this.values[valueIndex];
                 const isDiscrete = valueDef.valueType === 'category';
-                affectedIndices.add(idx);
-                updatedDomains.set(idx, isDiscrete ? new DiscreteDomain() : new ContinuousDomain());
-            }
-        }
 
-        const updateDomains = (values: any[]) => {
-            for (const valueIndex of affectedIndices) {
-                updatedDomains.get(valueIndex)?.extend(values[valueIndex]);
-            }
-        };
-
-        for (const group of processedData.data) {
-            for (const processor of groupProcessors) {
-                if (group.validScopes) continue;
-
-                const valueIndexes = groupProcessorIndices.get(processor) ?? [];
-                const adjustFn = groupProcessorInitFns.get(processor)?.();
-
-                if (!adjustFn) continue;
-                if (processedData.type === 'grouped') {
-                    for (const values of group.values) {
-                        if (values) {
-                            adjustFn(values, valueIndexes);
-                        }
-                    }
-                } else if (group.values) {
-                    adjustFn(group.values, valueIndexes);
+                const column = columns[valueIndex];
+                const domain = isDiscrete ? new DiscreteDomain() : new ContinuousDomain();
+                for (let datumIndex = 0; datumIndex < rawData.length; datumIndex += 1) {
+                    if (invalidData?.[datumIndex] === true) continue;
+                    domain.extend(column[datumIndex]);
                 }
-            }
 
-            if (processedData.type === 'grouped') {
-                for (const values of group.values) {
-                    updateDomains(values);
-                }
-            } else {
-                updateDomains(group.values);
+                processedData.domain.values[valueIndex] = domain.getDomain();
             }
-        }
-
-        for (const [idx, dataDomain] of updatedDomains) {
-            processedData.domain.values[idx] = dataDomain.getDomain();
         }
     }
 
     private postProcessProperties(processedData: ProcessedData<any>) {
         for (const { adjust, property, scopes } of this.propertyProcessors) {
-            adjust()(processedData, this.valueIdxLookup(scopes, property));
+            for (const idx of this.valueIdxLookup(scopes, property)) {
+                adjust()(processedData, idx);
+            }
         }
     }
 
@@ -815,9 +917,27 @@ export class DataModel<
         for (const def of this.reducers) {
             const reducer = def.reducer();
             let accValue: any = def.initialValue;
-            for (const datum of processedData.data) {
-                if (!datum.validScopes || def.scopes?.some((s) => datum.validScopes?.has(s))) {
-                    accValue = reducer(accValue, datum);
+            const { rawData, keys, columns } = processedData;
+            if (processedData.type === 'grouped') {
+                for (const group of processedData.groups) {
+                    if (!group.validScopes || def.scopes?.some((s) => group.validScopes?.has(s))) {
+                        accValue = reducer(accValue, {
+                            index: group.datumIndices,
+                            // Why is flatMap needed?
+                            keys: group.datumIndices.flatMap((datumIndex) => keys.map((k) => k[datumIndex])),
+                            values: group.datumIndices.map((datumIndex) => columns![datumIndex]),
+                            datum: group.datumIndices.map((datumIndex) => rawData[datumIndex]),
+                        });
+                    }
+                }
+            } else {
+                for (let datumIndex = 0; datumIndex < rawData.length; datumIndex += 1) {
+                    accValue = reducer(accValue, {
+                        index: [datumIndex],
+                        keys: keys.map((k) => k[datumIndex]),
+                        values: [columns![datumIndex]],
+                        datum: [rawData[datumIndex]],
+                    });
                 }
             }
             processedData.reduced[def.property] = accValue;
@@ -963,28 +1083,29 @@ function logProcessedData(processedData: ProcessedData<any>) {
     logValues('Value Domains', processedData.domain.values);
     logValues('Aggregate Domains', processedData.domain.aggValues ?? []);
 
-    if (processedData.type === 'grouped') {
-        const flattenedValues = processedData.data.reduce<any[]>((acc, next) => {
-            const keys = next.keys ?? [];
-            const aggValues = next.aggValues ?? [];
-            const skipKeys = next.keys.map(() => undefined);
-            const skipAggValues = aggValues?.map(() => undefined);
-            acc.push(
-                ...next.values.map((v, i) => [
-                    ...(i === 0 ? keys : skipKeys),
-                    ...(v ?? []),
-                    ...(i == 0 ? aggValues : skipAggValues),
-                ])
-            );
-            return acc;
-        }, []);
-        logValues('Values', flattenedValues);
-    } else {
-        const flattenedValues = processedData.data.reduce<any[]>((acc, next) => {
-            const aggValues = next.aggValues ?? [];
-            acc.push([...next.keys, ...next.values, ...aggValues]);
-            return acc;
-        }, []);
-        logValues('Values', flattenedValues);
-    }
+    // TODO
+    // if (processedData.type === 'grouped') {
+    //     const flattenedValues = processedData.data.reduce<any[]>((acc, next) => {
+    //         const keys = next.keys ?? [];
+    //         const aggValues = next.aggValues ?? [];
+    //         const skipKeys = next.keys.map(() => undefined);
+    //         const skipAggValues = aggValues?.map(() => undefined);
+    //         acc.push(
+    //             ...next.values.map((v, i) => [
+    //                 ...(i === 0 ? keys : skipKeys),
+    //                 ...(v ?? []),
+    //                 ...(i == 0 ? aggValues : skipAggValues),
+    //             ])
+    //         );
+    //         return acc;
+    //     }, []);
+    //     logValues('Values', flattenedValues);
+    // } else {
+    //     const flattenedValues = processedData.data.reduce<any[]>((acc, next) => {
+    //         const aggValues = next.aggValues ?? [];
+    //         acc.push([...next.keys, ...next.values, ...aggValues]);
+    //         return acc;
+    //     }, []);
+    //     logValues('Values', flattenedValues);
+    // }
 }

@@ -1,16 +1,18 @@
-import { type _ModuleSupport, _Theme } from 'ag-charts-community';
+import { _ModuleSupport } from 'ag-charts-community';
 
 import defaultColorStops from '../gauge-util/defaultColorStops';
 import { LinearGaugeSeries } from './linearGaugeSeries';
 
 const {
-    FONT_WEIGHT,
-    DEFAULT_FONT_FAMILY,
-    DEFAULT_HIERARCHY_FILLS,
-    DEFAULT_LABEL_COLOUR,
-    DEFAULT_INVERTED_LABEL_COLOUR,
-    CARTESIAN_AXIS_TYPE,
-} = _Theme;
+    ThemeSymbols: {
+        DEFAULT_FONT_FAMILY,
+        DEFAULT_HIERARCHY_FILLS,
+        DEFAULT_LABEL_COLOUR,
+        DEFAULT_INVERTED_LABEL_COLOUR,
+        DEFAULT_GAUGE_SERIES_COLOR_RANGE,
+    },
+    ThemeConstants: { CARTESIAN_AXIS_TYPE },
+} = _ModuleSupport;
 
 export const LinearGaugeModule: _ModuleSupport.SeriesModule<'linear-gauge'> = {
     type: 'series',
@@ -48,7 +50,7 @@ export const LinearGaugeModule: _ModuleSupport.SeriesModule<'linear-gauge'> = {
                 spacing: 5,
                 label: {
                     enabled: true,
-                    fontWeight: FONT_WEIGHT.NORMAL,
+                    fontWeight: 'normal' as const,
                     fontSize: 12,
                     fontFamily: DEFAULT_FONT_FAMILY,
                     color: DEFAULT_LABEL_COLOUR,
@@ -58,7 +60,7 @@ export const LinearGaugeModule: _ModuleSupport.SeriesModule<'linear-gauge'> = {
             label: {
                 enabled: false,
                 placement: 'inside-start',
-                fontWeight: FONT_WEIGHT.NORMAL,
+                fontWeight: 'normal' as const,
                 fontSize: 24,
                 minimumFontSize: 12,
                 spacing: 18,
@@ -71,7 +73,7 @@ export const LinearGaugeModule: _ModuleSupport.SeriesModule<'linear-gauge'> = {
             },
         },
         axes: {
-            [_Theme.CARTESIAN_AXIS_TYPE.NUMBER]: {
+            [CARTESIAN_AXIS_TYPE.NUMBER]: {
                 line: {
                     enabled: false,
                 },
@@ -84,9 +86,7 @@ export const LinearGaugeModule: _ModuleSupport.SeriesModule<'linear-gauge'> = {
     paletteFactory(params) {
         const { takeColors, colorsCount, userPalette, themeTemplateParameters } = params;
         const { fills } = takeColors(colorsCount);
-        const defaultColorRange = themeTemplateParameters.get(_Theme.DEFAULT_GAUGE_SERIES_COLOR_RANGE) as
-            | string[]
-            | undefined;
+        const defaultColorRange = themeTemplateParameters.get(DEFAULT_GAUGE_SERIES_COLOR_RANGE) as string[] | undefined;
         const hierarchyFills = themeTemplateParameters.get(DEFAULT_HIERARCHY_FILLS);
         const colorRange = userPalette === 'inbuilt' ? defaultColorRange : [fills[0], fills[1]];
         return {
