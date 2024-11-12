@@ -41,20 +41,22 @@ function tsGenerateWithOptionReferences(node, srcFile) {
 export function parser({
     srcFile,
     html,
+    dirPath,
     exampleSettings,
 }: {
     srcFile: string;
     html: string;
+    dirPath: string;
     exampleSettings: ExampleSettings;
 }) {
-    const bindings = internalParser(readAsJsFile(srcFile, { includeImports: true }), html, exampleSettings);
-    const typedBindings = internalParser(srcFile, html, exampleSettings);
+    const bindings = internalParser(readAsJsFile(srcFile, { includeImports: true }), html, exampleSettings, dirPath);
+    const typedBindings = internalParser(srcFile, html, exampleSettings, dirPath);
     // Ensure options type percolates through for JS cases.
     Object.assign(bindings.optionsTypeInfo, typedBindings.optionsTypeInfo);
     return { bindings, typedBindings };
 }
 
-export function internalParser(js, html, exampleSettings) {
+export function internalParser(js, html, exampleSettings, dirPath) {
     const domTree = cheerio.load(html, null, false);
     domTree('style').remove();
 
@@ -107,7 +109,9 @@ export function internalParser(js, html, exampleSettings) {
                 !tsNodeIsFunctionCall(initializer) ||
                 !tsNodeIsPropertyAccessExpressionOf(initializer.expression, ['document', 'getElementById'])
             ) {
-                throw new Error('Invalid container definition (must be in form of document.getElementById)');
+                throw new Error(
+                    `Invalid container definition (must be in form of document.getElementById) at "${dirPath}"`
+                );
             }
 
             let propertyAssignment = node;
@@ -115,7 +119,7 @@ export function internalParser(js, html, exampleSettings) {
                 propertyAssignment = propertyAssignment.parent;
             }
             if (propertyAssignment == null || !tsNodeIsGlobalVar(propertyAssignment)) {
-                throw new Error('AgChartOptions was not assigned to variable');
+                throw new Error(`AgChartOptions was not assigned to variable at "${dirPath}"`);
             }
 
             const propertyName = propertyAssignment.name.escapedText;

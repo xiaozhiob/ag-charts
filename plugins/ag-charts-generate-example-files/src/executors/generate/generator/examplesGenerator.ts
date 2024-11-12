@@ -151,6 +151,7 @@ export const getGeneratedContents = async (params: GeneratedContentParams): Prom
     const { bindings, typedBindings } = chartVanillaSrcParser({
         srcFile: entryFile,
         html: indexHtml,
+        dirPath: folderPath,
         exampleSettings: {
             enterprise: isEnterprise,
         },
