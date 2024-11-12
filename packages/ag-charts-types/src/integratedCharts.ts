@@ -73,4 +73,4 @@ export interface IntegratedModule<O extends AgChartInstanceOptions> {
 }
 
 export type IntegratedChartModule = IntegratedModule<AgChartOptions>;
-export type IntegratedSparklineModule = IntegratedModule<AgSparklineOptions>;
+export type IntegratedSparklinesModule = IntegratedModule<AgSparklineOptions>;

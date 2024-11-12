@@ -17,7 +17,7 @@ export function setupEnterpriseModules() {
     setupCommunityModules();
 }
 
-export const ChartEnterpriseModule: IntegratedChartModule = {
+export const AgChartsEnterpriseModule: IntegratedChartModule = {
     VERSION,
     // @ts-ignore
     _Scene,

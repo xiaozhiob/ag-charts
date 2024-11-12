@@ -1,4 +1,4 @@
-import type { IntegratedChartModule, IntegratedSparklineModule } from 'ag-charts-types';
+import type { IntegratedChartModule, IntegratedSparklinesModule } from 'ag-charts-types';
 
 import { AgCharts } from './api/agCharts';
 import { registerInbuiltModules } from './chart/factory/registerInbuiltModules';
@@ -11,7 +11,7 @@ export { AgCharts } from './api/agCharts';
 export { VERSION } from './version';
 export { registerInbuiltModules as setupCommunityModules } from './chart/factory/registerInbuiltModules';
 
-export const ChartCommunityModule: IntegratedChartModule = {
+export const AgChartsCommunityModule: IntegratedChartModule = {
     VERSION,
     // @ts-ignore
     _Scene,
@@ -25,7 +25,7 @@ export const ChartCommunityModule: IntegratedChartModule = {
     isEnterprise: false,
 };
 
-export const SparklineModule: IntegratedSparklineModule = {
+export const AgChartsSparklinesModule: IntegratedSparklinesModule = {
     VERSION,
     // @ts-ignore
     _Scene,
