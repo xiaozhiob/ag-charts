@@ -1,11 +1,6 @@
 import type { AgChartCaptionOptions } from './chart/chartOptions';
 import type { AgChartThemePalette, AgPaletteColors } from './chart/themeOptions';
-import type {
-    AgChartInstance,
-    AgChartInstanceOptions,
-    AgChartOptions,
-    AgSparklineOptions,
-} from './chartBuilderOptions';
+import type { AgChartInstance, AgChartInstanceOptions, AgSparklineOptions } from './chartBuilderOptions';
 
 export interface IColor {
     r: number;
@@ -60,17 +55,15 @@ export interface _IUtil {
     interpolateColor(a: IColor | string, b: IColor | string): (delta: number) => string;
 }
 
-export interface IntegratedModule<O extends AgChartInstanceOptions> {
+export interface IntegratedModule {
     VERSION: string;
     _Scene: _IScene;
     _Theme: _ITheme;
     _Util: _IUtil;
-    create(options: O): AgChartInstance<O>;
+    create(options: AgChartInstanceOptions): AgChartInstance<AgChartInstanceOptions>;
+    createSparkline(options: AgSparklineOptions): AgChartInstance<AgSparklineOptions>;
     setup(): void;
     setGridContext(gridContext: boolean): void;
     setLicenseKey(licenseKey: string): void;
     isEnterprise: boolean;
 }
-
-export type IntegratedChartModule = IntegratedModule<AgChartOptions>;
-export type IntegratedSparklinesModule = IntegratedModule<AgSparklineOptions>;
