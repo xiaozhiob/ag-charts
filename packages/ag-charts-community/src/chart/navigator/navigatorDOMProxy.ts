@@ -1,9 +1,9 @@
-import type { ProxyDragHandlerEvent } from '../../dom/proxyInteractionService';
 import type { ModuleContext } from '../../module/moduleContext';
 import type { BBoxValues } from '../../util/bboxinterface';
 import { clamp } from '../../util/number';
 import { SliderWidget } from '../../widget/sliderWidget';
 import type { ToolbarWidget } from '../../widget/toolbarWidget';
+import type { DragMoveWidgetEvent, DragStartWidgetEvent } from '../../widget/widgetEvents';
 
 export type NavigatorButtonType = 'min' | 'max' | 'pan';
 
@@ -22,8 +22,6 @@ export class NavigatorDOMProxy {
 
     private readonly toolbar: ToolbarWidget;
     private readonly sliders: [SliderWidget, SliderWidget, SliderWidget];
-
-    private destroyDragListeners?: () => void;
 
     constructor(
         private readonly ctx: Pick<ModuleContext, 'zoomManager' | 'proxyInteractionService' | 'localeManager'>,
@@ -64,9 +62,13 @@ export class NavigatorDOMProxy {
                 onchange: (ev) => this.onMaxSliderChange(ev),
             }),
         ];
-        for (const slider of this.sliders) {
+        for (const [index, key] of (['min', 'pan', 'max'] as const).entries()) {
+            const slider = this.sliders[index];
             slider.step = SliderWidget.STEP_HUNDRETH;
             slider.setPreventsDefault(false);
+            slider.addListener('drag-start', (target, ev) => this.onDragStart(target, ev, key));
+            slider.addListener('drag-move', (target, ev) => this.onDrag(target, ev, key));
+            slider.addListener('drag-end', () => this.updateSliderRatios());
         }
         this.updateSliderRatios();
         this.updateVisibility(false);
@@ -76,28 +78,8 @@ export class NavigatorDOMProxy {
         this.toolbar.destroy();
     }
 
-    private initDragListeners() {
-        if (this.destroyDragListeners != null) return;
-
-        for (const [index, key] of (['min', 'pan', 'max'] as const).entries()) {
-            const slider = this.sliders[index];
-            this.destroyDragListeners = this.ctx.proxyInteractionService.createDragListeners({
-                element: slider.getElement(),
-                onDragStart: (ev) => this.onDragStart(ev, key, slider),
-                onDrag: (ev) => this.onDrag(ev, key),
-                onDragEnd: () => this.updateSliderRatios(),
-            });
-        }
-    }
-
     updateVisibility(visible: boolean): void {
         this.toolbar.setHidden(!visible);
-        if (visible) {
-            this.initDragListeners();
-        } else {
-            this.destroyDragListeners?.();
-            this.destroyDragListeners = undefined;
-        }
     }
 
     updateZoom(): void {
@@ -129,18 +111,18 @@ export class NavigatorDOMProxy {
         this.sliders[2].setValueRatio(max);
     }
 
-    private toCanvasOffsets(event: ProxyDragHandlerEvent): { offsetX: number } {
+    private toCanvasOffsets(event: { originDeltaX: number }): { offsetX: number } {
         return { offsetX: this.dragStartX + event.originDeltaX };
     }
 
-    private onDragStart(event: ProxyDragHandlerEvent, key: NavigatorButtonType, slider: SliderWidget) {
+    private onDragStart(slider: SliderWidget, event: DragStartWidgetEvent, key: NavigatorButtonType) {
         const toolbarLeft = this.toolbar.cssLeft();
         const sliderLeft = slider.cssLeft();
         this.dragStartX = toolbarLeft + sliderLeft + event.offsetX;
         this.sliderHandlers.onDragStart(key, this.toCanvasOffsets(event));
     }
 
-    private onDrag(event: ProxyDragHandlerEvent, key: NavigatorButtonType) {
+    private onDrag(_slider: SliderWidget, event: DragMoveWidgetEvent, key: NavigatorButtonType) {
         this.sliderHandlers.onDrag(key, this.toCanvasOffsets(event));
     }
 

@@ -7,8 +7,12 @@ import {
 } from '../util/attributeUtil';
 import type { BBoxValues } from '../util/bboxinterface';
 import { getElementBBox, getWindow, setElementBBox } from '../util/dom';
-import type { WidgetEventMap } from './widgetEvents';
-import { WidgetListenerMap } from './widgetListenerMap';
+import { type WidgetEventMap, WidgetEventUtil } from './widgetEvents';
+import { WidgetListenerHTML } from './widgetListenerHTML';
+import { WidgetListenerInternal } from './widgetListenerInternal';
+
+type EventMap = WidgetEventMap;
+type EventType = keyof WidgetEventMap;
 
 interface IWidget<TElement extends HTMLElement> {
     index: number;
@@ -51,16 +55,14 @@ export abstract class Widget<
     public index: number = NaN;
 
     protected readonly children: TChildWidget[] = [];
+    protected htmlListener?: WidgetListenerHTML<typeof this>;
+    protected internalListener?: WidgetListenerInternal<typeof this>;
 
     constructor(protected override readonly elem: TElement) {
         super(elem);
     }
 
     protected abstract destructor(): void;
-
-    protected setElementContainer(widget: WidgetBounds, elemContainer: HTMLDivElement) {
-        WidgetBounds.setElementContainer(widget, elemContainer);
-    }
 
     getElement(): TElement {
         return this.elem;
@@ -71,7 +73,8 @@ export abstract class Widget<
         this.destructor();
         this.elem.remove();
         this.elemContainer?.remove();
-        this.map?.destroy(this);
+        this.internalListener?.destroy();
+        this.htmlListener?.destroy(this);
     }
 
     setHidden(hidden: boolean): void {
@@ -113,37 +116,41 @@ export abstract class Widget<
         setAttribute(this.elem, 'tabindex', tabIndex);
     }
 
-    protected appendChildToDOM(child: TChildWidget) {
-        this.elem.appendChild(child.getElement());
-    }
     appendChild(child: TChildWidget) {
         this.appendChildToDOM(child);
         this.children.push(child);
         child.index = this.children.length - 1;
         this.onChildAdded(child);
     }
-    protected onChildAdded(_child: TChildWidget): void {}
+
+    protected appendChildToDOM(child: TChildWidget) {
+        this.elem.appendChild(child.getElement());
+    }
 
     protected removeChildFromDOM(child: TChildWidget): void {
         this.elem.removeChild(child.getElement());
     }
 
+    protected onChildAdded(_child: TChildWidget): void {}
     protected onChildRemoved(_child: TChildWidget): void {}
 
-    protected map?: WidgetListenerMap<typeof this>;
-
-    addListener<K extends keyof WidgetEventMap>(
-        type: K,
-        listener: (target: typeof this, ev: WidgetEventMap[K]) => unknown
-    ) {
-        this.map ??= new WidgetListenerMap();
-        this.map.add(type, this, listener);
+    addListener<K extends EventType>(type: K, listener: (target: typeof this, ev: EventMap[K]) => unknown): void;
+    addListener<K extends EventType>(type: K, listener: (target: typeof this, ev: unknown) => unknown): void {
+        if (WidgetEventUtil.isHTMLEvent(type)) {
+            this.htmlListener ??= new WidgetListenerHTML();
+            this.htmlListener.add(type, this, listener);
+        } else {
+            this.internalListener ??= new WidgetListenerInternal();
+            this.internalListener.add(type, this, listener);
+        }
     }
 
-    removeListener<K extends keyof WidgetEventMap>(
-        type: K,
-        listener: (target: typeof this, ev: WidgetEventMap[K]) => unknown
-    ) {
-        this.map?.remove(type, this, listener);
+    removeListener<K extends EventType>(type: K, listener: (target: typeof this, ev: EventMap[K]) => unknown): void;
+    removeListener<K extends EventType>(type: K, listener: (target: typeof this, ev: unknown) => unknown): void {
+        if (WidgetEventUtil.isHTMLEvent(type)) {
+            this.htmlListener?.remove(type, this, listener);
+        } else if (this.htmlListener != null) {
+            this.internalListener?.remove(type, this, listener);
+        }
     }
 }

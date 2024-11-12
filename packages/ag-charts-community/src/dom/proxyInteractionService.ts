@@ -2,7 +2,7 @@ import type { Direction } from 'ag-charts-types';
 
 import type { LocaleManager } from '../locale/localeManager';
 import { type BaseStyleTypeMap, setAttribute, setElementStyle } from '../util/attributeUtil';
-import { createElement, getWindow } from '../util/dom';
+import { createElement } from '../util/dom';
 import { BoundedTextWidget } from '../widget/boundedTextWidget';
 import { ButtonWidget } from '../widget/buttonWidget';
 import { GroupWidget } from '../widget/groupWidget';
@@ -100,16 +100,6 @@ type ProxyMeta = {
 type ProxyElementType = 'button' | 'slider' | 'text' | 'listswitch' | 'region';
 type ProxyContainerType = 'toolbar' | 'group' | 'list';
 
-export type ProxyDragHandlerEvent = {
-    offsetX: number;
-    offsetY: number;
-    // `originDelta` is the offset relative to position of the HTML element when the drag initiated.
-    // This is helpful for elements that move during drag actions, like navigator sliders.
-    originDeltaX: number;
-    originDeltaY: number;
-};
-type ProxyDragHandler = (event: ProxyDragHandlerEvent) => void;
-
 function checkType<T extends keyof ProxyMeta>(type: T, meta: ProxyMeta[keyof ProxyMeta]): meta is ProxyMeta[T] {
     return meta.params?.type === type;
 }
@@ -144,16 +134,6 @@ function allocateMeta<T extends keyof ProxyMeta>(params: ProxyMeta[T]['params'])
 
 export class ProxyInteractionService {
     private readonly destroyFns: Array<() => void> = [];
-
-    private dragState?: {
-        target: HTMLElement;
-        start: {
-            offsetX: number;
-            offsetY: number;
-            pageX: number;
-            pageY: number;
-        };
-    };
 
     constructor(
         private readonly localeManager: LocaleManager,
@@ -252,63 +232,6 @@ export class ProxyInteractionService {
         }
 
         return meta.result;
-    }
-
-    createDragListeners(args: {
-        element: HTMLElement;
-        onDragStart?: ProxyDragHandler;
-        onDrag?: ProxyDragHandler;
-        onDragEnd?: ProxyDragHandler;
-    }): () => void {
-        const { element, onDragStart, onDrag, onDragEnd } = args;
-
-        const mousedown = (sourceEvent: MouseEvent) => {
-            const { button, offsetX, offsetY, pageX, pageY } = sourceEvent;
-            if (button === 0) {
-                this.dragState = { target: element, start: { offsetX, offsetY, pageX, pageY } };
-                onDragStart?.(ProxyInteractionService.makeDragEvent(this.dragState, sourceEvent));
-            }
-        };
-        const mousemove = (sourceEvent: MouseEvent) => {
-            if (this.dragState?.target === element) {
-                onDrag?.(ProxyInteractionService.makeDragEvent(this.dragState, sourceEvent));
-            }
-        };
-        const mouseup = (sourceEvent: MouseEvent) => {
-            if (this.dragState?.target === element && sourceEvent.button === 0) {
-                onDragEnd?.(ProxyInteractionService.makeDragEvent(this.dragState, sourceEvent));
-                this.dragState = undefined;
-            }
-        };
-
-        // TODO: We only need 1 window listener. Not one per draggable element.
-        const window = getWindow();
-        element.addEventListener('mousedown', mousedown);
-        window.addEventListener('mousemove', mousemove);
-        window.addEventListener('mouseup', mouseup);
-
-        return () => {
-            element.removeEventListener('mousedown', mousedown);
-            window.removeEventListener('mousemove', mousemove);
-            window.removeEventListener('mouseup', mouseup);
-        };
-    }
-
-    private static makeDragEvent(
-        { start }: NonNullable<ProxyInteractionService['dragState']>,
-        sourceEvent: MouseEvent
-    ): ProxyDragHandlerEvent {
-        // [offsetX, offsetY] is relative to the sourceEvent.target, which can be another element
-        // such as a legend button. Therefore, calculate [offsetX, offsetY] relative to the axis
-        // element that fired the 'mousedown' event.
-        const originDeltaX = sourceEvent.pageX - start.pageX;
-        const originDeltaY = sourceEvent.pageY - start.pageY;
-        return {
-            offsetX: start.offsetX + originDeltaX,
-            offsetY: start.offsetY + originDeltaY,
-            originDeltaX,
-            originDeltaY,
-        };
     }
 
     private initElement<T extends ProxyElementType>(params: ElemParams<T>, widget: IWidget) {
