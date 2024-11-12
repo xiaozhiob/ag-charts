@@ -1,18 +1,15 @@
-import type { Direction } from 'ag-charts-types';
-
 import { getAttribute, setAttribute } from '../util/attributeUtil';
 import { getDocument } from '../util/dom';
 import { PREV_NEXT_KEYS, hasNoModifiers } from '../util/keynavUtil';
 import type { ButtonWidget } from './buttonWidget';
 import type { NativeWidget } from './nativeWidget';
+import type { RovingDirection } from './rovingDirection';
 import type { SliderWidget } from './sliderWidget';
 import { Widget } from './widget';
 import type { FocusWidgetEvent, KeyboardWidgetEvent } from './widgetEvents';
 
 type RovingChildWidgets = SliderWidget | ButtonWidget | NativeWidget;
 type RovingKeys = (typeof PREV_NEXT_KEYS)[keyof typeof PREV_NEXT_KEYS];
-
-export type RovingDirection = Direction | 'both';
 
 export abstract class RovingTabContainerWidget extends Widget<HTMLDivElement, RovingChildWidgets> {
     private focusedChildIndex = 0;
