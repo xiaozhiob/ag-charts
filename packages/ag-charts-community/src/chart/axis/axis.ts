@@ -546,7 +546,7 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
     }
 
     protected getTickSize() {
-        return this.tick.enabled ? this.tick.size : 6;
+        return this.tick.enabled ? this.tick.size : 0;
     }
 
     private setTitleProps(caption: Caption, params: { spacing: number }) {

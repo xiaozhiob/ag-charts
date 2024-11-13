@@ -32,6 +32,7 @@ import { EMPTY_TOOLTIP_CONTENT, type TooltipContent } from '../../tooltip/toolti
 import { type PickFocusInputs, SeriesNodePickMode } from '../series';
 import { resetLabelFn, seriesLabelFadeInAnimation } from '../seriesLabelUtil';
 import type { ErrorBoundSeriesNodeDatum } from '../seriesTypes';
+import { datumStylerProperties } from '../util';
 import { AbstractBarSeries } from './abstractBarSeries';
 import { BarSeriesProperties } from './barSeriesProperties';
 import {
@@ -498,6 +499,7 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
         }
 
         const {
+            xKey,
             yKey,
             stackGroup,
             fill,
@@ -528,18 +530,20 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
             fillOpacity: 0,
             strokeOpacity: 0,
         };
-        const rectParams = {
-            datum: undefined as unknown as BarNodeDatum,
-            ctx: this.ctx,
-            seriesId: this.id,
-            isHighlighted: opts.isHighlight,
-            highlightStyle: itemHighlightStyle,
-            yKey,
-            style,
-            itemStyler,
-            stackGroup,
-        };
+        const xDomain = this.getSeriesDomain(ChartAxisDirection.X);
+        const yDomain = this.getSeriesDomain(ChartAxisDirection.Y);
         opts.datumSelection.each((rect, datum) => {
+            const rectParams = {
+                ctx: this.ctx,
+                seriesId: this.id,
+                isHighlighted: opts.isHighlight,
+                highlightStyle: itemHighlightStyle,
+                style,
+                itemStyler,
+                stackGroup,
+                ...datumStylerProperties(datum, xKey, yKey, xDomain, yDomain),
+            };
+
             style.fillOpacity = fillOpacity * (datum.phantom ? 0.2 : 1);
             style.strokeOpacity = strokeOpacity * (datum.phantom ? 0.2 : 1);
             style.cornerRadius = datum.cornerRadius;
@@ -551,7 +555,6 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
                 ? (datum.clipBBox?.width ?? datum.width) > 0
                 : (datum.clipBBox?.height ?? datum.height) > 0;
 
-            rectParams.datum = datum;
             const config = getRectConfig(rectParams);
             config.crisp = crisp;
             config.visible = visible;
@@ -604,11 +607,7 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
             const yDomain = this.getSeriesDomain(ChartAxisDirection.Y);
             format = callbackCache.call(itemStyler, {
                 seriesId,
-                datum,
-                xKey,
-                yKey,
-                xDomain,
-                yDomain,
+                ...datumStylerProperties(nodeDatum, xKey, yKey, xDomain, yDomain),
                 stackGroup,
                 fill,
                 stroke,

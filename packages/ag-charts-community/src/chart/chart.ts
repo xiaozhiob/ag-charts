@@ -38,6 +38,7 @@ import { ChartContext } from './chartContext';
 import { ChartHighlight } from './chartHighlight';
 import type { ChartMode } from './chartMode';
 import { ChartUpdateType } from './chartUpdateType';
+import { type CachedData } from './data/caching';
 import { DataController } from './data/dataController';
 import { axisRegistry } from './factory/axisRegistry';
 import { EXPECTED_ENTERPRISE_MODULES } from './factory/expectedEnterpriseModules';
@@ -892,6 +893,7 @@ export abstract class Chart extends Observable {
         await Promise.all(modulePromises);
     }
 
+    private _cachedData: CachedData | undefined = undefined;
     async processData() {
         if (this.series.some((s) => s.canHaveAxes)) {
             this.assignAxesToSeries();
@@ -901,7 +903,7 @@ export abstract class Chart extends Observable {
         const dataController = new DataController(this.mode);
         const seriesPromises = this.series.map((s) => s.processData(dataController));
         const modulePromises = this.modulesManager.mapModules((m) => m.processData?.(dataController));
-        dataController.execute();
+        this._cachedData = dataController.execute(this._cachedData);
         await Promise.all([...seriesPromises, ...modulePromises]);
 
         for (const { legendType, legend } of this.modulesManager.legends()) {

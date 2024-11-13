@@ -36,6 +36,7 @@ import { getMarker } from '../../marker/util';
 import { EMPTY_TOOLTIP_CONTENT, type TooltipContent } from '../../tooltip/tooltip';
 import { type PickFocusInputs, SeriesNodePickMode } from '../series';
 import { resetLabelFn, seriesLabelFadeInAnimation } from '../seriesLabelUtil';
+import { datumStylerProperties } from '../util';
 import type { CartesianAnimationData } from './cartesianSeries';
 import {
     CartesianSeries,
@@ -126,9 +127,10 @@ export class LineSeries extends CartesianSeries<
         const common: Partial<DatumPropertyDefinition<unknown>> = { invalidValue: null };
         if (connectMissingData && stackCount > 1) {
             common.invalidValue = 0;
-        }
-        if (!visible) {
-            common.forceValue = 0;
+
+            if (!visible) {
+                common.forceValue = 0;
+            }
         }
 
         const props: DataModelOptions<any, false>['props'] = [];
@@ -481,10 +483,13 @@ export class LineSeries extends CartesianSeries<
 
         const applyTranslation = this.ctx.animationManager.isSkipped();
         markerSelection.each((node, datum) => {
-            this.updateMarkerStyle(node, marker, { datum, highlighted, xKey, yKey, xDomain, yDomain }, baseStyle, {
-                applyTranslation,
-                selected: datum.selected,
-            });
+            this.updateMarkerStyle(
+                node,
+                marker,
+                { ...datumStylerProperties(datum, xKey, yKey, xDomain, yDomain), highlighted },
+                baseStyle,
+                { applyTranslation, selected: datum.selected }
+            );
         });
 
         if (!highlighted) {
@@ -541,7 +546,10 @@ export class LineSeries extends CartesianSeries<
         const baseStyle = mergeDefaults({ fill: marker.stroke }, marker.getStyle(), { strokeWidth });
         const { fill: color } = this.getMarkerStyle(
             marker,
-            { datum: nodeDatum, xKey, yKey, xDomain, yDomain, highlighted: false },
+            {
+                ...datumStylerProperties(nodeDatum, xKey, yKey, xDomain, yDomain),
+                highlighted: false,
+            },
             baseStyle
         );
 
@@ -736,7 +744,10 @@ export class LineSeries extends CartesianSeries<
         const { xKey, yKey } = this.properties;
         const xDomain = this.getSeriesDomain(ChartAxisDirection.X);
         const yDomain = this.getSeriesDomain(ChartAxisDirection.Y);
-        return this.getMarkerStyle(this.properties.marker, { datum, xKey, yKey, xDomain, yDomain, highlighted: true });
+        return this.getMarkerStyle(this.properties.marker, {
+            ...datumStylerProperties(datum, xKey, yKey, xDomain, yDomain),
+            highlighted: true,
+        });
     }
 
     protected computeFocusBounds(opts: PickFocusInputs): BBox | undefined {
