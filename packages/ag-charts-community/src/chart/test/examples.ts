@@ -158,64 +158,64 @@ export const INTEGRATED_CHARTS_GROUPED_CATEGORY_AXIS_EXAMPLE: AgCartesianChartOp
     mode: 'integrated',
     data: [
         {
-            'ag-Grid-AutoColumn-country': ['', '', 'Enchanted Kingdom of Celestria'],
+            'ag-Grid-AutoColumn-country': ['Enchanted Kingdom of Celestria', '', ''],
         },
         {
-            'ag-Grid-AutoColumn-country': ['', '2008', 'Enchanted Kingdom of Celestria'],
+            'ag-Grid-AutoColumn-country': ['Enchanted Kingdom of Celestria', '2008'],
             gold: 8,
             silver: 0,
             bronze: 0,
         },
         {
-            'ag-Grid-AutoColumn-country': ['', '2008', 'Enchanted Kingdom of Celestria'],
+            'ag-Grid-AutoColumn-country': ['Enchanted Kingdom of Celestria', '2008'],
             gold: 1,
             silver: 2,
             bronze: 3,
         },
         {
-            'ag-Grid-AutoColumn-country': ['', '2008', 'Enchanted Kingdom of Celestria'],
+            'ag-Grid-AutoColumn-country': ['Enchanted Kingdom of Celestria', '2008'],
             gold: 8,
             silver: 0,
             bronze: 0,
         },
         {
-            'ag-Grid-AutoColumn-country': ['', '2008', 'Enchanted Kingdom of Celestria'],
+            'ag-Grid-AutoColumn-country': ['Enchanted Kingdom of Celestria', '2008'],
             gold: 1,
             silver: 2,
             bronze: 3,
         },
         {
-            'ag-Grid-AutoColumn-country': ['', '', 'Whimsical Wonderland of Dreamlandia'],
+            'ag-Grid-AutoColumn-country': ['Whimsical Wonderland of Dreamlandia'],
         },
         {
-            'ag-Grid-AutoColumn-country': ['', '2004', 'Whimsical Wonderland of Dreamlandia'],
+            'ag-Grid-AutoColumn-country': ['Whimsical Wonderland of Dreamlandia', '2004'],
             gold: 6,
             silver: 0,
             bronze: 2,
         },
         {
-            'ag-Grid-AutoColumn-country': ['', '2004', 'Whimsical Wonderland of Dreamlandia'],
+            'ag-Grid-AutoColumn-country': ['Whimsical Wonderland of Dreamlandia', '2004'],
             gold: 6,
             silver: 0,
             bronze: 2,
         },
         {
-            'ag-Grid-AutoColumn-country': ['', '', 'Eternal Empire of Nebulon'],
+            'ag-Grid-AutoColumn-country': ['Eternal Empire of Nebulon'],
         },
         {
-            'ag-Grid-AutoColumn-country': ['', '2012', 'Eternal Empire of Nebulon'],
+            'ag-Grid-AutoColumn-country': ['Eternal Empire of Nebulon', '2012'],
             gold: 4,
             silver: 2,
             bronze: 0,
         },
         {
-            'ag-Grid-AutoColumn-country': ['', '2012', 'Eternal Empire of Nebulon'],
+            'ag-Grid-AutoColumn-country': ['Eternal Empire of Nebulon', '2012'],
             gold: 4,
             silver: 2,
             bronze: 0,
         },
         {
-            'ag-Grid-AutoColumn-country': ['', '', 'Mystical Realm of Eldoria'],
+            'ag-Grid-AutoColumn-country': ['Mystical Realm of Eldoria'],
         },
     ],
     axes: [
