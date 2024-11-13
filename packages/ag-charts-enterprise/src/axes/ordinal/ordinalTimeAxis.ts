@@ -13,7 +13,7 @@ export class OrdinalTimeAxis extends _ModuleSupport.CategoryAxis<_ModuleSupport.
     private datesSortOrder(d: Date[]): 1 | -1 | undefined {
         if (d.length === 0) return 1;
 
-        let sortOrder: 1 | -1 = Number(d[d.length - 1]) > Number(d[0]) ? 1 : -1;
+        const sortOrder: 1 | -1 = Number(d[d.length - 1]) > Number(d[0]) ? 1 : -1;
         let v0 = -Infinity * sortOrder;
         for (const v of d) {
             const v1 = Number(v);

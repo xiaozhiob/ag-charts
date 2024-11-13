@@ -59,7 +59,7 @@ export class OrdinalTimeScale extends BandScale<Date, TimeInterval | number> {
         this.timestamps = timestamps;
         this.sortedTimestamps = sortedTimestamps;
 
-        const computedStepCount = Math.ceil(sortedTimestamps.length / 64);
+        const computedStepCount = Math.ceil(sortedTimestamps.length / 16);
         if (computedStepCount <= 1) return;
 
         this.refresh();
