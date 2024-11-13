@@ -64,21 +64,21 @@ import {
     resetAxisSelectionFn,
 } from './axisUtil';
 
-type TickStrategyParams = {
+interface TickStrategyParams {
     index: number;
     tickData: TickData;
     textProps: TextSizeProperties;
     labelOverlap: boolean;
     terminate: boolean;
     primaryTickCount?: number;
-};
+}
 
-type TickStrategyResult = {
+interface TickStrategyResult {
     index: number;
     tickData: TickData;
     autoRotation: number;
     terminate: boolean;
-};
+}
 
 type TickStrategy = (params: TickStrategyParams) => TickStrategyResult;
 
@@ -89,14 +89,15 @@ enum TickGenerationType {
     VALUES,
 }
 
-export type TickDatum = {
+export interface TickDatum {
     tickLabel: string;
     tick: any;
     tickId: string;
     translationY: number;
-};
+    size?: number;
+}
 
-export type LabelNodeDatum = {
+export interface LabelNodeDatum {
     tickId: string;
     fill?: CssColor;
     fontFamily?: FontFamily;
@@ -114,9 +115,14 @@ export type LabelNodeDatum = {
     translationX?: number;
     translationY: number;
     range: number[];
-};
+}
 
-type TickData = { rawTicks: any[]; fractionDigits: number; ticks: TickDatum[]; labelCount: number };
+interface TickData {
+    rawTicks: any[];
+    fractionDigits: number;
+    ticks: TickDatum[];
+    labelCount: number;
+}
 
 interface TickGenerationParams {
     primaryTickCount?: number;
@@ -459,7 +465,6 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
 
         this.updatePosition();
 
-        const sideFlag = this.label.getSideFlag();
         const lineData = this.getAxisLineCoordinates();
         const { tickData, combinedRotation, textBaseline, textAlign } = this.tickGenerationResult;
         const previousTicks = this.tickLabelGroupSelection.nodes().slice(); // Clone before update to diff with.
@@ -490,7 +495,7 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
         this.lineNode.setProperties({ stroke, strokeWidth: enabled ? width : 0 });
 
         this.updateLabels();
-        this.updateGridLines(sideFlag);
+        this.updateGridLines();
         this.updateTickLines();
         this.updateTitle(!tickData.ticks.length);
         this.updateCrossLines();
@@ -1135,7 +1140,8 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
         this.tickLabelGroupSelection.update(labelsData, undefined, getDatumId);
     }
 
-    protected updateGridLines(sideFlag: ChartAxisLabelFlipFlag) {
+    protected updateGridLines() {
+        const sideFlag = this.label.getSideFlag();
         const {
             gridLine: { style, width },
             gridPadding,
