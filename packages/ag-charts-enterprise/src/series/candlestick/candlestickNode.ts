@@ -5,7 +5,7 @@ import { OhlcBaseNode } from '../ohlc/ohlcNode';
 const { ScenePathChangeDetection, ExtendedPath2D } = _ModuleSupport;
 
 export class CandlestickNode extends OhlcBaseNode {
-    private wickPath = new ExtendedPath2D();
+    private readonly wickPath = new ExtendedPath2D();
 
     @ScenePathChangeDetection()
     wickStroke: string | undefined = undefined;
