@@ -5,7 +5,6 @@ export interface AgToolbarOptions extends Toggleable {
     seriesType?: AgToolbarSeriesTypeGroup;
     annotations?: AgToolbarAnnotationsGroup;
     annotationOptions?: AgToolbarAnnotationOptionsGroup;
-    zoom?: AgToolbarZoomGroup;
 }
 
 export interface AgToolbarGroup extends Toggleable {
@@ -121,21 +120,3 @@ export type AgToolbarAnnotationOptionsButtonValue =
     | 'delete'
     | 'lock'
     | 'settings';
-
-/* Zoom */
-export interface AgToolbarZoomGroup extends AgToolbarGroup {
-    buttons?: AgToolbarZoomButton[];
-}
-
-export interface AgToolbarZoomButton extends AgToolbarButton {
-    value: AgToolbarZoomButtonValue;
-}
-
-export type AgToolbarZoomButtonValue =
-    | 'reset'
-    | 'zoom-in'
-    | 'zoom-out'
-    | 'pan-left'
-    | 'pan-right'
-    | 'pan-start'
-    | 'pan-end';
