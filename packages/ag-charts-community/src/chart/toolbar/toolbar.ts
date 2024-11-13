@@ -5,7 +5,7 @@ import { BaseModuleInstance } from '../../module/module';
 import type { ModuleContext } from '../../module/moduleContext';
 import { BBox } from '../../scene/bbox';
 import { setAttribute, setAttributes } from '../../util/attributeUtil';
-import { createElement, getWindow } from '../../util/dom';
+import { createElement, getIconClassNames, getWindow } from '../../util/dom';
 import { initToolbarKeyNav, makeAccessibleClickListener } from '../../util/keynavUtil';
 import { clamp } from '../../util/number';
 import { ObserveChanges } from '../../util/proxy';
@@ -821,7 +821,7 @@ export class Toolbar extends BaseModuleInstance implements ModuleInstance {
     }
 
     private updateButton(button: HTMLButtonElement, options: ButtonConfiguration) {
-        const { domManager, localeManager } = this.ctx;
+        const { localeManager } = this.ctx;
         const { icon, label, ariaLabel, tooltip } = this.expandButtonConfig(button, options);
 
         if (tooltip) {
@@ -831,7 +831,7 @@ export class Toolbar extends BaseModuleInstance implements ModuleInstance {
         let inner = '';
 
         if (icon != null) {
-            inner = `<span class="${domManager.getIconClassNames(icon)} ${styles.elements.icon}"></span>`;
+            inner = `<span class="${getIconClassNames(icon)} ${styles.elements.icon}"></span>`;
         }
 
         if (label != null) {
