@@ -433,6 +433,9 @@ const extremeAxisConfig = {
         size: 20,
         width: 400,
     },
+    label: {
+        padding: 5,
+    },
 };
 
 export const GRIDLINE_TICKLINE_CLIPPING: AgCartesianChartOptions = {
