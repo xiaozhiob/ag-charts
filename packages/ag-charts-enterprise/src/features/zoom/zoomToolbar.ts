@@ -27,9 +27,8 @@ const {
     InteractionState,
     NativeWidget,
     PropertiesArray,
-    ToolbarButtonWidget,
+    Toolbar,
     ToolbarButtonProperties,
-    ToolbarWidget,
     Validate,
     createElement,
 } = _ModuleSupport;
@@ -40,6 +39,10 @@ class ZoomButtonProperties extends ToolbarButtonProperties {
 
     @Validate(STRING)
     section!: string;
+}
+
+interface ZoomToolbarButtonOptions extends _ModuleSupport.ToolbarButtonOptions {
+    value: AgZoomButtonValue;
 }
 
 export class ZoomToolbar extends BaseProperties {
@@ -53,8 +56,7 @@ export class ZoomToolbar extends BaseProperties {
     private readonly detectionRange = 38;
 
     private readonly container: _ModuleSupport.NativeWidget<HTMLDivElement>;
-    private readonly toolbar: _ModuleSupport.ToolbarWidget;
-    private readonly buttonWidgets: Array<_ModuleSupport.ToolbarButtonWidget> = [];
+    private readonly toolbar = new Toolbar<ZoomToolbarButtonOptions>(this.ctx, this.onButtonPress.bind(this));
 
     private readonly destroyFns: Array<() => void> = [];
 
@@ -75,9 +77,6 @@ export class ZoomToolbar extends BaseProperties {
         const element = this.container.getElement();
         element.classList.add('ag-charts-zoom-buttons');
         ctx.domManager.addChild('canvas-overlay', 'zoom-buttons', element);
-
-        this.toolbar = new ToolbarWidget();
-        this.toolbar.getElement().classList.add('ag-charts-zoom-buttons__toolbar');
 
         this.container.appendChild(this.toolbar);
 
@@ -103,10 +102,11 @@ export class ZoomToolbar extends BaseProperties {
     }
 
     private onLayoutComplete(event: _ModuleSupport.LayoutCompleteEvent) {
-        const { container } = this;
+        const { buttons, container } = this;
         const { rect } = event.series;
 
-        this.refreshButtons();
+        this.toolbar.updateButtons(buttons);
+        this.toggleButtons(definedZoomState(this.ctx.zoomManager.getZoom()), this.getModuleProperties());
 
         const height = container.getElement().offsetHeight;
         container.setBounds({ y: rect.y + rect.height - height });
@@ -145,58 +145,11 @@ export class ZoomToolbar extends BaseProperties {
             : `translateY(${container.getElement().offsetHeight + verticalSpacing}px)`;
     }
 
-    private refreshButtons() {
-        const { buttons, buttonWidgets } = this;
-
-        let first: boolean;
-        let last: boolean;
-        let section: string | undefined;
-
-        for (const [index, options] of buttons.entries()) {
-            const button = this.buttonWidgets.at(index) ?? this.createButton(options);
-            button.update(options);
-
-            first = section != options.section;
-            last = options.section != buttons.at(index + 1)?.section;
-
-            const element = button.getElement();
-            element.classList.toggle('ag-charts-toolbar__button--first', first);
-            element.classList.toggle('ag-charts-toolbar__button--last', last);
-            element.classList.toggle('ag-charts-zoom-buttons__button--gap', index > 0 && first);
-
-            section = options.section;
-        }
-
-        for (let index = buttons.length; index < buttonWidgets.length; index++) {
-            const button = this.buttonWidgets.at(index);
-            // this.toolbar.removeChild(button); // TODO
-            button?.destroy();
-        }
-
-        this.toggleButtons(definedZoomState(this.ctx.zoomManager.getZoom()), this.getModuleProperties());
-    }
-
-    private createButton(options: ZoomButtonProperties) {
-        const { toolbar } = this;
-
-        const button = new ToolbarButtonWidget(this.ctx);
-        const element = button.getElement();
-        element.classList.add('ag-charts-toolbar__button');
-        element.addEventListener('click', () => {
-            this.onButtonPress({ value: options.value });
-        });
-
-        this.buttonWidgets.push(button);
-        toolbar.appendChild(button as _ModuleSupport.ButtonWidget);
-
-        return button;
-    }
-
     private toggleButtons(zoom: DefinedZoomState, props: ZoomProperties) {
-        for (const [index, button] of this.buttonWidgets.entries()) {
-            const options = this.buttons.at(index);
+        for (const [index, button] of this.buttons.entries()) {
             let enabled = true;
-            switch (options?.value) {
+
+            switch (button?.value) {
                 case 'pan-start':
                     enabled = zoom.x.min > UNIT.min;
                     break;
@@ -220,7 +173,7 @@ export class ZoomToolbar extends BaseProperties {
                     break;
             }
 
-            button.getElement().ariaDisabled = `${!enabled}`;
+            this.toolbar.toggleButtonEnabledByIndex(index, enabled);
         }
     }
 

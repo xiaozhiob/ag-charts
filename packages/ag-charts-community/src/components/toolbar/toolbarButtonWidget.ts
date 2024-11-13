@@ -3,7 +3,7 @@ import type { AgIconName } from 'ag-charts-types';
 import type { ModuleContext } from '../../module/moduleContext';
 import { ButtonWidget } from '../../widget/buttonWidget';
 
-interface ToolbarButtonOptions {
+export interface ToolbarButtonWidgetOptions {
     icon?: AgIconName;
     label?: string;
     ariaLabel?: string;
@@ -15,7 +15,7 @@ export class ToolbarButtonWidget extends ButtonWidget {
         super();
     }
 
-    public update(options: ToolbarButtonOptions) {
+    public update(options: ToolbarButtonWidgetOptions) {
         const { domManager, localeManager } = this.ctx;
 
         const element = this.getElement();
@@ -32,8 +32,8 @@ export class ToolbarButtonWidget extends ButtonWidget {
         }
 
         if (options.label != null) {
-            const tlabel = localeManager.t(options.label);
-            innerHTML = `${innerHTML}<span class="ag-charts-toolbar__label">${tlabel}</span>`;
+            const label = localeManager.t(options.label);
+            innerHTML = `${innerHTML}<span class="ag-charts-toolbar__label">${label}</span>`;
         }
 
         element.innerHTML = innerHTML;
