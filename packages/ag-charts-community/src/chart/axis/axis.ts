@@ -1086,7 +1086,7 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
 
     protected calculateDomain() {
         const { includeInvisibleDomains, boundSeries, direction } = this;
-        const visibleSeries = boundSeries.filter((s) => includeInvisibleDomains || s.isEnabled());
+        const visibleSeries = includeInvisibleDomains ? boundSeries : boundSeries.filter((s) => s.isEnabled());
         const domains =
             visibleSeries.length === 1
                 ? visibleSeries[0].getDomain(direction)
