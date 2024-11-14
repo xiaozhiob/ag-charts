@@ -114,11 +114,3 @@ export function throttle<T extends (...args: Parameters<T>) => void>(
         },
     });
 }
-
-export function joinFunctions(...fns: (() => void)[]): () => void {
-    return () => {
-        for (const fn of fns) {
-            fn();
-        }
-    };
-}
