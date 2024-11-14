@@ -10,7 +10,39 @@ export class OrdinalTimeAxis extends _ModuleSupport.CategoryAxis<_ModuleSupport.
         super(moduleCtx, new OrdinalTimeScale());
     }
 
+    private datesSortOrder(d: Date[]): 1 | -1 | undefined {
+        if (d.length === 0) return 1;
+
+        const sortOrder: 1 | -1 = Number(d[d.length - 1]) > Number(d[0]) ? 1 : -1;
+        let v0 = -Infinity * sortOrder;
+        for (const v of d) {
+            const v1 = Number(v);
+            if (Math.sign(v1 - v0) !== sortOrder) return;
+            v0 = v1;
+        }
+        return sortOrder;
+    }
+
+    private _cachedDataDomain: { d: Date[]; domain: Date[] } | undefined;
     override normaliseDataDomain(d: Date[]) {
+        if (this._cachedDataDomain?.d === d) {
+            const { domain } = this._cachedDataDomain;
+            return { domain, clipped: false };
+        }
+
+        const sortOrder = this.datesSortOrder(d);
+
+        if (sortOrder != null) {
+            const domain = d.slice();
+            if (sortOrder === -1) domain.reverse();
+
+            this._cachedDataDomain = { d, domain };
+
+            return { domain, clipped: false };
+        }
+
+        this._cachedDataDomain = undefined;
+
         const domain = [];
         const uniqueValues = new Set();
         for (let v of d) {

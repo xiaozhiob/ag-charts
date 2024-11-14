@@ -33,21 +33,45 @@ export class OrdinalTimeScale extends BandScale<Date, TimeInterval | number> {
     protected sortedTimestamps: number[] = [];
     protected visibleRange: [number, number] = [0, 1];
 
+    private precomputedSteps: Int32Array | undefined;
+
     setVisibleRange(visibleRange: [number, number]) {
         this.visibleRange = visibleRange;
     }
 
     override set domain(values: Date[]) {
+        if (values === this._domain) {
+            return;
+        }
+
         this.invalid = true;
+        this.precomputedSteps = undefined;
 
         if (values.length === 0) {
             this._domain = [];
             return;
         }
 
+        const timestamps = unique(values.map(dateToNumber));
+        const sortedTimestamps = timestamps.slice().sort(compareNumbers);
+
         this._domain = values;
-        this.timestamps = unique(values.map(dateToNumber));
-        this.sortedTimestamps = this.timestamps.slice().sort(compareNumbers);
+        this.timestamps = timestamps;
+        this.sortedTimestamps = sortedTimestamps;
+
+        const computedStepCount = Math.ceil(sortedTimestamps.length / 16);
+        if (computedStepCount <= 1) return;
+
+        this.refresh();
+        const computedSteps = new Int32Array(computedStepCount);
+        const d0 = sortedTimestamps[0].valueOf();
+        const d1 = sortedTimestamps[sortedTimestamps.length - 1].valueOf();
+        const dRange = d1 - d0;
+        for (let i = 0; i < computedSteps.length; i += 1) {
+            computedSteps[i] = this.findInterval(d0 + (i / computedStepCount) * dRange);
+        }
+
+        this.precomputedSteps = computedSteps;
     }
     override get domain(): Date[] {
         return this._domain;
@@ -113,12 +137,25 @@ export class OrdinalTimeScale extends BandScale<Date, TimeInterval | number> {
 
     private findInterval(target: number) {
         // Binary search for the target
-        const { sortedTimestamps } = this;
-        let low = 0;
-        let high = sortedTimestamps.length - 1;
+        const { sortedTimestamps, precomputedSteps } = this;
+        let low: number;
+        let high: number;
+        if (precomputedSteps != null) {
+            const d0 = sortedTimestamps[0].valueOf();
+            const d1 = sortedTimestamps[sortedTimestamps.length - 1].valueOf();
+            const i = Math.min(
+                (((target - d0) / (d1 - d0)) * precomputedSteps.length) | 0,
+                (precomputedSteps.length - 1) | 0
+            );
+            low = precomputedSteps[i];
+            high = i < precomputedSteps.length - 2 ? precomputedSteps[i + 1] : sortedTimestamps.length - 1;
+        } else {
+            low = 0;
+            high = sortedTimestamps.length - 1;
+        }
 
         while (low <= high) {
-            const mid = Math.floor((low + high) / 2);
+            const mid = ((low + high) / 2) | 0;
             if (sortedTimestamps[mid] === target) {
                 return mid;
             } else if (sortedTimestamps[mid] < target) {
