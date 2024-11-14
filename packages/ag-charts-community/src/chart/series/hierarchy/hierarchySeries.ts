@@ -14,7 +14,7 @@ import { clamp } from '../../../util/number';
 import { StateMachine } from '../../../util/stateMachine';
 import type { ChartAnimationPhase } from '../../chartAnimationPhase';
 import type { HighlightNodeDatum } from '../../interaction/highlightManager';
-import type { ChartLegendType, GradientLegendDatum } from '../../legendDatum';
+import type { ChartLegendType, GradientLegendDatum } from '../../legend/legendDatum';
 import { type PickFocusInputs, type PickFocusOutputs, Series, SeriesNodePickMode } from '../series';
 import type { ISeries, SeriesNodeDatum } from '../seriesTypes';
 import type { HierarchySeriesProperties } from './hierarchySeriesProperties';
@@ -387,13 +387,19 @@ export abstract class HierarchySeries<
     }
 
     override getLegendData(legendType: ChartLegendType): GradientLegendDatum[] {
-        const { colorKey, colorName, colorRange, visible } = this.properties;
+        const { colorKey, colorName, colorRange } = this.properties;
+        const {
+            id: seriesId,
+            ctx: { legendManager },
+            visible,
+        } = this;
+
         return legendType === 'gradient' && colorKey != null && colorRange != null
             ? [
                   {
                       legendType: 'gradient',
-                      enabled: visible,
-                      seriesId: this.id,
+                      enabled: visible && legendManager.getItemEnabled({ seriesId }),
+                      seriesId,
                       colorName,
                       colorRange,
                       colorDomain: this.colorDomain,

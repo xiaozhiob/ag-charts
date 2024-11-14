@@ -16,7 +16,7 @@ import { ChartAxisDirection } from '../../chartAxisDirection';
 import type { DataController } from '../../data/dataController';
 import { fixNumericExtent } from '../../data/dataModel';
 import { createDatumId, valueProperty } from '../../data/processors';
-import type { CategoryLegendDatum } from '../../legendDatum';
+import type { CategoryLegendDatum } from '../../legend/legendDatum';
 import type { Marker } from '../../marker/marker';
 import { getMarker } from '../../marker/util';
 import { EMPTY_TOOLTIP_CONTENT, type TooltipContent } from '../../tooltip/tooltip';
@@ -416,22 +416,28 @@ export class BubbleSeries extends CartesianSeries<Group, BubbleSeriesProperties,
     }
 
     getLegendData(): CategoryLegendDatum[] {
-        if (!this.data?.length || !this.properties.isValid()) {
+        if (!this.properties.isValid()) {
             return [];
         }
 
-        const { yKey, yName, title, marker, visible } = this.properties;
+        const {
+            id: seriesId,
+            ctx: { legendManager },
+            visible,
+        } = this;
+
+        const { yKey: itemId, yName, title, marker } = this.properties;
         const { shape, fill, stroke, fillOpacity, strokeOpacity, strokeWidth } = marker;
 
         return [
             {
                 legendType: 'category',
-                id: this.id,
-                itemId: yKey,
-                seriesId: this.id,
-                enabled: visible,
+                id: seriesId,
+                itemId,
+                seriesId,
+                enabled: visible && legendManager.getItemEnabled({ seriesId, itemId }),
                 label: {
-                    text: title ?? yName ?? yKey,
+                    text: title ?? yName ?? itemId,
                 },
                 symbols: [
                     {

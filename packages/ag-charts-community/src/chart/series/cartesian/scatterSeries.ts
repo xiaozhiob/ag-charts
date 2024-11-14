@@ -17,7 +17,7 @@ import { ChartAxisDirection } from '../../chartAxisDirection';
 import type { DataController } from '../../data/dataController';
 import { fixNumericExtent } from '../../data/dataModel';
 import { valueProperty } from '../../data/processors';
-import type { CategoryLegendDatum, ChartLegendType } from '../../legendDatum';
+import type { CategoryLegendDatum, ChartLegendType } from '../../legend/legendDatum';
 import type { Marker } from '../../marker/marker';
 import { getMarker } from '../../marker/util';
 import { EMPTY_TOOLTIP_CONTENT, type TooltipContent } from '../../tooltip/tooltip';
@@ -340,22 +340,28 @@ export class ScatterSeries extends CartesianSeries<Group, ScatterSeriesPropertie
     }
 
     getLegendData(legendType: ChartLegendType): CategoryLegendDatum[] {
-        const { yKey, yName, title, marker, visible } = this.properties;
-        const { fill, stroke, fillOpacity, strokeOpacity, strokeWidth } = marker;
-
-        if (!this.data?.length || !this.properties.isValid() || legendType !== 'category') {
+        if (!this.properties.isValid() || legendType !== 'category') {
             return [];
         }
+
+        const { yKey: itemId, yName, title, marker, showInLegend } = this.properties;
+        const { fill, stroke, fillOpacity, strokeOpacity, strokeWidth } = marker;
+
+        const {
+            id: seriesId,
+            ctx: { legendManager },
+            visible,
+        } = this;
 
         return [
             {
                 legendType: 'category',
-                id: this.id,
-                itemId: yKey,
-                seriesId: this.id,
-                enabled: visible,
+                id: seriesId,
+                itemId,
+                seriesId,
+                enabled: visible && legendManager.getItemEnabled({ seriesId, itemId }),
                 label: {
-                    text: title ?? yName ?? yKey,
+                    text: title ?? yName ?? itemId,
                 },
                 symbols: [
                     {
@@ -369,6 +375,7 @@ export class ScatterSeries extends CartesianSeries<Group, ScatterSeriesPropertie
                         },
                     },
                 ],
+                hideInLegend: !showInLegend,
             },
         ];
     }

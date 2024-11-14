@@ -31,7 +31,7 @@ import {
     normaliseGroupTo,
     valueProperty,
 } from '../../data/processors';
-import type { CategoryLegendDatum, ChartLegendType } from '../../legendDatum';
+import type { CategoryLegendDatum, ChartLegendType } from '../../legend/legendDatum';
 import type { Marker } from '../../marker/marker';
 import { getMarker } from '../../marker/util';
 import { EMPTY_TOOLTIP_CONTENT, type TooltipContent } from '../../tooltip/tooltip';
@@ -320,7 +320,6 @@ export class AreaSeries extends CartesianSeries<
             };
         };
 
-        const itemId = yKey;
         const labelData: LabelSelectionDatum[] = [];
         const markerData: MarkerSelectionDatum[] = [];
         const { visibleSameStackCount } = this.ctx.seriesStateManager.getVisiblePeerGroupIndex(this);
@@ -351,7 +350,7 @@ export class AreaSeries extends CartesianSeries<
                     markerData.push({
                         index: datumIndex,
                         series: this,
-                        itemId,
+                        itemId: yKey,
                         datum: seriesDatum,
                         midPoint: { x: point.x, y: point.y },
                         cumulativeValue: yValueEnd,
@@ -512,9 +511,9 @@ export class AreaSeries extends CartesianSeries<
         const strokeSpans = currentSeriesSpans.filter((span): span is LinePathSpan => span != null);
 
         const context: AreaSeriesNodeDataContext = {
-            itemId,
-            fillData: { itemId, spans: fillSpans, phantomSpans },
-            strokeData: { itemId, spans: strokeSpans },
+            itemId: yKey,
+            fillData: { itemId: yKey, spans: fillSpans, phantomSpans },
+            strokeData: { itemId: yKey, spans: strokeSpans },
             labelData,
             nodeData: markerData,
             scales: this.calculateScaling(),
@@ -739,17 +738,18 @@ export class AreaSeries extends CartesianSeries<
     }
 
     getLegendData(legendType: ChartLegendType): CategoryLegendDatum[] {
-        if (
-            !this.data?.length ||
-            !this.properties.isValid() ||
-            !this.properties.showInLegend ||
-            legendType !== 'category'
-        ) {
+        if (!this.properties.isValid() || legendType !== 'category') {
             return [];
         }
 
         const {
-            yKey,
+            id: seriesId,
+            ctx: { legendManager },
+            visible,
+        } = this;
+
+        const {
+            yKey: itemId,
             yName,
             fill,
             stroke,
@@ -758,20 +758,20 @@ export class AreaSeries extends CartesianSeries<
             strokeWidth,
             lineDash,
             marker,
-            visible,
             legendItemName,
+            showInLegend,
         } = this.properties;
 
         const useAreaFill = !marker.enabled || marker.fill === undefined;
         return [
             {
                 legendType,
-                id: this.id,
-                itemId: yKey,
-                seriesId: this.id,
-                enabled: visible,
+                id: seriesId,
+                itemId,
+                seriesId,
+                enabled: visible && legendManager.getItemEnabled({ seriesId, itemId }),
                 label: {
-                    text: legendItemName ?? yName ?? yKey,
+                    text: legendItemName ?? yName ?? itemId,
                 },
                 symbols: [
                     {
@@ -793,6 +793,7 @@ export class AreaSeries extends CartesianSeries<
                     },
                 ],
                 legendItemName,
+                hideInLegend: !showInLegend,
             },
         ];
     }
