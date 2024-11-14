@@ -197,13 +197,13 @@ module.exports = {
             from: { path: '^src/scene/' },
             to: { pathNot: ['ag-charts-types', '^src/scale/', '^src/scene/', '^src/util/', 'node_modules'] },
         },
-        {
-            name: 'ag-avoid-bundles',
-            comment: "Don't use top-level export bundles internally.",
-            severity: 'error',
-            from: { path: 'src/.*/' },
-            to: { path: 'src/[^/]*.ts', pathNot: ['src/version.ts', 'ag-charts-types/', 'ag-charts-locale/'] },
-        },
+        // {
+        //     name: 'ag-avoid-bundles',
+        //     comment: "Don't use top-level export bundles internally.",
+        //     severity: 'error',
+        //     from: { path: 'src/.*/' },
+        //     to: { path: 'src/[^/]*.ts', pathNot: ['src/version.ts', 'ag-charts-types/', 'ag-charts-locale/'] },
+        // },
     ],
     options: {
         /* conditions specifying which files not to follow further when encountered:

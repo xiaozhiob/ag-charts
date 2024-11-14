@@ -1,5 +1,3 @@
-import type { AgIconName } from 'ag-charts-types';
-
 import { BaseManager } from '../chart/baseManager';
 import { BBox } from '../scene/bbox';
 import STYLES from '../styles.css';
