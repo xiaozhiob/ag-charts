@@ -131,7 +131,7 @@ export class ScatterSeries extends CartesianSeries<Group, ScatterSeriesPropertie
         const xAxis = axes[ChartAxisDirection.X];
         const yAxis = axes[ChartAxisDirection.Y];
 
-        if (!(dataModel && processedData && processedData.rawData.length && visible && xAxis && yAxis)) {
+        if (!(dataModel && processedData?.rawData.length && visible && xAxis && yAxis)) {
             return;
         }
 

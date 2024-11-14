@@ -32,8 +32,7 @@ export class CategoryAxis<
 
     private domainOrderedToNormalizedDomain(seriesDomain: any[], normalizedDomain: any[]) {
         let normalizedIndex = -1;
-        for (let seriesIndex = 0; seriesIndex < seriesDomain.length; seriesIndex += 1) {
-            const value = seriesDomain[seriesIndex];
+        for (const value of seriesDomain) {
             const normalizedNextIndex = normalizedDomain.indexOf(value);
 
             if (normalizedNextIndex === -1) {

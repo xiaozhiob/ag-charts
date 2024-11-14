@@ -408,7 +408,7 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
                 this.labelFormatter = formatter;
                 this.datumFormatter = formatter;
                 return;
-            } catch (e) {
+            } catch {
                 Logger.warnOnce(`the axis label format string ${format} is invalid. No formatting will be applied`);
             }
         }
@@ -1231,7 +1231,7 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
         if (format && this.scale.tickFormat) {
             try {
                 return this.scale.tickFormat({ specifier: format });
-            } catch (e) {
+            } catch {
                 Logger.warnOnce(`the format string ${format} is invalid, ignoring.`);
             }
         }

@@ -546,11 +546,12 @@ export abstract class RadarSeries extends _ModuleSupport.PolarSeries<
     }
 
     protected getLineNode() {
-        return this.lineSelection?.at(0)!;
+        return this.lineSelection?.at(0);
     }
 
     protected beforePathAnimation() {
         const lineNode = this.getLineNode();
+        if (!lineNode) return;
 
         lineNode.fill = undefined;
         lineNode.lineJoin = 'round';
@@ -648,7 +649,9 @@ export abstract class RadarSeries extends _ModuleSupport.PolarSeries<
 
     protected animatePaths(ratio: number) {
         const linePoints = this.getLinePoints();
-        this.animateSinglePath(this.getLineNode(), linePoints, ratio);
+        const lineNode = this.getLineNode();
+        if (!lineNode) return;
+        this.animateSinglePath(lineNode, linePoints, ratio);
     }
 
     override animateEmptyUpdateReady() {

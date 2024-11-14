@@ -32,10 +32,9 @@ import { Logger } from '../../util/logger';
 import { mergeDefaults } from '../../util/object';
 import { isObject } from '../../util/type-guards';
 
-function fromTheme<T>(
-    theme: AgChartTheme | AgChartThemeName | undefined,
-    cb: (theme: AgChartTheme) => T
-): T | undefined {
+type ThemeType = AgChartTheme | AgChartThemeName;
+
+function fromTheme<T>(theme: ThemeType | undefined, cb: (theme: AgChartTheme) => T): T | undefined {
     if (isObject(theme)) {
         return cb(theme);
     }
@@ -233,7 +232,7 @@ export function priceVolume(
 }
 
 function createVolumeSeries(
-    theme: AgChartThemeName | AgChartTheme | undefined,
+    theme: ThemeType | undefined,
     getTheme: () => ChartTheme,
     openKey: string,
     closeKey: string,
@@ -287,7 +286,7 @@ interface PriceSeriesSingleKeys {
 }
 
 function createPriceSeries(
-    theme: AgChartThemeName | AgChartTheme | undefined,
+    theme: ThemeType | undefined,
     chartType: AgPriceVolumePreset['chartType'],
     xKey: string,
     highKey: string,
@@ -345,7 +344,7 @@ function createPriceSeriesOHLC(common: PriceSeriesCommon, keys: PriceSeriesKeys)
 
 function createPriceSeriesLine(
     common: PriceSeriesCommon,
-    theme: AgChartThemeName | AgChartTheme | undefined,
+    theme: ThemeType | undefined,
     singleKeys: PriceSeriesSingleKeys
 ) {
     return [
@@ -363,7 +362,7 @@ function createPriceSeriesLine(
 
 function createPriceSeriesStepLine(
     common: PriceSeriesCommon,
-    theme: AgChartThemeName | AgChartTheme | undefined,
+    theme: ThemeType | undefined,
     singleKeys: PriceSeriesSingleKeys
 ) {
     return [
@@ -384,7 +383,7 @@ function createPriceSeriesStepLine(
 
 function createPriceSeriesHLC(
     common: PriceSeriesCommon,
-    theme: AgChartThemeName | AgChartTheme | undefined,
+    theme: ThemeType | undefined,
     singleKeys: PriceSeriesSingleKeys,
     { xKey, highKey, closeKey, lowKey }: PriceSeriesKeys
 ) {
@@ -430,7 +429,7 @@ function createPriceSeriesHLC(
 
 function createPriceSeriesHighLow(
     common: PriceSeriesCommon,
-    theme: AgChartThemeName | AgChartTheme | undefined,
+    theme: ThemeType | undefined,
     { xKey, highKey, lowKey }: PriceSeriesKeys
 ) {
     const rangeBarColors = getThemeColors('range-bar', theme);

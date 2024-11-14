@@ -82,7 +82,7 @@ describe('FunnelSeries', () => {
             const node = chart.series[0].contextNodeData.nodeData[0];
 
             const highlightManager = (chart as Chart).ctx.highlightManager;
-            highlightManager.updateHighlight(chart.id, node as any);
+            highlightManager.updateHighlight(chart.id, node);
             await compare();
         });
     });
@@ -247,7 +247,7 @@ describe('FunnelSeries', () => {
             await checkNodeClick(chart, onNodeClick, { x: 5, y: 5 });
         });
 
-        it.only(`should handle legendClick event`, async () => {
+        it(`should handle legendClick event`, async () => {
             const onNodeClick = jest.fn();
             chart = await createChart({ hasTooltip: true, onNodeClick, nodeClickRange: 'nearest' });
             await checkLegendClick(chart);

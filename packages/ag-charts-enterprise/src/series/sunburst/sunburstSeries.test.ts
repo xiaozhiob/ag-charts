@@ -70,7 +70,7 @@ describe('SunburstSeries', () => {
             let node = seriesImpl.rootNode;
             const childIndexes = [...childAtDepth];
             while (depth > 0 && node) {
-                node = node.children![childIndexes.shift() ?? 0];
+                node = node.children[childIndexes.shift() ?? 0];
                 depth--;
             }
 

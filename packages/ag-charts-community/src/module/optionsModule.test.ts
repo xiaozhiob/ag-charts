@@ -20,7 +20,7 @@ import type { SeriesType } from './optionsModuleTypes';
 
 function prepareOptions<T extends AgChartOptions>(userOptions: T): T {
     const chartOptions = new ChartOptions(userOptions, {}, {}, {});
-    return chartOptions.processedOptions as T;
+    return chartOptions.processedOptions;
 }
 
 function getSeriesOptions(seriesType: string, mapper?: <T>(series: T) => T) {

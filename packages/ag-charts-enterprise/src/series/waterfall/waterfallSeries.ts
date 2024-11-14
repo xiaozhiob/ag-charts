@@ -418,7 +418,7 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
         });
 
         const connectorLinesEnabled = this.properties.line.enabled;
-        if (yCurrValues !== undefined && connectorLinesEnabled) {
+        if (yCurrValues != null && connectorLinesEnabled) {
             context.pointData = pointData;
         }
 

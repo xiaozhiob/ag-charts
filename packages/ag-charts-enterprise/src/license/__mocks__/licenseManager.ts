@@ -1,6 +1,4 @@
 export class LicenseManager {
-    constructor() {}
-
     public validateLicense() {
         return true;
     }
