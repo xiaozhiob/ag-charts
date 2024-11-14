@@ -1,8 +1,8 @@
 import type { AgInitialStateLegendOptions } from 'ag-charts-types';
 
 import type { MementoOriginator } from '../../api/state/memento';
+import { BaseManager } from '../../util/baseManager';
 import { isArray } from '../../util/type-guards';
-import { BaseManager } from '../baseManager';
 import type { ChartService } from '../chartService';
 import type { CategoryLegendDatum } from './legendDatum';
 
