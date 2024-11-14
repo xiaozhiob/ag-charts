@@ -34,15 +34,14 @@ export class LegendManager
     }
 
     public restoreMemento(_version: string, _mementoVersion: string, memento: LegendDataMemento | undefined) {
-        const { legendDataMap } = this;
         memento?.forEach((datum) => {
             const { seriesId, data } = this.getRestoredDatum(datum) ?? {};
 
-            if (!(seriesId && data)) {
+            if (!seriesId || !data) {
                 return;
             }
 
-            legendDataMap.set(seriesId, data);
+            this.updateData(seriesId, data);
         });
 
         this.update();
@@ -50,10 +49,6 @@ export class LegendManager
 
     private getRestoredDatum(datum: AgInitialStateLegendOptions) {
         const { seriesId, itemId, visible } = datum;
-
-        if (!datum.seriesId && !datum.itemId) {
-            return;
-        }
 
         if (seriesId) {
             const legendData = this.legendDataMap.get(seriesId) ?? [];
