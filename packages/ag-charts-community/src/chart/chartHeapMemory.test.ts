@@ -122,5 +122,26 @@ describe('Chart Heap Memory', () => {
             // console.log({ startingHeap, endingHeap, heapProportionChange });
             expect(heapProportionChange).toBeLessThan(0.15);
         }, 20_000);
+
+        it.skip('should free modules from memory', async () => {
+            let chartProxy: AgChartProxy | null = (await createChart({})).chartProxy;
+
+            const instantiatedSeries = new Set<string>();
+            const seriesFinalizationRegistry = new FinalizationRegistry<string>((id) => {
+                instantiatedSeries.delete(id);
+            });
+            for (const series of chartProxy.chart.series) {
+                instantiatedSeries.add(series.id);
+                seriesFinalizationRegistry.register(series, series.id);
+            }
+
+            chartProxy.destroy();
+
+            chartProxy = null;
+
+            global.gc!();
+
+            expect(instantiatedSeries).toEqual(new Set());
+        });
     });
 });

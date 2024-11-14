@@ -28,6 +28,7 @@ import { DataModel, type ProcessedData, getMissCount } from '../../data/dataMode
 import {
     accumulativeValueProperty,
     animationValidation,
+    createDatumId,
     diff,
     keyProperty,
     normalisePropertyTo,
@@ -565,7 +566,6 @@ export class DonutSeries extends PolarSeries<DonutNodeDatum, DonutSeriesProperti
     }
 
     private getSectorFormat(datum: any, formatIndex: number, highlighted: boolean) {
-        const { callbackCache } = this.ctx;
         const { angleKey, radiusKey, calloutLabelKey, sectorLabelKey, legendItemKey, fills, strokes, itemStyler } =
             this.properties;
 
@@ -584,24 +584,28 @@ export class DonutSeries extends PolarSeries<DonutNodeDatum, DonutSeriesProperti
 
         let format: AgDonutSeriesStyle | undefined;
         if (itemStyler) {
-            format = callbackCache.call(itemStyler, {
-                datum,
-                angleKey,
-                radiusKey,
-                calloutLabelKey,
-                sectorLabelKey,
-                legendItemKey,
-                fill: fill!,
-                fillOpacity,
-                stroke,
-                strokeWidth,
-                strokeOpacity,
-                lineDash,
-                lineDashOffset,
-                cornerRadius,
-                highlighted,
-                seriesId: this.id,
-            });
+            format = this.cachedDatumCallback(
+                createDatumId(this.getDatumId(datum), highlighted ? 'highlight' : 'hide'),
+                () =>
+                    itemStyler({
+                        datum,
+                        angleKey,
+                        radiusKey,
+                        calloutLabelKey,
+                        sectorLabelKey,
+                        legendItemKey,
+                        fill: fill!,
+                        fillOpacity,
+                        stroke,
+                        strokeWidth,
+                        strokeOpacity,
+                        lineDash,
+                        lineDashOffset,
+                        cornerRadius,
+                        highlighted,
+                        seriesId: this.id,
+                    })
+            );
         }
 
         return {

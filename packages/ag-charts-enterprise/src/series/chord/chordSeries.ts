@@ -366,11 +366,7 @@ export class ChordSeries extends FlowProportionSeries<
         isHighlight: boolean;
     }) {
         const { datumSelection, isHighlight } = opts;
-        const {
-            id: seriesId,
-            properties,
-            ctx: { callbackCache },
-        } = this;
+        const { id: seriesId, properties } = this;
         const { fromKey, toKey, sizeKey } = this.properties;
         const {
             fill: baseFill,
@@ -384,30 +380,32 @@ export class ChordSeries extends FlowProportionSeries<
         const highlightStyle = isHighlight ? properties.highlightStyle.item : undefined;
         const strokeWidth = this.getStrokeWidth(properties.node.strokeWidth);
 
-        datumSelection.each((sector, datum) => {
+        datumSelection.each((sector, datum, index) => {
             const fill = baseFill ?? datum.fill;
             const stroke = baseStroke ?? datum.stroke;
 
             let format: AgChordSeriesNodeStyle | undefined;
             if (itemStyler != null) {
                 const { label, size } = datum;
-                format = callbackCache.call(itemStyler, {
-                    seriesId,
-                    datum: datum.datum,
-                    label,
-                    size,
-                    fromKey,
-                    toKey,
-                    sizeKey,
-                    fill,
-                    fillOpacity,
-                    strokeOpacity,
-                    stroke,
-                    strokeWidth,
-                    lineDash,
-                    lineDashOffset,
-                    highlighted: isHighlight,
-                });
+                format = this.cachedDatumCallback(createDatumId(index, isHighlight ? 'node-highlight' : 'node'), () =>
+                    itemStyler({
+                        seriesId,
+                        datum: datum.datum,
+                        label,
+                        size,
+                        fromKey,
+                        toKey,
+                        sizeKey,
+                        fill,
+                        fillOpacity,
+                        strokeOpacity,
+                        stroke,
+                        strokeWidth,
+                        lineDash,
+                        lineDashOffset,
+                        highlighted: isHighlight,
+                    })
+                );
             }
 
             sector.centerX = datum.centerX;
@@ -441,11 +439,7 @@ export class ChordSeries extends FlowProportionSeries<
         isHighlight: boolean;
     }) {
         const { datumSelection, isHighlight } = opts;
-        const {
-            id: seriesId,
-            properties,
-            ctx: { callbackCache },
-        } = this;
+        const { id: seriesId, properties } = this;
         const { fromKey, toKey, sizeKey } = properties;
         const {
             fill: baseFill,
@@ -460,28 +454,30 @@ export class ChordSeries extends FlowProportionSeries<
         const highlightStyle = isHighlight ? properties.highlightStyle.item : undefined;
         const strokeWidth = this.getStrokeWidth(properties.link.strokeWidth);
 
-        datumSelection.each((link, datum) => {
+        datumSelection.each((link, datum, index) => {
             const fill = baseFill ?? datum.fromNode.fill;
             const stroke = baseStroke ?? datum.fromNode.stroke;
 
             let format: AgChordSeriesLinkStyle | undefined;
             if (itemStyler != null) {
-                format = callbackCache.call(itemStyler, {
-                    seriesId,
-                    datum: datum.datum,
-                    fromKey,
-                    toKey,
-                    sizeKey,
-                    fill,
-                    fillOpacity,
-                    strokeOpacity,
-                    stroke,
-                    strokeWidth,
-                    lineDash,
-                    lineDashOffset,
-                    tension,
-                    highlighted: isHighlight,
-                });
+                format = this.cachedDatumCallback(createDatumId(index, isHighlight ? 'link-highlight' : 'link'), () =>
+                    itemStyler({
+                        seriesId,
+                        datum: datum.datum,
+                        fromKey,
+                        toKey,
+                        sizeKey,
+                        fill,
+                        fillOpacity,
+                        strokeOpacity,
+                        stroke,
+                        strokeWidth,
+                        lineDash,
+                        lineDashOffset,
+                        tension,
+                        highlighted: isHighlight,
+                    })
+                );
             }
 
             link.centerX = datum.centerX;
@@ -503,19 +499,14 @@ export class ChordSeries extends FlowProportionSeries<
     }
 
     override getTooltipHtml(nodeDatum: ChordDatum): _ModuleSupport.TooltipContent {
-        const {
-            id: seriesId,
-            processedData,
-            ctx: { callbackCache },
-            properties,
-        } = this;
+        const { id: seriesId, processedData, properties } = this;
 
         if (!processedData || !properties.isValid()) {
             return EMPTY_TOOLTIP_CONTENT;
         }
 
         const { fromKey, toKey, sizeKey, sizeName, tooltip } = properties;
-        const { datum, itemId, size } = nodeDatum;
+        const { index, datum, itemId, size } = nodeDatum;
 
         let title: string;
         const contentLines: string[] = [];
@@ -534,22 +525,24 @@ export class ChordSeries extends FlowProportionSeries<
 
             let format: AgChordSeriesLinkStyle | undefined;
             if (itemStyler != null) {
-                format = callbackCache.call(itemStyler, {
-                    seriesId,
-                    datum: datum.datum,
-                    fromKey,
-                    toKey,
-                    sizeKey,
-                    fill,
-                    fillOpacity,
-                    strokeOpacity,
-                    stroke,
-                    strokeWidth,
-                    lineDash,
-                    lineDashOffset,
-                    tension,
-                    highlighted: true,
-                });
+                format = this.cachedDatumCallback(createDatumId(index, 'link-tooltip'), () =>
+                    itemStyler({
+                        seriesId,
+                        datum: datum.datum,
+                        fromKey,
+                        toKey,
+                        sizeKey,
+                        fill,
+                        fillOpacity,
+                        strokeOpacity,
+                        stroke,
+                        strokeWidth,
+                        lineDash,
+                        lineDashOffset,
+                        tension,
+                        highlighted: true,
+                    })
+                );
             }
 
             fill = format?.fill ?? fill;
@@ -566,23 +559,25 @@ export class ChordSeries extends FlowProportionSeries<
 
             let format: AgChordSeriesNodeStyle | undefined;
             if (itemStyler != null) {
-                format = callbackCache.call(itemStyler, {
-                    seriesId,
-                    datum: datum.datum,
-                    label,
-                    size,
-                    fromKey,
-                    toKey,
-                    sizeKey,
-                    fill,
-                    fillOpacity,
-                    strokeOpacity,
-                    stroke,
-                    strokeWidth,
-                    lineDash,
-                    lineDashOffset,
-                    highlighted: true,
-                });
+                format = this.cachedDatumCallback(createDatumId(index, 'node-tooltip'), () =>
+                    itemStyler({
+                        seriesId,
+                        datum: datum.datum,
+                        label,
+                        size,
+                        fromKey,
+                        toKey,
+                        sizeKey,
+                        fill,
+                        fillOpacity,
+                        strokeOpacity,
+                        stroke,
+                        strokeWidth,
+                        lineDash,
+                        lineDashOffset,
+                        highlighted: true,
+                    })
+                );
             }
 
             fill = format?.fill ?? nodeDatum.fill;

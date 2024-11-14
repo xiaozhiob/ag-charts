@@ -13,6 +13,7 @@ const {
     DEFAULT_CARTESIAN_DIRECTION_KEYS,
     DEFAULT_CARTESIAN_DIRECTION_NAMES,
     sanitizeHtml,
+    createDatumId,
     Logger,
     ColorScale,
     Rect,
@@ -318,11 +319,7 @@ export class HeatmapSeries extends _ModuleSupport.CartesianSeries<
         isHighlight: boolean;
     }) {
         const { isHighlight: isDatumHighlighted } = opts;
-        const {
-            id: seriesId,
-            ctx: { callbackCache },
-            properties,
-        } = this;
+        const { id: seriesId, properties } = this;
         const { xKey, yKey, colorKey, itemStyler } = properties;
 
         const highlightStyle = isDatumHighlighted ? properties.highlightStyle.item : undefined;
@@ -343,19 +340,23 @@ export class HeatmapSeries extends _ModuleSupport.CartesianSeries<
 
             let format: AgHeatmapSeriesStyle | undefined;
             if (itemStyler) {
-                format = callbackCache.call(itemStyler, {
-                    datum,
-                    fill,
-                    fillOpacity,
-                    stroke,
-                    strokeOpacity,
-                    strokeWidth,
-                    highlighted: isDatumHighlighted,
-                    xKey,
-                    yKey,
-                    colorKey,
-                    seriesId,
-                });
+                format = this.cachedDatumCallback(
+                    createDatumId(datum.index, isDatumHighlighted ? 'highlight' : 'node'),
+                    () =>
+                        itemStyler({
+                            datum,
+                            fill,
+                            fillOpacity,
+                            stroke,
+                            strokeOpacity,
+                            strokeWidth,
+                            highlighted: isDatumHighlighted,
+                            xKey,
+                            yKey,
+                            colorKey,
+                            seriesId,
+                        })
+                );
             }
 
             rect.crisp = crisp;
@@ -427,11 +428,7 @@ export class HeatmapSeries extends _ModuleSupport.CartesianSeries<
             itemStyler,
             tooltip,
         } = this.properties;
-        const {
-            colorScale,
-            id: seriesId,
-            ctx: { callbackCache },
-        } = this;
+        const { colorScale, id: seriesId } = this;
 
         const { datum, xValue, yValue, colorValue, itemId } = nodeDatum;
         const fill = this.isColorScaleValid() ? colorScale.convert(colorValue) : colorRange[0];
@@ -439,19 +436,21 @@ export class HeatmapSeries extends _ModuleSupport.CartesianSeries<
         let format: AgHeatmapSeriesStyle | undefined;
 
         if (itemStyler) {
-            format = callbackCache.call(itemStyler, {
-                datum,
-                xKey,
-                yKey,
-                colorKey,
-                fill,
-                fillOpacity: 1,
-                stroke,
-                strokeWidth,
-                strokeOpacity,
-                highlighted: false,
-                seriesId,
-            });
+            format = this.cachedDatumCallback(createDatumId(datum.index, 'tooltip'), () =>
+                itemStyler({
+                    datum,
+                    xKey,
+                    yKey,
+                    colorKey,
+                    fill,
+                    fillOpacity: 1,
+                    stroke,
+                    strokeWidth,
+                    strokeOpacity,
+                    highlighted: false,
+                    seriesId,
+                })
+            );
         }
 
         const color = format?.fill ?? fill ?? 'gray';

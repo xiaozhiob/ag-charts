@@ -20,6 +20,7 @@ const {
     seriesLabelFadeOutAnimation,
     valueProperty,
     animationValidation,
+    createDatumId,
     SeriesNodePickMode,
     normalizeAngle360,
     sanitizeHtml,
@@ -421,38 +422,44 @@ export abstract class RadialColumnSeriesBase<
             angleKey,
             radiusKey,
         } = mergeDefaults(highlighted ? this.properties.highlightStyle.item : null, this.properties);
+        const { itemStyler } = this.properties;
 
-        const idFn = (datum: RadialColumnNodeDatum) => datum.angleValue;
-        selection.update(selectionData, undefined, idFn).each((node, datum) => {
-            const format = this.properties.itemStyler
-                ? this.ctx.callbackCache.call(this.properties.itemStyler, {
-                      datum: datum.datum,
-                      fill,
-                      fillOpacity,
-                      stroke,
-                      strokeWidth,
-                      strokeOpacity,
-                      lineDash,
-                      lineDashOffset,
-                      cornerRadius,
-                      highlighted,
-                      angleKey,
-                      radiusKey,
-                      seriesId: this.id,
-                  })
-                : undefined;
+        selection
+            .update(selectionData, undefined, (datum) => this.getDatumId(datum))
+            .each((node, datum) => {
+                const format = itemStyler
+                    ? this.cachedDatumCallback(
+                          createDatumId(this.getDatumId(datum), highlighted ? 'highlight' : 'node'),
+                          () =>
+                              itemStyler({
+                                  datum: datum.datum,
+                                  fill,
+                                  fillOpacity,
+                                  stroke,
+                                  strokeWidth,
+                                  strokeOpacity,
+                                  lineDash,
+                                  lineDashOffset,
+                                  cornerRadius,
+                                  highlighted,
+                                  angleKey,
+                                  radiusKey,
+                                  seriesId: this.id,
+                              })
+                      )
+                    : undefined;
 
-            this.updateItemPath(node, datum, highlighted, format);
-            node.fill = format?.fill ?? fill;
-            node.fillOpacity = format?.fillOpacity ?? fillOpacity;
-            node.stroke = format?.stroke ?? stroke;
-            node.strokeWidth = format?.strokeWidth ?? strokeWidth;
-            node.strokeOpacity = format?.strokeOpacity ?? strokeOpacity;
-            node.lineDash = format?.lineDash ?? lineDash;
-            node.lineDashOffset = format?.lineDashOffset ?? lineDashOffset;
-            node.cornerRadius = format?.cornerRadius ?? cornerRadius;
-            node.lineJoin = 'round';
-        });
+                this.updateItemPath(node, datum, highlighted, format);
+                node.fill = format?.fill ?? fill;
+                node.fillOpacity = format?.fillOpacity ?? fillOpacity;
+                node.stroke = format?.stroke ?? stroke;
+                node.strokeWidth = format?.strokeWidth ?? strokeWidth;
+                node.strokeOpacity = format?.strokeOpacity ?? strokeOpacity;
+                node.lineDash = format?.lineDash ?? lineDash;
+                node.lineDashOffset = format?.lineDashOffset ?? lineDashOffset;
+                node.cornerRadius = format?.cornerRadius ?? cornerRadius;
+                node.lineJoin = 'round';
+            });
     }
 
     protected updateLabels() {
@@ -535,21 +542,23 @@ export abstract class RadialColumnSeriesBase<
         const content = sanitizeHtml(`${angleString}: ${radiusString}`);
 
         const { fill: color } = (itemStyler &&
-            this.ctx.callbackCache.call(itemStyler, {
-                highlighted: false,
-                seriesId,
-                datum,
-                angleKey,
-                radiusKey,
-                fill,
-                fillOpacity,
-                stroke,
-                strokeWidth,
-                strokeOpacity,
-                lineDash,
-                lineDashOffset,
-                cornerRadius,
-            })) ?? { fill };
+            this.cachedDatumCallback(createDatumId(this.getDatumId(datum), 'tooltip'), () =>
+                itemStyler({
+                    highlighted: false,
+                    seriesId,
+                    datum,
+                    angleKey,
+                    radiusKey,
+                    fill,
+                    fillOpacity,
+                    stroke,
+                    strokeWidth,
+                    strokeOpacity,
+                    lineDash,
+                    lineDashOffset,
+                    cornerRadius,
+                })
+            )) ?? { fill };
 
         return tooltip.toTooltipHtml(
             { title, backgroundColor: fill, content },
@@ -606,6 +615,10 @@ export abstract class RadialColumnSeriesBase<
                 ],
             },
         ];
+    }
+
+    private getDatumId(datum: RadialColumnNodeDatum) {
+        return createDatumId(datum.angleValue);
     }
 
     onLegendItemClick(event: _ModuleSupport.LegendItemClickChartEvent) {

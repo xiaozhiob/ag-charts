@@ -18,6 +18,7 @@ const {
     clamp,
     isNumberEqual,
     sanitizeHtml,
+    createDatumId,
     Transformable,
     Rect,
     Group,
@@ -406,22 +407,24 @@ export class TreemapSeries<
         const stroke = this.getNodeStroke(node);
         const strokeWidth = isLeaf ? tile.strokeWidth : group.strokeWidth;
 
-        return this.ctx.callbackCache.call(itemStyler, {
-            seriesId: this.id,
-            highlighted,
-            datum,
-            depth,
-            colorKey,
-            childrenKey,
-            labelKey,
-            secondaryLabelKey,
-            sizeKey,
-            fill,
-            fillOpacity: 1,
-            stroke,
-            strokeWidth,
-            strokeOpacity: 1,
-        });
+        return this.cachedDatumCallback(createDatumId(this.getDatumId(node), highlighted ? 'highlight' : 'node'), () =>
+            itemStyler({
+                seriesId: this.id,
+                highlighted,
+                datum,
+                depth,
+                colorKey,
+                childrenKey,
+                labelKey,
+                secondaryLabelKey,
+                sizeKey,
+                fill,
+                fillOpacity: 1,
+                stroke,
+                strokeWidth,
+                strokeOpacity: 1,
+            })
+        );
     }
 
     private getNodeFill(node: _ModuleSupport.HierarchyNode) {

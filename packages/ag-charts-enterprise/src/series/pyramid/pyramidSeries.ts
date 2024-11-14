@@ -14,6 +14,7 @@ const {
     CachedTextMeasurerPool,
     TextUtils,
     sanitizeHtml,
+    createDatumId,
     BBox,
     Group,
     Selection,
@@ -444,20 +445,24 @@ export class PyramidSeries extends _ModuleSupport.DataModelSeries<
 
             let itemStyle: AgPyramidSeriesStyle | undefined;
             if (itemStyler != null) {
-                itemStyle = itemStyler({
-                    datum: nodeDatum.datum,
-                    seriesId: this.id,
-                    highlighted: isHighlight,
-                    stageKey,
-                    valueKey,
-                    fill,
-                    fillOpacity,
-                    stroke,
-                    strokeOpacity,
-                    strokeWidth,
-                    lineDash,
-                    lineDashOffset,
-                });
+                itemStyle = this.cachedDatumCallback(
+                    createDatumId(nodeDatum.index, isHighlight ? 'highlight' : 'node'),
+                    () =>
+                        itemStyler({
+                            datum: nodeDatum.datum,
+                            seriesId: this.id,
+                            highlighted: isHighlight,
+                            stageKey,
+                            valueKey,
+                            fill,
+                            fillOpacity,
+                            stroke,
+                            strokeOpacity,
+                            strokeWidth,
+                            lineDash,
+                            lineDashOffset,
+                        })
+                );
             }
 
             connector.fill = itemStyle?.fill ?? fill;
@@ -525,10 +530,7 @@ export class PyramidSeries extends _ModuleSupport.DataModelSeries<
     }
 
     override getTooltipHtml(nodeDatum: any): _ModuleSupport.TooltipContent {
-        const {
-            id: seriesId,
-            ctx: { callbackCache },
-        } = this;
+        const { id: seriesId } = this;
 
         if (!this.properties.isValid()) {
             return _ModuleSupport.EMPTY_TOOLTIP_CONTENT;
@@ -540,20 +542,22 @@ export class PyramidSeries extends _ModuleSupport.DataModelSeries<
 
         let format;
         if (itemStyler) {
-            format = callbackCache.call(itemStyler, {
-                highlighted: false,
-                seriesId,
-                datum,
-                stageKey,
-                valueKey,
-                fill,
-                fillOpacity,
-                stroke,
-                strokeWidth,
-                strokeOpacity,
-                lineDash,
-                lineDashOffset,
-            });
+            format = this.cachedDatumCallback(createDatumId(nodeDatum.index, 'tooltip'), () =>
+                itemStyler({
+                    highlighted: false,
+                    seriesId,
+                    datum,
+                    stageKey,
+                    valueKey,
+                    fill,
+                    fillOpacity,
+                    stroke,
+                    strokeWidth,
+                    strokeOpacity,
+                    lineDash,
+                    lineDashOffset,
+                })
+            );
         }
 
         const color = format?.fill ?? fill ?? 'gray';

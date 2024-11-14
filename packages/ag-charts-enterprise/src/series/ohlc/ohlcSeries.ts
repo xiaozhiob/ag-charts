@@ -5,7 +5,7 @@ import { OhlcSeriesBase } from './ohlcSeriesBase';
 import type { OhlcNodeDatum } from './ohlcSeriesBase';
 import { OhlcSeriesProperties } from './ohlcSeriesProperties';
 
-const { sanitizeHtml } = _ModuleSupport;
+const { sanitizeHtml, createDatumId } = _ModuleSupport;
 
 export class OhlcSeries extends OhlcSeriesBase<OhlcNode, OhlcSeriesProperties> {
     static readonly className = 'ohlc';
@@ -24,11 +24,7 @@ export class OhlcSeries extends OhlcSeriesBase<OhlcNode, OhlcSeriesProperties> {
         datumSelection: _ModuleSupport.Selection<OhlcNode, OhlcNodeDatum>;
         isHighlight: boolean;
     }) {
-        const {
-            id: seriesId,
-            properties,
-            ctx: { callbackCache },
-        } = this;
+        const { id: seriesId, properties } = this;
         const { xKey, highKey, lowKey, openKey, closeKey, item, itemStyler } = properties;
         const { up, down } = item;
         const {
@@ -53,22 +49,26 @@ export class OhlcSeries extends OhlcSeriesBase<OhlcNode, OhlcSeriesProperties> {
             let format: AgOhlcSeriesItemOptions | undefined;
             if (itemStyler != null) {
                 const { stroke, strokeWidth, strokeOpacity, lineDash, lineDashOffset } = isRising ? up : down;
-                format = callbackCache.call(itemStyler, {
-                    seriesId,
-                    itemId: datum.itemId,
-                    xKey,
-                    highKey,
-                    lowKey,
-                    openKey,
-                    closeKey,
-                    datum: datum.datum,
-                    strokeOpacity,
-                    stroke,
-                    strokeWidth,
-                    lineDash,
-                    lineDashOffset,
-                    highlighted: isHighlight,
-                });
+                format = this.cachedDatumCallback(
+                    createDatumId(this.getDatumId(datum), isHighlight ? 'highlight' : 'node'),
+                    () =>
+                        itemStyler({
+                            seriesId,
+                            itemId: datum.itemId,
+                            xKey,
+                            highKey,
+                            lowKey,
+                            openKey,
+                            closeKey,
+                            datum: datum.datum,
+                            strokeOpacity,
+                            stroke,
+                            strokeWidth,
+                            lineDash,
+                            lineDashOffset,
+                            highlighted: isHighlight,
+                        })
+                );
             }
 
             node.centerX = centerX;
@@ -98,11 +98,7 @@ export class OhlcSeries extends OhlcSeriesBase<OhlcNode, OhlcSeriesProperties> {
     }
 
     getTooltipHtml(nodeDatum: OhlcNodeDatum): _ModuleSupport.TooltipContent {
-        const {
-            id: seriesId,
-            properties,
-            ctx: { callbackCache },
-        } = this;
+        const { id: seriesId, properties } = this;
         const {
             xKey,
             openKey,
@@ -145,22 +141,24 @@ export class OhlcSeries extends OhlcSeriesBase<OhlcNode, OhlcSeriesProperties> {
         let format: AgOhlcSeriesItemOptions | undefined;
         if (itemStyler != null) {
             const { stroke, strokeWidth, strokeOpacity, lineDash, lineDashOffset } = item;
-            format = callbackCache.call(itemStyler, {
-                seriesId,
-                itemId: datum.itemId,
-                xKey,
-                highKey,
-                lowKey,
-                openKey,
-                closeKey,
-                datum: datum.datum,
-                strokeOpacity,
-                stroke,
-                strokeWidth,
-                lineDash,
-                lineDashOffset,
-                highlighted: false,
-            });
+            format = this.cachedDatumCallback(createDatumId(this.getDatumId(datum), 'tooltip'), () =>
+                itemStyler({
+                    seriesId,
+                    itemId: datum.itemId,
+                    xKey,
+                    highKey,
+                    lowKey,
+                    openKey,
+                    closeKey,
+                    datum: datum.datum,
+                    strokeOpacity,
+                    stroke,
+                    strokeWidth,
+                    lineDash,
+                    lineDashOffset,
+                    highlighted: false,
+                })
+            );
         }
 
         const stroke = format?.stroke ?? item.stroke;

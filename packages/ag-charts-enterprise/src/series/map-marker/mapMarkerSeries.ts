@@ -752,12 +752,7 @@ export class MapMarkerSeries
     }
 
     override getTooltipHtml(nodeDatum: MapMarkerNodeDatum): _ModuleSupport.TooltipContent {
-        const {
-            id: seriesId,
-            processedData,
-            ctx: { callbackCache },
-            properties,
-        } = this;
+        const { id: seriesId, processedData, properties } = this;
 
         if (!processedData || !this.properties.isValid()) {
             return _ModuleSupport.EMPTY_TOOLTIP_CONTENT;
@@ -814,24 +809,26 @@ export class MapMarkerSeries
         let format: AgMapShapeSeriesStyle | undefined;
 
         if (itemStyler) {
-            format = callbackCache.call(itemStyler, {
-                highlighted: false,
-                seriesId,
-                datum,
-                idKey,
-                sizeKey,
-                colorKey,
-                labelKey,
-                latitudeKey,
-                longitudeKey,
-                shape,
-                size,
-                fill: fill!,
-                fillOpacity,
-                stroke: stroke!,
-                strokeWidth,
-                strokeOpacity,
-            });
+            format = this.cachedDatumCallback(createDatumId(datum.idValue, 'tooltip'), () =>
+                itemStyler({
+                    highlighted: false,
+                    seriesId,
+                    datum,
+                    idKey,
+                    sizeKey,
+                    colorKey,
+                    labelKey,
+                    latitudeKey,
+                    longitudeKey,
+                    shape,
+                    size,
+                    fill: fill!,
+                    fillOpacity,
+                    stroke: stroke!,
+                    strokeWidth,
+                    strokeOpacity,
+                })
+            );
         }
 
         const color = format?.fill ?? fill ?? properties.fill;
@@ -862,11 +859,7 @@ export class MapMarkerSeries
     }
 
     public getMapMarkerStyle(markerDatum: MapMarkerNodeDatum, highlighted: boolean) {
-        const {
-            id: seriesId,
-            properties,
-            ctx: { callbackCache },
-        } = this;
+        const { id: seriesId, properties } = this;
         const { datum, point } = markerDatum;
         const {
             idKey,
@@ -884,24 +877,26 @@ export class MapMarkerSeries
         } = properties;
         const strokeWidth = this.getStrokeWidth(properties.strokeWidth);
         if (itemStyler !== undefined) {
-            return callbackCache.call(itemStyler, {
-                seriesId,
-                datum,
-                size: point.size,
-                idKey,
-                latitudeKey,
-                longitudeKey,
-                labelKey,
-                sizeKey,
-                colorKey,
-                fill: fill!,
-                fillOpacity,
-                stroke: stroke!,
-                strokeWidth,
-                strokeOpacity,
-                shape,
-                highlighted,
-            });
+            return this.cachedDatumCallback(createDatumId(datum.idValue, highlighted ? 'highlight' : 'node'), () =>
+                itemStyler({
+                    seriesId,
+                    datum,
+                    size: point.size,
+                    idKey,
+                    latitudeKey,
+                    longitudeKey,
+                    labelKey,
+                    sizeKey,
+                    colorKey,
+                    fill: fill!,
+                    fillOpacity,
+                    stroke: stroke!,
+                    strokeWidth,
+                    strokeOpacity,
+                    shape,
+                    highlighted,
+                })
+            );
         }
     }
 

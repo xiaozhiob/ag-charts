@@ -9,6 +9,7 @@ const {
     fixNumericExtent,
     keyProperty,
     findMinMax,
+    createDatumId,
     SeriesNodePickMode,
     ChartAxisDirection,
     SMALLEST_KEY_INTERVAL,
@@ -382,6 +383,10 @@ export abstract class OhlcSeriesBase<
     }) {
         const { labelData, labelSelection } = opts;
         return labelSelection.update(labelData);
+    }
+
+    protected getDatumId(datum: OhlcNodeDatum) {
+        return createDatumId(datum.xValue);
     }
 
     override computeFocusBounds() {

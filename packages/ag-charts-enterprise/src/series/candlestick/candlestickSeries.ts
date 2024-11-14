@@ -4,7 +4,7 @@ import { type OhlcNodeDatum, OhlcSeriesBase } from '../ohlc/ohlcSeriesBase';
 import { CandlestickNode } from './candlestickNode';
 import { CandlestickSeriesProperties } from './candlestickSeriesProperties';
 
-const { sanitizeHtml } = _ModuleSupport;
+const { sanitizeHtml, createDatumId } = _ModuleSupport;
 
 export class CandlestickSeries extends OhlcSeriesBase<CandlestickNode, CandlestickSeriesProperties<any>> {
     static readonly className = 'CandleStickSeries';
@@ -23,11 +23,7 @@ export class CandlestickSeries extends OhlcSeriesBase<CandlestickNode, Candlesti
         datumSelection: _ModuleSupport.Selection<CandlestickNode, OhlcNodeDatum>;
         isHighlight: boolean;
     }) {
-        const {
-            id: seriesId,
-            properties,
-            ctx: { callbackCache },
-        } = this;
+        const { id: seriesId, properties } = this;
         const { xKey, highKey, lowKey, openKey, closeKey, item, itemStyler } = properties;
         const { up, down } = item;
         const {
@@ -72,24 +68,28 @@ export class CandlestickSeries extends OhlcSeriesBase<CandlestickNode, Candlesti
                 const { fill, fillOpacity, stroke, strokeWidth, strokeOpacity, lineDash, lineDashOffset } = isRising
                     ? up
                     : down;
-                format = callbackCache.call(itemStyler, {
-                    seriesId,
-                    itemId: datum.itemId,
-                    xKey,
-                    highKey,
-                    lowKey,
-                    openKey,
-                    closeKey,
-                    datum: datum.datum,
-                    fill,
-                    fillOpacity,
-                    strokeOpacity,
-                    stroke,
-                    strokeWidth,
-                    lineDash,
-                    lineDashOffset,
-                    highlighted: isHighlight,
-                });
+                format = this.cachedDatumCallback(
+                    createDatumId(this.getDatumId(datum), isHighlight ? 'highlight' : 'node'),
+                    () =>
+                        itemStyler({
+                            seriesId,
+                            itemId: datum.itemId,
+                            xKey,
+                            highKey,
+                            lowKey,
+                            openKey,
+                            closeKey,
+                            datum: datum.datum,
+                            fill,
+                            fillOpacity,
+                            strokeOpacity,
+                            stroke,
+                            strokeWidth,
+                            lineDash,
+                            lineDashOffset,
+                            highlighted: isHighlight,
+                        })
+                );
             }
 
             node.centerX = centerX;
@@ -140,11 +140,7 @@ export class CandlestickSeries extends OhlcSeriesBase<CandlestickNode, Candlesti
     }
 
     getTooltipHtml(nodeDatum: OhlcNodeDatum): _ModuleSupport.TooltipContent {
-        const {
-            id: seriesId,
-            properties,
-            ctx: { callbackCache },
-        } = this;
+        const { id: seriesId, properties } = this;
         const {
             xKey,
             openKey,
@@ -187,24 +183,26 @@ export class CandlestickSeries extends OhlcSeriesBase<CandlestickNode, Candlesti
         let format: AgCandlestickSeriesItemOptions | undefined;
         if (itemStyler != null) {
             const { fill, fillOpacity, stroke, strokeWidth, strokeOpacity, lineDash, lineDashOffset } = item;
-            format = callbackCache.call(itemStyler, {
-                seriesId,
-                itemId: datum.itemId,
-                xKey,
-                highKey,
-                lowKey,
-                openKey,
-                closeKey,
-                datum: datum.datum,
-                fill,
-                fillOpacity,
-                strokeOpacity,
-                stroke,
-                strokeWidth,
-                lineDash,
-                lineDashOffset,
-                highlighted: false,
-            });
+            format = this.cachedDatumCallback(createDatumId(this.getDatumId(datum), 'tooltip'), () =>
+                itemStyler({
+                    seriesId,
+                    itemId: datum.itemId,
+                    xKey,
+                    highKey,
+                    lowKey,
+                    openKey,
+                    closeKey,
+                    datum: datum.datum,
+                    fill,
+                    fillOpacity,
+                    strokeOpacity,
+                    stroke,
+                    strokeWidth,
+                    lineDash,
+                    lineDashOffset,
+                    highlighted: false,
+                })
+            );
         }
 
         const fill = format?.fill ?? item.fill;

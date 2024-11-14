@@ -420,7 +420,7 @@ export class RangeBarSeries extends _ModuleSupport.AbstractBarSeries<
             };
             const visible = categoryAlongX ? datum.width > 0 : datum.height > 0;
 
-            const config = getRectConfig(this, this.createDatumId(datum), {
+            const config = getRectConfig(this, this.getDatumId(datum), {
                 datum,
                 isHighlighted: isHighlight,
                 style,
@@ -462,10 +462,7 @@ export class RangeBarSeries extends _ModuleSupport.AbstractBarSeries<
     }
 
     getTooltipHtml(nodeDatum: RangeBarNodeDatum): _ModuleSupport.TooltipContent {
-        const {
-            id: seriesId,
-            ctx: { callbackCache },
-        } = this;
+        const { id: seriesId } = this;
 
         const xAxis = this.getCategoryAxis();
         const yAxis = this.getValueAxis();
@@ -497,22 +494,24 @@ export class RangeBarSeries extends _ModuleSupport.AbstractBarSeries<
 
         let format;
         if (itemStyler) {
-            format = callbackCache.call(itemStyler, {
-                highlighted: false,
-                seriesId,
-                datum,
-                xKey,
-                yLowKey,
-                yHighKey,
-                fill,
-                fillOpacity,
-                stroke,
-                strokeWidth,
-                strokeOpacity,
-                lineDash,
-                lineDashOffset,
-                cornerRadius,
-            });
+            format = this.cachedDatumCallback(createDatumId(this.getDatumId(nodeDatum), 'tooltip'), () =>
+                itemStyler({
+                    highlighted: false,
+                    seriesId,
+                    datum,
+                    xKey,
+                    yLowKey,
+                    yHighKey,
+                    fill,
+                    fillOpacity,
+                    stroke,
+                    strokeWidth,
+                    strokeOpacity,
+                    lineDash,
+                    lineDashOffset,
+                    cornerRadius,
+                })
+            );
         }
 
         const color = format?.fill ?? fill ?? 'gray';
@@ -599,7 +598,7 @@ export class RangeBarSeries extends _ModuleSupport.AbstractBarSeries<
             this.ctx.animationManager,
             [datumSelections],
             fns,
-            (_, datum) => this.createDatumId(datum),
+            (_, datum) => this.getDatumId(datum),
             dataDiff
         );
 
@@ -615,10 +614,6 @@ export class RangeBarSeries extends _ModuleSupport.AbstractBarSeries<
     }
 
     protected override onDataChange() {}
-
-    private createDatumId(datum: RangeBarNodeDatum) {
-        return createDatumId(datum.xValue, datum.valueIndex);
-    }
 
     protected computeFocusBounds({
         datumIndex,

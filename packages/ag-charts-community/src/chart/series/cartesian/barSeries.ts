@@ -485,7 +485,7 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
         nodeData: BarNodeDatum[];
         datumSelection: Selection<Rect, BarNodeDatum>;
     }) {
-        return opts.datumSelection.update(opts.nodeData, undefined, (datum) => this.createDatumId(datum));
+        return opts.datumSelection.update(opts.nodeData, undefined, (datum) => this.getDatumId(datum));
     }
 
     protected override async updateDatumNodes(opts: {
@@ -553,7 +553,7 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
                 ? (datum.clipBBox?.width ?? datum.width) > 0
                 : (datum.clipBBox?.height ?? datum.height) > 0;
 
-            const config = getRectConfig(this, this.createDatumId(datum), rectParams);
+            const config = getRectConfig(this, this.getDatumId(datum), rectParams);
             config.crisp = crisp;
             config.visible = visible;
             updateRect(rect, config);
@@ -599,7 +599,7 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
         if (itemStyler) {
             const xDomain = this.getSeriesDomain(ChartAxisDirection.X);
             const yDomain = this.getSeriesDomain(ChartAxisDirection.Y);
-            format = this.cachedDatumCallback(createDatumId(this.createDatumId(datum), 'tooltip'), () =>
+            format = this.cachedDatumCallback(createDatumId(this.getDatumId(datum), 'tooltip'), () =>
                 itemStyler({
                     seriesId,
                     ...datumStylerProperties(nodeDatum, xKey, yKey, xDomain, yDomain),
@@ -685,7 +685,7 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
             this.ctx.animationManager,
             [datumSelection],
             fns,
-            (_, datum) => this.createDatumId(datum),
+            (_, datum) => this.getDatumId(datum),
             dataDiff
         );
 
@@ -696,7 +696,7 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
         }
     }
 
-    private createDatumId(datum: BarNodeDatum) {
+    private getDatumId(datum: BarNodeDatum) {
         return createDatumId(datum.xValue, datum.valueIndex, datum.phantom);
     }
 

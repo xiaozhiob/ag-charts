@@ -369,6 +369,7 @@ export abstract class Series<
     destroy(): void {
         this.destroyFns.forEach((f) => f());
         this.destroyFns = [];
+        this.resetDatumCallbackCache();
         this.ctx.seriesStateManager.deregisterSeries(this);
     }
 

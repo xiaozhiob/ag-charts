@@ -17,6 +17,7 @@ const {
     animationValidation,
     computeBarFocusBounds,
     sanitizeHtml,
+    createDatumId,
     Color,
     ContinuousScale,
     motion,
@@ -319,7 +320,7 @@ export class BoxPlotSeries extends _ModuleSupport.AbstractBarSeries<
             .map(([key, name, axis]) => sanitizeHtml(`${name ?? key}: ${axis.formatDatum(datum[key])}`))
             .join(title ? '<br/>' : ', ');
 
-        const { fill: formatFill } = this.getFormattedStyles(nodeDatum);
+        const { fill: formatFill } = this.getFormattedStyles(nodeDatum, 'tooltip');
 
         return tooltip.toTooltipHtml(
             { title, content, backgroundColor: fill },
@@ -381,7 +382,7 @@ export class BoxPlotSeries extends _ModuleSupport.AbstractBarSeries<
         const isVertical = this.isVertical();
         const isReversedValueAxis = this.getValueAxis()?.isReversed();
         datumSelection.each((boxPlotGroup, nodeDatum) => {
-            let activeStyles = this.getFormattedStyles(nodeDatum, highlighted);
+            let activeStyles = this.getFormattedStyles(nodeDatum, highlighted ? 'highlight' : 'node');
 
             if (highlighted) {
                 activeStyles = mergeDefaults(this.properties.highlightStyle.item, activeStyles);
@@ -423,12 +424,8 @@ export class BoxPlotSeries extends _ModuleSupport.AbstractBarSeries<
         return new BoxPlotGroup();
     }
 
-    getFormattedStyles(nodeDatum: BoxPlotNodeDatum, highlighted = false): AgBoxPlotSeriesStyle {
-        const {
-            id: seriesId,
-            ctx: { callbackCache },
-            properties,
-        } = this;
+    getFormattedStyles(nodeDatum: BoxPlotNodeDatum, scope: 'tooltip' | 'node' | 'highlight'): AgBoxPlotSeriesStyle {
+        const { id: seriesId, properties } = this;
         const { xKey, minKey, q1Key, medianKey, q3Key, maxKey, itemStyler, backgroundFill, cornerRadius } = properties;
         const { datum, stroke, strokeWidth, strokeOpacity, lineDash, lineDashOffset, cap, whisker } = nodeDatum;
         let fill: string;
@@ -467,18 +464,20 @@ export class BoxPlotSeries extends _ModuleSupport.AbstractBarSeries<
         };
 
         if (itemStyler) {
-            const formatStyles = callbackCache.call(itemStyler, {
-                datum,
-                seriesId,
-                highlighted,
-                ...activeStyles,
-                xKey,
-                minKey,
-                q1Key,
-                medianKey,
-                q3Key,
-                maxKey,
-            });
+            const formatStyles = this.cachedDatumCallback(createDatumId(datum.index, scope), () =>
+                itemStyler({
+                    datum,
+                    seriesId,
+                    highlighted: scope === 'highlight',
+                    ...activeStyles,
+                    xKey,
+                    minKey,
+                    q1Key,
+                    medianKey,
+                    q3Key,
+                    maxKey,
+                })
+            );
             if (formatStyles) {
                 return mergeDefaults(formatStyles, activeStyles);
             }
