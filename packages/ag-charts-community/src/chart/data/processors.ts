@@ -318,8 +318,8 @@ const animationValidationProcessKey = (
     let lastValue = column[0];
     for (let d = 1; validation !== 0 && d < column.length; d++) {
         const keyValue = column[d];
-        if (lastValue > keyValue) validation &= ~ANIMATION_VALIDATION_ORDERED_KEYS;
-        if (lastValue === keyValue) validation &= ~ANIMATION_VALIDATION_UNIQUE_KEYS;
+        if (!(lastValue <= keyValue)) validation &= ~ANIMATION_VALIDATION_ORDERED_KEYS;
+        if (!(lastValue !== keyValue)) validation &= ~ANIMATION_VALIDATION_UNIQUE_KEYS;
         lastValue = keyValue;
     }
 

@@ -101,6 +101,9 @@ export default [
             'sonarjs/cognitive-complexity': env !== 'nx-task' ? 1 : 0,
             'sonarjs/no-duplicate-string': env !== 'nx-task' ? 1 : 0,
 
+            // For review - actual bugs?
+            'sonarjs/no-inverted-boolean-check': 1,
+            'sonarjs/no-misused-promises': 1,
             // For review - new for eslint 9.
             '@typescript-eslint/no-base-to-string': 1,
             '@typescript-eslint/no-unsafe-member-access': 1,
@@ -115,7 +118,6 @@ export default [
             '@typescript-eslint/ban-ts-comment': 1,
             '@typescript-eslint/require-await': 1,
             '@typescript-eslint/no-this-alias': 1,
-            'sonarjs/no-misused-promises': 1,
             'sonarjs/public-static-readonly': 1,
             'sonarjs/no-empty-function': 1,
             'sonarjs/no-redeclare': 1,
@@ -134,7 +136,6 @@ export default [
             'sonarjs/sonar-no-unused-vars': 0,
             'sonarjs/no-redundant-type-constituents': 0,
             'sonarjs/sonar-prefer-optional-chain': 0,
-            'sonarjs/no-misused-promises': 0,
         },
     },
     testDefaults,
