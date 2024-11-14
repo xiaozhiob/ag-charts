@@ -108,7 +108,7 @@ export function setAttribute<A extends keyof BaseAttributeTypeMap>(
     qualifiedName: A,
     value: BaseAttributeTypeMap[A] | undefined
 ) {
-    if (value == null) {
+    if (value == null || value === '') {
         e?.removeAttribute(qualifiedName);
     } else {
         e?.setAttribute(qualifiedName, value.toString());
