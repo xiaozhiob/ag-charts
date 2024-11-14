@@ -54,11 +54,11 @@ export class OhlcBaseNode extends Path implements _ModuleSupport.DistantObject {
         let y0 = y;
         let y1 = y + height;
 
-        if (crisp && width > strokeAlignment) {
-            x0 = this.align(centerX - width / 2);
-            x1 = x0 + this.align(centerX - width / 2, width);
+        if (crisp && width > 1) {
+            x0 = this.align(x0);
+            x1 = x0 + this.align(x0, width);
             y0 = this.align(y);
-            y1 = y0 + this.align(y, height);
+            y1 = y0 + this.align(y0, height);
 
             centerX = this.align(centerX);
             yOpen = this.align(yOpen);
