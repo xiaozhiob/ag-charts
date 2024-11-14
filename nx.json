@@ -210,7 +210,7 @@
       "executor": "nx:run-commands",
       "options": {
         "cwd": "{projectRoot}",
-        "command": "if [[ -f ./eslint.config.mjs ]] ; then npx eslint --quiet ; else exit 1 ; fi"
+        "command": "npx eslint"
       },
       "cache": true,
       "inputs": [
