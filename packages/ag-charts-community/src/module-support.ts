@@ -65,8 +65,6 @@ export * from './chart/interaction/keyNavManager';
 export * from './chart/interaction/regionManager';
 export * from './chart/interaction/toolbarManager';
 export * from './chart/interaction/tooltipManager';
-export * from './chart/toolbar/toolbarButtonProperties';
-export * from './chart/toolbar/toolbarButtonWidget';
 export * from './chart/toolbar/toolbarTypes';
 export * from './chart/interaction/zoomManager';
 export * from './chart/zIndexMap';
@@ -205,10 +203,13 @@ export { Path } from './scene/shape/path';
 export { RadialColumnShape, getRadialColumnWidth } from './scene/shape/radialColumnShape';
 export { Rect } from './scene/shape/rect';
 export { Sector } from './scene/shape/sector';
-export { Shape } from './scene/shape/shape';
+export { Shape, type CanvasContext } from './scene/shape/shape';
 
 export * from './chart/themes/util';
 export * as ThemeSymbols from './chart/themes/symbols';
 export * as ThemeConstants from './chart/themes/constants';
 
 export * from './widget/exports';
+export * from './components/toolbar/toolbarButtonProperties';
+export * from './components/toolbar/toolbarButtonWidget';
+export * from './components/toolbar/toolbarComponent';

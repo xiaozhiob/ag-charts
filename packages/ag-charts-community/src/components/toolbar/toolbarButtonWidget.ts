@@ -1,9 +1,10 @@
 import type { AgIconName } from 'ag-charts-types';
 
 import type { ModuleContext } from '../../module/moduleContext';
+import { getIconClassNames } from '../../util/dom';
 import { ButtonWidget } from '../../widget/buttonWidget';
 
-interface ToolbarButtonOptions {
+export interface ToolbarButtonWidgetOptions {
     icon?: AgIconName;
     label?: string;
     ariaLabel?: string;
@@ -15,8 +16,8 @@ export class ToolbarButtonWidget extends ButtonWidget {
         super();
     }
 
-    public update(options: ToolbarButtonOptions) {
-        const { domManager, localeManager } = this.ctx;
+    public update(options: ToolbarButtonWidgetOptions) {
+        const { localeManager } = this.ctx;
 
         const element = this.getElement();
         element.textContent = options.label ? localeManager.t(options.label) : null;
@@ -28,12 +29,12 @@ export class ToolbarButtonWidget extends ButtonWidget {
         let innerHTML = '';
 
         if (options.icon != null) {
-            innerHTML = `<span class="${domManager.getIconClassNames(options.icon)} ag-charts-toolbar__icon"></span>`;
+            innerHTML = `<span class="${getIconClassNames(options.icon)} ag-charts-toolbar__icon"></span>`;
         }
 
         if (options.label != null) {
-            const tlabel = localeManager.t(options.label);
-            innerHTML = `${innerHTML}<span class="ag-charts-toolbar__label">${tlabel}</span>`;
+            const label = localeManager.t(options.label);
+            innerHTML = `${innerHTML}<span class="ag-charts-toolbar__label">${label}</span>`;
         }
 
         element.innerHTML = innerHTML;

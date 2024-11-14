@@ -1,4 +1,4 @@
-import { BaseManager } from '../baseManager';
+import { BaseManager } from '../../util/baseManager';
 import type { ChartAxisDirection } from '../chartAxisDirection';
 
 type ChartEventType = 'legend-item-click' | 'legend-item-double-click' | 'axis-hover';

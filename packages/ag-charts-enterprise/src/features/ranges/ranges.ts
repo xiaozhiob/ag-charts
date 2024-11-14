@@ -2,16 +2,7 @@ import { _ModuleSupport, _Scene } from 'ag-charts-community';
 
 import { RangesButtonProperties } from './rangesButtonProperties';
 
-const {
-    BOOLEAN,
-    OBJECT,
-    ChartAxisDirection,
-    LayoutElement,
-    PropertiesArray,
-    ToolbarButtonWidget,
-    ToolbarWidget,
-    Validate,
-} = _ModuleSupport;
+const { BOOLEAN, OBJECT, ChartAxisDirection, LayoutElement, PropertiesArray, Toolbar, Validate } = _ModuleSupport;
 
 export class Ranges extends _ModuleSupport.BaseModuleInstance implements _ModuleSupport.ModuleInstance {
     @Validate(BOOLEAN)
@@ -22,16 +13,13 @@ export class Ranges extends _ModuleSupport.BaseModuleInstance implements _Module
 
     private readonly verticalSpacing = 10;
 
-    private readonly toolbar: _ModuleSupport.ToolbarWidget;
-    private readonly buttonWidgets: Array<_ModuleSupport.ToolbarButtonWidget> = [];
+    private readonly toolbar = new Toolbar(this.ctx, this.onButtonPress.bind(this));
 
     constructor(private readonly ctx: _ModuleSupport.ModuleContext) {
         super();
 
-        this.toolbar = new ToolbarWidget();
         const element = this.toolbar.getElement();
-        element.classList.add('ag-charts-toolbar', 'ag-charts-toolbar--ranges');
-
+        element.classList.add('ag-charts-range-buttons');
         ctx.domManager.addChild('canvas-overlay', 'range-buttons', element);
 
         this.destroyFns.push(
@@ -42,10 +30,10 @@ export class Ranges extends _ModuleSupport.BaseModuleInstance implements _Module
     }
 
     private onLayoutStart(event: _ModuleSupport.LayoutContext) {
-        const { toolbar, verticalSpacing } = this;
+        const { buttons, toolbar, verticalSpacing } = this;
         const { layoutBox } = event;
 
-        this.refreshButtons();
+        this.toolbar.updateButtons(buttons);
 
         const height = toolbar.getElement().offsetHeight;
         toolbar.setBounds({
@@ -59,42 +47,7 @@ export class Ranges extends _ModuleSupport.BaseModuleInstance implements _Module
     }
 
     private onZoomChanged() {
-        this.toggleButtons();
-    }
-
-    private refreshButtons() {
-        const { buttons, buttonWidgets } = this;
-
-        for (const [index, options] of buttons.entries()) {
-            const button = this.buttonWidgets.at(index) ?? this.createButton(index);
-            button.update(options);
-
-            const element = button.getElement();
-            element.classList.toggle('ag-charts-toolbar__button--first', index === 0);
-            element.classList.toggle('ag-charts-toolbar__button--last', index === buttons.length - 1);
-        }
-
-        for (let index = buttons.length; index < buttonWidgets.length; index++) {
-            const button = this.buttonWidgets.at(index);
-            // this.toolbar.removeChild(button); // TODO
-            button?.destroy();
-        }
-    }
-
-    private createButton(index: number) {
-        const { toolbar } = this;
-
-        const button = new ToolbarButtonWidget(this.ctx);
-        const element = button.getElement();
-        element.classList.add('ag-charts-toolbar__button');
-        element.addEventListener('click', () => {
-            this.onButtonPress({ index });
-        });
-
-        this.buttonWidgets.push(button);
-        toolbar.appendChild(button as _ModuleSupport.ButtonWidget);
-
-        return button;
+        this.toolbar.clearActiveButton();
     }
 
     private onButtonPress(event: { index: number }) {
@@ -114,13 +67,6 @@ export class Ranges extends _ModuleSupport.BaseModuleInstance implements _Module
             zoomManager.updateWith('zoom-buttons', ChartAxisDirection.X, value);
         }
 
-        this.toggleButtons(index);
-    }
-
-    private toggleButtons(activeIndex?: number) {
-        for (const [index, button] of this.buttonWidgets.entries()) {
-            const element = button.getElement();
-            element.classList.toggle('ag-charts-toolbar__button--active', activeIndex != null && activeIndex === index);
-        }
+        this.toolbar.toggleActiveButtonByIndex(index);
     }
 }

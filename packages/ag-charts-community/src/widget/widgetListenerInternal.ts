@@ -8,8 +8,9 @@ type EventType = keyof WidgetEventMap_Internal;
 type EventHandler<T> = (target: T, event: unknown) => unknown;
 type TargetableWidget = { getElement(): HTMLElement };
 
+type DragEvents = 'drag-start' | 'drag-move' | 'drag-end';
 type DragOrigin = { pageX: number; pageY: number; offsetX: number; offsetY: number };
-function makeDragEvent<K extends EventType>(type: K, origin: DragOrigin, sourceEvent: MouseEvent): EventMap[K] {
+function makeDragEvent<K extends DragEvents>(type: K, origin: DragOrigin, sourceEvent: MouseEvent): EventMap[K] {
     const event = WidgetEventUtil.alloc(type, sourceEvent);
     // [offsetX, offsetY] is relative to the sourceEvent.target, which can be another element
     // such as a legend button. Therefore, calculate [offsetX, offsetY] relative to the axis

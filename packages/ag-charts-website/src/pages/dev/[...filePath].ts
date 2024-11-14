@@ -14,9 +14,9 @@ export async function GET({ props }: DevFileRoute) {
 
     const mimeType = mime.getType(fullFilePath);
 
-    let body: string;
+    let body;
     try {
-        body = await fs.readFile(fullFilePath, 'utf-8');
+        body = await fs.readFile(fullFilePath);
     } catch (e) {
         if (mimeType !== 'text/javascript') throw e;
 

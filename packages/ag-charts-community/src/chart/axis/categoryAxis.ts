@@ -30,6 +30,52 @@ export class CategoryAxis<
     @Validate(RATIO, { optional: true })
     paddingOuter?: number;
 
+    private domainOrderedToNormalizedDomain(seriesDomain: any[], normalizedDomain: any[]) {
+        let normalizedIndex = -1;
+        for (let seriesIndex = 0; seriesIndex < seriesDomain.length; seriesIndex += 1) {
+            const value = seriesDomain[seriesIndex];
+            const normalizedNextIndex = normalizedDomain.indexOf(value);
+
+            if (normalizedNextIndex === -1) {
+                // All subsequent values must be extending (i.e. appending to) the normalized domain
+                normalizedIndex = Infinity;
+            } else if (normalizedNextIndex <= normalizedIndex) {
+                return false;
+            } else {
+                normalizedIndex = normalizedNextIndex;
+            }
+        }
+
+        return true;
+    }
+
+    private categoryAnimatable = true;
+    protected override calculateDomain() {
+        let normalizedDomain: any[] = [];
+
+        let categoryAnimatable = true;
+        for (const series of this.boundSeries) {
+            if (!this.includeInvisibleDomains && !series.isEnabled()) continue;
+
+            const seriesDomain = series.getDomain(this.direction);
+
+            categoryAnimatable &&= this.domainOrderedToNormalizedDomain(seriesDomain, normalizedDomain);
+
+            normalizedDomain = this.normaliseDataDomain([...normalizedDomain, ...seriesDomain]).domain;
+        }
+
+        this.setDomain(normalizedDomain);
+        this.categoryAnimatable = categoryAnimatable;
+    }
+
+    override update() {
+        super.update();
+
+        if (!this.categoryAnimatable) {
+            this.moduleCtx.animationManager.skip();
+        }
+    }
+
     override normaliseDataDomain(d: Array<string | object>) {
         const domain = [];
         const uniqueValues = new Set();
