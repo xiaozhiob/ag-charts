@@ -143,9 +143,12 @@ export class OrdinalTimeScale extends BandScale<Date, TimeInterval | number> {
         if (precomputedSteps != null) {
             const d0 = sortedTimestamps[0].valueOf();
             const d1 = sortedTimestamps[sortedTimestamps.length - 1].valueOf();
-            const i = (((target - d0) / (d1 - d0)) * precomputedSteps.length) | 0;
+            const i = Math.min(
+                (((target - d0) / (d1 - d0)) * precomputedSteps.length) | 0,
+                (precomputedSteps.length - 1) | 0
+            );
             low = precomputedSteps[i];
-            high = i < precomputedSteps.length - 1 ? precomputedSteps[i + 1] : sortedTimestamps.length - 1;
+            high = i < precomputedSteps.length - 2 ? precomputedSteps[i + 1] : sortedTimestamps.length - 1;
         } else {
             low = 0;
             high = sortedTimestamps.length - 1;
