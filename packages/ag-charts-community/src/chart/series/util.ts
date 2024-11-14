@@ -63,8 +63,8 @@ export function datumStylerProperties<TDatum extends { xValue: any; yValue: any 
     yDomain: any[]
 ) {
     const { xValue, yValue } = datum;
-    const [first, last] = datumBoundaryPoints(yValue, yDomain);
-    const [min, max] = datumBoundaryPoints(xValue, xDomain);
+    const [min, max] = datumBoundaryPoints(yValue, yDomain);
+    const [first, last] = datumBoundaryPoints(xValue, xDomain);
     return {
         datum,
         xKey,
