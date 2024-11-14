@@ -203,7 +203,7 @@ export { Path } from './scene/shape/path';
 export { RadialColumnShape, getRadialColumnWidth } from './scene/shape/radialColumnShape';
 export { Rect } from './scene/shape/rect';
 export { Sector } from './scene/shape/sector';
-export { Shape } from './scene/shape/shape';
+export { Shape, type CanvasContext } from './scene/shape/shape';
 
 export * from './chart/themes/util';
 export * as ThemeSymbols from './chart/themes/symbols';
