@@ -1,7 +1,7 @@
-import { BaseManager } from '../chart/baseManager';
 import { BBox } from '../scene/bbox';
 import STYLES from '../styles.css';
 import { setAttribute } from '../util/attributeUtil';
+import { BaseManager } from '../util/baseManager';
 import { createElement, getDocument, getWindow } from '../util/dom';
 import { GuardedElement } from '../util/guardedElement';
 import { stopPageScrolling } from '../util/keynavUtil';
