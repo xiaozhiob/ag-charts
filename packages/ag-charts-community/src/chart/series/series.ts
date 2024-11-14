@@ -242,7 +242,7 @@ export abstract class Series<
     protected _data?: any[];
     protected _chartData?: any[];
 
-    private datumCallbackCache = new Map<string, any>();
+    private readonly datumCallbackCache = new Map<string, any>();
 
     get data() {
         return this._data ?? this._chartData;
