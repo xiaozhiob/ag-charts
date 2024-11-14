@@ -1,3 +1,5 @@
+import type { AgIconName } from 'ag-charts-types';
+
 import type { BBoxValues } from './bboxinterface';
 
 const verifiedGlobals = {} as { document: Document; window: Window };
@@ -151,4 +153,8 @@ export function isInputPending() {
     }
 
     return false;
+}
+
+export function getIconClassNames(icon: AgIconName) {
+    return `ag-charts-icon ag-charts-icon-${icon}`;
 }
