@@ -35,13 +35,13 @@ export interface AgBarSeriesItemStylerParams<TDatum>
     xDomain: any[];
     /** The range of the y values of the data. */
     yDomain: any[];
-    /** Whether the item's x value is the minimum */
+    /** Whether the item's x value is the first in the data domain. */
     first: boolean;
-    /** Whether the item's x value is the maximum */
+    /** Whether the item's x value is the last in the data domain. */
     last: boolean;
-    /** Whether the item's y value is the minimum */
+    /** Whether the item's y value is the lowest in the data. */
     min: boolean;
-    /** Whether the item's y value is the maximum */
+    /** Whether the item's y value is the highest in the data. */
     max: boolean;
 }
 
