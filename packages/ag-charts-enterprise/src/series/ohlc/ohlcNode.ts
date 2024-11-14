@@ -54,7 +54,7 @@ export class OhlcBaseNode extends Path implements _ModuleSupport.DistantObject {
         let y0 = y;
         let y1 = y + height;
 
-        if (crisp) {
+        if (crisp && width > strokeAlignment) {
             x0 = this.align(centerX - width / 2);
             x1 = x0 + this.align(centerX - width / 2, width);
             y0 = this.align(y);
@@ -77,6 +77,14 @@ export class OhlcBaseNode extends Path implements _ModuleSupport.DistantObject {
         yClose += yClose < centerY ? strokeAlignment : -strokeAlignment;
 
         return { centerX, x0, x1, y0, y1, yOpen, yClose };
+    }
+
+    protected override executeStroke(ctx: _ModuleSupport.CanvasContext, path?: Path2D | undefined): void {
+        const { width, strokeWidth } = this;
+        if (width < strokeWidth) {
+            ctx.lineWidth = width;
+        }
+        super.executeStroke(ctx, path);
     }
 }
 

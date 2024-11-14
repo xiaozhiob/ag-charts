@@ -113,6 +113,6 @@ export class CandlestickNode extends OhlcBaseNode {
         }
         ctx.lineDashOffset = wickLineDashOffset;
 
-        this.executeStroke(ctx, wickPath.getPath2D());
+        ctx.stroke(wickPath.getPath2D());
     }
 }

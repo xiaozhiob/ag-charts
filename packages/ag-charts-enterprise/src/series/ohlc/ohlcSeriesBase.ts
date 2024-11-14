@@ -80,8 +80,6 @@ export abstract class OhlcSeriesBase<
                 y: ['lowName', 'highName', 'openName', 'closeName'],
             },
             pathsPerSeries: [],
-            datumSelectionGarbageCollection: false,
-            animationAlwaysUpdateSelections: true,
         });
     }
 
