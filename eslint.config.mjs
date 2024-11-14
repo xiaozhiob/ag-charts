@@ -76,10 +76,10 @@ export default [
     {
         files: ['**/*.{js,ts}'],
         rules: {
-            'no-lonely-if': 1,
+            'no-lonely-if': 2,
             'no-negated-condition': 1,
-            'no-nested-ternary': 1,
-            'no-unneeded-ternary': 1,
+            'no-nested-ternary': 2,
+            'no-unneeded-ternary': 2,
             'no-eval': 2,
             'no-console': 2,
             'no-unused-vars': 0,
@@ -87,16 +87,19 @@ export default [
             '@typescript-eslint/no-explicit-any': 0,
             '@typescript-eslint/consistent-type-imports': 0,
             '@typescript-eslint/no-redundant-type-constituents': 1,
-            '@typescript-eslint/no-floating-promises': 1,
-            '@typescript-eslint/no-implied-eval': 1,
-            '@typescript-eslint/no-shadow': 1,
-            '@typescript-eslint/prefer-as-const': 1,
-            '@typescript-eslint/prefer-nullish-coalescing': 1,
-            '@typescript-eslint/prefer-optional-chain': 1,
-            '@typescript-eslint/prefer-readonly': 1,
+            '@typescript-eslint/no-floating-promises': 2,
+            '@typescript-eslint/no-implied-eval': 2,
+            '@typescript-eslint/no-shadow': 2,
+            '@typescript-eslint/prefer-as-const': 2,
+            '@typescript-eslint/prefer-nullish-coalescing': 2,
+            '@typescript-eslint/prefer-optional-chain': 2,
+            '@typescript-eslint/prefer-readonly': 2,
             '@typescript-eslint/prefer-ts-expect-error': 1,
-            '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+            '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
             '@typescript-eslint/no-for-in-array': 2,
+            // Show this warning in IDE and PRs, but not when running at command line (to reduce clutter).
+            'sonarjs/cognitive-complexity': env !== 'nx-task' ? 1 : 0,
+            'sonarjs/no-duplicate-string': env !== 'nx-task' ? 1 : 0,
 
             // For review - new for eslint 9.
             '@typescript-eslint/no-base-to-string': 1,
@@ -134,25 +137,6 @@ export default [
         },
     },
     testDefaults,
-    // ag-charts-community
-    {
-        rules: {
-            'no-lonely-if': 2,
-            'no-nested-ternary': 2,
-            'no-unneeded-ternary': 2,
-            '@typescript-eslint/no-floating-promises': 2,
-            '@typescript-eslint/no-implied-eval': 2,
-            '@typescript-eslint/no-shadow': 2,
-            '@typescript-eslint/prefer-as-const': 2,
-            '@typescript-eslint/prefer-nullish-coalescing': 2,
-            '@typescript-eslint/prefer-optional-chain': 2,
-            '@typescript-eslint/prefer-readonly': 2,
-            '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
-            // Show this warning in IDE and PRs, but not when running at command line (to reduce clutter).
-            'sonarjs/cognitive-complexity': env !== 'nx-task' ? 1 : 0,
-            'sonarjs/no-duplicate-string': env !== 'nx-task' ? 1 : 0,
-        },
-    },
     {
         files: ['packages/*/tools/*.ts'],
         rules: {
