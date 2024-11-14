@@ -206,7 +206,28 @@
         "commands": ["npx madge --circular --extensions ts src/"]
       }
     },
-    "lint:eslint": {},
+    "lint:eslint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "{projectRoot}",
+        "command": "if [[ -f ./eslint.config.mjs ]] ; then npx eslint --quiet ; else exit 1 ; fi"
+      },
+      "cache": true,
+      "inputs": [
+        "default",
+        "buildOutputExcludes",
+        "{projectRoot}/eslint.*",
+        "{workspaceRoot}/tsconfig.base.json",
+        "{projectRoot}/tsconfig.json",
+        "{projectRoot}/tsconfig.lint.*"
+      ],
+      "outputs": [],
+      "configurations": {
+        "fix": {
+          "fix": true
+        }
+      }
+    },
     "test": {
       "inputs": ["default", "buildOutputExcludes", "^production", "{workspaceRoot}/jest.preset.js"],
       "outputs": [],
