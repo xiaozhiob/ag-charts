@@ -47,12 +47,20 @@ function datumBoundaryPoints(datum: any, domain: any[]) {
 
     const datumValue = datum.valueOf();
 
-    if (typeof domain[0] === 'string') {
-        return [datumValue === domain[0], datumValue === domain[domain.length - 1]];
+    const d0 = domain[0];
+    const d1 = domain[domain.length - 1];
+
+    if (typeof d0 === 'string') {
+        return [datumValue === d0, datumValue === d1];
     }
 
-    const [min, max] = findMinMax(domain);
-    return [datumValue === min.valueOf(), datumValue === max.valueOf()];
+    let min = d0.valueOf();
+    let max = d1.valueOf();
+    if (min > max) {
+        [min, max] = [max, min];
+    }
+
+    return [datumValue === min, datumValue === max];
 }
 
 export function datumStylerProperties<TDatum extends { xValue: any; yValue: any }>(
