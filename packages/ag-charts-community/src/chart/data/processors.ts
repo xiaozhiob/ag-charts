@@ -138,6 +138,7 @@ export const SMALLEST_KEY_INTERVAL: ReducerOutputPropertyDefinition<'smallestKey
     initialValue: Infinity,
     reducer: () => {
         let prevX = NaN;
+        // eslint-disable-next-line sonarjs/default-param-last
         return (smallestSoFar = Infinity, next) => {
             const nextX = next.keys[0];
             const interval = Math.abs(nextX - prevX);
@@ -156,6 +157,7 @@ export const LARGEST_KEY_INTERVAL: ReducerOutputPropertyDefinition<'largestKeyIn
     initialValue: -Infinity,
     reducer: () => {
         let prevX = NaN;
+        // eslint-disable-next-line sonarjs/default-param-last
         return (largestSoFar = -Infinity, next) => {
             const nextX = next.keys[0];
             const interval = Math.abs(nextX - prevX);
@@ -203,6 +205,7 @@ function normaliseFnBuilder({ normaliseTo, mode }: { normaliseTo: number; mode: 
                 continue;
             }
             column[datumIndex] =
+                // eslint-disable-next-line sonarjs/no-nested-functions
                 typeof value === 'number' ? normalise(value, extent) : value.map((v) => normalise(v, extent));
         }
     };
@@ -307,7 +310,7 @@ const animationValidationProcessKey = (
     let validation = ANIMATION_VALIDATION_UNIQUE_KEYS | ANIMATION_VALIDATION_ORDERED_KEYS;
 
     if (def.valueType === 'category') {
-        if (!(keyValues.length === count)) validation &= ~ANIMATION_VALIDATION_UNIQUE_KEYS;
+        if (keyValues.length !== count) validation &= ~ANIMATION_VALIDATION_UNIQUE_KEYS;
 
         return validation;
     }
@@ -315,8 +318,8 @@ const animationValidationProcessKey = (
     let lastValue = column[0];
     for (let d = 1; validation !== 0 && d < column.length; d++) {
         const keyValue = column[d];
-        if (!(lastValue <= keyValue)) validation &= ~ANIMATION_VALIDATION_ORDERED_KEYS;
-        if (!(lastValue !== keyValue)) validation &= ~ANIMATION_VALIDATION_UNIQUE_KEYS;
+        if (lastValue > keyValue) validation &= ~ANIMATION_VALIDATION_ORDERED_KEYS;
+        if (lastValue === keyValue) validation &= ~ANIMATION_VALIDATION_UNIQUE_KEYS;
         lastValue = keyValue;
     }
 

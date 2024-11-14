@@ -80,7 +80,7 @@ export class OhlcBaseNode extends Path implements _ModuleSupport.DistantObject {
         return { centerX, x0, x1, y0, y1, yOpen, yClose };
     }
 
-    protected override executeStroke(ctx: _ModuleSupport.CanvasContext, path?: Path2D | undefined): void {
+    protected override executeStroke(ctx: _ModuleSupport.CanvasContext, path?: Path2D): void {
         const { width, strokeWidth } = this;
         if (width < strokeWidth) {
             ctx.lineWidth = width;

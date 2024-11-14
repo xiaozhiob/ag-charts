@@ -355,9 +355,9 @@ export class ChartTheme {
 
     private createChartConfigPerChartType(config: AgChartThemeOverrides) {
         for (const [nextType, { seriesTypes }] of Object.entries(CHART_TYPE_CONFIG)) {
-            const typeDefaults = chartDefaults.get(nextType as ChartType) as any;
+            const typeDefaults = chartDefaults.get(nextType as ChartType);
             for (const seriesType of seriesTypes) {
-                config[seriesType as keyof AgChartThemeOverrides] ||= deepClone(typeDefaults);
+                config[seriesType as keyof AgChartThemeOverrides] ??= deepClone(typeDefaults);
             }
         }
         return config;

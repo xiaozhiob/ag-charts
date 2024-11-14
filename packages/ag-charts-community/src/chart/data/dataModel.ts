@@ -266,6 +266,7 @@ export function getPathComponents(path: string) {
     const components: string[] = [];
     let matchIndex = 0;
     let matchGroup: RegExpExecArray | null;
+    // eslint-disable-next-line sonarjs/regex-complexity
     const regExp = /((?:(?:^|\.)\s*\w+|\[\s*(?:'(?:[^']|(?<!\\)\\')*'|"(?:[^"]|(?<!\\)\\")*"|-?\d+)\s*\])\s*)/g;
     /**              ^                         ^                      ^                      ^
      *               |                         |                      |                      |
@@ -462,10 +463,10 @@ export class DataModel<
     getDomain(
         scope: ScopeProvider,
         searchId: string,
-        type: PropertyDefinition<any>['type'] = 'value',
+        type: PropertyDefinition<any>['type'],
         processedData: ProcessedData<K>
     ): any[] | [number, number] | [] {
-        const domains = this.getDomainsByType(type, processedData);
+        const domains = this.getDomainsByType(type ?? 'value', processedData);
         return domains?.[this.resolveProcessedDataIndexById(scope, searchId)] ?? [];
     }
 
@@ -821,7 +822,7 @@ export class DataModel<
                 for (const [index, def] of this.aggregates.entries()) {
                     const indices = this.valueGroupIdxLookup(def);
                     let groupAggValues = def.groupAggregateFunction?.() ?? [Infinity, -Infinity];
-                    const valuesToAgg = indices.map((columnIndex) => columns![columnIndex][datumIndex] as D[K]);
+                    const valuesToAgg = indices.map((columnIndex) => columns[columnIndex][datumIndex] as D[K]);
                     const k = datumKeys(keys, datumIndex);
                     const valuesAgg = k != null ? def.aggregateFunction(valuesToAgg, k) : undefined;
                     if (valuesAgg) {
@@ -855,7 +856,7 @@ export class DataModel<
 
                     let groupAggValues = def.groupAggregateFunction?.() ?? [Infinity, -Infinity];
                     for (const datumIndex of group.datumIndices) {
-                        const valuesToAgg = indices.map((columnIndex) => columns![columnIndex][datumIndex] as D[K]);
+                        const valuesToAgg = indices.map((columnIndex) => columns[columnIndex][datumIndex] as D[K]);
                         const valuesAgg = def.aggregateFunction(valuesToAgg, groupKeys);
                         if (valuesAgg) {
                             groupAggValues =
@@ -925,7 +926,7 @@ export class DataModel<
                             index: group.datumIndices,
                             // Why is flatMap needed?
                             keys: group.datumIndices.flatMap((datumIndex) => keys.map((k) => k[datumIndex])),
-                            values: group.datumIndices.map((datumIndex) => columns![datumIndex]),
+                            values: group.datumIndices.map((datumIndex) => columns[datumIndex]),
                             datum: group.datumIndices.map((datumIndex) => rawData[datumIndex]),
                         });
                     }
@@ -935,7 +936,7 @@ export class DataModel<
                     accValue = reducer(accValue, {
                         index: [datumIndex],
                         keys: keys.map((k) => k[datumIndex]),
-                        values: [columns![datumIndex]],
+                        values: [columns[datumIndex]],
                         datum: [rawData[datumIndex]],
                     });
                 }
@@ -992,7 +993,7 @@ export class DataModel<
             if (accessors.has(def.property)) {
                 try {
                     value = accessors.get(def.property)!(datum);
-                } catch (error: any) {
+                } catch {
                     // Swallow errors - these get reported as missing values to the user later.
                 }
                 valueInDatum = value != null;

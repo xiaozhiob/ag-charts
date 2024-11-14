@@ -310,7 +310,7 @@ export class HistogramSeries extends CartesianSeries<Rect, HistogramSeriesProper
                 // since each selection is an aggregation of multiple data.
                 aggregatedValue: total,
                 frequency,
-                domain: domain as any[] as [number, number],
+                domain: domain as [number, number],
                 yKey,
                 xKey,
                 x,

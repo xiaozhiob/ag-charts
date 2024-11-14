@@ -448,6 +448,7 @@ export function spyOnAnimationManager() {
         const cbs = [...rafCbs.values()];
         rafCbs.clear();
 
+        // eslint-disable-next-line sonarjs/array-callback-without-return
         await Promise.all(cbs.map((cb) => cb(time)));
     };
 
@@ -457,7 +458,7 @@ export function spyOnAnimationManager() {
 
         const forceTimeJumpMock = jest.spyOn(AnimationManager.prototype, 'forceTimeJump');
         forceTimeJumpMock.mockImplementation((controller: IAnimation, defaultDuration: number) => {
-            if (controller.isComplete) return true;
+            if (controller.isComplete) return true as boolean;
 
             // Convert test timing info to phase-relative execution timing.
             const { phase } = controller;
@@ -468,7 +469,7 @@ export function spyOnAnimationManager() {
             updateBy -= animationDelay * defaultDuration;
 
             controller.update(updateBy);
-            return true;
+            return true as boolean;
         });
         const skippingFramesMock = jest.spyOn(AnimationManager.prototype, 'isSkippingFrames');
         skippingFramesMock.mockImplementation(() => false);
@@ -478,6 +479,7 @@ export function spyOnAnimationManager() {
             (this as any).requestId = nextRafId++;
 
             const rafId = nextRafId++;
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
             rafCbs.set(rafId, cb);
         });
         mocks.push(skippedMock, forceTimeJumpMock, skippingFramesMock, safMock);

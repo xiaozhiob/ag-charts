@@ -86,6 +86,7 @@ export class DataService<D extends object> extends Listeners<EventType, EventHan
     }
 
     private createThrottledFetch(requestThrottle: number) {
+        // eslint-disable-next-line sonarjs/no-misused-promises
         return throttle((params: DataSourceCallbackParams) => this.fetch(params), requestThrottle, {
             leading: false,
             trailing: true,

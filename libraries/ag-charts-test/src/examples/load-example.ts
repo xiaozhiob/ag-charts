@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-implied-eval */
 
-/* eslint-disable no-console */
+/* eslint-disable sonarjs/code-eval */
 import * as fs from 'fs';
 
 const filters = [

@@ -201,7 +201,9 @@ describe('AreaSeries', () => {
 
         for (const [exampleName, example] of Object.entries(EXAMPLES)) {
             if (example.skip === true) {
+                // eslint-disable-next-line sonarjs/no-skipped-test
                 it.skip(`for ${exampleName} it should create chart instance as expected`, async () => {});
+                // eslint-disable-next-line sonarjs/no-skipped-test
                 it.skip(`for ${exampleName} it should render to canvas as expected`, async () => {});
             } else {
                 it(`for ${exampleName} it should create chart instance as expected`, async () => {

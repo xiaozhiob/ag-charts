@@ -300,7 +300,7 @@ export class Animation<T extends AnimationValue> implements IAnimation {
                     }
                     break;
             }
-        } catch (e) {
+        } catch {
             // Error-case handled below.
         }
         throw new Error(`Unable to interpolate values: ${a}, ${b}`);
