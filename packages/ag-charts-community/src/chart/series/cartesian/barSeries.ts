@@ -485,9 +485,7 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
         nodeData: BarNodeDatum[];
         datumSelection: Selection<Rect, BarNodeDatum>;
     }) {
-        return opts.datumSelection.update(opts.nodeData, undefined, (datum) =>
-            createDatumId(datum.xValue, datum.valueIndex, datum.phantom)
-        );
+        return opts.datumSelection.update(opts.nodeData, undefined, (datum) => this.createDatumId(datum));
     }
 
     protected override async updateDatumNodes(opts: {
@@ -555,7 +553,7 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
                 ? (datum.clipBBox?.width ?? datum.width) > 0
                 : (datum.clipBBox?.height ?? datum.height) > 0;
 
-            const config = getRectConfig(rectParams);
+            const config = getRectConfig(this, this.createDatumId(datum), rectParams);
             config.crisp = crisp;
             config.visible = visible;
             updateRect(rect, config);
@@ -579,11 +577,7 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
     }
 
     getTooltipHtml(nodeDatum: BarNodeDatum): TooltipContent {
-        const {
-            id: seriesId,
-            processedData,
-            ctx: { callbackCache },
-        } = this;
+        const { id: seriesId, processedData } = this;
         const xAxis = this.getCategoryAxis();
         const yAxis = this.getValueAxis();
 
@@ -605,20 +599,22 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
         if (itemStyler) {
             const xDomain = this.getSeriesDomain(ChartAxisDirection.X);
             const yDomain = this.getSeriesDomain(ChartAxisDirection.Y);
-            format = callbackCache.call(itemStyler, {
-                seriesId,
-                ...datumStylerProperties(nodeDatum, xKey, yKey, xDomain, yDomain),
-                stackGroup,
-                fill,
-                stroke,
-                strokeWidth: this.getStrokeWidth(strokeWidth),
-                highlighted: false,
-                cornerRadius: this.properties.cornerRadius,
-                fillOpacity: this.properties.fillOpacity,
-                strokeOpacity: this.properties.strokeOpacity,
-                lineDash: this.properties.lineDash ?? [],
-                lineDashOffset: this.properties.lineDashOffset,
-            });
+            format = this.cachedDatumCallback(createDatumId(this.createDatumId(datum), 'tooltip'), () =>
+                itemStyler({
+                    seriesId,
+                    ...datumStylerProperties(nodeDatum, xKey, yKey, xDomain, yDomain),
+                    stackGroup,
+                    fill,
+                    stroke,
+                    strokeWidth: this.getStrokeWidth(strokeWidth),
+                    highlighted: false,
+                    cornerRadius: this.properties.cornerRadius,
+                    fillOpacity: this.properties.fillOpacity,
+                    strokeOpacity: this.properties.strokeOpacity,
+                    lineDash: this.properties.lineDash ?? [],
+                    lineDashOffset: this.properties.lineDashOffset,
+                })
+            );
         }
 
         const color = format?.fill ?? fill;
@@ -689,7 +685,7 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
             this.ctx.animationManager,
             [datumSelection],
             fns,
-            (_, datum) => createDatumId(datum.xValue, datum.valueIndex, datum.phantom),
+            (_, datum) => this.createDatumId(datum),
             dataDiff
         );
 
@@ -698,6 +694,10 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
             seriesLabelFadeInAnimation(this, 'labels', this.ctx.animationManager, labelSelection);
             seriesLabelFadeInAnimation(this, 'annotations', this.ctx.animationManager, ...annotationSelections);
         }
+    }
+
+    private createDatumId(datum: BarNodeDatum) {
+        return createDatumId(datum.xValue, datum.valueIndex, datum.phantom);
     }
 
     protected isLabelEnabled() {

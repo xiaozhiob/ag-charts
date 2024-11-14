@@ -14,6 +14,7 @@ const {
     trailingAccumulatedValueProperty,
     ChartAxisDirection,
     getRectConfig,
+    createDatumId,
     updateRect,
     checkCrisp,
     updateLabelNode,
@@ -547,7 +548,7 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
             };
             const visible = categoryAlongX ? datum.width > 0 : datum.height > 0;
 
-            const config = getRectConfig({
+            const config = getRectConfig(this, createDatumId(datum.index), {
                 datum,
                 isHighlighted: isHighlight,
                 style,

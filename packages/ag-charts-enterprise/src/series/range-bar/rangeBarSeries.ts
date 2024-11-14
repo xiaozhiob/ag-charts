@@ -420,7 +420,7 @@ export class RangeBarSeries extends _ModuleSupport.AbstractBarSeries<
             };
             const visible = categoryAlongX ? datum.width > 0 : datum.height > 0;
 
-            const config = getRectConfig({
+            const config = getRectConfig(this, this.createDatumId(datum), {
                 datum,
                 isHighlighted: isHighlight,
                 style,
@@ -599,7 +599,7 @@ export class RangeBarSeries extends _ModuleSupport.AbstractBarSeries<
             this.ctx.animationManager,
             [datumSelections],
             fns,
-            (_, datum) => createDatumId(datum.xValue, datum.valueIndex),
+            (_, datum) => this.createDatumId(datum),
             dataDiff
         );
 
@@ -615,6 +615,10 @@ export class RangeBarSeries extends _ModuleSupport.AbstractBarSeries<
     }
 
     protected override onDataChange() {}
+
+    private createDatumId(datum: RangeBarNodeDatum) {
+        return createDatumId(datum.xValue, datum.valueIndex);
+    }
 
     protected computeFocusBounds({
         datumIndex,

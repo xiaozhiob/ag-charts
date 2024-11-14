@@ -242,6 +242,8 @@ export abstract class Series<
     protected _data?: any[];
     protected _chartData?: any[];
 
+    private datumCallbackCache = new Map<string, any>();
+
     get data() {
         return this._data ?? this._chartData;
     }
@@ -727,5 +729,19 @@ export abstract class Series<
 
     public pickFocus(_opts: PickFocusInputs): PickFocusOutputs | undefined {
         return undefined;
+    }
+
+    public resetDatumCallbackCache() {
+        this.datumCallbackCache.clear();
+    }
+
+    public cachedDatumCallback<T>(id: string, fn: () => T): T {
+        const { datumCallbackCache } = this;
+        const existing = datumCallbackCache.get(id);
+        if (existing != null) return existing;
+
+        const value = fn();
+        datumCallbackCache.set(id, value);
+        return value;
     }
 }
