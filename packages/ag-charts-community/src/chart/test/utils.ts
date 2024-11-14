@@ -458,18 +458,18 @@ export function spyOnAnimationManager() {
 
         const forceTimeJumpMock = jest.spyOn(AnimationManager.prototype, 'forceTimeJump');
         forceTimeJumpMock.mockImplementation((controller: IAnimation, defaultDuration: number) => {
-            if (controller.isComplete) return true as boolean;
+            if (!controller.isComplete) {
+                // Convert test timing info to phase-relative execution timing.
+                const { phase } = controller;
+                const { animationDelay } = PHASE_METADATA[phase];
 
-            // Convert test timing info to phase-relative execution timing.
-            const { phase } = controller;
-            const { animationDelay } = PHASE_METADATA[phase];
+                // Account for phase notional starting offset.
+                let updateBy = animateParameters[0] * animateParameters[1];
+                updateBy -= animationDelay * defaultDuration;
 
-            // Account for phase notional starting offset.
-            let updateBy = animateParameters[0] * animateParameters[1];
-            updateBy -= animationDelay * defaultDuration;
-
-            controller.update(updateBy);
-            return true as boolean;
+                controller.update(updateBy);
+            }
+            return true;
         });
         const skippingFramesMock = jest.spyOn(AnimationManager.prototype, 'isSkippingFrames');
         skippingFramesMock.mockImplementation(() => false);
