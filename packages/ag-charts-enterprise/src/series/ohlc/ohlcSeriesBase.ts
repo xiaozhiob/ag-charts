@@ -351,6 +351,128 @@ export abstract class OhlcSeriesBase<
         return isRising ? 'up' : 'down';
     }
 
+    protected getItemConfig(seriesItemType: AgOhlcSeriesItemType) {
+        return this.properties.item[seriesItemType];
+    }
+
+    getLegendData(legendType: _ModuleSupport.ChartLegendType): _ModuleSupport.CategoryLegendDatum[] {
+        const { id } = this;
+        const {
+            xKey,
+            yName,
+            item: { up, down },
+            showInLegend,
+            legendItemName,
+        } = this.properties;
+
+        if (!xKey || legendType !== 'category') {
+            return [];
+        }
+
+        const { id: seriesId, visible } = this;
+
+        return [
+            {
+                legendType: 'category',
+                id: seriesId,
+                itemId: seriesId,
+                seriesId,
+                enabled: visible,
+                label: {
+                    text: legendItemName ?? yName ?? id,
+                },
+                symbols: [
+                    {
+                        marker: {
+                            fill: up.fill ?? up.stroke,
+                            fillOpacity: up.fillOpacity ?? 1,
+                            stroke: up.stroke,
+                            strokeWidth: up.strokeWidth ?? 1,
+                            strokeOpacity: up.strokeOpacity ?? 1,
+                            padding: 0,
+                        },
+                    },
+                    {
+                        marker: {
+                            fill: down.fill ?? down.stroke,
+                            fillOpacity: down.fillOpacity ?? 1,
+                            stroke: down.stroke,
+                            strokeWidth: down.strokeWidth ?? 1,
+                            strokeOpacity: down.strokeOpacity ?? 1,
+                        },
+                    },
+                ],
+                legendItemName,
+                hideInLegend: !showInLegend,
+            },
+        ];
+    }
+
+    getTooltipHtml(nodeDatum: TNodeDatum): _ModuleSupport.TooltipContent {
+        const {
+            xKey,
+            openKey,
+            closeKey,
+            highKey,
+            lowKey,
+            xName,
+            yName,
+            openName,
+            closeName,
+            highName,
+            lowName,
+            tooltip,
+        } = this.properties;
+        const { datum, itemId } = nodeDatum;
+
+        const xAxis = this.getCategoryAxis();
+        const yAxis = this.getValueAxis();
+
+        if (!xAxis || !yAxis || !this.properties.isValid()) return _ModuleSupport.EMPTY_TOOLTIP_CONTENT;
+
+        const capitalise = (text: string) => text.charAt(0).toUpperCase() + text.substring(1);
+
+        const title = sanitizeHtml(yName);
+        const contentData: [string, string | undefined, _ModuleSupport.ChartAxis][] = [
+            [xKey, xName, xAxis],
+            [openKey, openName, yAxis],
+            [highKey, highName, yAxis],
+            [lowKey, lowName, yAxis],
+            [closeKey, closeName, yAxis],
+        ];
+
+        const content = contentData
+            .map(([key, name, axis]) => sanitizeHtml(`${name ?? capitalise(key)}: ${axis.formatDatum(datum[key])}`))
+            .join('<br/>');
+
+        const styles = this.getFormattedStyles(nodeDatum);
+
+        return tooltip.toTooltipHtml(
+            { title, content, backgroundColor: styles.stroke },
+            {
+                seriesId: this.id,
+                highlighted: false,
+                datum,
+                ...styles,
+                xKey,
+                openKey,
+                closeKey,
+                highKey,
+                lowKey,
+                xName,
+                yName,
+                openName,
+                closeName,
+                highName,
+                lowName,
+                title,
+                color: styles.fill,
+                fill: styles.fill,
+                itemId,
+            }
+        );
+    }
+
     protected override isVertical(): boolean {
         return true;
     }
