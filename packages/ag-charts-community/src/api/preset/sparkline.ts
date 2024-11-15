@@ -196,16 +196,7 @@ function axisPreset(
 ): AgCartesianAxisOptions {
     switch (opts?.type) {
         case 'number': {
-            const {
-                type,
-                visible: _visible,
-                stroke: _stroke,
-                strokeWidth: _strokeWidth,
-                min,
-                max,
-                reverse,
-                ...optsRest
-            } = opts;
+            const { type, visible: _visible, stroke: _stroke, strokeWidth: _strokeWidth, min, max, reverse } = opts;
             return pickProps<Pick<AgNumberAxisOptions, 'type' | 'reverse' | 'min' | 'max'>>(opts, {
                 type,
                 reverse,
