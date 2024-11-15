@@ -84,7 +84,6 @@ export * from './chart/series/cartesian/cartesianSeries';
 export * from './chart/series/cartesian/lineSeries';
 export * from './chart/series/cartesian/lineUtil';
 export * from './chart/series/cartesian/lineInterpolationUtil';
-export * from './chart/series/cartesian/lineUtilLegacy';
 export * from './chart/series/cartesian/barUtil';
 export * from './chart/series/cartesian/areaUtil';
 export * from './chart/series/cartesian/markerUtil';
