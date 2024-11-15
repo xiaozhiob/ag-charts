@@ -611,7 +611,7 @@ export function diff(
 }
 
 type KeyType = string | number | boolean | object;
-export function createDatumId(keys: KeyType | KeyType[], ...extraKeys: (string | number | boolean)[]) {
+export function createDatumId(keys: KeyType | KeyType[], ...extraKeys: (string | number | boolean)[]): any {
     let result;
     if (isArray(keys)) {
         result = keys.map((key) => transformIntegratedCategoryValue(key)).join('___');

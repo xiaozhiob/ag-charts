@@ -18,6 +18,7 @@ const {
     extent,
     isNumberEqual,
     sanitizeHtml,
+    createDatumId,
     BBox,
     Group,
     Path,
@@ -241,6 +242,7 @@ export abstract class RadarSeries extends _ModuleSupport.PolarSeries<
             return {
                 series: this,
                 datum,
+                index: datumIndex,
                 point: { x, y, size: marker.size },
                 midPoint: { x, y },
                 label: labelNodeDatum,
@@ -307,6 +309,7 @@ export abstract class RadarSeries extends _ModuleSupport.PolarSeries<
         highlight: boolean
     ) {
         const { angleKey, radiusKey, marker, visible } = this.properties;
+        const { itemStyler } = marker;
 
         let selectionData: RadarNodeDatum[] = [];
 
@@ -321,27 +324,30 @@ export abstract class RadarSeries extends _ModuleSupport.PolarSeries<
             }
         }
         const highlightedStyle = highlight ? this.properties.highlightStyle.item : undefined;
-        selection.update(selectionData).each((node, datum) => {
+        const formatType = highlight ? 'highlight' : 'node';
+        selection.update(selectionData).each((node, datum, index) => {
             const fill = this.getMarkerFill(highlightedStyle);
             const fillOpacity = highlightedStyle?.fillOpacity ?? this.properties.marker.fillOpacity;
             const stroke = highlightedStyle?.stroke ?? marker.stroke ?? this.properties.stroke;
             const strokeWidth = highlightedStyle?.strokeWidth ?? marker.strokeWidth ?? this.properties.strokeWidth ?? 1;
             const strokeOpacity = highlightedStyle?.strokeOpacity ?? this.properties.marker.strokeOpacity;
-            const format = marker.itemStyler
-                ? this.ctx.callbackCache.call(marker.itemStyler, {
-                      datum: datum.datum,
-                      angleKey,
-                      radiusKey,
-                      fill,
-                      fillOpacity,
-                      stroke,
-                      strokeWidth,
-                      strokeOpacity,
-                      shape: marker.shape,
-                      size: marker.size,
-                      highlighted: highlight,
-                      seriesId: this.id,
-                  })
+            const format = itemStyler
+                ? this.cachedDatumCallback(createDatumId(index, formatType), () =>
+                      itemStyler({
+                          datum: datum.datum,
+                          angleKey,
+                          radiusKey,
+                          fill,
+                          fillOpacity,
+                          stroke,
+                          strokeWidth,
+                          strokeOpacity,
+                          shape: marker.shape,
+                          size: marker.size,
+                          highlighted: highlight,
+                          seriesId: this.id,
+                      })
+                  )
                 : undefined;
             node.fill = format?.fill ?? fill;
             node.stroke = format?.stroke ?? stroke;
@@ -388,7 +394,7 @@ export abstract class RadarSeries extends _ModuleSupport.PolarSeries<
 
         const { id: seriesId } = this;
         const { angleKey, radiusKey, angleName, radiusName, marker, tooltip } = this.properties;
-        const { datum, angleValue, radiusValue, itemId } = nodeDatum;
+        const { index, datum, angleValue, radiusValue, itemId } = nodeDatum;
 
         const formattedAngleValue = formatValue(angleValue);
         const formattedRadiusValue = formatValue(radiusValue);
@@ -407,20 +413,22 @@ export abstract class RadarSeries extends _ModuleSupport.PolarSeries<
         } = marker;
 
         const { fill: color } = (itemStyler &&
-            this.ctx.callbackCache.call(itemStyler, {
-                datum,
-                angleKey,
-                radiusKey,
-                fill,
-                fillOpacity,
-                stroke,
-                strokeWidth,
-                strokeOpacity,
-                shape,
-                size,
-                highlighted: false,
-                seriesId,
-            })) ?? { fill };
+            this.cachedDatumCallback(createDatumId(index, 'tooltip'), () =>
+                itemStyler({
+                    datum,
+                    angleKey,
+                    radiusKey,
+                    fill,
+                    fillOpacity,
+                    stroke,
+                    strokeWidth,
+                    strokeOpacity,
+                    shape,
+                    size,
+                    highlighted: false,
+                    seriesId,
+                })
+            )) ?? { fill };
 
         return tooltip.toTooltipHtml(
             { title, content, backgroundColor: color },

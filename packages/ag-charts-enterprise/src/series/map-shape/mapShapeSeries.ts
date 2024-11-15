@@ -438,11 +438,7 @@ export class MapShapeSeries
         datumSelection: _ModuleSupport.Selection<GeoGeometry, MapShapeNodeDatum>;
         isHighlight: boolean;
     }) {
-        const {
-            id: seriesId,
-            properties,
-            ctx: { callbackCache },
-        } = this;
+        const { id: seriesId, properties } = this;
         const { datumSelection, isHighlight } = opts;
         const { idKey, colorKey, labelKey, fillOpacity, stroke, strokeOpacity, lineDash, lineDashOffset, itemStyler } =
             properties;
@@ -459,21 +455,25 @@ export class MapShapeSeries
 
             let format: AgMapShapeSeriesStyle | undefined;
             if (itemStyler != null) {
-                format = callbackCache.call(itemStyler, {
-                    seriesId,
-                    datum: datum.datum,
-                    idKey,
-                    colorKey,
-                    labelKey,
-                    fill: datum.fill,
-                    fillOpacity,
-                    strokeOpacity,
-                    stroke,
-                    strokeWidth,
-                    lineDash,
-                    lineDashOffset,
-                    highlighted: isHighlight,
-                });
+                format = this.cachedDatumCallback(
+                    createDatumId(datum.idValue, isHighlight ? 'highlight' : 'node'),
+                    () =>
+                        itemStyler({
+                            seriesId,
+                            datum: datum.datum,
+                            idKey,
+                            colorKey,
+                            labelKey,
+                            fill: datum.fill,
+                            fillOpacity,
+                            strokeOpacity,
+                            stroke,
+                            strokeWidth,
+                            lineDash,
+                            lineDashOffset,
+                            highlighted: isHighlight,
+                        })
+                );
             }
 
             geoGeometry.visible = true;
@@ -629,12 +629,7 @@ export class MapShapeSeries
     }
 
     override getTooltipHtml(nodeDatum: MapShapeNodeDatum): _ModuleSupport.TooltipContent {
-        const {
-            id: seriesId,
-            processedData,
-            ctx: { callbackCache },
-            properties,
-        } = this;
+        const { id: seriesId, processedData, properties } = this;
 
         if (!processedData || !properties.isValid()) {
             return _ModuleSupport.EMPTY_TOOLTIP_CONTENT;
@@ -673,21 +668,23 @@ export class MapShapeSeries
         let format: AgMapShapeSeriesStyle | undefined;
 
         if (itemStyler) {
-            format = callbackCache.call(itemStyler, {
-                seriesId,
-                datum,
-                idKey,
-                colorKey,
-                labelKey,
-                fill,
-                stroke,
-                strokeWidth: this.getStrokeWidth(strokeWidth),
-                highlighted: false,
-                fillOpacity,
-                strokeOpacity,
-                lineDash,
-                lineDashOffset,
-            });
+            format = this.cachedDatumCallback(createDatumId(datum.idValue, 'tooltip'), () =>
+                itemStyler({
+                    seriesId,
+                    datum,
+                    idKey,
+                    colorKey,
+                    labelKey,
+                    fill,
+                    stroke,
+                    strokeWidth: this.getStrokeWidth(strokeWidth),
+                    highlighted: false,
+                    fillOpacity,
+                    strokeOpacity,
+                    lineDash,
+                    lineDashOffset,
+                })
+            );
         }
 
         const color = format?.fill ?? fill;
