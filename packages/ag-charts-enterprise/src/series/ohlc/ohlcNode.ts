@@ -72,7 +72,7 @@ export class OhlcBaseNode extends Path implements _ModuleSupport.DistantObject {
         centerX += strokeAlignment;
         x0 += strokeAlignment;
         x1 += strokeAlignment;
-        y0 += strokeAlignment;
+        y0 -= strokeAlignment;
         y1 += strokeAlignment;
         yOpen += yOpen < centerY ? strokeAlignment : -strokeAlignment;
         yClose += yClose < centerY ? strokeAlignment : -strokeAlignment;
