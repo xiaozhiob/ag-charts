@@ -111,6 +111,11 @@ export default [
             'sonarjs/no-duplicate-string': env !== 'nx-task' ? 1 : 0,
 
             // We don't really care about these.
+            '@typescript-eslint/no-unsafe-return': 0,
+            '@typescript-eslint/no-unsafe-call': 0,
+            '@typescript-eslint/no-unsafe-assignment': 0,
+            '@typescript-eslint/no-unsafe-function-type': 0,
+            '@typescript-eslint/no-unsafe-argument': 0,
             '@typescript-eslint/no-unsafe-member-access': 0,
             '@typescript-eslint/no-base-to-string': 0,
             'sonarjs/no-selector-parameter': 0,
@@ -121,11 +126,6 @@ export default [
             'sonarjs/no-misused-promises': 1,
             // For review - new for eslint 9.
             'sonarjs/no-redeclare': 1,
-            '@typescript-eslint/no-unsafe-return': 1,
-            '@typescript-eslint/no-unsafe-call': 1,
-            '@typescript-eslint/no-unsafe-assignment': 1,
-            '@typescript-eslint/no-unsafe-function-type': 1,
-            '@typescript-eslint/no-unsafe-argument': 1,
             '@typescript-eslint/ban-ts-comment': 1,
             '@typescript-eslint/require-await': 1,
             '@typescript-eslint/no-this-alias': 1,
