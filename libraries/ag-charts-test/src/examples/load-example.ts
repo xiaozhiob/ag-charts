@@ -24,7 +24,7 @@ function cleanJs(content: string) {
 }
 
 export function loadExampleOptions(
-    agCharts: { AgCharts: {}; time: {}; Marker: {} },
+    agCharts: { AgCharts: object; time: object; Marker: object },
     name: string,
     evalReturn = 'options',
     exampleRootDir = `${process.cwd()}/dist/packages/ag-charts-community-examples/src/`,

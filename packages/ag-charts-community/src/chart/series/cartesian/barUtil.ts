@@ -56,7 +56,10 @@ export function updateRect(rect: Rect, config: RectConfig) {
 
 interface NodeDatum extends Omit<CartesianSeriesNodeDatum, 'yKey' | 'yValue'> {}
 
-export function getRectConfig<Params extends Omit<AgBarSeriesItemStylerParams<any>, 'yKey'>, ExtraParams extends {}>(
+export function getRectConfig<
+    Params extends Omit<AgBarSeriesItemStylerParams<any>, 'yKey'>,
+    ExtraParams extends object,
+>(
     series: Series<any, any, any>,
     id: string,
     {
