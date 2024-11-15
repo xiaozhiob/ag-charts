@@ -204,7 +204,7 @@ describe('Legend', () => {
     });
 
     describe('Hover over legend', () => {
-        it('should change the cursor when entering and leaving the legend rect', async () => {
+        it('should change the cursor when entering and leaving the legend rect', () => {
             const options = {
                 ...examples.GROUPED_COLUMN_NUMBER_X_AXIS_NUMBER_Y_AXIS,
             };

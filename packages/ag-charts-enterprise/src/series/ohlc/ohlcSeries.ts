@@ -17,7 +17,7 @@ export class OhlcSeries extends OhlcSeriesBase<OhlcNode, OhlcSeriesProperties> {
         return new OhlcNode();
     }
 
-    protected override async updateDatumNodes({
+    protected override updateDatumNodes({
         datumSelection,
         isHighlight,
     }: {

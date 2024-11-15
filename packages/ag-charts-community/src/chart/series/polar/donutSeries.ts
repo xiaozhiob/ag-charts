@@ -305,9 +305,9 @@ export class DonutSeries extends PolarSeries<DonutNodeDatum, DonutSeriesProperti
         this.animationState.transition('updateData');
     }
 
-    async maybeRefreshNodeData() {
+    maybeRefreshNodeData() {
         if (!this.nodeDataRefresh) return;
-        const { nodeData = [], phantomNodeData } = (await this.createNodeData()) ?? {};
+        const { nodeData = [], phantomNodeData } = this.createNodeData() ?? {};
         this.nodeData = nodeData;
         this.phantomNodeData = phantomNodeData;
         this.nodeDataRefresh = false;
@@ -353,7 +353,7 @@ export class DonutSeries extends PolarSeries<DonutNodeDatum, DonutSeriesProperti
         };
     }
 
-    async createNodeData() {
+    override createNodeData() {
         const {
             id: seriesId,
             processedData,
@@ -656,7 +656,7 @@ export class DonutSeries extends PolarSeries<DonutNodeDatum, DonutSeriesProperti
         return -outerRadius - titleOffset - dy;
     }
 
-    async update({ seriesRect }: { seriesRect: BBox }) {
+    update({ seriesRect }: { seriesRect: BBox }) {
         const { title } = this.properties;
 
         const newNodeDataDependencies = {
@@ -668,7 +668,7 @@ export class DonutSeries extends PolarSeries<DonutNodeDatum, DonutSeriesProperti
             this._nodeDataDependencies = newNodeDataDependencies;
         }
 
-        await this.maybeRefreshNodeData();
+        this.maybeRefreshNodeData();
         this.updateTitleNodes();
         this.updateRadiusScale(resize);
 
@@ -700,8 +700,8 @@ export class DonutSeries extends PolarSeries<DonutNodeDatum, DonutSeriesProperti
 
         this.updateNodeMidPoint();
 
-        await this.updateSelections();
-        await this.updateNodes(seriesRect);
+        this.updateSelections();
+        this.updateNodes(seriesRect);
     }
 
     private updateTitleNodes() {
@@ -734,12 +734,12 @@ export class DonutSeries extends PolarSeries<DonutNodeDatum, DonutSeriesProperti
         this.phantomNodeData?.forEach(setMidPoint);
     }
 
-    private async updateSelections() {
-        await this.updateGroupSelection();
+    private updateSelections() {
+        this.updateGroupSelection();
         this.updateInnerCircleSelection();
     }
 
-    private async updateGroupSelection() {
+    private updateGroupSelection() {
         const {
             itemSelection,
             highlightSelection,
@@ -802,7 +802,7 @@ export class DonutSeries extends PolarSeries<DonutNodeDatum, DonutSeriesProperti
         this.innerCircleSelection.update(datums);
     }
 
-    private async updateNodes(seriesRect: BBox) {
+    private updateNodes(seriesRect: BBox) {
         const highlightedDatum = this.ctx.highlightManager.getActiveHighlight();
         const { visible } = this;
         this.backgroundGroup.visible = visible;
@@ -1153,7 +1153,7 @@ export class DonutSeries extends PolarSeries<DonutNodeDatum, DonutSeriesProperti
         });
     }
 
-    override async computeLabelsBBox(options: { hideWhenNecessary: boolean }, seriesRect: BBox) {
+    override computeLabelsBBox(options: { hideWhenNecessary: boolean }, seriesRect: BBox) {
         const { calloutLabel, calloutLine } = this.properties;
         const calloutLength = calloutLine.length;
         const { offset, maxCollisionOffset, minSpacing } = calloutLabel;
@@ -1162,7 +1162,7 @@ export class DonutSeries extends PolarSeries<DonutNodeDatum, DonutSeriesProperti
             return null;
         }
 
-        await this.maybeRefreshNodeData();
+        this.maybeRefreshNodeData();
 
         this.updateRadiusScale(false);
         this.computeCalloutLabelCollisionOffsets();

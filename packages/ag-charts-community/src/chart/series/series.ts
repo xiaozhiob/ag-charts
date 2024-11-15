@@ -435,10 +435,10 @@ export abstract class Series<
     abstract getSeriesDomain(direction: ChartAxisDirection): any[];
 
     // Fetch required values from the `chart.data` or `series.data` objects and process them.
-    abstract processData(dataController: DataController): Promise<void>;
+    abstract processData(dataController: DataController): Promise<void> | void;
 
     // Using processed data, create data that backs visible nodes.
-    abstract createNodeData(): Promise<TContext | undefined>;
+    abstract createNodeData(): TContext | undefined;
 
     // Indicate that something external changed and we should recalculate nodeData.
     markNodeDataDirty() {
@@ -452,7 +452,7 @@ export abstract class Series<
     }
 
     // Produce data joins and update selection's nodes using node data.
-    abstract update(opts: { seriesRect?: BBox }): Promise<void>;
+    abstract update(opts: { seriesRect?: BBox }): Promise<void> | void;
 
     public getOpacity(): number {
         const defaultOpacity = 1;

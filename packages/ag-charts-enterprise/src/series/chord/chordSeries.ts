@@ -90,7 +90,7 @@ export class ChordSeries extends FlowProportionSeries<
         return new Sector();
     }
 
-    override async createNodeData(): Promise<ChordNodeDataContext | undefined> {
+    override createNodeData(): ChordNodeDataContext | undefined {
         const {
             id: seriesId,
             _nodeDataDependencies: { seriesRectWidth, seriesRectHeight } = { seriesRectWidth: 0, seriesRectHeight: 0 },
@@ -319,7 +319,7 @@ export class ChordSeries extends FlowProportionSeries<
         };
     }
 
-    protected async updateLabelSelection(opts: {
+    protected updateLabelSelection(opts: {
         labelData: ChordNodeLabelDatum[];
         labelSelection: _ModuleSupport.Selection<_ModuleSupport.TransformableText, ChordNodeLabelDatum>;
     }) {
@@ -327,7 +327,7 @@ export class ChordSeries extends FlowProportionSeries<
         return opts.labelSelection.update(labels);
     }
 
-    protected async updateLabelNodes(opts: {
+    protected updateLabelNodes(opts: {
         labelSelection: _ModuleSupport.Selection<_ModuleSupport.TransformableText, ChordNodeLabelDatum>;
     }) {
         const { labelSelection } = opts;
@@ -354,14 +354,14 @@ export class ChordSeries extends FlowProportionSeries<
         });
     }
 
-    protected async updateNodeSelection(opts: {
+    protected updateNodeSelection(opts: {
         nodeData: ChordNodeDatum[];
         datumSelection: _ModuleSupport.Selection<_ModuleSupport.Sector, ChordNodeDatum>;
     }) {
         return opts.datumSelection.update(opts.nodeData, undefined, (datum) => createDatumId([datum.type, datum.id]));
     }
 
-    protected async updateNodeNodes(opts: {
+    protected updateNodeNodes(opts: {
         datumSelection: _ModuleSupport.Selection<_ModuleSupport.Sector, ChordNodeDatum>;
         isHighlight: boolean;
     }) {
@@ -425,7 +425,7 @@ export class ChordSeries extends FlowProportionSeries<
         });
     }
 
-    protected async updateLinkSelection(opts: {
+    protected updateLinkSelection(opts: {
         nodeData: ChordLinkDatum[];
         datumSelection: _ModuleSupport.Selection<ChordLink, ChordLinkDatum>;
     }) {
@@ -434,7 +434,7 @@ export class ChordSeries extends FlowProportionSeries<
         );
     }
 
-    protected async updateLinkNodes(opts: {
+    protected updateLinkNodes(opts: {
         datumSelection: _ModuleSupport.Selection<ChordLink, ChordLinkDatum>;
         isHighlight: boolean;
     }) {

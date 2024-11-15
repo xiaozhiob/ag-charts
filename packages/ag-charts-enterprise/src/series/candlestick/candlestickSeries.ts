@@ -16,7 +16,7 @@ export class CandlestickSeries extends OhlcSeriesBase<CandlestickNode, Candlesti
         return new CandlestickNode();
     }
 
-    protected override async updateDatumNodes({
+    protected override updateDatumNodes({
         datumSelection,
         isHighlight,
     }: {

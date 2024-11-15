@@ -187,7 +187,7 @@ export abstract class HierarchySeries<
         }
     }
 
-    override async processData(): Promise<void> {
+    override processData() {
         const { childrenKey, sizeKey, colorKey, fills, strokes, colorRange } = this.properties;
 
         let index = 0;
@@ -304,13 +304,13 @@ export abstract class HierarchySeries<
         this.focusPath = [{ nodeDatum: this.rootNode, childIndex: 0 }];
     }
 
-    protected abstract updateSelections(): Promise<void>;
+    protected abstract updateSelections(): void;
 
-    protected abstract updateNodes(): Promise<void>;
+    protected abstract updateNodes(): void;
 
-    override async update({ seriesRect }: { seriesRect?: BBox }): Promise<void> {
-        await this.updateSelections();
-        await this.updateNodes();
+    override update({ seriesRect }: { seriesRect?: BBox }) {
+        this.updateSelections();
+        this.updateNodes();
 
         const animationData = this.getAnimationData();
         const resize = this.checkResize(seriesRect);

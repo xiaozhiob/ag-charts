@@ -220,7 +220,7 @@ export class HistogramSeries extends CartesianSeries<Rect, HistogramSeriesProper
         return fixNumericExtent(yDomain);
     }
 
-    async createNodeData() {
+    override createNodeData() {
         const { id: seriesId, axes, processedData } = this;
 
         const xAxis = axes[ChartAxisDirection.X];
@@ -340,7 +340,7 @@ export class HistogramSeries extends CartesianSeries<Rect, HistogramSeriesProper
         return new Rect();
     }
 
-    protected override async updateDatumSelection(opts: {
+    protected override updateDatumSelection(opts: {
         nodeData: HistogramNodeDatum[];
         datumSelection: Selection<Rect, HistogramNodeDatum>;
     }) {
@@ -355,7 +355,7 @@ export class HistogramSeries extends CartesianSeries<Rect, HistogramSeriesProper
         );
     }
 
-    protected override async updateDatumNodes(opts: {
+    protected override updateDatumNodes(opts: {
         datumSelection: Selection<Rect, HistogramNodeDatum>;
         isHighlight: boolean;
     }) {
@@ -407,7 +407,7 @@ export class HistogramSeries extends CartesianSeries<Rect, HistogramSeriesProper
         });
     }
 
-    protected async updateLabelSelection(opts: {
+    protected updateLabelSelection(opts: {
         labelData: HistogramNodeDatum[];
         labelSelection: Selection<Text, HistogramNodeDatum>;
     }) {
@@ -420,7 +420,7 @@ export class HistogramSeries extends CartesianSeries<Rect, HistogramSeriesProper
         });
     }
 
-    protected async updateLabelNodes(opts: { labelSelection: Selection<Text, HistogramNodeDatum> }) {
+    protected updateLabelNodes(opts: { labelSelection: Selection<Text, HistogramNodeDatum> }) {
         const { fontStyle, fontWeight, fontFamily, fontSize, color } = this.properties.label;
         const labelEnabled = this.isLabelEnabled();
 

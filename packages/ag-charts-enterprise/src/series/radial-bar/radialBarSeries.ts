@@ -198,10 +198,10 @@ export class RadialBarSeries extends _ModuleSupport.PolarSeries<
         return false;
     }
 
-    protected async maybeRefreshNodeData() {
+    protected maybeRefreshNodeData() {
         const circleChanged = this.didCircleChange();
         if (!circleChanged && !this.nodeDataRefresh) return;
-        const { nodeData = [] } = (await this.createNodeData()) ?? {};
+        const { nodeData = [] } = this.createNodeData() ?? {};
         this.nodeData = nodeData;
         this.nodeDataRefresh = false;
     }
@@ -211,7 +211,7 @@ export class RadialBarSeries extends _ModuleSupport.PolarSeries<
         return radiusAxis instanceof PolarAxis ? this.radius * radiusAxis.innerRadiusRatio : 0;
     }
 
-    async createNodeData() {
+    override createNodeData() {
         const { processedData, dataModel } = this;
 
         if (
@@ -343,9 +343,9 @@ export class RadialBarSeries extends _ModuleSupport.PolarSeries<
         return context;
     }
 
-    async update({ seriesRect }: { seriesRect?: _ModuleSupport.BBox }) {
+    update({ seriesRect }: { seriesRect?: _ModuleSupport.BBox }) {
         const resize = this.checkResize(seriesRect);
-        await this.maybeRefreshNodeData();
+        this.maybeRefreshNodeData();
 
         this.contentGroup.translationX = this.centerX;
         this.contentGroup.translationY = this.centerY;

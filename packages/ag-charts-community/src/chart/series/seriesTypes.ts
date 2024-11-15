@@ -23,7 +23,7 @@ export interface ISeries<TDatum, TProps> {
     contentGroup: Group;
     properties: TProps;
     hasEventListener(type: string): boolean;
-    update(opts: { seriesRect?: BBox }): Promise<void>;
+    update(opts: { seriesRect?: BBox }): Promise<void> | void;
     fireNodeClickEvent(event: Event, datum: SeriesNodeDatum): void;
     fireNodeDoubleClickEvent(event: Event, datum: SeriesNodeDatum): void;
     createNodeContextMenuActionEvent(event: Event, datum: TDatum): NodeContextMenuActionEvent;

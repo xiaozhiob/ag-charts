@@ -207,10 +207,10 @@ export abstract class RadialColumnSeriesBase<
         return this.axes[ChartAxisDirection.Y]?.isReversed();
     }
 
-    async maybeRefreshNodeData() {
+    maybeRefreshNodeData() {
         const circleChanged = this.didCircleChange();
         if (!circleChanged && !this.nodeDataRefresh) return;
-        const { nodeData = [] } = (await this.createNodeData()) ?? {};
+        const { nodeData = [] } = this.createNodeData() ?? {};
         this.nodeData = nodeData;
         this.nodeDataRefresh = false;
     }
@@ -220,7 +220,7 @@ export abstract class RadialColumnSeriesBase<
         return radiusAxis instanceof PolarAxis ? this.radius * radiusAxis.innerRadiusRatio : 0;
     }
 
-    async createNodeData() {
+    override createNodeData() {
         const { processedData, dataModel, groupScale } = this;
 
         if (
@@ -366,9 +366,9 @@ export abstract class RadialColumnSeriesBase<
         return NaN;
     }
 
-    async update({ seriesRect }: { seriesRect?: _ModuleSupport.BBox }) {
+    update({ seriesRect }: { seriesRect?: _ModuleSupport.BBox }) {
         const resize = this.checkResize(seriesRect);
-        await this.maybeRefreshNodeData();
+        this.maybeRefreshNodeData();
 
         this.contentGroup.translationX = this.centerX;
         this.contentGroup.translationY = this.centerY;

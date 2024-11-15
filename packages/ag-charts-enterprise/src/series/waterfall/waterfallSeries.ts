@@ -208,7 +208,7 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
         }
     }
 
-    async createNodeData() {
+    override createNodeData() {
         const { data, dataModel, processedData } = this;
         const categoryAxis = this.getCategoryAxis();
         const valueAxis = this.getValueAxis();
@@ -493,7 +493,7 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
         }
     }
 
-    protected override async updateDatumSelection(opts: {
+    protected override updateDatumSelection(opts: {
         nodeData: WaterfallNodeDatum[];
         datumSelection: _ModuleSupport.Selection<_ModuleSupport.Rect, WaterfallNodeDatum>;
     }) {
@@ -502,7 +502,7 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
         return datumSelection.update(data);
     }
 
-    protected override async updateDatumNodes(opts: {
+    protected override updateDatumNodes(opts: {
         datumSelection: _ModuleSupport.Selection<_ModuleSupport.Rect, WaterfallNodeDatum>;
         isHighlight: boolean;
     }) {
@@ -566,7 +566,7 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
         });
     }
 
-    protected async updateLabelSelection(opts: {
+    protected updateLabelSelection(opts: {
         labelData: WaterfallNodeDatum[];
         labelSelection: _ModuleSupport.Selection<_ModuleSupport.Text, WaterfallNodeDatum>;
     }) {
@@ -584,7 +584,7 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
         return labelSelection.update(data);
     }
 
-    protected async updateLabelNodes(opts: {
+    protected updateLabelNodes(opts: {
         labelSelection: _ModuleSupport.Selection<_ModuleSupport.Text, WaterfallNodeDatum>;
     }) {
         opts.labelSelection.each((textNode, datum) => {
@@ -818,13 +818,13 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
         this.resetConnectorLinesPath(data);
     }
 
-    protected override async updatePaths(opts: {
+    protected override updatePaths(opts: {
         seriesHighlighted?: boolean;
         itemId?: string;
         contextData: WaterfallContext;
         paths: _ModuleSupport.Path[];
         seriesIdx: number;
-    }): Promise<void> {
+    }) {
         this.resetConnectorLinesPath({ contextData: opts.contextData, paths: opts.paths });
     }
 

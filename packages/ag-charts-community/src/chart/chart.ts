@@ -478,7 +478,7 @@ export abstract class Chart extends Observable {
     private readonly seriesToUpdate: Set<ISeries<any, any>> = new Set();
     private readonly updateMutex = new Mutex();
     private updateRequestors: Record<string, ChartUpdateType> = {};
-    private readonly performUpdateTrigger = debouncedCallback(async ({ count }) => {
+    private readonly performUpdateTrigger = debouncedCallback(({ count }) => {
         if (this.destroyed) return;
         this.updateMutex
             .acquire(async () => {
@@ -614,7 +614,7 @@ export abstract class Chart extends Observable {
                 ctx.animationManager.endBatch();
 
                 extraDebugStats['updateShortcutCount'] = this.updateShortcutCount;
-                await ctx.scene.render({ debugSplitTimes: splits, extraDebugStats, seriesRect: this.seriesRect });
+                ctx.scene.render({ debugSplitTimes: splits, extraDebugStats, seriesRect: this.seriesRect });
                 this.extraDebugStats = {};
                 for (const key of Object.keys(splits)) {
                     delete splits[key];

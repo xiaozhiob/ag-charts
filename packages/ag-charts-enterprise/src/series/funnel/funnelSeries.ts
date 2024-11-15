@@ -98,7 +98,7 @@ export class FunnelSeries extends BaseFunnelSeries<_ModuleSupport.Rect> {
         };
     }
 
-    protected override async updateDatumNodes(opts: {
+    protected override updateDatumNodes(opts: {
         datumSelection: _ModuleSupport.Selection<_ModuleSupport.Rect, FunnelNodeDatum>;
         isHighlight: boolean;
     }) {

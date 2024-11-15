@@ -178,7 +178,7 @@ export abstract class OhlcSeriesBase<
         return this.padBandExtent(keys);
     }
 
-    override async createNodeData() {
+    override createNodeData() {
         const { visible, dataModel, processedData } = this;
 
         const xAxis = this.getCategoryAxis();
@@ -357,7 +357,7 @@ export abstract class OhlcSeriesBase<
         return false;
     }
 
-    protected override async updateDatumSelection(opts: {
+    protected override updateDatumSelection(opts: {
         nodeData: OhlcNodeDatum[];
         datumSelection: _ModuleSupport.Selection<TNode, OhlcNodeDatum>;
         seriesIdx: number;
@@ -366,14 +366,14 @@ export abstract class OhlcSeriesBase<
         return opts.datumSelection.update(data);
     }
 
-    protected async updateLabelNodes(_opts: {
+    protected updateLabelNodes(_opts: {
         labelSelection: _ModuleSupport.Selection<_ModuleSupport.Text, OhlcNodeDatum>;
         seriesIdx: number;
     }) {
         // Labels unsupported
     }
 
-    protected async updateLabelSelection(opts: {
+    protected updateLabelSelection(opts: {
         labelData: OhlcNodeDatum[];
         labelSelection: _ModuleSupport.Selection<_ModuleSupport.Text, OhlcNodeDatum>;
         seriesIdx: number;

@@ -257,7 +257,7 @@ export class AreaSeries extends CartesianSeries<
         }
     }
 
-    async createNodeData() {
+    override createNodeData() {
         const { axes, data, processedData, dataModel } = this;
 
         const xAxis = axes[ChartAxisDirection.X];
@@ -535,7 +535,7 @@ export class AreaSeries extends CartesianSeries<
         return new MarkerShape();
     }
 
-    protected override async updatePathNodes(opts: {
+    protected override updatePathNodes(opts: {
         paths: Path[];
         opacity: number;
         visible: boolean;
@@ -575,7 +575,7 @@ export class AreaSeries extends CartesianSeries<
         updateClipPath(this, fill);
     }
 
-    protected override async updatePaths(opts: { contextData: AreaSeriesNodeDataContext; paths: Path[] }) {
+    protected override updatePaths(opts: { contextData: AreaSeriesNodeDataContext; paths: Path[] }) {
         this.updateAreaPaths(opts.paths, opts.contextData);
     }
 
@@ -612,7 +612,7 @@ export class AreaSeries extends CartesianSeries<
         stroke.markDirty();
     }
 
-    protected override async updateMarkerSelection(opts: {
+    protected override updateMarkerSelection(opts: {
         nodeData: MarkerSelectionDatum[];
         markerSelection: Selection<Marker, MarkerSelectionDatum>;
     }) {
@@ -627,7 +627,7 @@ export class AreaSeries extends CartesianSeries<
         return markerSelection.update(markersEnabled ? nodeData : []);
     }
 
-    protected override async updateMarkerNodes(opts: {
+    protected override updateMarkerNodes(opts: {
         markerSelection: Selection<Marker, MarkerSelectionDatum>;
         isHighlight: boolean;
     }) {
@@ -659,7 +659,7 @@ export class AreaSeries extends CartesianSeries<
         }
     }
 
-    protected async updateLabelSelection(opts: {
+    protected updateLabelSelection(opts: {
         labelData: LabelSelectionDatum[];
         labelSelection: Selection<Text, LabelSelectionDatum>;
     }) {
@@ -668,7 +668,7 @@ export class AreaSeries extends CartesianSeries<
         return labelSelection.update(labelData);
     }
 
-    protected async updateLabelNodes(opts: { labelSelection: Selection<Text, LabelSelectionDatum> }) {
+    protected updateLabelNodes(opts: { labelSelection: Selection<Text, LabelSelectionDatum> }) {
         const { labelSelection } = opts;
         const { enabled: labelEnabled, fontStyle, fontWeight, fontSize, fontFamily, color } = this.properties.label;
         labelSelection.each((text, datum) => {

@@ -127,7 +127,7 @@ export class BoxPlotSeries extends _ModuleSupport.AbstractBarSeries<
         return this.padBandExtent(keys);
     }
 
-    async createNodeData() {
+    override createNodeData() {
         const { visible, dataModel, processedData } = this;
 
         const xAxis = this.getCategoryAxis();
@@ -358,7 +358,7 @@ export class BoxPlotSeries extends _ModuleSupport.AbstractBarSeries<
         return false;
     }
 
-    protected override async updateDatumSelection(opts: {
+    protected override updateDatumSelection(opts: {
         nodeData: BoxPlotNodeDatum[];
         datumSelection: _ModuleSupport.Selection<BoxPlotGroup, BoxPlotNodeDatum>;
         seriesIdx: number;
@@ -367,7 +367,7 @@ export class BoxPlotSeries extends _ModuleSupport.AbstractBarSeries<
         return opts.datumSelection.update(data);
     }
 
-    protected override async updateDatumNodes({
+    protected override updateDatumNodes({
         datumSelection,
         isHighlight: highlighted,
     }: {
@@ -402,11 +402,11 @@ export class BoxPlotSeries extends _ModuleSupport.AbstractBarSeries<
         });
     }
 
-    protected async updateLabelNodes() {
+    protected updateLabelNodes() {
         // Labels are unsupported.
     }
 
-    protected async updateLabelSelection(opts: {
+    protected updateLabelSelection(opts: {
         labelData: BoxPlotNodeDatum[];
         labelSelection: _ModuleSupport.Selection<_ModuleSupport.Text, BoxPlotNodeDatum>;
         seriesIdx: number;

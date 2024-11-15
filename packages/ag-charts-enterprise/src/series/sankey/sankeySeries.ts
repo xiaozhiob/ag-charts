@@ -61,7 +61,7 @@ export class SankeySeries extends FlowProportionSeries<
         return new Rect();
     }
 
-    override async createNodeData(): Promise<SankeyNodeDataContext | undefined> {
+    override createNodeData() {
         const {
             id: seriesId,
             _nodeDataDependencies: { seriesRectWidth, seriesRectHeight } = { seriesRectWidth: 0, seriesRectHeight: 0 },
@@ -343,7 +343,7 @@ export class SankeySeries extends FlowProportionSeries<
         };
     }
 
-    protected async updateLabelSelection(opts: {
+    protected updateLabelSelection(opts: {
         labelData: SankeyNodeLabelDatum[];
         labelSelection: _ModuleSupport.Selection<_ModuleSupport.TransformableText, SankeyNodeLabelDatum>;
     }) {
@@ -351,7 +351,7 @@ export class SankeySeries extends FlowProportionSeries<
         return opts.labelSelection.update(labels);
     }
 
-    protected async updateLabelNodes(opts: {
+    protected updateLabelNodes(opts: {
         labelSelection: _ModuleSupport.Selection<_ModuleSupport.TransformableText, SankeyNodeLabelDatum>;
     }) {
         const { labelSelection } = opts;
@@ -372,14 +372,14 @@ export class SankeySeries extends FlowProportionSeries<
         });
     }
 
-    protected async updateNodeSelection(opts: {
+    protected updateNodeSelection(opts: {
         nodeData: SankeyNodeDatum[];
         datumSelection: _ModuleSupport.Selection<_ModuleSupport.Rect, SankeyNodeDatum>;
     }) {
         return opts.datumSelection.update(opts.nodeData, undefined, (datum) => createDatumId([datum.type, datum.id]));
     }
 
-    protected async updateNodeNodes(opts: {
+    protected updateNodeNodes(opts: {
         datumSelection: _ModuleSupport.Selection<_ModuleSupport.Rect, SankeyNodeDatum>;
         isHighlight: boolean;
     }) {
@@ -440,7 +440,7 @@ export class SankeySeries extends FlowProportionSeries<
         });
     }
 
-    protected async updateLinkSelection(opts: {
+    protected updateLinkSelection(opts: {
         nodeData: SankeyLinkDatum[];
         datumSelection: _ModuleSupport.Selection<SankeyLink, SankeyLinkDatum>;
     }) {
@@ -449,7 +449,7 @@ export class SankeySeries extends FlowProportionSeries<
         );
     }
 
-    protected async updateLinkNodes(opts: {
+    protected updateLinkNodes(opts: {
         datumSelection: _ModuleSupport.Selection<SankeyLink, SankeyLinkDatum>;
         isHighlight: boolean;
     }) {

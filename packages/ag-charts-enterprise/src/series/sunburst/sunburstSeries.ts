@@ -76,10 +76,10 @@ export class SunburstSeries extends _ModuleSupport.HierarchySeries<
 
     private labelData?: (LabelData | undefined)[];
 
-    override async processData() {
+    override processData() {
         const { childrenKey, colorKey, colorName, labelKey, secondaryLabelKey, sizeKey, sizeName } = this.properties;
 
-        await super.processData();
+        super.processData();
 
         this.angleData = getAngleData(this.rootNode);
         this.labelData = Array.from(this.rootNode, ({ datum, depth }) => {
@@ -127,7 +127,7 @@ export class SunburstSeries extends _ModuleSupport.HierarchySeries<
         });
     }
 
-    async updateSelections() {
+    updateSelections() {
         if (!this.nodeDataRefresh) return;
         this.nodeDataRefresh = false;
 
@@ -151,7 +151,7 @@ export class SunburstSeries extends _ModuleSupport.HierarchySeries<
         this.highlightSelection.update(descendants, updateGroup, (node) => this.getDatumId(node));
     }
 
-    async updateNodes() {
+    updateNodes() {
         const { chart, data, maxDepth, labelData } = this;
 
         if (chart == null || data == null || labelData == null) {
@@ -559,7 +559,7 @@ export class SunburstSeries extends _ModuleSupport.HierarchySeries<
         });
     }
 
-    override async createNodeData() {
+    override createNodeData() {
         return undefined;
     }
 

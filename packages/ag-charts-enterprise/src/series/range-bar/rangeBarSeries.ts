@@ -189,7 +189,7 @@ export class RangeBarSeries extends _ModuleSupport.AbstractBarSeries<
         }
     }
 
-    async createNodeData() {
+    override createNodeData() {
         const {
             data,
             dataModel,
@@ -368,7 +368,7 @@ export class RangeBarSeries extends _ModuleSupport.AbstractBarSeries<
         return new Rect();
     }
 
-    protected override async updateDatumSelection(opts: {
+    protected override updateDatumSelection(opts: {
         nodeData: RangeBarNodeDatum[];
         datumSelection: _ModuleSupport.Selection<_ModuleSupport.Rect, RangeBarNodeDatum>;
     }) {
@@ -377,7 +377,7 @@ export class RangeBarSeries extends _ModuleSupport.AbstractBarSeries<
         return datumSelection.update(data, undefined, (datum) => this.getDatumId(datum));
     }
 
-    protected override async updateDatumNodes(opts: {
+    protected override updateDatumNodes(opts: {
         datumSelection: _ModuleSupport.Selection<_ModuleSupport.Rect, RangeBarNodeDatum>;
         isHighlight: boolean;
     }) {
@@ -445,7 +445,7 @@ export class RangeBarSeries extends _ModuleSupport.AbstractBarSeries<
         return labelItems.length > 0 ? labelItems : undefined;
     }
 
-    protected async updateLabelSelection(opts: {
+    protected updateLabelSelection(opts: {
         labelData: RangeBarNodeLabelDatum[];
         labelSelection: RangeBarAnimationData['labelSelection'];
     }) {
@@ -455,7 +455,7 @@ export class RangeBarSeries extends _ModuleSupport.AbstractBarSeries<
         });
     }
 
-    protected async updateLabelNodes(opts: { labelSelection: _ModuleSupport.Selection<_ModuleSupport.Text> }) {
+    protected updateLabelNodes(opts: { labelSelection: _ModuleSupport.Selection<_ModuleSupport.Text> }) {
         opts.labelSelection.each((textNode, datum) => {
             updateLabelNode(textNode, this.properties.label, datum);
         });

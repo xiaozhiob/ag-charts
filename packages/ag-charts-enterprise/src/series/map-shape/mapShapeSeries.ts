@@ -301,7 +301,7 @@ export class MapShapeSeries
     }
 
     private previousLabelLayouts: Map<string, LabelLayout> | undefined = undefined;
-    override async createNodeData() {
+    override createNodeData() {
         const { id: seriesId, dataModel, processedData, colorScale, properties, scale, previousLabelLayouts } = this;
         const { idKey, colorKey, labelKey, label, fill: fillProperty } = properties;
 
@@ -391,17 +391,17 @@ export class MapShapeSeries
         };
     }
 
-    async updateSelections(): Promise<void> {
+    updateSelections() {
         if (this.nodeDataRefresh) {
-            this.contextNodeData = await this.createNodeData();
+            this.contextNodeData = this.createNodeData();
             this.nodeDataRefresh = false;
         }
     }
 
-    override async update(): Promise<void> {
+    override update() {
         const { datumSelection, labelSelection, highlightDatumSelection } = this;
 
-        await this.updateSelections();
+        this.updateSelections();
 
         this.contentGroup.visible = this.visible;
         this.contentGroup.opacity = this.getOpacity();
@@ -414,27 +414,27 @@ export class MapShapeSeries
         const nodeData = this.contextNodeData?.nodeData ?? [];
         const labelData = this.contextNodeData?.labelData ?? [];
 
-        this.datumSelection = await this.updateDatumSelection({ nodeData, datumSelection });
-        await this.updateDatumNodes({ datumSelection, isHighlight: false });
+        this.datumSelection = this.updateDatumSelection({ nodeData, datumSelection });
+        this.updateDatumNodes({ datumSelection, isHighlight: false });
 
-        this.labelSelection = await this.updateLabelSelection({ labelData, labelSelection });
-        await this.updateLabelNodes({ labelSelection });
+        this.labelSelection = this.updateLabelSelection({ labelData, labelSelection });
+        this.updateLabelNodes({ labelSelection });
 
-        this.highlightDatumSelection = await this.updateDatumSelection({
+        this.highlightDatumSelection = this.updateDatumSelection({
             nodeData: highlightedDatum != null ? [highlightedDatum] : [],
             datumSelection: highlightDatumSelection,
         });
-        await this.updateDatumNodes({ datumSelection: highlightDatumSelection, isHighlight: true });
+        this.updateDatumNodes({ datumSelection: highlightDatumSelection, isHighlight: true });
     }
 
-    private async updateDatumSelection(opts: {
+    private updateDatumSelection(opts: {
         nodeData: MapShapeNodeDatum[];
         datumSelection: _ModuleSupport.Selection<GeoGeometry, MapShapeNodeDatum>;
     }) {
         return opts.datumSelection.update(opts.nodeData, undefined, (datum) => createDatumId(datum.idValue));
     }
 
-    private async updateDatumNodes(opts: {
+    private updateDatumNodes(opts: {
         datumSelection: _ModuleSupport.Selection<GeoGeometry, MapShapeNodeDatum>;
         isHighlight: boolean;
     }) {
@@ -488,7 +488,7 @@ export class MapShapeSeries
         });
     }
 
-    private async updateLabelSelection(opts: {
+    private updateLabelSelection(opts: {
         labelData: MapShapeNodeLabelDatum[];
         labelSelection: _ModuleSupport.Selection<_ModuleSupport.Text, MapShapeNodeLabelDatum>;
     }) {
@@ -496,7 +496,7 @@ export class MapShapeSeries
         return opts.labelSelection.update(labels);
     }
 
-    private async updateLabelNodes(opts: {
+    private updateLabelNodes(opts: {
         labelSelection: _ModuleSupport.Selection<_ModuleSupport.Text, MapShapeNodeLabelDatum>;
     }) {
         const { labelSelection } = opts;

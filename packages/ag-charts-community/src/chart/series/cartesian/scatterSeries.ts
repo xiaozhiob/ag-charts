@@ -109,7 +109,7 @@ export class ScatterSeries extends CartesianSeries<Group, ScatterSeriesPropertie
         return fixNumericExtent(extent(domain));
     }
 
-    async createNodeData() {
+    override createNodeData() {
         const { axes, dataModel, processedData, colorScale } = this;
         const {
             xKey,
@@ -220,7 +220,7 @@ export class ScatterSeries extends CartesianSeries<Group, ScatterSeriesPropertie
         return new MarkerShape();
     }
 
-    protected override async updateMarkerSelection(opts: {
+    protected override updateMarkerSelection(opts: {
         nodeData: ScatterNodeDatum[];
         markerSelection: Selection<Marker, ScatterNodeDatum>;
     }) {
@@ -234,7 +234,7 @@ export class ScatterSeries extends CartesianSeries<Group, ScatterSeriesPropertie
         return markerSelection.update(this.properties.marker.enabled ? nodeData : []);
     }
 
-    protected override async updateMarkerNodes(opts: {
+    protected override updateMarkerNodes(opts: {
         markerSelection: Selection<Marker, ScatterNodeDatum>;
         isHighlight: boolean;
     }) {
@@ -253,7 +253,7 @@ export class ScatterSeries extends CartesianSeries<Group, ScatterSeriesPropertie
         }
     }
 
-    protected async updateLabelSelection(opts: {
+    protected updateLabelSelection(opts: {
         labelData: ScatterNodeDatum[];
         labelSelection: Selection<Text, ScatterNodeDatum>;
     }) {
@@ -270,7 +270,7 @@ export class ScatterSeries extends CartesianSeries<Group, ScatterSeriesPropertie
         );
     }
 
-    protected async updateLabelNodes(opts: { labelSelection: Selection<Text, ScatterNodeDatum> }) {
+    protected updateLabelNodes(opts: { labelSelection: Selection<Text, ScatterNodeDatum> }) {
         const { label } = this.properties;
 
         opts.labelSelection.each((text, datum) => {
