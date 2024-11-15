@@ -62,7 +62,9 @@ export class SliderWidget extends Widget<HTMLInputElement> {
         this.orientation = 'both';
     }
 
-    protected override destructor() {} // NOSONAR
+    protected override destructor() {
+        // Nothing to destroy.
+    }
 
     clampValueRatio(clampMin: number, clampMax: number) {
         const ratio = this.getValueRatio();

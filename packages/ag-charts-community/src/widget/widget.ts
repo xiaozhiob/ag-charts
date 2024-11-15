@@ -70,7 +70,7 @@ export abstract class Widget<
 
     destroy(): void {
         this.children.forEach((child) => child.destroy());
-        this.destructor();
+        this.destructor?.();
         this.elem.remove();
         this.elemContainer?.remove();
         this.internalListener?.destroy();
