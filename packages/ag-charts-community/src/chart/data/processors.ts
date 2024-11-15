@@ -476,6 +476,8 @@ function valueIndices(id: string, previousData: ProcessedData<any>, processedDat
     let previousIndicesIndex = 0;
     const nextValues = processedData.defs.values;
     for (let i = 0; i < nextValues.length; i += 1) {
+        if (previousIndicesIndex >= prevIndices.length) return;
+
         const value = nextValues[i];
         if (value.scopes?.includes(id) !== true) continue;
 
