@@ -34,7 +34,7 @@ import type { LegendItemClickChartEvent, LegendItemDoubleClickChartEvent } from 
 import type { ChartLegendDatum, ChartLegendType } from '../legend/legendDatum';
 import type { Marker } from '../marker/marker';
 import type { TooltipContent } from '../tooltip/tooltip';
-import type { BaseSeriesEvent, SeriesEventType } from './seriesEvents';
+import type { SeriesEventType } from './seriesEvents';
 import type { SeriesProperties } from './seriesProperties';
 import type { SeriesGrouping } from './seriesStateManager';
 import type { ISeries, NodeDataDependencies, SeriesNodeDatum } from './seriesTypes';
@@ -357,11 +357,11 @@ export abstract class Series<
 
     private readonly seriesListeners = new Listeners<SeriesEventType, (event: any) => void>();
 
-    public addListener<T extends SeriesEventType, E extends BaseSeriesEvent<T>>(type: T, listener: (event: E) => void) {
+    public addListener<T extends SeriesEventType, E>(type: T, listener: (event: E) => void) {
         return this.seriesListeners.addListener(type, listener);
     }
 
-    protected dispatch<T extends SeriesEventType, E extends BaseSeriesEvent<T>>(type: T, event: E): void {
+    protected dispatch<T extends SeriesEventType, E>(type: T, event: E): void {
         this.seriesListeners.dispatch(type, event);
     }
 
