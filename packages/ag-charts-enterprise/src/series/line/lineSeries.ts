@@ -22,7 +22,7 @@ export class LineSeries extends _ModuleSupport.LineSeries {
         if (processedData.rawData.length === 0) return;
 
         const xAxis = this.axes[ChartAxisDirection.X];
-        if (xAxis == null || (!ContinuousScale.is(xAxis.scale) && !OrdinalTimeScale.is(xAxis.scale))) return;
+        if (xAxis == null || !(ContinuousScale.is(xAxis.scale) || OrdinalTimeScale.is(xAxis.scale))) return;
 
         const xValues = dataModel.resolveColumnById(this, `xValue`, processedData);
         const yValues = dataModel.resolveColumnById(this, `yValueRaw`, processedData);

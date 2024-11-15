@@ -19,6 +19,7 @@ const {
     computeBarFocusBounds,
     Logger,
     ContinuousScale,
+    OrdinalTimeScale,
 } = _ModuleSupport;
 
 export interface OhlcNodeDatum extends Omit<_ModuleSupport.CartesianSeriesNodeDatum, 'yKey' | 'yValue'> {
@@ -140,7 +141,7 @@ export abstract class OhlcSeriesBase<
         if (processedData.rawData.length === 0) return;
 
         const xAxis = this.axes[ChartAxisDirection.X];
-        if (xAxis == null || !ContinuousScale.is(xAxis.scale)) return;
+        if (xAxis == null || !(ContinuousScale.is(xAxis.scale) || OrdinalTimeScale.is(xAxis.scale))) return;
 
         const xValues = dataModel.resolveKeysById(this, `xValue`, processedData);
         const highValues = dataModel.resolveColumnById(this, `highValue`, processedData);
@@ -197,10 +198,11 @@ export abstract class OhlcSeriesBase<
         const highValues = dataModel.resolveColumnById(this, 'highValue', processedData);
         const lowValues = dataModel.resolveColumnById(this, 'lowValue', processedData);
 
-        const { barWidth, groupIndex } = this.updateGroupScale(xAxis);
-        const barOffset = ContinuousScale.is(xAxis.scale) ? barWidth * -0.5 : 0;
         const { groupScale } = this;
+        const { barWidth, groupIndex } = this.updateGroupScale(xAxis);
         const groupOffset = groupScale.convert(String(groupIndex));
+        const effectiveBarWidth = barWidth >= 1 ? barWidth : groupScale.rawBandwidth;
+        const barOffset = ContinuousScale.is(xAxis.scale) ? effectiveBarWidth * -0.5 : 0;
 
         const context = {
             itemId: xKey,
@@ -276,7 +278,40 @@ export abstract class OhlcSeriesBase<
 
         const dataAggregationFilter = dataAggregationFilters?.find((f) => f.maxRange > range);
 
-        if (dataAggregationFilter != null) {
+        if (dataAggregationFilter == null) {
+            const [start, end] = visibleRange(rawData.length, x0, x1, xFor);
+
+            for (let i = start; i < end; i += 1) {
+                const xValue = xValues[i];
+                if (xValue == null) continue;
+
+                const datum = rawData[i];
+                const openValue = openValues[i];
+                const closeValue = closeValues[i];
+                const highValue = highValues[i];
+                const lowValue = lowValues[i];
+
+                // compare unscaled values
+                const validLowValue = lowValue != null && lowValue <= openValue && lowValue <= closeValue;
+                const validHighValue = highValue != null && highValue >= openValue && highValue >= closeValue;
+
+                if (!validLowValue) {
+                    Logger.warnOnce(
+                        `invalid low value for key [${lowKey}] in data element, low value cannot be higher than datum open or close values`
+                    );
+                    continue;
+                }
+
+                if (!validHighValue) {
+                    Logger.warnOnce(
+                        `invalid high value for key [${highKey}] in data element, high value cannot be lower than datum open or close values.`
+                    );
+                    continue;
+                }
+
+                handleDatum(datum, xValue, openValue, closeValue, highValue, lowValue, effectiveBarWidth, true);
+            }
+        } else {
             const { maxRange, indexData } = dataAggregationFilter;
             const [start, end] = visibleRange(maxRange, x0, x1, (index) => {
                 const aggIndex = index * SPAN;
@@ -306,43 +341,11 @@ export abstract class OhlcSeriesBase<
                 const highValue = highValues[highIndex];
                 const lowValue = lowValues[lowIndex];
 
-                const width = Math.abs(xScale.convert(xValues[closeIndex]) - xScale.convert(xValues[openIndex]));
+                const width =
+                    Math.abs(xScale.convert(xValues[closeIndex]) - xScale.convert(xValues[openIndex])) +
+                    effectiveBarWidth;
 
                 handleDatum(datum, xValue, openValue, closeValue, highValue, lowValue, width, false);
-            }
-        } else {
-            const [start, end] = visibleRange(rawData.length, x0, x1, xFor);
-            const width = barWidth >= 1 ? barWidth : groupScale.rawBandwidth;
-
-            for (let i = start; i < end; i += 1) {
-                const xValue = xValues[i];
-                if (xValue == null) continue;
-
-                const datum = rawData[i];
-                const openValue = openValues[i];
-                const closeValue = closeValues[i];
-                const highValue = highValues[i];
-                const lowValue = lowValues[i];
-
-                // compare unscaled values
-                const validLowValue = lowValue != null && lowValue <= openValue && lowValue <= closeValue;
-                const validHighValue = highValue != null && highValue >= openValue && highValue >= closeValue;
-
-                if (!validLowValue) {
-                    Logger.warnOnce(
-                        `invalid low value for key [${lowKey}] in data element, low value cannot be higher than datum open or close values`
-                    );
-                    return;
-                }
-
-                if (!validHighValue) {
-                    Logger.warnOnce(
-                        `invalid high value for key [${highKey}] in data element, high value cannot be lower than datum open or close values.`
-                    );
-                    return;
-                }
-
-                handleDatum(datum, xValue, openValue, closeValue, highValue, lowValue, width, true);
             }
         }
 

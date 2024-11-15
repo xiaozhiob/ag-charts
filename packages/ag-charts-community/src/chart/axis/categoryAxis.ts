@@ -50,7 +50,7 @@ export class CategoryAxis<
 
     private categoryAnimatable = true;
     protected override calculateDomain() {
-        let normalizedDomain: any[] = [];
+        let normalizedDomain: any[] | undefined = undefined;
 
         let categoryAnimatable = true;
         for (const series of this.boundSeries) {
@@ -58,10 +58,15 @@ export class CategoryAxis<
 
             const seriesDomain = series.getDomain(this.direction);
 
-            categoryAnimatable &&= this.domainOrderedToNormalizedDomain(seriesDomain, normalizedDomain);
-
-            normalizedDomain = this.normaliseDataDomain([...normalizedDomain, ...seriesDomain]).domain;
+            if (normalizedDomain == null) {
+                normalizedDomain = this.normaliseDataDomain(seriesDomain).domain;
+            } else {
+                categoryAnimatable &&= this.domainOrderedToNormalizedDomain(seriesDomain, normalizedDomain);
+                normalizedDomain = this.normaliseDataDomain([...normalizedDomain, ...seriesDomain]).domain;
+            }
         }
+
+        normalizedDomain ??= [];
 
         this.setDomain(normalizedDomain);
         this.categoryAnimatable = categoryAnimatable;

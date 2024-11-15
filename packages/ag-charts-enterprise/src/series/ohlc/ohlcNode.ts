@@ -69,10 +69,10 @@ export class OhlcBaseNode extends Path implements _ModuleSupport.DistantObject {
         const centerY = (y0 + y1) / 2;
 
         // Align to an assumed 1px stroke width
-        centerX -= strokeAlignment;
-        x0 -= strokeAlignment;
-        x1 -= strokeAlignment;
-        y0 -= strokeAlignment;
+        centerX += strokeAlignment;
+        x0 += strokeAlignment;
+        x1 += strokeAlignment;
+        y0 += strokeAlignment;
         y1 += strokeAlignment;
         yOpen += yOpen < centerY ? strokeAlignment : -strokeAlignment;
         yClose += yClose < centerY ? strokeAlignment : -strokeAlignment;
