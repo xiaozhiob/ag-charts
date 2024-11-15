@@ -96,7 +96,7 @@ export class BandScale<D, I = number> implements Scale<D, number, I> {
         let closestDistance = Infinity;
         let closestIndex = 0;
 
-        while (low < high) {
+        while (low <= high) {
             const mid = ((high + low) / 2) | 0;
             const p = this.ordinalRange(mid);
             const distance = Math.abs(p - position);

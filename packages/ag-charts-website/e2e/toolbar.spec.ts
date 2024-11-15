@@ -100,7 +100,7 @@ test.describe('toolbar', () => {
         await expect(page).toHaveScreenshot('text-10-deleted.png', { animations: 'disabled' });
     });
 
-    test.only('callout', async ({ page }) => {
+    test('callout', async ({ page }) => {
         await gotoExample(page, url);
 
         await page.locator('[data-toolbar-group="annotations"][data-toolbar-id="text-menu"]').click();

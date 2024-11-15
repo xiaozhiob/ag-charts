@@ -1,4 +1,4 @@
-import { findMaxValue } from '../util/binarySearch';
+import { findMinValue } from '../util/binarySearch';
 import { datesSortOrder, sortAndUniqueDates } from '../util/date';
 import type { TimeInterval } from '../util/time';
 import { buildFormatter } from '../util/timeFormat';
@@ -188,10 +188,14 @@ export class OrdinalTimeScale extends BandScale<Date, TimeInterval | number> {
         this.refresh();
 
         const { domain } = this;
-        const closest = findMaxValue(0, domain.length - 1, (i) => {
+        const closest = findMinValue(0, domain.length - 1, (i) => {
             const p = this.ordinalRange(i);
             return p >= position ? domain[i] : undefined;
         });
         return closest ?? domain[0];
+    }
+
+    override invertNearest(position: number): Date {
+        return super.invertNearest(position);
     }
 }
