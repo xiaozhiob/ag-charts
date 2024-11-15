@@ -1,5 +1,4 @@
 import type { Point } from '../../scene/point';
-import { findMinMax } from '../../util/number';
 import type { Series, SeriesNodePickIntent } from './series';
 import type { SeriesNodeDatum } from './seriesTypes';
 
