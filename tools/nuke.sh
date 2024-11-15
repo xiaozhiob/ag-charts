@@ -7,7 +7,7 @@ if [[ "${confirm}" != "y" && "${confirm}" != "Y" ]] ; then
 fi
 
 echo "Removing all node_modules..."
-rimraf node_modules **/node_modules
+rm -rf node_modules **/node_modules
 
 echo "Cleaning the repo..."
 git clean -dXf
