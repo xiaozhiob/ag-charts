@@ -1,6 +1,5 @@
 import { Logger } from '../../util/logger';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function assertEmpty(t: Record<string, never>) {
     const keys = Object.keys(t);
     if (keys.length > 0) {
