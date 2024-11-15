@@ -211,7 +211,7 @@ export class Crosshair extends _ModuleSupport.BaseModuleInstance implements _Mod
             const fractionDigits = (axisLayout?.label.fractionDigits ?? 0) + (isInteger(value) ? 0 : 1);
             return formatNumber(value, fractionDigits);
         }
-        return String(value?.toString() ?? '');
+        return String(value ?? '');
     }
 
     private onMouseMove(event: _ModuleSupport.RegionEvent<'hover' | 'drag'>) {
