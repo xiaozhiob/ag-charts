@@ -919,7 +919,9 @@ export class Legend extends BaseProperties {
         const { datum, proxyButton } =
             this.itemSelection.select((ml): ml is LegendMarkerLabel => ml.datum?.itemId === params.itemId)[0] ?? {};
         if (datum === undefined || proxyButton === undefined) {
-            throw new Error(`AG Charts - Missing required properties { datum: ${datum}, proxyButton: ${proxyButton} }`);
+            throw new Error(
+                `AG Charts - Missing required properties { datum: ${datum}, proxyButton: ${JSON.stringify(proxyButton)} }`
+            );
         }
         return { datum, proxyButton };
     }

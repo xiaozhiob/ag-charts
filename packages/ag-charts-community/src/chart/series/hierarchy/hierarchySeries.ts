@@ -462,7 +462,7 @@ export abstract class HierarchySeries<
 
     getDatumAriaText(datum: SeriesNodeDatum, description: string): string | undefined {
         if (!(datum instanceof HierarchyNode)) {
-            Logger.error(`datum is not HierarchyNode: ${datum}`);
+            Logger.error(`datum is not HierarchyNode: ${JSON.stringify(datum)}`);
             return;
         }
         return this.ctx.localeManager.t('ariaAnnounceHierarchyDatum', {

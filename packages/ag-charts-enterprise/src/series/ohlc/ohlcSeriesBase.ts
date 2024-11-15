@@ -232,7 +232,7 @@ export abstract class OhlcSeriesBase<
             const yLow = yAxis.scale.convert(lowValue);
 
             const isRising = closeValue > openValue;
-            const itemId = this.getSeriesItemType(isRising);
+            const itemId = isRising ? 'up' : 'down';
 
             const y = Math.min(yHigh, yLow);
             const height = Math.max(yHigh, yLow) - y;
@@ -350,10 +350,6 @@ export abstract class OhlcSeriesBase<
         }
 
         return context;
-    }
-
-    private getSeriesItemType(isRising: boolean): AgOhlcSeriesItemType {
-        return isRising ? 'up' : 'down';
     }
 
     protected override isVertical(): boolean {

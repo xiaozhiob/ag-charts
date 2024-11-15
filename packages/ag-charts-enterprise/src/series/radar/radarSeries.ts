@@ -710,13 +710,13 @@ export abstract class RadarSeries extends _ModuleSupport.PolarSeries<
 
             linePath.clear(true);
 
-            linePoints.forEach(({ x, y, moveTo }) => {
+            for (const { x, y, moveTo } of linePoints) {
                 if (moveTo) {
                     linePath.moveTo(x, y);
                 } else {
                     linePath.lineTo(x, y);
                 }
-            });
+            }
 
             lineNode.checkPathDirty();
         }
