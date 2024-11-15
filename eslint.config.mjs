@@ -103,6 +103,8 @@ export default [
 
             // We don't really care about these.
             '@typescript-eslint/no-base-to-string': 0,
+            'sonarjs/no-selector-parameter': 0,
+            'sonarjs/redundant-type-aliases': 0,
 
             // For review - actual bugs?
             'sonarjs/no-inverted-boolean-check': 1,
@@ -128,8 +130,6 @@ export default [
             'sonarjs/sonar-max-params': 1,
             'sonarjs/no-redundant-type-constituents': 1,
             'sonarjs/fixme-tag': 1,
-            'sonarjs/no-selector-parameter': 1,
-            'sonarjs/redundant-type-aliases': 0,
 
             // Duplicates @typescript-eslint
             'sonarjs/sonar-no-unused-vars': 0,
