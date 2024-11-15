@@ -54,7 +54,6 @@ export default [
             parserOptions: {
                 // projectService: true,
                 project: './tsconfig.lint.json',
-                tsconfigRootDir: process.cwd(),
             },
         },
     },
