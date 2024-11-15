@@ -8,7 +8,7 @@ import { type PreventableEvent, buildPreventable } from './preventableEvent';
 import type { RegionManager } from './regionManager';
 
 type ContextTypeMap = {
-    all: {};
+    all: object;
     legend: { legendItem: CategoryLegendDatum | undefined };
     series: { pickedNode: SeriesNodeDatum | undefined };
     node: { pickedNode: SeriesNodeDatum | undefined };

@@ -19,7 +19,7 @@ import {
 } from 'ag-charts-community';
 
 interface BaseChartProps {
-    options: {};
+    options: object;
     style?: CSSProperties;
     className?: string;
 }

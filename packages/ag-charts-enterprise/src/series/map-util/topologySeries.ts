@@ -4,7 +4,7 @@ export interface TopologySeriesNodeDatum extends _ModuleSupport.SeriesNodeDatum 
 
 export interface TopologySeriesNodeDataContext<
     TDatum extends TopologySeriesNodeDatum = TopologySeriesNodeDatum,
-    TLabel extends {} = {},
+    TLabel extends object = object,
 > extends _ModuleSupport.SeriesNodeDataContext<TDatum, TLabel> {}
 
 export abstract class TopologySeriesProperties<T extends object> extends _ModuleSupport.SeriesProperties<T> {}
@@ -12,7 +12,7 @@ export abstract class TopologySeriesProperties<T extends object> extends _Module
 export abstract class TopologySeries<
     TDatum extends TopologySeriesNodeDatum,
     TProps extends TopologySeriesProperties<any>,
-    TLabel extends {},
+    TLabel extends object,
     TContext extends TopologySeriesNodeDataContext<TDatum, TLabel> = TopologySeriesNodeDataContext<TDatum, TLabel>,
 > extends _ModuleSupport.DataModelSeries<TDatum, TProps, TLabel, TContext> {
     override addChartEventListeners(): void {

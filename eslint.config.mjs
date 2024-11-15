@@ -105,6 +105,7 @@ export default [
                     allow: ['Date'],
                 },
             ],
+            '@typescript-eslint/no-empty-object-type': ['error', { allowInterfaces: 'always' }],
             // Show this warning in IDE and PRs, but not when running at command line (to reduce clutter).
             'sonarjs/cognitive-complexity': env !== 'nx-task' ? 1 : 0,
             'sonarjs/no-duplicate-string': env !== 'nx-task' ? 1 : 0,
@@ -125,7 +126,6 @@ export default [
             '@typescript-eslint/no-unsafe-assignment': 1,
             '@typescript-eslint/no-unsafe-function-type': 1,
             '@typescript-eslint/no-unsafe-argument': 1,
-            '@typescript-eslint/no-empty-object-type': 1,
             '@typescript-eslint/ban-ts-comment': 1,
             '@typescript-eslint/require-await': 1,
             '@typescript-eslint/no-this-alias': 1,
