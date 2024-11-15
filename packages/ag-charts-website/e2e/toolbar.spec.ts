@@ -100,7 +100,7 @@ test.describe('toolbar', () => {
         await expect(page).toHaveScreenshot('text-10-deleted.png', { animations: 'disabled' });
     });
 
-    test('callout', async ({ page }) => {
+    test.only('callout', async ({ page }) => {
         await gotoExample(page, url);
 
         await page.locator('[data-toolbar-group="annotations"][data-toolbar-id="text-menu"]').click();
@@ -120,8 +120,8 @@ test.describe('toolbar', () => {
         await page.keyboard.down('Enter');
         await expect(page).toHaveScreenshot('callout-4-save.png', { animations: 'disabled' });
 
-        await page.hover(SELECTORS.canvas, { position: { x: 260, y: 140 } });
-        await page.click(SELECTORS.canvas, { position: { x: 260, y: 140 } });
+        await page.hover(SELECTORS.canvas, { position: { x: 270, y: 140 } });
+        await page.click(SELECTORS.canvas, { position: { x: 270, y: 140 } });
         await page.locator('[data-toolbar-id="fill-color"]').click();
         await expect(page).toHaveScreenshot('callout-5-fill-color-popover.png', { animations: 'disabled' });
 
