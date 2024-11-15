@@ -71,7 +71,7 @@ export function debugStats(
         .filter((v) => v != null)
         .join(' + ');
     const extras = Object.entries(extraDebugStats)
-        .map(([k, v]) => `${k}: ${v}`)
+        .map(([k, v]) => `${k}: ${JSON.stringify(v)}`)
         .join(' ; ');
 
     const detailedStats = Debug.check(DebugSelectors.SCENE_STATS_VERBOSE);

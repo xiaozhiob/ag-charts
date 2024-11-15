@@ -583,7 +583,7 @@ export class ChartOptions<T extends AgChartOptions = AgChartOptions> {
                 return true;
             }
             Logger.warnOnce(
-                `unknown series type: ${type}; expected one of: ${publicChartTypes.seriesTypes.join(', ')}`
+                `unknown series type: ${JSON.stringify(type)}; expected one of: ${publicChartTypes.seriesTypes.join(', ')}`
             );
         }) as T['series'];
     }
