@@ -409,7 +409,8 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
             const yFilterValue = yFilterValues != null ? Number(yFilterValues[datumIndex]) : undefined;
             const yEnd = Number(yEndValues[datumIndex]);
             const isPositive = yRawValue >= 0 && !Object.is(yRawValue, -0);
-            const yRange = yRanges != null ? yRanges[isPositive ? 1 : 0] : yEnd;
+            const yRangeIndex = isPositive ? 1 : 0;
+            const yRange = yRanges != null ? yRanges[yRangeIndex] : yEnd;
 
             if (!Number.isFinite(yEnd)) return;
             if (yFilterValue != null && !Number.isFinite(yFilterValue)) return;

@@ -3,6 +3,7 @@ import * as resetMotion from './motion/resetMotion';
 
 export * from './util/angle';
 export * from './util/array';
+export * from './util/date';
 export * from './util/default';
 export { extractDecoratedProperties, isDecoratedObject, listDecoratedProperties } from './util/decorator';
 export * from './util/dom';
