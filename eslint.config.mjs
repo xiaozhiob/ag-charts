@@ -35,7 +35,7 @@ export const testDefaults = {
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
-    { files: ['**/*.{js,mjs,cjs,ts}'] },
+    { files: ['**/*.{js,mjs,cjs,ts}'], linterOptions: { reportUnusedDisableDirectives: 'error' } },
     {
         ignores: [
             '**/node_modules',
@@ -97,6 +97,7 @@ export default [
             '@typescript-eslint/prefer-ts-expect-error': 1,
             '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
             '@typescript-eslint/no-for-in-array': 2,
+            'sonarjs/no-empty-function': 2,
             // Show this warning in IDE and PRs, but not when running at command line (to reduce clutter).
             'sonarjs/cognitive-complexity': env !== 'nx-task' ? 1 : 0,
             'sonarjs/no-duplicate-string': env !== 'nx-task' ? 1 : 0,
@@ -119,7 +120,6 @@ export default [
             '@typescript-eslint/require-await': 1,
             '@typescript-eslint/no-this-alias': 1,
             'sonarjs/public-static-readonly': 1,
-            'sonarjs/no-empty-function': 1,
             'sonarjs/no-redeclare': 1,
             'sonarjs/no-base-to-string': 0,
             'sonarjs/new-cap': 1,
