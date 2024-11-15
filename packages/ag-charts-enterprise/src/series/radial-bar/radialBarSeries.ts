@@ -394,28 +394,27 @@ export class RadialBarSeries extends _ModuleSupport.PolarSeries<
         } = mergeDefaults(highlighted ? this.properties.highlightStyle.item : null, this.properties);
         const { itemStyler } = this.properties;
 
+        const formatType = highlighted ? 'highlight' : 'node';
         selection
             .update(selectionData, undefined, (datum) => this.getDatumId(datum))
             .each((node, datum) => {
                 const format = itemStyler
-                    ? this.cachedDatumCallback(
-                          createDatumId(this.getDatumId(datum), highlighted ? 'highlight' : 'node'),
-                          () =>
-                              itemStyler({
-                                  seriesId: this.id,
-                                  datum: datum.datum,
-                                  highlighted,
-                                  angleKey,
-                                  radiusKey,
-                                  fill,
-                                  fillOpacity,
-                                  stroke,
-                                  strokeWidth,
-                                  strokeOpacity,
-                                  lineDash,
-                                  lineDashOffset,
-                                  cornerRadius,
-                              })
+                    ? this.cachedDatumCallback(createDatumId(this.getDatumId(datum), formatType), () =>
+                          itemStyler({
+                              seriesId: this.id,
+                              datum: datum.datum,
+                              highlighted,
+                              angleKey,
+                              radiusKey,
+                              fill,
+                              fillOpacity,
+                              stroke,
+                              strokeWidth,
+                              strokeOpacity,
+                              lineDash,
+                              lineDashOffset,
+                              cornerRadius,
+                          })
                       )
                     : undefined;
 

@@ -423,29 +423,28 @@ export abstract class RadialColumnSeriesBase<
             radiusKey,
         } = mergeDefaults(highlighted ? this.properties.highlightStyle.item : null, this.properties);
         const { itemStyler } = this.properties;
+        const formatType = highlighted ? 'highlight' : 'node';
 
         selection
             .update(selectionData, undefined, (datum) => this.getDatumId(datum))
             .each((node, datum) => {
                 const format = itemStyler
-                    ? this.cachedDatumCallback(
-                          createDatumId(this.getDatumId(datum), highlighted ? 'highlight' : 'node'),
-                          () =>
-                              itemStyler({
-                                  datum: datum.datum,
-                                  fill,
-                                  fillOpacity,
-                                  stroke,
-                                  strokeWidth,
-                                  strokeOpacity,
-                                  lineDash,
-                                  lineDashOffset,
-                                  cornerRadius,
-                                  highlighted,
-                                  angleKey,
-                                  radiusKey,
-                                  seriesId: this.id,
-                              })
+                    ? this.cachedDatumCallback(createDatumId(this.getDatumId(datum), formatType), () =>
+                          itemStyler({
+                              datum: datum.datum,
+                              fill,
+                              fillOpacity,
+                              stroke,
+                              strokeWidth,
+                              strokeOpacity,
+                              lineDash,
+                              lineDashOffset,
+                              cornerRadius,
+                              highlighted,
+                              angleKey,
+                              radiusKey,
+                              seriesId: this.id,
+                          })
                       )
                     : undefined;
 

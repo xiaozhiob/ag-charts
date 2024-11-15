@@ -243,7 +243,7 @@ export abstract class Series<
     protected _data?: any[];
     protected _chartData?: any[];
 
-    private readonly datumCallbackCache = new Map<string, any>();
+    private readonly datumCallbackCache = new Map<any, any>();
 
     get data() {
         return this._data ?? this._chartData;
@@ -792,9 +792,9 @@ export abstract class Series<
         this.datumCallbackCache.clear();
     }
 
-    public cachedDatumCallback<T>(id: string, fn: () => T): T {
+    public cachedDatumCallback<T>(id: any, fn: () => T): T {
         const { datumCallbackCache } = this;
-        const existing = datumCallbackCache.get(id);
+        const existing = datumCallbackCache.get(id) as T;
         if (existing != null) return existing;
 
         const value = fn();

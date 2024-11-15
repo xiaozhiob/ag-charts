@@ -124,6 +124,7 @@ describe('Chart Heap Memory', () => {
             expect(heapProportionChange).toBeLessThan(0.15);
         }, 20_000);
 
+        // Reason: Need to add --expose-gc to node instance, couldn't figure out how to do it yet...
         it.skip('should free modules from memory', async () => {
             let chartProxy: AgChartProxy | null = (await createChart({})).chartProxy;
 

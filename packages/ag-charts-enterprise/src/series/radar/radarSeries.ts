@@ -324,6 +324,7 @@ export abstract class RadarSeries extends _ModuleSupport.PolarSeries<
             }
         }
         const highlightedStyle = highlight ? this.properties.highlightStyle.item : undefined;
+        const formatType = highlight ? 'highlight' : 'node';
         selection.update(selectionData).each((node, datum, index) => {
             const fill = this.getMarkerFill(highlightedStyle);
             const fillOpacity = highlightedStyle?.fillOpacity ?? this.properties.marker.fillOpacity;
@@ -331,7 +332,7 @@ export abstract class RadarSeries extends _ModuleSupport.PolarSeries<
             const strokeWidth = highlightedStyle?.strokeWidth ?? marker.strokeWidth ?? this.properties.strokeWidth ?? 1;
             const strokeOpacity = highlightedStyle?.strokeOpacity ?? this.properties.marker.strokeOpacity;
             const format = itemStyler
-                ? this.cachedDatumCallback(createDatumId(index, highlight ? 'highlight' : 'node'), () =>
+                ? this.cachedDatumCallback(createDatumId(index, formatType), () =>
                       itemStyler({
                           datum: datum.datum,
                           angleKey,
