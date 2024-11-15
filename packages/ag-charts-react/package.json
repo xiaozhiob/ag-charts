@@ -38,7 +38,6 @@
     "ag-charts-community": "10.3.3-beta.20241113",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "eslint-plugin-react-hooks": "^4.6.2",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "tslib": "^1.10.0",

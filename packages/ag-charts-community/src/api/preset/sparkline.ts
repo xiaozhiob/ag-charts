@@ -326,21 +326,17 @@ export function sparkline(opts: AgSparklineOptions): AgCartesianChartOptions {
     const swapAxes = seriesOptions.type !== 'bar' || seriesOptions.direction !== 'horizontal';
     const [xAxisPosition, yAxisPosition] = swapAxes ? (['bottom', 'left'] as const) : (['left', 'bottom'] as const);
 
-    const xAxis: AgCartesianAxisOptions = Object.assign(
-        {
-            ...axisPreset(axis, 'category'),
-            position: xAxisPosition,
-        },
-        pickProps<Pick<AgCartesianAxisOptions, 'crosshair'>>(opts, { crosshair })
-    );
-    const yAxis: AgCartesianAxisOptions = Object.assign(
-        {
-            type: 'number',
-            gridLine: gridLinePreset(axis, false),
-            position: yAxisPosition,
-        },
-        pickProps<Pick<AgNumberAxisOptions, 'min' | 'max'>>(opts, { min, max })
-    );
+    const xAxis: AgCartesianAxisOptions = {
+        ...axisPreset(axis, 'category'),
+        position: xAxisPosition,
+        ...pickProps<Pick<AgCartesianAxisOptions, 'crosshair'>>(opts, { crosshair }),
+    };
+    const yAxis: AgCartesianAxisOptions = {
+        type: 'number',
+        gridLine: gridLinePreset(axis, false),
+        position: yAxisPosition,
+        ...pickProps<Pick<AgNumberAxisOptions, 'min' | 'max'>>(opts, { min, max }),
+    };
 
     chartOpts.axes = swapAxes ? [yAxis, xAxis] : [xAxis, yAxis];
 

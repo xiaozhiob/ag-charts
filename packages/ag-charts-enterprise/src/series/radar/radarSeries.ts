@@ -105,15 +105,6 @@ export abstract class RadarSeries extends _ModuleSupport.PolarSeries<
         return true;
     }
 
-    override addChartEventListeners(): void {
-        this.destroyFns.push(
-            this.ctx.chartEventManager?.addListener('legend-item-click', (event) => this.onLegendItemClick(event)),
-            this.ctx.chartEventManager?.addListener('legend-item-double-click', (event) =>
-                this.onLegendItemDoubleClick(event)
-            )
-        );
-    }
-
     override getSeriesDomain(direction: _ModuleSupport.ChartAxisDirection): any[] {
         const { dataModel, processedData } = this;
         if (!processedData || !dataModel) return [];
@@ -455,20 +446,26 @@ export abstract class RadarSeries extends _ModuleSupport.PolarSeries<
     }
 
     getLegendData(legendType: _ModuleSupport.ChartLegendType): _ModuleSupport.CategoryLegendDatum[] {
-        if (!this.data?.length || !this.properties.isValid() || legendType !== 'category') {
+        if (!this.properties.isValid() || legendType !== 'category') {
             return [];
         }
 
-        const { radiusKey, radiusName, stroke, strokeWidth, strokeOpacity, lineDash, visible, marker } =
+        const {
+            id: seriesId,
+            ctx: { legendManager },
+            visible,
+        } = this;
+
+        const { radiusKey, radiusName, stroke, strokeWidth, strokeOpacity, lineDash, marker, showInLegend } =
             this.properties;
 
         return [
             {
                 legendType: 'category',
-                id: this.id,
+                id: seriesId,
                 itemId: radiusKey,
-                seriesId: this.id,
-                enabled: visible,
+                seriesId,
+                enabled: visible && legendManager.getItemEnabled({ seriesId, itemId: radiusKey }),
                 label: {
                     text: radiusName ?? radiusKey,
                 },
@@ -491,25 +488,9 @@ export abstract class RadarSeries extends _ModuleSupport.PolarSeries<
                         },
                     },
                 ],
+                hideInLegend: !showInLegend,
             },
         ];
-    }
-
-    onLegendItemClick(event: _ModuleSupport.LegendItemClickChartEvent) {
-        const { enabled, itemId, series } = event;
-
-        if (series.id === this.id) {
-            this.toggleSeriesItem(itemId, enabled);
-        }
-    }
-
-    onLegendItemDoubleClick(event: _ModuleSupport.LegendItemDoubleClickChartEvent) {
-        const { enabled, itemId, series, numVisibleItems } = event;
-
-        const wasClicked = series.id === this.id;
-        const newEnabled = wasClicked || (enabled && numVisibleItems === 1);
-
-        this.toggleSeriesItem(itemId, newEnabled);
     }
 
     protected override pickNodeClosestDatum(
@@ -572,11 +553,12 @@ export abstract class RadarSeries extends _ModuleSupport.PolarSeries<
     }
 
     protected getLineNode() {
-        return this.lineSelection?.at(0)!;
+        return this.lineSelection?.at(0);
     }
 
     protected beforePathAnimation() {
         const lineNode = this.getLineNode();
+        if (!lineNode) return;
 
         lineNode.fill = undefined;
         lineNode.lineJoin = 'round';
@@ -674,7 +656,9 @@ export abstract class RadarSeries extends _ModuleSupport.PolarSeries<
 
     protected animatePaths(ratio: number) {
         const linePoints = this.getLinePoints();
-        this.animateSinglePath(this.getLineNode(), linePoints, ratio);
+        const lineNode = this.getLineNode();
+        if (!lineNode) return;
+        this.animateSinglePath(lineNode, linePoints, ratio);
     }
 
     override animateEmptyUpdateReady() {

@@ -585,19 +585,21 @@ export abstract class RadialColumnSeriesBase<
     }
 
     getLegendData(legendType: _ModuleSupport.ChartLegendType): _ModuleSupport.CategoryLegendDatum[] {
-        if (!this.data?.length || !this.properties.isValid() || legendType !== 'category') {
+        if (!this.properties.isValid() || legendType !== 'category') {
             return [];
         }
 
-        const { radiusKey, radiusName, fill, stroke, fillOpacity, strokeOpacity, strokeWidth, visible } =
+        const { id: seriesId, visible } = this;
+
+        const { radiusKey, radiusName, fill, stroke, fillOpacity, strokeOpacity, strokeWidth, showInLegend } =
             this.properties;
 
         return [
             {
                 legendType: 'category',
-                id: this.id,
+                id: seriesId,
                 itemId: radiusKey,
-                seriesId: this.id,
+                seriesId,
                 enabled: visible,
                 label: {
                     text: radiusName ?? radiusKey,
@@ -613,29 +615,13 @@ export abstract class RadialColumnSeriesBase<
                         },
                     },
                 ],
+                hideInLegend: !showInLegend,
             },
         ];
     }
 
     private getDatumId(datum: RadialColumnNodeDatum) {
         return createDatumId(datum.angleValue);
-    }
-
-    onLegendItemClick(event: _ModuleSupport.LegendItemClickChartEvent) {
-        const { enabled, itemId, series } = event;
-
-        if (series.id === this.id) {
-            this.toggleSeriesItem(itemId, enabled);
-        }
-    }
-
-    onLegendItemDoubleClick(event: _ModuleSupport.LegendItemDoubleClickChartEvent) {
-        const { enabled, itemId, series, numVisibleItems } = event;
-
-        const wasClicked = series.id === this.id;
-        const newEnabled = wasClicked || (enabled && numVisibleItems === 1);
-
-        this.toggleSeriesItem(itemId, newEnabled);
     }
 
     override computeLabelsBBox() {

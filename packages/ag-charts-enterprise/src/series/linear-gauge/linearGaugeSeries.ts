@@ -1084,9 +1084,7 @@ export class LinearGaugeSeries
         return [NaN, NaN];
     }
 
-    override getLegendData():
-        | _ModuleSupport.ChartLegendDatum<any>[]
-        | _ModuleSupport.ChartLegendDatum<_ModuleSupport.ChartLegendType>[] {
+    override getLegendData(): _ModuleSupport.ChartLegendDatum<any>[] {
         return [];
     }
 

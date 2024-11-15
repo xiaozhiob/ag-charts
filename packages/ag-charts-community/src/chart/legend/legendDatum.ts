@@ -1,6 +1,6 @@
 import type { AgChartLegendListeners, AgMarkerShape } from 'ag-charts-types';
 
-import type { Scene } from '../scene/scene';
+import type { Scene } from '../../scene/scene';
 
 export interface ChartLegend {
     attachLegend(scene: Scene): void;
@@ -24,6 +24,7 @@ export interface BaseChartLegendDatum {
     legendType: ChartLegendType;
     seriesId: string;
     enabled: boolean;
+    hideInLegend?: boolean;
 }
 
 export interface LegendSymbolOptions {

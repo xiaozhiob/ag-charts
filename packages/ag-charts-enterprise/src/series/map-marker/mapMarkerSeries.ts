@@ -5,6 +5,7 @@ import { geometryBbox, projectGeometry } from '../map-util/geometryUtil';
 import { prepareMapMarkerAnimationFunctions } from '../map-util/mapUtil';
 import { MapZIndexMap } from '../map-util/mapZIndexMap';
 import { markerPositions } from '../map-util/markerUtil';
+import { TopologySeries } from '../map-util/topologySeries';
 import { GEOJSON_OBJECT } from '../map-util/validation';
 import {
     type MapMarkerNodeDatum,
@@ -19,7 +20,6 @@ const {
     StateMachine,
     getMissCount,
     createDatumId,
-    DataModelSeries,
     SeriesNodePickMode,
     valueProperty,
     computeMarkerFocusBounds,
@@ -48,13 +48,13 @@ type MapMarkerAnimationEvent = {
 };
 
 export class MapMarkerSeries
-    extends DataModelSeries<
+    extends TopologySeries<
         MapMarkerNodeDatum,
         MapMarkerSeriesProperties,
         MapMarkerNodeLabelDatum,
         MapMarkerNodeDataContext
     >
-    implements _ModuleSupport.TopologySeries
+    implements _ModuleSupport.ITopology
 {
     static readonly className = 'MapMarkerSeries';
     static readonly type = 'map-marker' as const;
@@ -171,17 +171,6 @@ export class MapMarkerSeries
         this.highlightGroup.zIndex = [MapZIndexMap.MarkerHighlight, index];
 
         return true;
-    }
-
-    override addChartEventListeners(): void {
-        this.destroyFns.push(
-            this.ctx.chartEventManager.addListener('legend-item-click', (event) => {
-                this.onLegendItemClick(event);
-            }),
-            this.ctx.chartEventManager.addListener('legend-item-double-click', (event) => {
-                this.onLegendItemDoubleClick(event);
-            })
-        );
     }
 
     private isLabelEnabled() {
@@ -606,33 +595,6 @@ export class MapMarkerSeries
         });
     }
 
-    onLegendItemClick(event: _ModuleSupport.LegendItemClickChartEvent) {
-        const { legendItemName } = this.properties;
-        const { enabled, itemId, series } = event;
-
-        const matchedLegendItemName = legendItemName != null && legendItemName === event.legendItemName;
-        if (series.id === this.id || matchedLegendItemName) {
-            this.toggleSeriesItem(itemId, enabled);
-        }
-    }
-
-    onLegendItemDoubleClick(event: _ModuleSupport.LegendItemDoubleClickChartEvent) {
-        const { enabled, itemId, series, numVisibleItems } = event;
-        const { legendItemName } = this.properties;
-
-        const matchedLegendItemName = legendItemName != null && legendItemName === event.legendItemName;
-        if (series.id === this.id || matchedLegendItemName) {
-            // Double-clicked item should always become visible.
-            this.toggleSeriesItem(itemId, true);
-        } else if (enabled && numVisibleItems === 1) {
-            // Other items should become visible if there is only one existing visible item.
-            this.toggleSeriesItem(itemId, true);
-        } else {
-            // Disable other items if not exactly one enabled.
-            this.toggleSeriesItem(itemId, false);
-        }
-    }
-
     override isProcessedDataAnimatable() {
         return true;
     }
@@ -694,6 +656,9 @@ export class MapMarkerSeries
     ): _ModuleSupport.CategoryLegendDatum[] | _ModuleSupport.GradientLegendDatum[] {
         const { processedData, dataModel } = this;
         if (processedData == null || dataModel == null) return [];
+
+        const { id: seriesId, visible } = this;
+
         const {
             title,
             legendItemName,
@@ -702,13 +667,13 @@ export class MapMarkerSeries
             colorKey,
             colorName,
             colorRange,
-            visible,
             shape,
             fill,
             stroke,
             fillOpacity,
             strokeOpacity,
             strokeWidth,
+            showInLegend,
         } = this.properties;
 
         if (legendType === 'gradient' && colorKey != null && colorRange != null) {
@@ -717,7 +682,7 @@ export class MapMarkerSeries
             const legendDatum: _ModuleSupport.GradientLegendDatum = {
                 legendType: 'gradient',
                 enabled: visible,
-                seriesId: this.id,
+                seriesId,
                 colorName,
                 colorRange,
                 colorDomain,
@@ -726,11 +691,11 @@ export class MapMarkerSeries
         } else if (legendType === 'category') {
             const legendDatum: _ModuleSupport.CategoryLegendDatum = {
                 legendType: 'category',
-                id: this.id,
-                itemId: legendItemName ?? title ?? idName ?? idKey ?? this.id,
-                seriesId: this.id,
+                id: seriesId,
+                itemId: seriesId,
+                seriesId,
                 enabled: visible,
-                label: { text: legendItemName ?? title ?? idName ?? idKey ?? this.id },
+                label: { text: legendItemName ?? title ?? idName ?? idKey ?? seriesId },
                 symbols: [
                     {
                         marker: {
@@ -744,6 +709,7 @@ export class MapMarkerSeries
                     },
                 ],
                 legendItemName,
+                hideInLegend: !showInLegend,
             };
             return [legendDatum];
         } else {

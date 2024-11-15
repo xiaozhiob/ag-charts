@@ -210,7 +210,7 @@ export function createAutomatedRowGrouping({
             startWorkerMessages();
         };
         gridOptions.onFirstDataRendered = (params) => {
-            onDataReady && onDataReady();
+            onDataReady?.();
             scriptDebugger = scriptDebuggerManager.add({
                 id: ROW_GROUPING_ID,
                 containerEl: gridDiv,
@@ -237,7 +237,7 @@ export function createAutomatedRowGrouping({
                         stopWorkerMessages();
                     }
 
-                    onStateChange && onStateChange(state);
+                    onStateChange?.(state);
                 },
                 tweenGroup,
                 gridApi: params.api,

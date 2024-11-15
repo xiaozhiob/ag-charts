@@ -242,7 +242,7 @@ export class CandlestickSeries extends OhlcSeriesBase<CandlestickNode, Candlesti
             visible,
         } = this.properties;
 
-        if (!showInLegend || !data?.length || !xKey || legendType !== 'category') {
+        if (!data?.length || !xKey || legendType !== 'category') {
             return [];
         }
 
@@ -278,6 +278,7 @@ export class CandlestickSeries extends OhlcSeriesBase<CandlestickNode, Candlesti
                     },
                 ],
                 legendItemName,
+                hideInLegend: !showInLegend,
             },
         ];
     }

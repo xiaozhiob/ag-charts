@@ -31,10 +31,6 @@ export interface AgBarSeriesItemStylerParams<TDatum>
     xValue: any;
     /** The y value of the datum. */
     yValue: any;
-    /** The range of the x values of the data. */
-    xDomain: any[];
-    /** The range of the y values of the data. */
-    yDomain: any[];
     /** Whether the item's x value is the first in the data domain. */
     first: boolean;
     /** Whether the item's x value is the last in the data domain. */

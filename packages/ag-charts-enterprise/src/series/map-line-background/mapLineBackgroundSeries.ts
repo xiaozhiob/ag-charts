@@ -3,25 +3,25 @@ import { _ModuleSupport } from 'ag-charts-community';
 import { GeoGeometry, GeoGeometryRenderMode } from '../map-util/geoGeometry';
 import { geometryBbox, projectGeometry } from '../map-util/geometryUtil';
 import { MapZIndexMap } from '../map-util/mapZIndexMap';
+import { TopologySeries } from '../map-util/topologySeries';
 import { GEOJSON_OBJECT } from '../map-util/validation';
 import {
     type MapLineBackgroundNodeDatum,
     MapLineBackgroundSeriesProperties,
 } from './mapLineBackgroundSeriesProperties';
 
-const { createDatumId, DataModelSeries, SeriesNodePickMode, Validate, Logger, Group, Selection, PointerEvents } =
-    _ModuleSupport;
+const { createDatumId, SeriesNodePickMode, Validate, Logger, Group, Selection, PointerEvents } = _ModuleSupport;
 
 export interface MapLineNodeDataContext extends _ModuleSupport.SeriesNodeDataContext<MapLineBackgroundNodeDatum> {}
 
 export class MapLineBackgroundSeries
-    extends DataModelSeries<
+    extends TopologySeries<
         MapLineBackgroundNodeDatum,
         MapLineBackgroundSeriesProperties,
         MapLineBackgroundNodeDatum,
         MapLineNodeDataContext
     >
-    implements _ModuleSupport.TopologySeries
+    implements _ModuleSupport.ITopology
 {
     static readonly className = 'MapLineBackgroundSeries';
     static readonly type = 'map-line-background' as const;

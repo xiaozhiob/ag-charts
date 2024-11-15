@@ -419,7 +419,7 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
         });
 
         const connectorLinesEnabled = this.properties.line.enabled;
-        if (yCurrValues !== undefined && connectorLinesEnabled) {
+        if (yCurrValues != null && connectorLinesEnabled) {
             context.pointData = pointData;
         }
 
@@ -675,6 +675,8 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
         const legendData: _ModuleSupport.CategoryLegendDatum[] = [];
         const capitalise = (text: string) => text.charAt(0).toUpperCase() + text.substring(1);
 
+        const { showInLegend } = this.properties;
+
         seriesItemTypes.forEach((item) => {
             const { fill, stroke, fillOpacity, strokeOpacity, strokeWidth, name } = this.getItemConfig(item);
             legendData.push({
@@ -685,6 +687,7 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
                 enabled: true,
                 label: { text: name ?? capitalise(item) },
                 symbols: [{ marker: { fill, stroke, fillOpacity, strokeOpacity, strokeWidth } }],
+                hideInLegend: !showInLegend,
             });
         });
 
