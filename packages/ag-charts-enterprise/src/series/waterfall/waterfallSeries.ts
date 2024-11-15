@@ -14,6 +14,7 @@ const {
     trailingAccumulatedValueProperty,
     ChartAxisDirection,
     getRectConfig,
+    createDatumId,
     updateRect,
     checkCrisp,
     updateLabelNode,
@@ -547,7 +548,7 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
             };
             const visible = categoryAlongX ? datum.width > 0 : datum.height > 0;
 
-            const config = getRectConfig({
+            const config = getRectConfig(this, createDatumId(datum.index, 'node'), {
                 datum,
                 isHighlighted: isHighlight,
                 style,
@@ -601,7 +602,7 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
 
         const { id: seriesId } = this;
         const { xKey, yKey, xName, yName, tooltip } = this.properties;
-        const { datum, itemId, xValue, yValue } = nodeDatum;
+        const { index, datum, itemId, xValue, yValue } = nodeDatum;
         const {
             fill,
             fillOpacity,
@@ -618,22 +619,24 @@ export class WaterfallSeries extends _ModuleSupport.AbstractBarSeries<
         let format;
 
         if (itemStyler) {
-            format = this.ctx.callbackCache.call(itemStyler, {
-                datum,
-                xKey,
-                yKey,
-                fill,
-                fillOpacity,
-                stroke,
-                strokeWidth,
-                strokeOpacity,
-                lineDash,
-                lineDashOffset,
-                cornerRadius,
-                highlighted: false,
-                seriesId,
-                itemId: nodeDatum.itemId,
-            });
+            format = this.cachedDatumCallback(createDatumId(index, 'tooltip'), () =>
+                itemStyler({
+                    datum,
+                    xKey,
+                    yKey,
+                    fill,
+                    fillOpacity,
+                    stroke,
+                    strokeWidth,
+                    strokeOpacity,
+                    lineDash,
+                    lineDashOffset,
+                    cornerRadius,
+                    highlighted: false,
+                    seriesId,
+                    itemId: nodeDatum.itemId,
+                })
+            );
         }
 
         const color = format?.fill ?? fill ?? 'gray';

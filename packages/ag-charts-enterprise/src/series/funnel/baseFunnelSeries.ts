@@ -22,6 +22,7 @@ const {
     animationValidation,
     computeBarFocusBounds,
     sanitizeHtml,
+    createDatumId,
     ContinuousScale,
     Group,
     Selection,
@@ -512,10 +513,7 @@ export abstract class BaseFunnelSeries<
     }
 
     getTooltipHtml(nodeDatum: FunnelNodeDatum): _ModuleSupport.TooltipContent {
-        const {
-            id: seriesId,
-            ctx: { callbackCache },
-        } = this;
+        const { id: seriesId } = this;
 
         const xAxis = this.getCategoryAxis();
         const yAxis = this.getValueAxis();
@@ -530,20 +528,22 @@ export abstract class BaseFunnelSeries<
 
         let format;
         if (itemStyler) {
-            format = callbackCache.call(itemStyler, {
-                highlighted: false,
-                seriesId,
-                datum,
-                stageKey,
-                valueKey,
-                fill,
-                fillOpacity,
-                stroke,
-                strokeWidth,
-                strokeOpacity,
-                lineDash,
-                lineDashOffset,
-            });
+            format = this.cachedDatumCallback(createDatumId(datum.index, 'tooltip'), () =>
+                itemStyler({
+                    highlighted: false,
+                    seriesId,
+                    datum,
+                    stageKey,
+                    valueKey,
+                    fill,
+                    fillOpacity,
+                    stroke,
+                    strokeWidth,
+                    strokeOpacity,
+                    lineDash,
+                    lineDashOffset,
+                })
+            );
         }
 
         const color = format?.fill ?? fill ?? 'gray';

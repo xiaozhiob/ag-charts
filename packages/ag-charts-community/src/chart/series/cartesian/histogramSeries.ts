@@ -221,12 +221,7 @@ export class HistogramSeries extends CartesianSeries<Rect, HistogramSeriesProper
     }
 
     async createNodeData() {
-        const {
-            id: seriesId,
-            axes,
-            processedData,
-            ctx: { callbackCache },
-        } = this;
+        const { id: seriesId, axes, processedData } = this;
 
         const xAxis = axes[ChartAxisDirection.X];
         const yAxis = axes[ChartAxisDirection.Y];
@@ -259,7 +254,7 @@ export class HistogramSeries extends CartesianSeries<Rect, HistogramSeriesProper
         }
 
         const { rawData } = processedData;
-        processedData.groups.forEach(({ keys, datumIndices, aggregation }) => {
+        processedData.groups.forEach(({ keys, datumIndices, aggregation }, groupIndex) => {
             const [[negativeAgg, positiveAgg] = [0, 0]] = aggregation;
             const frequency = datumIndices.length;
             const domain = keys;
@@ -285,15 +280,17 @@ export class HistogramSeries extends CartesianSeries<Rect, HistogramSeriesProper
                     x: x + w / 2,
                     y: y + h / 2,
                     text:
-                        callbackCache.call(labelFormatter, {
-                            value: total,
-                            datum,
-                            seriesId,
-                            xKey,
-                            yKey,
-                            xName,
-                            yName,
-                        }) ?? String(total),
+                        this.cachedDatumCallback(createDatumId(groupIndex, 'label'), () =>
+                            labelFormatter({
+                                value: total,
+                                datum,
+                                seriesId,
+                                xKey,
+                                yKey,
+                                xName,
+                                yName,
+                            })
+                        ) ?? String(total),
                 };
             }
 

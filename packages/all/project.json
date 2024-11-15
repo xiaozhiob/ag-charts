@@ -124,6 +124,11 @@
       }
     },
     "clean": { "cache": false, "command": "rimraf dist/ 'packages/*/dist/'" },
+    "nuke": {
+      "cache": false,
+      "dependsOn": ["clean"],
+      "command": "./tools/nuke.sh"
+    },
     "benchmark": {
       "dependsOn": ["ag-charts-community:benchmark"],
       "cache": false,

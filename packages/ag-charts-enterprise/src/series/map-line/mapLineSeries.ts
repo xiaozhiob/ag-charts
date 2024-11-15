@@ -371,11 +371,7 @@ export class MapLineSeries extends TopologySeries<
         datumSelection: _ModuleSupport.Selection<GeoGeometry, MapLineNodeDatum>;
         isHighlight: boolean;
     }) {
-        const {
-            id: seriesId,
-            properties,
-            ctx: { callbackCache },
-        } = this;
+        const { id: seriesId, properties } = this;
         const { datumSelection, isHighlight } = opts;
         const { idKey, labelKey, sizeKey, colorKey, stroke, strokeOpacity, lineDash, lineDashOffset, itemStyler } =
             properties;
@@ -392,20 +388,24 @@ export class MapLineSeries extends TopologySeries<
 
             let format: AgMapLineSeriesStyle | undefined;
             if (itemStyler != null) {
-                format = callbackCache.call(itemStyler, {
-                    seriesId,
-                    datum: datum.datum,
-                    idKey,
-                    labelKey,
-                    sizeKey,
-                    colorKey,
-                    strokeOpacity,
-                    stroke,
-                    strokeWidth,
-                    lineDash,
-                    lineDashOffset,
-                    highlighted: isHighlight,
-                });
+                format = this.cachedDatumCallback(
+                    createDatumId(datum.idValue, isHighlight ? 'highlight' : 'node'),
+                    () =>
+                        itemStyler({
+                            seriesId,
+                            datum: datum.datum,
+                            idKey,
+                            labelKey,
+                            sizeKey,
+                            colorKey,
+                            strokeOpacity,
+                            stroke,
+                            strokeWidth,
+                            lineDash,
+                            lineDashOffset,
+                            highlighted: isHighlight,
+                        })
+                );
             }
 
             geoGeometry.visible = true;
@@ -572,12 +572,7 @@ export class MapLineSeries extends TopologySeries<
     }
 
     override getTooltipHtml(nodeDatum: MapLineNodeDatum): _ModuleSupport.TooltipContent {
-        const {
-            id: seriesId,
-            processedData,
-            properties,
-            ctx: { callbackCache },
-        } = this;
+        const { id: seriesId, processedData, properties } = this;
 
         if (!processedData || !properties.isValid()) {
             return _ModuleSupport.EMPTY_TOOLTIP_CONTENT;
@@ -618,20 +613,22 @@ export class MapLineSeries extends TopologySeries<
         let format: AgMapLineSeriesStyle | undefined;
 
         if (itemStyler) {
-            format = callbackCache.call(itemStyler, {
-                highlighted: false,
-                seriesId,
-                datum,
-                idKey,
-                sizeKey,
-                colorKey,
-                labelKey,
-                stroke: stroke!,
-                strokeWidth: this.getStrokeWidth(nodeDatum.strokeWidth ?? properties.strokeWidth),
-                strokeOpacity,
-                lineDash,
-                lineDashOffset,
-            });
+            format = this.cachedDatumCallback(createDatumId(datum.idValue, 'tooltip'), () =>
+                itemStyler({
+                    highlighted: false,
+                    seriesId,
+                    datum,
+                    idKey,
+                    sizeKey,
+                    colorKey,
+                    labelKey,
+                    stroke: stroke!,
+                    strokeWidth: this.getStrokeWidth(nodeDatum.strokeWidth ?? properties.strokeWidth),
+                    strokeOpacity,
+                    lineDash,
+                    lineDashOffset,
+                })
+            );
         }
 
         const color = format?.stroke ?? stroke ?? properties.stroke;

@@ -476,6 +476,8 @@ function valueIndices(id: string, previousData: ProcessedData<any>, processedDat
     let previousIndicesIndex = 0;
     const nextValues = processedData.defs.values;
     for (let i = 0; i < nextValues.length; i += 1) {
+        if (previousIndicesIndex >= prevIndices.length) return;
+
         const value = nextValues[i];
         if (value.scopes?.includes(id) !== true) continue;
 
@@ -611,7 +613,7 @@ export function diff(
 }
 
 type KeyType = string | number | boolean | object;
-export function createDatumId(keys: KeyType | KeyType[], ...extraKeys: (string | number | boolean)[]) {
+export function createDatumId(keys: KeyType | KeyType[], ...extraKeys: (string | number | boolean)[]): any {
     let result;
     if (isArray(keys)) {
         result = keys.map((key) => transformIntegratedCategoryValue(key)).join('___');

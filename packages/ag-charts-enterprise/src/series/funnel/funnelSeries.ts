@@ -140,7 +140,7 @@ export class FunnelSeries extends BaseFunnelSeries<_ModuleSupport.Rect> {
             };
             const visible = categoryAlongX ? datum.width > 0 : datum.height > 0;
 
-            const config = getRectConfig({
+            const config = getRectConfig(this, datum.itemId, {
                 datum,
                 isHighlighted: isHighlight,
                 style,

@@ -4,8 +4,16 @@ import type { AgSunburstSeriesStyle, AgTooltipRendererResult } from 'ag-charts-t
 import { formatLabels } from '../util/labelFormatter';
 import { SunburstSeriesProperties } from './sunburstSeriesProperties';
 
-const { fromToMotion, sanitizeHtml, normalizeAngle360, Sector, ScalableGroup, Selection, TransformableText } =
-    _ModuleSupport;
+const {
+    fromToMotion,
+    sanitizeHtml,
+    normalizeAngle360,
+    createDatumId,
+    Sector,
+    ScalableGroup,
+    Selection,
+    TransformableText,
+} = _ModuleSupport;
 
 interface LabelData {
     label: string | undefined;
@@ -450,7 +458,6 @@ export class SunburstSeries extends _ModuleSupport.HierarchySeries<
     ): AgSunburstSeriesStyle | undefined {
         const { datum, fill, stroke, depth } = node;
         const {
-            ctx: { callbackCache },
             properties: { itemStyler },
         } = this;
 
@@ -461,22 +468,26 @@ export class SunburstSeries extends _ModuleSupport.HierarchySeries<
         const { colorKey, childrenKey, labelKey, secondaryLabelKey, sizeKey, strokeWidth, fillOpacity, strokeOpacity } =
             this.properties;
 
-        return callbackCache.call(itemStyler, {
-            seriesId: this.id,
-            highlighted: isHighlighted,
-            datum,
-            depth,
-            colorKey,
-            childrenKey,
-            labelKey,
-            secondaryLabelKey,
-            sizeKey,
-            fill: fill!,
-            fillOpacity,
-            stroke: stroke!,
-            strokeWidth,
-            strokeOpacity,
-        });
+        return this.cachedDatumCallback(
+            createDatumId(this.getDatumId(node), isHighlighted ? 'highlight' : 'node'),
+            () =>
+                itemStyler({
+                    seriesId: this.id,
+                    highlighted: isHighlighted,
+                    datum,
+                    depth,
+                    colorKey,
+                    childrenKey,
+                    labelKey,
+                    secondaryLabelKey,
+                    sizeKey,
+                    fill: fill!,
+                    fillOpacity,
+                    stroke: stroke!,
+                    strokeWidth,
+                    strokeOpacity,
+                })
+        );
     }
 
     override getTooltipHtml(node: _ModuleSupport.HierarchyNode): _ModuleSupport.TooltipContent {

@@ -255,12 +255,13 @@ function createVolumeSeries(
             type: 'bar',
             xKey: 'date',
             yKey: volumeKey,
-            // @ts-expect-error
-            focusPriority: 1,
             tooltip: { enabled: false },
             highlight: { enabled: false },
             fillOpacity: fromTheme(theme, (t) => t.overrides?.bar?.series?.fillOpacity) ?? 0.5,
             ...itemStyler,
+            // @ts-expect-error
+            focusPriority: 1,
+            fastDataProcessing: true,
         } satisfies AgBarSeriesOptions,
     ];
 }
