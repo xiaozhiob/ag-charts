@@ -128,7 +128,6 @@ export default [
             // For review - new for eslint 9.
             'sonarjs/no-redeclare': 1,
             '@typescript-eslint/ban-ts-comment': 1,
-            // '@typescript-eslint/require-await': 1,
             '@typescript-eslint/no-this-alias': 1,
             'sonarjs/public-static-readonly': 1,
             'sonarjs/updated-loop-counter': 1,
