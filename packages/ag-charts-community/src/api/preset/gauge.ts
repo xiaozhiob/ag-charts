@@ -94,7 +94,6 @@ function radialGaugeOptions(opts: AgRadialGaugeOptions) {
         max: scaleMax = 1,
         interval: scaleInterval = {},
         label: scaleLabel = {},
-        ...scaleRest
     } = scale;
 
     const chartOpts = pickProps<AgBaseGaugePresetOptions>(opts, {
@@ -222,7 +221,6 @@ function linearGaugeOptions(opts: AgLinearGaugeOptions): AgGaugeChartOptions {
         max: scaleMax = 1,
         interval: scaleInterval = {},
         label: scaleLabel = {},
-        ...scaleRest
     } = scale;
 
     const chartOpts = pickProps<AgBaseGaugePresetOptions>(opts, {
