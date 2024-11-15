@@ -96,7 +96,7 @@ export class SliderWidget extends Widget<HTMLInputElement> {
         }
     }
 
-    private static onKeyDown(target: SliderWidget, ev: KeyboardWidgetEvent) {
+    private static onKeyDown(this: void, target: SliderWidget, ev: KeyboardWidgetEvent) {
         let ignoredKeys: string[] = [];
         const { orientation } = target;
         if (orientation === 'horizontal') {
