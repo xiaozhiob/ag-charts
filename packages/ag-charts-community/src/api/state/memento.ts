@@ -69,7 +69,7 @@ export class MementoCaretaker {
         try {
             // eslint-disable-next-line @typescript-eslint/unbound-method
             return JSON.parse(JSON.stringify(memento, MementoCaretaker.encodeTypes));
-        } catch (error) {
+        } catch (error: any) {
             throw new Error(`Failed to encode [${originator.mementoOriginatorKey}] value [${error}].`, {
                 cause: error,
             });
@@ -84,7 +84,7 @@ export class MementoCaretaker {
         try {
             // eslint-disable-next-line @typescript-eslint/unbound-method
             return JSON.parse(JSON.stringify(encoded), MementoCaretaker.decodeTypes) as unknown;
-        } catch (error) {
+        } catch (error: any) {
             throw new Error(`Failed to decode [${originator.mementoOriginatorKey}] value [${error}].`, {
                 cause: error,
             });
