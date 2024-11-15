@@ -15,6 +15,7 @@ const {
     valueProperty,
     diff,
     animationValidation,
+    computeBarFocusBounds,
     Logger,
     ContinuousScale,
 } = _ModuleSupport;
@@ -384,7 +385,16 @@ export abstract class OhlcSeriesBase<
         return labelSelection.update(labelData);
     }
 
-    override computeFocusBounds() {
-        return undefined;
+    override computeFocusBounds(opts: _ModuleSupport.PickFocusInputs): _ModuleSupport.BBox | undefined {
+        const nodeDatum = this.getNodeData()?.at(opts.datumIndex);
+        if (nodeDatum == null) return;
+        const { centerX, y, width, height } = nodeDatum;
+        const datum = {
+            x: centerX - width / 2,
+            y: y,
+            width: width,
+            height: height,
+        };
+        return computeBarFocusBounds(datum, this.contentGroup, opts.seriesRect);
     }
 }

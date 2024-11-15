@@ -7,6 +7,7 @@ import type { AgChartProxy } from './chartProxy';
 import { deproxy, prepareTestOptions, setupMockCanvas, setupMockConsole, waitForChartStability } from './test/utils';
 
 // Heap size comparisons can be flaky - let's be sure any failure is consistent.
+// eslint-disable-next-line sonarjs/stable-tests
 jest.retryTimes(5);
 
 describe('Chart Heap Memory', () => {

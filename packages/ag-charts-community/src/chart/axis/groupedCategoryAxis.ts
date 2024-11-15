@@ -1,7 +1,6 @@
 import type { AgAxisCaptionFormatterParams } from 'ag-charts-types';
 
 import type { ModuleContext } from '../../module/moduleContext';
-import { resetMotion } from '../../motion/resetMotion';
 import { BandScale } from '../../scale/bandScale';
 import { BBox } from '../../scene/bbox';
 import { Selection } from '../../scene/selection';
@@ -9,16 +8,16 @@ import { Line } from '../../scene/shape/line';
 import { TransformableText } from '../../scene/shape/text';
 import { Transformable } from '../../scene/transformable';
 import { normalizeAngle360, toRadians } from '../../util/angle';
-import { extent, toArray, unique } from '../../util/array';
+import { extent, unique } from '../../util/array';
 import { iterate } from '../../util/iterator';
 import { inRange } from '../../util/number';
 import { createIdsGenerator } from '../../util/tempUtils';
 import { TextUtils } from '../../util/textMeasurer';
 import { isNumber } from '../../util/type-guards';
 import { ChartAxisDirection } from '../chartAxisDirection';
+import { createDatumId } from '../data/processors';
 import { calculateLabelRotation } from '../label';
-import type { LabelNodeDatum } from './axis';
-import { resetAxisGroupFn, resetAxisLabelSelectionFn, resetAxisLineSelectionFn } from './axisUtil';
+import type { LabelNodeDatum, TickDatum } from './axis';
 import { CategoryAxis } from './categoryAxis';
 import type { TreeLayout } from './tree';
 import { treeLayout } from './tree';
@@ -67,12 +66,6 @@ export class GroupedCategoryAxis extends CategoryAxis {
 
     private computedLayout: ComputedGroupAxisLayout | undefined;
 
-    private updateTitleCaption() {
-        // The Text `node` of the Caption is not used to render the title of the grouped category axis.
-        // The phantom root of the tree layout is used instead.
-        this.title.caption.node.visible = false;
-    }
-
     private updateCategoryLabels() {
         if (!this.computedLayout) return;
         this.tickLabelGroupSelection
@@ -106,6 +99,7 @@ export class GroupedCategoryAxis extends CategoryAxis {
         this.calculateDomain();
         this.updateScale();
         this.updateRange();
+        this.updateTitle();
 
         const { scale, label, range, title } = this;
         const formatter = title.formatter ?? ((p: AgAxisCaptionFormatterParams) => p.defaultValue);
@@ -272,26 +266,28 @@ export class GroupedCategoryAxis extends CategoryAxis {
             }
 
             if (visible) {
-                const { text = '' } = tempText;
-                tickLabelLayout.push({
-                    text,
-                    visible: true,
-                    range: this.scale.range,
-                    tickId: idGenerator(text),
-                    fill: tempText.fill as string,
-                    fontFamily: tempText.fontFamily,
-                    fontSize: tempText.fontSize,
-                    fontStyle: tempText.fontStyle,
-                    fontWeight: tempText.fontWeight,
-                    rotation: tempText.rotation,
-                    rotationCenterX: tempText.rotationCenterX,
-                    textAlign: tempText.textAlign,
-                    textBaseline: tempText.textBaseline,
-                    translationX: tempText.translationX,
-                    translationY: tempText.translationY,
-                    x: tempText.x,
-                    y: tempText.y,
-                });
+                if (index !== 0) {
+                    const { text = '' } = tempText;
+                    tickLabelLayout.push({
+                        text,
+                        visible: true,
+                        range: this.scale.range,
+                        tickId: idGenerator(text),
+                        fill: tempText.fill as string,
+                        fontFamily: tempText.fontFamily,
+                        fontSize: tempText.fontSize,
+                        fontStyle: tempText.fontStyle,
+                        fontWeight: tempText.fontWeight,
+                        rotation: tempText.rotation,
+                        rotationCenterX: tempText.rotationCenterX,
+                        textAlign: tempText.textAlign,
+                        textBaseline: tempText.textBaseline,
+                        translationX: tempText.translationX,
+                        translationY: tempText.translationY,
+                        x: tempText.x,
+                        y: tempText.y,
+                    });
+                }
                 labelBBoxes.set(index, Transformable.toCanvas(tempText));
             } else {
                 labelBBoxes.delete(index);
@@ -349,11 +345,11 @@ export class GroupedCategoryAxis extends CategoryAxis {
 
         this.updatePosition();
 
-        this.updateTitleCaption();
         this.updateCategoryLabels();
         this.updateSeparators();
         this.updateAxisLines();
         this.updateGridLines();
+        this.updateTitle();
 
         this.resetSelectionNodes();
     }
@@ -398,16 +394,10 @@ export class GroupedCategoryAxis extends CategoryAxis {
 
         this.setDomain(extent(flatDomains) ?? unique(flatDomains));
 
-        const domain = this.dataDomain.domain.map(toArray);
+        const domain: string[][] = this.dataDomain.domain.map((datum) => [].concat(datum).reverse());
         this.tickTreeLayout = treeLayout(domain);
         this.tickScale.domain = domain.concat([['']]);
         this.resizeTickTree();
-    }
-
-    protected override resetSelectionNodes() {
-        resetMotion([this.axisGroup], resetAxisGroupFn());
-        resetMotion([this.tickLabelGroupSelection], resetAxisLabelSelectionFn());
-        resetMotion([this.lineNode], resetAxisLineSelectionFn());
     }
 
     protected override updateGridLines() {
@@ -418,12 +408,18 @@ export class GroupedCategoryAxis extends CategoryAxis {
 
         const { gridLength, label, range, tickScale } = this;
         const { enabled, width, style } = this.gridLine;
-        const gridSelection = this.gridLineGroupSelection.update(tickScale.ticks());
+        const ticks: TickDatum[] = tickScale.ticks().map((tick, index) => ({
+            tick,
+            tickId: createDatumId(tick, index),
+            tickLabel: tick.filter(Boolean).join(' - '),
+            translationY: Math.round(tickScale.convert(tick)),
+        }));
+        const gridSelection = this.gridLineGroupSelection.update(ticks);
         const lineSize = gridLength * -label.getSideFlag();
         const styleCount = style.length;
 
         gridSelection.each((line, datum, index) => {
-            const y = Math.round(tickScale.convert(datum));
+            const y = datum.translationY;
             const { stroke, lineDash } = style[index % styleCount];
             line.visible = enabled && y >= range[0] && y <= range[1];
             line.x1 = 0;

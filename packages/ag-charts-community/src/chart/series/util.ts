@@ -79,8 +79,6 @@ export function datumStylerProperties<TDatum extends { xValue: any; yValue: any 
         yKey,
         xValue,
         yValue,
-        xDomain,
-        yDomain,
         first,
         last,
         min,

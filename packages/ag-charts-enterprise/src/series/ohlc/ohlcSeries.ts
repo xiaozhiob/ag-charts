@@ -199,7 +199,7 @@ export class OhlcSeries extends OhlcSeriesBase<OhlcNode, OhlcSeriesProperties> {
             visible,
         } = this.properties;
 
-        if (!showInLegend || !data?.length || !xKey || legendType !== 'category') {
+        if (!data?.length || !xKey || legendType !== 'category') {
             return [];
         }
 
@@ -235,6 +235,7 @@ export class OhlcSeries extends OhlcSeriesBase<OhlcNode, OhlcSeriesProperties> {
                     },
                 ],
                 legendItemName,
+                hideInLegend: !showInLegend,
             },
         ];
     }

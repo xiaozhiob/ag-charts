@@ -18,7 +18,7 @@ import type { DataController } from '../../data/dataController';
 import type { AggregatePropertyDefinition, GroupByFn, PropertyDefinition } from '../../data/dataModel';
 import { fixNumericExtent } from '../../data/dataModel';
 import { SORT_DOMAIN_GROUPS, createDatumId, diff, keyProperty, valueProperty } from '../../data/processors';
-import type { CategoryLegendDatum, ChartLegendType } from '../../legendDatum';
+import type { CategoryLegendDatum, ChartLegendType } from '../../legend/legendDatum';
 import { EMPTY_TOOLTIP_CONTENT, type TooltipContent } from '../../tooltip/tooltip';
 import { type PickFocusInputs, Series, type SeriesNodePickMatch, SeriesNodePickMode } from '../series';
 import { resetLabelFn, seriesLabelFadeInAnimation } from '../seriesLabelUtil';
@@ -310,7 +310,7 @@ export class HistogramSeries extends CartesianSeries<Rect, HistogramSeriesProper
                 // since each selection is an aggregation of multiple data.
                 aggregatedValue: total,
                 frequency,
-                domain: domain as any[] as [number, number],
+                domain: domain as [number, number],
                 yKey,
                 xKey,
                 x,
@@ -502,21 +502,36 @@ export class HistogramSeries extends CartesianSeries<Rect, HistogramSeriesProper
     }
 
     getLegendData(legendType: ChartLegendType): CategoryLegendDatum[] {
-        if (!this.data?.length || legendType !== 'category') {
+        if (legendType !== 'category') {
             return [];
         }
 
-        const { xKey, yName, fill, fillOpacity, stroke, strokeWidth, strokeOpacity, visible } = this.properties;
+        const {
+            id: seriesId,
+            ctx: { legendManager },
+            visible,
+        } = this;
+
+        const {
+            xKey: itemId,
+            yName,
+            fill,
+            fillOpacity,
+            stroke,
+            strokeWidth,
+            strokeOpacity,
+            showInLegend,
+        } = this.properties;
 
         return [
             {
                 legendType: 'category',
-                id: this.id,
-                itemId: xKey,
-                seriesId: this.id,
-                enabled: visible,
+                id: seriesId,
+                itemId,
+                seriesId,
+                enabled: visible && legendManager.getItemEnabled({ seriesId, itemId }),
                 label: {
-                    text: yName ?? xKey ?? 'Frequency',
+                    text: yName ?? itemId ?? 'Frequency',
                 },
                 symbols: [
                     {
@@ -529,6 +544,7 @@ export class HistogramSeries extends CartesianSeries<Rect, HistogramSeriesProper
                         },
                     },
                 ],
+                hideInLegend: !showInLegend,
             },
         ];
     }

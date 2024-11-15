@@ -68,7 +68,7 @@ describe('SankeySeries', () => {
             );
 
             const highlightManager = (chart as Chart).ctx.highlightManager;
-            highlightManager.updateHighlight(chart.id, node as any);
+            highlightManager.updateHighlight(chart.id, node);
             await compare();
         });
 
@@ -84,7 +84,7 @@ describe('SankeySeries', () => {
             );
 
             const highlightManager = (chart as Chart).ctx.highlightManager;
-            highlightManager.updateHighlight(chart.id, node as any);
+            highlightManager.updateHighlight(chart.id, node);
             await compare();
         });
     });
@@ -230,13 +230,13 @@ describe('SankeySeries', () => {
             await checkNodeClick(chart, onNodeClick);
         });
 
-        it.skip(`should handle nodeClick event with offset click when range is 'nearest'`, async () => {
+        it(`should handle nodeClick event with offset click when range is 'nearest'`, async () => {
             const onNodeClick = jest.fn();
             chart = await createChart({ hasTooltip: true, onNodeClick, nodeClickRange: 'nearest' });
             await checkNodeClick(chart, onNodeClick, { x: 5, y: 5 });
         });
 
-        it.skip(`should handle nodeClick event with offset click when range is within pixel distance`, async () => {
+        it(`should handle nodeClick event with offset click when range is within pixel distance`, async () => {
             const onNodeClick = jest.fn();
             chart = await createChart({ hasTooltip: true, onNodeClick, nodeClickRange: 6 });
             await checkNodeClick(chart, onNodeClick, { x: 0, y: 5 });

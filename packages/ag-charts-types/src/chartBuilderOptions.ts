@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/class-name */
 import type { AgInitialStateOptions } from './api/initialStateOptions';
 import type { AgBaseChartOptions } from './chart/chartOptions';
 import type {
