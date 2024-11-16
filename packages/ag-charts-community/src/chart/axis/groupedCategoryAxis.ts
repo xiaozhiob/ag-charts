@@ -204,7 +204,8 @@ export class GroupedCategoryAxis extends CategoryAxis {
                 const availableRange = datum.leafCount * bandwidth;
                 const bbox = labelBBoxes.get(index);
 
-                tempText.translationX += sideFlag * (maxLeafLabelWidth + label.padding);
+                tempText.translationX +=
+                    sideFlag * (maxLeafLabelWidth + label.padding) + (label.mirrored ? 0 : lineHeight);
 
                 if (bbox && bbox.width > availableRange) {
                     visible = false;
@@ -282,8 +283,6 @@ export class GroupedCategoryAxis extends CategoryAxis {
         }
 
         const mergedBBox = BBox.merge(iterate(labelBBoxes.values(), lineBoxes));
-
-        console.log({ separatorLayout, separatorData });
 
         return {
             bbox: this.getTransformBox(mergedBBox),
