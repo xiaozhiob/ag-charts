@@ -3,14 +3,12 @@ import type { AgAxisCaptionFormatterParams } from 'ag-charts-types';
 import type { ModuleContext } from '../../module/moduleContext';
 import { BandScale } from '../../scale/bandScale';
 import { BBox } from '../../scene/bbox';
-import { Selection } from '../../scene/selection';
-import { Line } from '../../scene/shape/line';
 import { TransformableText } from '../../scene/shape/text';
 import { Transformable } from '../../scene/transformable';
 import { normalizeAngle360, toRadians } from '../../util/angle';
 import { extent, unique } from '../../util/array';
 import { iterate } from '../../util/iterator';
-import { inRange } from '../../util/number';
+import { inRange, round } from '../../util/number';
 import { createIdsGenerator } from '../../util/tempUtils';
 import { TextUtils } from '../../util/textMeasurer';
 import { isNumber } from '../../util/type-guards';
@@ -24,7 +22,7 @@ import { treeLayout } from './tree';
 
 interface ComputedGroupAxisLayout {
     tickLabelLayout: LabelNodeDatum[];
-    separatorLayout: Partial<Line>[];
+    separatorLayout: number[];
 }
 
 export class GroupedCategoryAxis extends CategoryAxis {
@@ -35,7 +33,6 @@ export class GroupedCategoryAxis extends CategoryAxis {
     // We don't call is `labelScale` for consistency with other axes.
     readonly tickScale = new BandScale<string[]>();
 
-    private readonly separatorSelection = Selection.select(this.tickLineGroup, Line);
     private tickTreeLayout?: TreeLayout;
 
     constructor(moduleCtx: ModuleContext) {
@@ -73,21 +70,7 @@ export class GroupedCategoryAxis extends CategoryAxis {
             .each((node, datum) => node.setProperties(datum));
     }
 
-    private updateSeparators() {
-        if (!this.computedLayout) return;
-        const { enabled, stroke } = this.tick;
-        this.separatorSelection.update(this.computedLayout.separatorLayout).each((line, datum) => {
-            line.visible = enabled && inRange(datum.y, this.range, 1e-7);
-            line.x1 = datum.x1;
-            line.x2 = datum.x2;
-            line.y1 = datum.y;
-            line.y2 = datum.y;
-            line.stroke = stroke;
-            line.strokeWidth = 1;
-        });
-    }
-
-    private updateAxisLines() {
+    private updateAxisLine() {
         if (!this.computedLayout) return;
 
         this.lineNode.stroke = this.line.stroke;
@@ -103,7 +86,6 @@ export class GroupedCategoryAxis extends CategoryAxis {
 
         const { scale, label, range, title } = this;
         const formatter = title.formatter ?? ((p: AgAxisCaptionFormatterParams) => p.defaultValue);
-        const reverseDirection = this.position === 'top' || this.position === 'right';
 
         const [rangeStart, rangeEnd] = scale.range;
         const rangeLength = Math.abs(rangeEnd - rangeStart);
@@ -120,7 +102,6 @@ export class GroupedCategoryAxis extends CategoryAxis {
         // Render ticks and labels.
         const { tickTreeLayout } = this;
         const treeLabels = tickTreeLayout?.nodes ?? [];
-        const isLabelTree = tickTreeLayout ? tickTreeLayout.depth > 1 : false;
         const isCaptionEnabled = title?.enabled && scale.domain.length > 0;
         // When labels are parallel to the axis line, the `parallelFlipFlag` is used to
         // flip the labels to avoid upside-down text, when the axis is rotated
@@ -154,9 +135,7 @@ export class GroupedCategoryAxis extends CategoryAxis {
                         fontWeight: title.fontWeight,
                         textAlign: 'center',
                         textBaseline: 'hanging',
-                        translationX: reverseDirection
-                            ? title.fontSize * 0.25 - datum.screenY
-                            : datum.screenY - title.fontSize * 0.25,
+                        translationX: (title.fontSize * 0.25 - datum.screenY) * sideFlag,
                         translationY: datum.screenX,
                     });
                     return true;
@@ -177,9 +156,7 @@ export class GroupedCategoryAxis extends CategoryAxis {
                 fontWeight: label.fontWeight,
                 textAlign: 'center',
                 textBaseline: parallelFlipFlag === -1 ? 'bottom' : 'hanging',
-                translationX: reverseDirection
-                    ? title.fontSize * 0.25 - datum.screenY
-                    : datum.screenY - title.fontSize * 0.25,
+                translationX: (title.fontSize * 0.25 - datum.screenY) * sideFlag,
                 translationY: datum.screenX,
             });
 
@@ -202,7 +179,9 @@ export class GroupedCategoryAxis extends CategoryAxis {
         });
 
         const labelX = sideFlag * label.padding;
+        const titleY = isCaptionEnabled ? sideFlag * -(title.spacing ?? 0) : 0;
         const separatorData: Array<{ y: number; x1: number; x2: number }> = [];
+
         const idGenerator = createIdsGenerator();
 
         treeLabels.forEach((datum, index) => {
@@ -210,28 +189,22 @@ export class GroupedCategoryAxis extends CategoryAxis {
             let visible = setLabelProps(datum, index);
 
             tempText.x = labelX;
-            tempText.y = index === 0 && isCaptionEnabled ? title.spacing ?? 0 : 0;
+            tempText.y = index === 0 ? titleY : 0;
             tempText.rotationCenterX = labelX;
-
-            if (reverseDirection) {
-                tempText.y *= -1;
-            }
 
             if (isLeaf) {
                 tempText.rotation = configuredRotation;
                 tempText.textAlign = 'end';
                 tempText.textBaseline = 'middle';
 
-                if (reverseDirection) {
+                if (label.mirrored) {
                     tempText.translationX += labelBBoxes.get(index)?.width ?? 0;
                 }
             } else {
                 const availableRange = datum.leafCount * bandwidth;
                 const bbox = labelBBoxes.get(index);
 
-                tempText.translationX -= reverseDirection
-                    ? -maxLeafLabelWidth - label.padding
-                    : maxLeafLabelWidth - lineHeight + label.padding;
+                tempText.translationX += sideFlag * (maxLeafLabelWidth + label.padding);
 
                 if (bbox && bbox.width > availableRange) {
                     visible = false;
@@ -243,25 +216,15 @@ export class GroupedCategoryAxis extends CategoryAxis {
 
             // Calculate positions of label separators for all nodes except the root.
             // Each separator is placed to the top of the current label.
-            if (datum.parent && isLabelTree) {
-                const y = isLeaf ? datum.screenX - bandwidth / 2 : datum.screenX - (datum.leafCount * bandwidth) / 2;
-
+            if (datum.parent) {
                 if (isLeaf) {
-                    if (datum.index !== datum.children.length - 1) {
-                        separatorData.push(
-                            reverseDirection
-                                ? { y, x1: 0, x2: maxLeafLabelWidth + label.padding * 2 }
-                                : { y, x1: 0, x2: -maxLeafLabelWidth - label.padding * 2 }
-                        );
-                    }
+                    const x = maxLeafLabelWidth + label.padding * 2;
+                    const y = round(datum.screenX - bandwidth / 2, 5);
+                    separatorData.push({ y, x1: 0, x2: x });
                 } else {
-                    const x = reverseDirection
-                        ? maxLeafLabelWidth + label.padding * 2 - datum.screenY
-                        : -maxLeafLabelWidth - label.padding * 2 + datum.screenY;
-
-                    separatorData.push(
-                        reverseDirection ? { y, x1: x - lineHeight, x2: x } : { y, x1: x + lineHeight, x2: x }
-                    );
+                    const x = maxLeafLabelWidth + label.padding * 2 - datum.screenY;
+                    const y = round(datum.screenX - (datum.leafCount * bandwidth) / 2, 5);
+                    separatorData.push({ y, x1: 0, x2: x });
                 }
             }
 
@@ -298,11 +261,11 @@ export class GroupedCategoryAxis extends CategoryAxis {
         separatorData.push({
             y: Math.max(rangeStart, rangeEnd),
             x1: 0,
-            x2: separatorData.reduce((minX, d) => (reverseDirection ? Math.max(minX, d.x2) : Math.min(minX, d.x2)), 0),
+            x2: separatorData.reduce((max, d) => Math.max(max, d.x2), 0),
         });
 
         const lineBoxes: BBox[] = [];
-        const separatorLayout: Partial<Line>[] = [];
+        const separatorLayout = new Map<number, number>();
 
         const { enabled, stroke, width } = this.line;
         this.lineNode.datum = { x: 0, y1: range[0], y2: range[1] };
@@ -311,19 +274,21 @@ export class GroupedCategoryAxis extends CategoryAxis {
         lineBoxes.push(this.lineNode.getBBox());
 
         for (const datum of separatorData) {
-            if (this.inRange(datum.y, 1e-7)) {
+            if (inRange(datum.y, range)) {
                 const { x1, x2, y } = datum;
-                separatorLayout.push({ x1, x2, y });
-                lineBoxes.push(new BBox(Math.min(x1, x2), y, Math.abs(x1 - x2), 0));
+                separatorLayout.set(y, Math.max(x2, separatorLayout.get(y) ?? 0));
+                lineBoxes.push(new BBox(Math.min(x1 * sideFlag, x2 * sideFlag), y, Math.abs(x1 - x2), 0));
             }
         }
 
         const mergedBBox = BBox.merge(iterate(labelBBoxes.values(), lineBoxes));
 
+        console.log({ separatorLayout, separatorData });
+
         return {
             bbox: this.getTransformBox(mergedBBox),
+            separatorLayout: Array.from(separatorLayout.values()),
             tickLabelLayout,
-            separatorLayout,
         };
     }
 
@@ -343,12 +308,24 @@ export class GroupedCategoryAxis extends CategoryAxis {
     override update() {
         if (!this.computedLayout) return;
 
-        this.updatePosition();
+        const { tickScale } = this;
+        const { separatorLayout } = this.computedLayout;
+        const ticksData: TickDatum[] = tickScale.ticks().map((tick, index) => ({
+            tick,
+            tickId: createDatumId(tick, index),
+            tickLabel: tick.filter(Boolean).join(' - '),
+            translationY: Math.round(tickScale.convert(tick)),
+            tickSize: separatorLayout[index],
+        }));
 
+        this.gridLineGroupSelection.update(this.gridLength ? ticksData : []);
+        this.tickLineGroupSelection.update(this.tick.enabled ? ticksData : []);
+
+        this.updatePosition();
         this.updateCategoryLabels();
-        this.updateSeparators();
-        this.updateAxisLines();
+        this.updateAxisLine();
         this.updateGridLines();
+        this.updateTickLines();
         this.updateTitle();
 
         this.resetSelectionNodes();
@@ -401,26 +378,15 @@ export class GroupedCategoryAxis extends CategoryAxis {
     }
 
     protected override updateGridLines() {
-        if (!this.gridLength) {
-            this.gridLineGroupSelection.update([]);
-            return;
-        }
+        if (!this.gridLength) return;
 
-        const { gridLength, label, range, tickScale } = this;
+        const { gridLength, label, range } = this;
         const { enabled, width, style } = this.gridLine;
-        const ticks: TickDatum[] = tickScale.ticks().map((tick, index) => ({
-            tick,
-            tickId: createDatumId(tick, index),
-            tickLabel: tick.filter(Boolean).join(' - '),
-            translationY: Math.round(tickScale.convert(tick)),
-        }));
-        const gridSelection = this.gridLineGroupSelection.update(ticks);
         const lineSize = gridLength * -label.getSideFlag();
-        const styleCount = style.length;
 
-        gridSelection.each((line, datum, index) => {
+        this.gridLineGroupSelection.each((line, datum, index) => {
             const y = datum.translationY;
-            const { stroke, lineDash } = style[index % styleCount];
+            const { stroke, lineDash } = style[index % style.length];
             line.visible = enabled && y >= range[0] && y <= range[1];
             line.x1 = 0;
             line.x2 = lineSize;

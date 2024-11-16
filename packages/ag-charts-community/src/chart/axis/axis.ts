@@ -1069,10 +1069,10 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
     protected updateTickLines() {
         const { tick, label } = this;
         const sideFlag = label.getSideFlag();
-        this.tickLineGroupSelection.each((line) => {
+        this.tickLineGroupSelection.each((line, datum) => {
             line.strokeWidth = tick.width;
             line.stroke = tick.stroke;
-            line.x1 = sideFlag * this.getTickSize();
+            line.x1 = sideFlag * (datum.tickSize ?? this.getTickSize());
             line.x2 = 0;
         });
     }

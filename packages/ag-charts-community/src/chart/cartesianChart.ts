@@ -446,7 +446,7 @@ export class CartesianChart extends Chart {
     }
 
     private clipAxis(axis: ChartAxis, seriesRect: BBox, layoutBBox: BBox) {
-        const gridLinePadding = Math.ceil((axis.gridLine?.width ?? 0) / 2);
+        const gridLinePadding = Math.ceil(axis.gridLine?.width ?? 0);
         const axisLinePadding = Math.ceil(axis.line?.width ?? 0);
 
         let { width, height } = seriesRect;
@@ -461,17 +461,17 @@ export class CartesianChart extends Chart {
             case 'right':
                 axis.clipTickLines(
                     layoutBBox.x,
-                    seriesRect.y,
+                    seriesRect.y - gridLinePadding,
                     layoutBBox.width + gridLinePadding,
-                    seriesRect.height + gridLinePadding
+                    seriesRect.height + gridLinePadding * 2
                 );
                 break;
             case 'top':
             case 'bottom':
                 axis.clipTickLines(
-                    seriesRect.x,
+                    seriesRect.x - gridLinePadding,
                     layoutBBox.y,
-                    seriesRect.width + gridLinePadding,
+                    seriesRect.width + gridLinePadding * 2,
                     layoutBBox.height + gridLinePadding
                 );
                 break;
