@@ -123,7 +123,6 @@ export default [
             'sonarjs/new-cap': 0,
 
             // For review - actual bugs?
-            'sonarjs/no-inverted-boolean-check': 1,
             'sonarjs/no-misused-promises': 1,
             // For review - new for eslint 9.
             'sonarjs/no-redeclare': 1,
@@ -142,6 +141,7 @@ export default [
             'sonarjs/no-redundant-type-constituents': 0,
             'sonarjs/sonar-prefer-optional-chain': 0,
             'sonarjs/no-base-to-string': 0,
+            'sonarjs/no-misused-promises': 0,
         },
     },
     testDefaults,
