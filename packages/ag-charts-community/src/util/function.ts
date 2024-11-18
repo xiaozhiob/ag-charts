@@ -1,5 +1,3 @@
-import { Logger } from './logger';
-
 interface DebounceOptions {
     leading?: boolean;
     trailing?: boolean;
@@ -9,6 +7,7 @@ interface DebounceOptions {
 interface ThrottleOptions {
     leading?: boolean;
     trailing?: boolean;
+    errorHandler: (e: any) => void;
 }
 
 const doOnceState = new Map<string, boolean>();
@@ -76,8 +75,8 @@ export function debounce<T extends (...args: Parameters<T>) => void>(
 
 export function throttle<T extends (...args: Parameters<T>) => void | Promise<void>>(
     callback: T,
-    waitMs = 0,
-    options?: ThrottleOptions
+    waitMs: number,
+    options: ThrottleOptions
 ) {
     const { leading = true, trailing = true } = options ?? {};
     let timerId: NodeJS.Timeout | number;
@@ -87,7 +86,7 @@ export function throttle<T extends (...args: Parameters<T>) => void | Promise<vo
     function timeoutHandler() {
         if (trailing && lastArgs) {
             timerId = setTimeout(timeoutHandler, waitMs);
-            callback(...(lastArgs as Parameters<T>))?.catch((e) => Logger.error('callback failed', e));
+            callback(...(lastArgs as Parameters<T>))?.catch((e) => options.errorHandler(e));
         } else {
             shouldWait = false;
         }
@@ -101,7 +100,7 @@ export function throttle<T extends (...args: Parameters<T>) => void | Promise<vo
             shouldWait = true;
             timerId = setTimeout(timeoutHandler, waitMs);
             if (leading) {
-                callback(...args)?.catch((e) => Logger.error('callback failed', e));
+                callback(...args)?.catch((e) => options.errorHandler(e));
             } else {
                 lastArgs = args;
             }

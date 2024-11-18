@@ -89,6 +89,7 @@ export class DataService<D extends object> extends Listeners<EventType, EventHan
         return throttle((params: DataSourceCallbackParams) => this.fetch(params), requestThrottle, {
             leading: false,
             trailing: true,
+            errorHandler: (e) => Logger.error('callback failed', e),
         });
     }
 
@@ -102,6 +103,7 @@ export class DataService<D extends object> extends Listeners<EventType, EventHan
             {
                 leading: true,
                 trailing: true,
+                errorHandler: (e) => Logger.error('callback failed', e),
             }
         );
     }
