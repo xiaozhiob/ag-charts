@@ -466,8 +466,7 @@ export class Color implements IColor {
      * CSS Color Module Level 4:
      * https://drafts.csswg.org/css-color/#named-colors
      */
-    private static readonly nameToHex: Record<string, string> = {
-        // @ts-expect-error
+    private static readonly nameToHex: Record<string, string | null> = {
         __proto__: null,
         aliceblue: '#F0F8FF',
         antiquewhite: '#FAEBD7',

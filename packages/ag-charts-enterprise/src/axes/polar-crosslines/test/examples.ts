@@ -273,7 +273,7 @@ export const RADIAL_BAR_POLYGON_CROSSLINES: Options = {
         axes: [
             {
                 type: 'radius-category',
-                // @ts-expect-error
+                // @ts-expect-error undocumented option
                 shape: 'polygon',
                 groupPaddingInner: 0.2,
                 paddingInner: 0.5,
@@ -298,7 +298,7 @@ export const RADIAL_BAR_POLYGON_CROSSLINES: Options = {
             },
             {
                 type: 'angle-number',
-                // @ts-expect-error
+                // @ts-expect-error undocumented option
                 shape: 'polygon',
                 crossLines: [
                     {
