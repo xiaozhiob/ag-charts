@@ -122,8 +122,6 @@ export default [
             'sonarjs/redundant-type-aliases': 0,
             'sonarjs/new-cap': 0,
 
-            // For review - actual bugs?
-            'sonarjs/no-misused-promises': 1,
             // For review - new for eslint 9.
             'sonarjs/no-redeclare': 1,
             '@typescript-eslint/ban-ts-comment': 1,

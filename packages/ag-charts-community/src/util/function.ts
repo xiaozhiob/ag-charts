@@ -1,3 +1,5 @@
+import { Logger } from './logger';
+
 interface DebounceOptions {
     leading?: boolean;
     trailing?: boolean;
@@ -72,7 +74,7 @@ export function debounce<T extends (...args: Parameters<T>) => void>(
     });
 }
 
-export function throttle<T extends (...args: Parameters<T>) => void>(
+export function throttle<T extends (...args: Parameters<T>) => void | Promise<void>>(
     callback: T,
     waitMs = 0,
     options?: ThrottleOptions
@@ -85,7 +87,7 @@ export function throttle<T extends (...args: Parameters<T>) => void>(
     function timeoutHandler() {
         if (trailing && lastArgs) {
             timerId = setTimeout(timeoutHandler, waitMs);
-            callback(...(lastArgs as Parameters<T>));
+            callback(...(lastArgs as Parameters<T>))?.catch((e) => Logger.error('callback failed', e));
         } else {
             shouldWait = false;
         }
@@ -99,7 +101,7 @@ export function throttle<T extends (...args: Parameters<T>) => void>(
             shouldWait = true;
             timerId = setTimeout(timeoutHandler, waitMs);
             if (leading) {
-                callback(...args);
+                callback(...args)?.catch((e) => Logger.error('callback failed', e));
             } else {
                 lastArgs = args;
             }
