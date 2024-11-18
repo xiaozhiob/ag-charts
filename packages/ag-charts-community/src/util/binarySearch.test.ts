@@ -1,4 +1,4 @@
-import { findMaxValue } from './search.util';
+import { findMaxValue } from './binarySearch';
 
 describe('findMaxValue', () => {
     it('finds the minimum value', () => {
