@@ -131,7 +131,6 @@ export default [
             'sonarjs/public-static-readonly': 1,
             'sonarjs/updated-loop-counter': 1,
             'sonarjs/function-return-type': 1,
-            'sonarjs/no-redundant-type-constituents': 1,
 
             // Duplicates @typescript-eslint
             'sonarjs/sonar-no-unused-vars': 0,
