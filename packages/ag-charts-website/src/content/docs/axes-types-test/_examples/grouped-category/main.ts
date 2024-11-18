@@ -62,14 +62,8 @@ const options: AgCartesianChartOptions = {
             title: {
                 text: 'Axis title',
             },
-            line: {
-                stroke: 'yellow',
-                width: 20,
-            },
             tick: {
                 stroke: 'blue',
-                size: 20,
-                width: 400,
             },
         },
         {
@@ -77,15 +71,6 @@ const options: AgCartesianChartOptions = {
             position: 'left',
             title: {
                 text: 'Axis title',
-            },
-            line: {
-                stroke: 'yellow',
-                width: 20,
-            },
-            tick: {
-                stroke: 'blue',
-                size: 20,
-                width: 400,
             },
         },
     ],
