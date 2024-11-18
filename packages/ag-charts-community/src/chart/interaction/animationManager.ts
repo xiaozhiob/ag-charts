@@ -210,7 +210,7 @@ export class AnimationManager {
 
         let prevTime: number;
         const onAnimationFrame = async (time: number) => {
-            const executeAnimationFrame = async () => {
+            const executeAnimationFrame = () => {
                 const deltaTime = time - (prevTime ?? time);
 
                 prevTime = time;

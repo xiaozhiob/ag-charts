@@ -257,7 +257,7 @@ export abstract class BaseFunnelSeries<
         }
     }
 
-    async createNodeData() {
+    override createNodeData() {
         const {
             hasData,
             data,
@@ -438,20 +438,20 @@ export abstract class BaseFunnelSeries<
         visible: boolean;
     }): FunnelNodeLabelDatum | undefined;
 
-    protected override async updateNodes(
+    protected override updateNodes(
         highlightedItems: FunnelNodeDatum[] | undefined,
         seriesHighlighted: boolean,
         anySeriesItemEnabled: boolean
-    ): Promise<void> {
-        await super.updateNodes(highlightedItems, seriesHighlighted, anySeriesItemEnabled);
+    ) {
+        super.updateNodes(highlightedItems, seriesHighlighted, anySeriesItemEnabled);
 
         const { connectorSelection } = this;
         const connectorData = this.contextNodeData?.connectorData ?? [];
-        this.connectorSelection = await this.updateConnectorSelection({ connectorSelection, connectorData });
-        await this.updateConnectorNodes({ connectorSelection });
+        this.connectorSelection = this.updateConnectorSelection({ connectorSelection, connectorData });
+        this.updateConnectorNodes({ connectorSelection });
     }
 
-    protected override async updateDatumSelection(opts: {
+    protected override updateDatumSelection(opts: {
         nodeData: FunnelNodeDatum[];
         datumSelection: _ModuleSupport.Selection<TNode, FunnelNodeDatum>;
     }) {
@@ -460,7 +460,7 @@ export abstract class BaseFunnelSeries<
         return datumSelection.update(data, undefined, (datum) => this.getDatumId(datum));
     }
 
-    private async updateConnectorSelection(opts: {
+    private updateConnectorSelection(opts: {
         connectorData: FunnelConnectorDatum[];
         connectorSelection: _ModuleSupport.Selection<FunnelConnector, FunnelConnectorDatum>;
     }) {
@@ -470,7 +470,7 @@ export abstract class BaseFunnelSeries<
         );
     }
 
-    private async updateConnectorNodes(opts: {
+    private updateConnectorNodes(opts: {
         connectorSelection: _ModuleSupport.Selection<FunnelConnector, FunnelConnectorDatum>;
     }) {
         const { fill, fillOpacity, stroke, strokeOpacity, strokeWidth, lineDash, lineDashOffset } =
@@ -496,7 +496,7 @@ export abstract class BaseFunnelSeries<
         return labelItems.length > 0 ? labelItems : undefined;
     }
 
-    protected async updateLabelSelection(opts: {
+    protected updateLabelSelection(opts: {
         labelData: FunnelNodeLabelDatum[];
         labelSelection: FunnelAnimationData<TNode>['labelSelection'];
     }) {
@@ -506,7 +506,7 @@ export abstract class BaseFunnelSeries<
         });
     }
 
-    protected async updateLabelNodes(opts: { labelSelection: _ModuleSupport.Selection<_ModuleSupport.Text> }) {
+    protected updateLabelNodes(opts: { labelSelection: _ModuleSupport.Selection<_ModuleSupport.Text> }) {
         opts.labelSelection.each((textNode, datum) => {
             updateLabelNode(textNode, this.properties.label, datum);
         });

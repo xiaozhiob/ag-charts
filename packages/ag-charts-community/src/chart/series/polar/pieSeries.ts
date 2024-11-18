@@ -302,9 +302,9 @@ export class PieSeries extends PolarSeries<PieNodeDatum, PieSeriesProperties, Se
         this.animationState.transition('updateData');
     }
 
-    async maybeRefreshNodeData() {
+    maybeRefreshNodeData() {
         if (!this.nodeDataRefresh) return;
-        const { nodeData = [], phantomNodeData } = (await this.createNodeData()) ?? {};
+        const { nodeData = [], phantomNodeData } = this.createNodeData() ?? {};
         this.nodeData = nodeData;
         this.phantomNodeData = phantomNodeData;
         this.nodeDataRefresh = false;
@@ -350,7 +350,7 @@ export class PieSeries extends PolarSeries<PieNodeDatum, PieSeriesProperties, Se
         };
     }
 
-    async createNodeData() {
+    override createNodeData() {
         const {
             id: seriesId,
             processedData,
@@ -631,7 +631,7 @@ export class PieSeries extends PolarSeries<PieNodeDatum, PieSeriesProperties, Se
         return -outerRadius - titleOffset - dy;
     }
 
-    async update({ seriesRect }: { seriesRect: BBox }) {
+    update({ seriesRect }: { seriesRect: BBox }) {
         const { title } = this.properties;
 
         const newNodeDataDependencies = {
@@ -643,7 +643,7 @@ export class PieSeries extends PolarSeries<PieNodeDatum, PieSeriesProperties, Se
             this._nodeDataDependencies = newNodeDataDependencies;
         }
 
-        await this.maybeRefreshNodeData();
+        this.maybeRefreshNodeData();
         this.updateTitleNodes();
         this.updateRadiusScale(resize);
 
@@ -673,8 +673,8 @@ export class PieSeries extends PolarSeries<PieNodeDatum, PieSeriesProperties, Se
 
         this.updateNodeMidPoint();
 
-        await this.updateSelections();
-        await this.updateNodes(seriesRect);
+        this.updateSelections();
+        this.updateNodes(seriesRect);
     }
 
     private updateTitleNodes() {
@@ -707,11 +707,11 @@ export class PieSeries extends PolarSeries<PieNodeDatum, PieSeriesProperties, Se
         this.phantomNodeData?.forEach(setMidPoint);
     }
 
-    private async updateSelections() {
-        await this.updateGroupSelection();
+    private updateSelections() {
+        this.updateGroupSelection();
     }
 
-    private async updateGroupSelection() {
+    private updateGroupSelection() {
         const {
             itemSelection,
             highlightSelection,
@@ -754,7 +754,7 @@ export class PieSeries extends PolarSeries<PieNodeDatum, PieSeriesProperties, Se
         highlightLabelSelection.update(highlightedNodeData);
     }
 
-    private async updateNodes(seriesRect: BBox) {
+    private updateNodes(seriesRect: BBox) {
         const highlightedDatum = this.ctx.highlightManager.getActiveHighlight();
         const { visible } = this;
         this.backgroundGroup.visible = visible;
@@ -1098,7 +1098,7 @@ export class PieSeries extends PolarSeries<PieNodeDatum, PieSeriesProperties, Se
         });
     }
 
-    override async computeLabelsBBox(options: { hideWhenNecessary: boolean }, seriesRect: BBox) {
+    override computeLabelsBBox(options: { hideWhenNecessary: boolean }, seriesRect: BBox) {
         const { calloutLabel, calloutLine } = this.properties;
         const calloutLength = calloutLine.length;
         const { offset, maxCollisionOffset, minSpacing } = calloutLabel;
@@ -1107,7 +1107,7 @@ export class PieSeries extends PolarSeries<PieNodeDatum, PieSeriesProperties, Se
             return null;
         }
 
-        await this.maybeRefreshNodeData();
+        this.maybeRefreshNodeData();
 
         this.updateRadiusScale(false);
         this.computeCalloutLabelCollisionOffsets();

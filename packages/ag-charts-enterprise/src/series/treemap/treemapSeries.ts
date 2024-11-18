@@ -164,8 +164,8 @@ export class TreemapSeries<
         };
     }
 
-    override async processData() {
-        await super.processData();
+    override processData() {
+        super.processData();
 
         const { childrenKey, colorKey, colorName, labelKey, secondaryLabelKey, sizeKey, sizeName, tile, group } =
             this.properties;
@@ -366,11 +366,11 @@ export class TreemapSeries<
         });
     }
 
-    async createNodeData() {
+    override createNodeData() {
         return undefined;
     }
 
-    async updateSelections() {
+    override updateSelections() {
         if (!this.nodeDataRefresh) {
             return;
         }
@@ -447,7 +447,7 @@ export class TreemapSeries<
         return this.properties.group.stroke ?? defaultStroke;
     }
 
-    async updateNodes() {
+    updateNodes() {
         const { rootNode, data } = this;
         const { highlightStyle, tile, group } = this.properties;
         const { seriesRect } = this.chart ?? {};

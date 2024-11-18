@@ -369,16 +369,16 @@ export abstract class CartesianSeries<
         this._contextNodeData = undefined;
     }
 
-    async update({ seriesRect }: { seriesRect?: BBox }) {
+    update({ seriesRect }: { seriesRect?: BBox }) {
         const { visible, _contextNodeData: previousContextData } = this;
         const series = this.ctx.highlightManager?.getActiveHighlight()?.series;
         const seriesHighlighted = series === this;
 
         const resize = this.checkResize(seriesRect);
-        const highlightItems = await this.updateHighlightSelection(seriesHighlighted);
+        const highlightItems = this.updateHighlightSelection(seriesHighlighted);
 
-        await this.updateSelections(visible);
-        await this.updateNodes(highlightItems, seriesHighlighted, visible);
+        this.updateSelections(visible);
+        this.updateNodes(highlightItems, seriesHighlighted, visible);
 
         const animationData = this.getAnimationData(seriesRect, previousContextData);
         if (!animationData) return;
@@ -389,7 +389,7 @@ export abstract class CartesianSeries<
         this.animationState.transition('update', animationData);
     }
 
-    protected async updateSelections(anySeriesItemEnabled: boolean) {
+    protected updateSelections(anySeriesItemEnabled: boolean) {
         const animationSkipUpdate = !this.opts.animationAlwaysUpdateSelections && this.ctx.animationManager.isSkipped();
         if (!anySeriesItemEnabled && animationSkipUpdate) {
             return;
@@ -403,7 +403,7 @@ export abstract class CartesianSeries<
             this.debug(`CartesianSeries.updateSelections() - calling createNodeData() for`, this.id);
 
             this.markQuadtreeDirty();
-            this._contextNodeData = await this.createNodeData();
+            this._contextNodeData = this.createNodeData();
             const animationValid = this.isProcessedDataAnimatable();
             if (this._contextNodeData) {
                 this._contextNodeData.animationValid ??= animationValid;
@@ -416,21 +416,21 @@ export abstract class CartesianSeries<
             }
         }
 
-        await this.updateSeriesSelections();
+        this.updateSeriesSelections();
     }
 
-    private async updateSeriesSelections(seriesHighlighted?: boolean) {
+    private updateSeriesSelections(seriesHighlighted?: boolean) {
         const { datumSelection, labelSelection, markerSelection, paths } = this;
         const contextData = this._contextNodeData;
         if (!contextData) return;
 
         const { nodeData, labelData, itemId } = contextData;
 
-        await this.updatePaths({ seriesHighlighted, itemId, contextData, paths });
-        this.datumSelection = await this.updateDatumSelection({ nodeData, datumSelection });
-        this.labelSelection = await this.updateLabelSelection({ labelData, labelSelection });
+        this.updatePaths({ seriesHighlighted, itemId, contextData, paths });
+        this.datumSelection = this.updateDatumSelection({ nodeData, datumSelection });
+        this.labelSelection = this.updateLabelSelection({ labelData, labelSelection });
         if (this.opts.hasMarkers) {
-            this.markerSelection = await this.updateMarkerSelection({ nodeData, markerSelection });
+            this.markerSelection = this.updateMarkerSelection({ nodeData, markerSelection });
         }
     }
 
@@ -441,7 +441,7 @@ export abstract class CartesianSeries<
         return new MarkerShape();
     }
 
-    protected async updateNodes(
+    protected updateNodes(
         highlightedItems: TDatum[] | undefined,
         seriesHighlighted: boolean,
         anySeriesItemEnabled: boolean
@@ -459,13 +459,13 @@ export abstract class CartesianSeries<
 
         const opacity = this.getOpacity();
         if (hasMarkers) {
-            await this.updateMarkerNodes({
+            this.updateMarkerNodes({
                 markerSelection: highlightSelection as any,
                 isHighlight: true,
             });
             this.animationState.transition('highlightMarkers', highlightSelection as any);
         } else {
-            await this.updateDatumNodes({
+            this.updateDatumNodes({
                 datumSelection: highlightSelection,
                 isHighlight: true,
             });
@@ -473,7 +473,7 @@ export abstract class CartesianSeries<
         }
 
         if (hasHighlightedLabels) {
-            await this.updateLabelNodes({ labelSelection: highlightLabelSelection });
+            this.updateLabelNodes({ labelSelection: highlightLabelSelection });
         }
 
         const { dataNodeGroup, markerGroup, datumSelection, labelSelection, markerSelection, paths, labelGroup } = this;
@@ -492,7 +492,7 @@ export abstract class CartesianSeries<
             labelGroup.opacity = opacity;
         }
 
-        await this.updatePathNodes({
+        this.updatePathNodes({
             seriesHighlighted,
             itemId,
             paths,
@@ -505,10 +505,10 @@ export abstract class CartesianSeries<
             return;
         }
 
-        await this.updateDatumNodes({ datumSelection, highlightedItems, isHighlight: false });
-        await this.updateLabelNodes({ labelSelection });
+        this.updateDatumNodes({ datumSelection, highlightedItems, isHighlight: false });
+        this.updateLabelNodes({ labelSelection });
         if (hasMarkers) {
-            await this.updateMarkerNodes({ markerSelection, isHighlight: false });
+            this.updateMarkerNodes({ markerSelection, isHighlight: false });
         }
     }
 
@@ -523,7 +523,7 @@ export abstract class CartesianSeries<
         return highlightedItem ? [highlightedItem] : undefined;
     }
 
-    protected async updateHighlightSelection(seriesHighlighted: boolean) {
+    protected updateHighlightSelection(seriesHighlighted: boolean) {
         const { highlightSelection, highlightLabelSelection, _contextNodeData: contextNodeData } = this;
         if (!contextNodeData) return;
 
@@ -539,11 +539,11 @@ export abstract class CartesianSeries<
             labelItems = labelsEnabled ? this.getHighlightLabelData(labelData, item) : undefined;
         }
 
-        this.highlightSelection = await this.updateHighlightSelectionItem({
+        this.highlightSelection = this.updateHighlightSelectionItem({
             items: highlightItems,
             highlightSelection,
         });
-        this.highlightLabelSelection = await this.updateHighlightSelectionLabel({
+        this.highlightLabelSelection = this.updateHighlightSelectionLabel({
             items: labelItems,
             highlightLabelSelection,
         });
@@ -845,7 +845,7 @@ export abstract class CartesianSeries<
     protected updateHighlightSelectionItem(opts: {
         items?: TDatum[];
         highlightSelection: Selection<TNode, TDatum>;
-    }): Promise<Selection<TNode, TDatum>> {
+    }): Selection<TNode, TDatum> {
         const {
             opts: { hasMarkers },
         } = this;
@@ -867,60 +867,57 @@ export abstract class CartesianSeries<
     protected updateHighlightSelectionLabel(opts: {
         items?: TLabel[];
         highlightLabelSelection: Selection<Text, TLabel>;
-    }): Promise<Selection<Text, TLabel>> {
+    }) {
         return this.updateLabelSelection({
             labelData: opts.items ?? [],
             labelSelection: opts.highlightLabelSelection,
         });
     }
 
-    protected async updateDatumSelection(opts: {
+    protected updateDatumSelection(opts: {
         nodeData: TDatum[];
         datumSelection: Selection<TNode, TDatum>;
-    }): Promise<Selection<TNode, TDatum>> {
+    }): Selection<TNode, TDatum> {
         // Override point for sub-classes.
         return opts.datumSelection;
     }
-    protected async updateDatumNodes(_opts: {
+    protected updateDatumNodes(_opts: {
         datumSelection: Selection<TNode, TDatum>;
         highlightedItems?: TDatum[];
         isHighlight: boolean;
-    }): Promise<void> {
+    }): void {
         // Override point for sub-classes.
     }
 
-    protected async updateMarkerSelection(opts: {
+    protected updateMarkerSelection(opts: {
         nodeData: TDatum[];
         markerSelection: Selection<Marker, TDatum>;
-    }): Promise<Selection<Marker, TDatum>> {
+    }): Selection<Marker, TDatum> {
         // Override point for sub-classes.
         return opts.markerSelection;
     }
-    protected async updateMarkerNodes(_opts: {
-        markerSelection: Selection<Marker, TDatum>;
-        isHighlight: boolean;
-    }): Promise<void> {
+    protected updateMarkerNodes(_opts: { markerSelection: Selection<Marker, TDatum>; isHighlight: boolean }): void {
         // Override point for sub-classes.
     }
 
-    protected async updatePaths(opts: {
+    protected updatePaths(opts: {
         seriesHighlighted?: boolean;
         itemId?: string;
         contextData: TContext;
         paths: Path[];
-    }): Promise<void> {
+    }): void {
         // Override point for sub-classes.
         opts.paths.forEach((p) => (p.visible = false));
     }
 
-    protected async updatePathNodes(opts: {
+    protected updatePathNodes(opts: {
         seriesHighlighted?: boolean;
         itemId?: string;
         paths: Path[];
         opacity: number;
         visible: boolean;
         animationEnabled: boolean;
-    }): Promise<void> {
+    }): void {
         const { paths, opacity, visible } = opts;
         for (const path of paths) {
             path.opacity = opacity;
@@ -1037,9 +1034,9 @@ export abstract class CartesianSeries<
     protected abstract updateLabelSelection(opts: {
         labelData: TLabel[];
         labelSelection: Selection<Text, TLabel>;
-    }): Promise<Selection<Text, TLabel>>;
+    }): Selection<Text, TLabel>;
 
-    protected abstract updateLabelNodes(opts: { labelSelection: Selection<Text, TLabel> }): Promise<void>;
+    protected abstract updateLabelNodes(opts: { labelSelection: Selection<Text, TLabel> }): void;
 
     protected abstract isLabelEnabled(): boolean;
 

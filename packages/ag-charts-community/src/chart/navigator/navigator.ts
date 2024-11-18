@@ -96,7 +96,7 @@ export class Navigator extends BaseModuleInstance implements ModuleInstance {
         }
     }
 
-    onLayoutComplete(opts: LayoutCompleteEvent): Promise<void> {
+    onLayoutComplete(opts: LayoutCompleteEvent): Promise<void> | void {
         const { x, width } = opts.series.rect;
         const { y, height } = this;
 
@@ -108,8 +108,6 @@ export class Navigator extends BaseModuleInstance implements ModuleInstance {
 
         this.x = x;
         this.width = width;
-
-        return Promise.resolve();
     }
 
     private canDrag() {

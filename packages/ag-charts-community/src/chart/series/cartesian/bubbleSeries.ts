@@ -143,7 +143,7 @@ export class BubbleSeries extends CartesianSeries<Group, BubbleSeriesProperties,
         return fixNumericExtent(extent(domain));
     }
 
-    async createNodeData() {
+    override createNodeData() {
         const { axes, dataModel, processedData, colorScale, sizeScale } = this;
         const {
             xKey,
@@ -274,7 +274,7 @@ export class BubbleSeries extends CartesianSeries<Group, BubbleSeriesProperties,
         return new MarkerShape();
     }
 
-    protected override async updateMarkerSelection(opts: {
+    protected override updateMarkerSelection(opts: {
         nodeData: BubbleNodeDatum[];
         markerSelection: Selection<Marker, BubbleNodeDatum>;
     }) {
@@ -291,7 +291,7 @@ export class BubbleSeries extends CartesianSeries<Group, BubbleSeriesProperties,
         );
     }
 
-    protected override async updateMarkerNodes(opts: {
+    protected override updateMarkerNodes(opts: {
         markerSelection: Selection<Marker, BubbleNodeDatum>;
         isHighlight: boolean;
     }) {
@@ -316,7 +316,7 @@ export class BubbleSeries extends CartesianSeries<Group, BubbleSeriesProperties,
         }
     }
 
-    protected async updateLabelSelection(opts: {
+    protected updateLabelSelection(opts: {
         labelData: BubbleNodeDatum[];
         labelSelection: Selection<Text, BubbleNodeDatum>;
     }) {
@@ -333,7 +333,7 @@ export class BubbleSeries extends CartesianSeries<Group, BubbleSeriesProperties,
         );
     }
 
-    protected async updateLabelNodes(opts: { labelSelection: Selection<Text, BubbleNodeDatum> }) {
+    protected updateLabelNodes(opts: { labelSelection: Selection<Text, BubbleNodeDatum> }) {
         const { label } = this.properties;
 
         opts.labelSelection.each((text, datum) => {

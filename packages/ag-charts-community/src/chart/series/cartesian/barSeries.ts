@@ -251,7 +251,7 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
         }
     }
 
-    async createNodeData() {
+    override createNodeData() {
         const { dataModel, processedData } = this;
         const xAxis = this.getCategoryAxis();
         const yAxis = this.getValueAxis();
@@ -505,17 +505,14 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
         return highlightItem != null ? [highlightItem] : undefined;
     }
 
-    protected override async updateDatumSelection(opts: {
+    protected override updateDatumSelection(opts: {
         nodeData: BarNodeDatum[];
         datumSelection: Selection<Rect, BarNodeDatum>;
     }) {
         return opts.datumSelection.update(opts.nodeData, undefined, (datum) => this.getDatumId(datum));
     }
 
-    protected override async updateDatumNodes(opts: {
-        datumSelection: Selection<Rect, BarNodeDatum>;
-        isHighlight: boolean;
-    }) {
+    protected override updateDatumNodes(opts: { datumSelection: Selection<Rect, BarNodeDatum>; isHighlight: boolean }) {
         if (!this.properties.isValid()) {
             return;
         }
@@ -584,17 +581,14 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
         });
     }
 
-    protected async updateLabelSelection(opts: {
-        labelData: BarNodeDatum[];
-        labelSelection: Selection<Text, BarNodeDatum>;
-    }) {
+    protected updateLabelSelection(opts: { labelData: BarNodeDatum[]; labelSelection: Selection<Text, BarNodeDatum> }) {
         const data = this.isLabelEnabled() ? opts.labelData : [];
         return opts.labelSelection.update(data, (text) => {
             text.pointerEvents = PointerEvents.None;
         });
     }
 
-    protected async updateLabelNodes(opts: { labelSelection: Selection<Text, BarNodeDatum> }) {
+    protected updateLabelNodes(opts: { labelSelection: Selection<Text, BarNodeDatum> }) {
         opts.labelSelection.each((textNode, datum) => {
             updateLabelNode(textNode, this.properties.label, datum.label);
         });

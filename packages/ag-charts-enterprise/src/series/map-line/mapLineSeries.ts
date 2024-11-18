@@ -115,7 +115,7 @@ export class MapLineSeries extends TopologySeries<
         return geoGeometry;
     }
 
-    override async processData(dataController: _ModuleSupport.DataController): Promise<void> {
+    override async processData(dataController: _ModuleSupport.DataController) {
         if (this.data == null || !this.properties.isValid()) {
             return;
         }
@@ -236,7 +236,7 @@ export class MapLineSeries extends TopologySeries<
         };
     }
 
-    override async createNodeData() {
+    override createNodeData() {
         const { id: seriesId, dataModel, processedData, sizeScale, colorScale, properties, scale } = this;
         const { idKey, sizeKey, colorKey, labelKey, label } = properties;
 
@@ -325,17 +325,17 @@ export class MapLineSeries extends TopologySeries<
         };
     }
 
-    async updateSelections(): Promise<void> {
+    updateSelections() {
         if (this.nodeDataRefresh) {
-            this.contextNodeData = await this.createNodeData();
+            this.contextNodeData = this.createNodeData();
             this.nodeDataRefresh = false;
         }
     }
 
-    override async update(): Promise<void> {
+    override update() {
         const { datumSelection, labelSelection, highlightDatumSelection } = this;
 
-        await this.updateSelections();
+        this.updateSelections();
 
         this.contentGroup.visible = this.visible;
         this.contentGroup.opacity = this.getOpacity();
@@ -347,27 +347,27 @@ export class MapLineSeries extends TopologySeries<
 
         const nodeData = this.contextNodeData?.nodeData ?? [];
 
-        this.datumSelection = await this.updateDatumSelection({ nodeData, datumSelection });
-        await this.updateDatumNodes({ datumSelection, isHighlight: false });
+        this.datumSelection = this.updateDatumSelection({ nodeData, datumSelection });
+        this.updateDatumNodes({ datumSelection, isHighlight: false });
 
-        this.labelSelection = await this.updateLabelSelection({ labelSelection });
-        await this.updateLabelNodes({ labelSelection });
+        this.labelSelection = this.updateLabelSelection({ labelSelection });
+        this.updateLabelNodes({ labelSelection });
 
-        this.highlightDatumSelection = await this.updateDatumSelection({
+        this.highlightDatumSelection = this.updateDatumSelection({
             nodeData: highlightedDatum != null ? [highlightedDatum] : [],
             datumSelection: highlightDatumSelection,
         });
-        await this.updateDatumNodes({ datumSelection: highlightDatumSelection, isHighlight: true });
+        this.updateDatumNodes({ datumSelection: highlightDatumSelection, isHighlight: true });
     }
 
-    private async updateDatumSelection(opts: {
+    private updateDatumSelection(opts: {
         nodeData: MapLineNodeDatum[];
         datumSelection: _ModuleSupport.Selection<GeoGeometry, MapLineNodeDatum>;
     }) {
         return opts.datumSelection.update(opts.nodeData, undefined, (datum) => createDatumId(datum.idValue));
     }
 
-    private async updateDatumNodes(opts: {
+    private updateDatumNodes(opts: {
         datumSelection: _ModuleSupport.Selection<GeoGeometry, MapLineNodeDatum>;
         isHighlight: boolean;
     }) {
@@ -421,7 +421,7 @@ export class MapLineSeries extends TopologySeries<
         });
     }
 
-    private async updateLabelSelection(opts: {
+    private updateLabelSelection(opts: {
         labelSelection: _ModuleSupport.Selection<
             _ModuleSupport.Text,
             _ModuleSupport.PlacedLabel<_ModuleSupport.PointLabelDatum>
@@ -431,7 +431,7 @@ export class MapLineSeries extends TopologySeries<
         return opts.labelSelection.update(placedLabels);
     }
 
-    private async updateLabelNodes(opts: {
+    private updateLabelNodes(opts: {
         labelSelection: _ModuleSupport.Selection<
             _ModuleSupport.Text,
             _ModuleSupport.PlacedLabel<_ModuleSupport.PointLabelDatum>

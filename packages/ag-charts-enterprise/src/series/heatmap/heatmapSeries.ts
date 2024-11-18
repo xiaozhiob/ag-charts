@@ -155,7 +155,7 @@ export class HeatmapSeries extends _ModuleSupport.CartesianSeries<
         }
     }
 
-    async createNodeData() {
+    override createNodeData() {
         const { data, visible, axes, dataModel, processedData } = this;
 
         const xAxis = axes[ChartAxisDirection.X];
@@ -298,14 +298,14 @@ export class HeatmapSeries extends _ModuleSupport.CartesianSeries<
         return new Rect();
     }
 
-    override async update(params: { seriesRect?: _ModuleSupport.BBox }) {
+    override update(params: { seriesRect?: _ModuleSupport.BBox }) {
         // Animations are unsupported by heat-map, so prevent all animations.
         this.ctx.animationManager.skipCurrentBatch();
 
         return super.update(params);
     }
 
-    protected override async updateDatumSelection(opts: {
+    protected override updateDatumSelection(opts: {
         nodeData: HeatmapNodeDatum[];
         datumSelection: _ModuleSupport.Selection<_ModuleSupport.Rect, HeatmapNodeDatum>;
     }) {
@@ -314,7 +314,7 @@ export class HeatmapSeries extends _ModuleSupport.CartesianSeries<
         return datumSelection.update(data);
     }
 
-    protected override async updateDatumNodes(opts: {
+    protected override updateDatumNodes(opts: {
         datumSelection: _ModuleSupport.Selection<_ModuleSupport.Rect, HeatmapNodeDatum>;
         isHighlight: boolean;
     }) {
@@ -372,7 +372,7 @@ export class HeatmapSeries extends _ModuleSupport.CartesianSeries<
         });
     }
 
-    protected async updateLabelSelection(opts: {
+    protected updateLabelSelection(opts: {
         labelData: HeatmapLabelDatum[];
         labelSelection: _ModuleSupport.Selection<_ModuleSupport.Text, HeatmapLabelDatum>;
     }) {
@@ -383,7 +383,7 @@ export class HeatmapSeries extends _ModuleSupport.CartesianSeries<
         return labelSelection.update(data);
     }
 
-    protected async updateLabelNodes(opts: {
+    protected updateLabelNodes(opts: {
         labelSelection: _ModuleSupport.Selection<_ModuleSupport.Text, HeatmapLabelDatum>;
     }) {
         opts.labelSelection.each((text, datum) => {

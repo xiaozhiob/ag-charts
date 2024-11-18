@@ -246,7 +246,7 @@ export class LineSeries extends CartesianSeries<
         return [0, length];
     }
 
-    async createNodeData() {
+    override createNodeData() {
         const { dataModel, processedData, axes, dataAggregationFilters } = this;
         const xAxis = axes[ChartAxisDirection.X];
         const yAxis = axes[ChartAxisDirection.Y];
@@ -414,7 +414,7 @@ export class LineSeries extends CartesianSeries<
         return new MarkerShape();
     }
 
-    protected override async updatePathNodes(opts: {
+    protected override updatePathNodes(opts: {
         seriesHighlighted?: boolean;
         paths: Path[];
         opacity: number;
@@ -449,7 +449,7 @@ export class LineSeries extends CartesianSeries<
         updateClipPath(this, lineNode);
     }
 
-    protected override async updateMarkerSelection(opts: {
+    protected override updateMarkerSelection(opts: {
         nodeData: LineNodeDatum[];
         markerSelection: Selection<Marker, LineNodeDatum>;
         markerGroup?: Group;
@@ -467,7 +467,7 @@ export class LineSeries extends CartesianSeries<
         return markerSelection.update(nodeData, undefined, (datum) => createDatumId(datum.xValue));
     }
 
-    protected override async updateMarkerNodes(opts: {
+    protected override updateMarkerNodes(opts: {
         markerSelection: Selection<Marker, LineNodeDatum>;
         isHighlight: boolean;
     }) {
@@ -497,14 +497,14 @@ export class LineSeries extends CartesianSeries<
         }
     }
 
-    protected async updateLabelSelection(opts: {
+    protected updateLabelSelection(opts: {
         labelData: LineNodeDatum[];
         labelSelection: Selection<Text, LineNodeDatum>;
     }) {
         return opts.labelSelection.update(this.isLabelEnabled() ? opts.labelData : []);
     }
 
-    protected async updateLabelNodes(opts: { labelSelection: Selection<Text, LineNodeDatum> }) {
+    protected updateLabelNodes(opts: { labelSelection: Selection<Text, LineNodeDatum> }) {
         const { enabled, fontStyle, fontWeight, fontSize, fontFamily, color } = this.properties.label;
 
         opts.labelSelection.each((text, datum) => {
@@ -630,7 +630,7 @@ export class LineSeries extends CartesianSeries<
         ];
     }
 
-    protected override async updatePaths(opts: { contextData: LineSeriesNodeDataContext; paths: Path[] }) {
+    protected override updatePaths(opts: { contextData: LineSeriesNodeDataContext; paths: Path[] }) {
         this.updateLinePaths(opts.paths, opts.contextData);
     }
 

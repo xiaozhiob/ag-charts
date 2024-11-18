@@ -342,7 +342,7 @@ export class MapMarkerSeries
         };
     }
 
-    override async createNodeData() {
+    override createNodeData() {
         const { id: seriesId, dataModel, processedData, colorScale, sizeScale, properties, scale } = this;
         const { idKey, latitudeKey, longitudeKey, sizeKey, colorKey, labelKey, label } = properties;
 
@@ -470,9 +470,9 @@ export class MapMarkerSeries
         };
     }
 
-    async updateSelections(): Promise<void> {
+    updateSelections() {
         if (this.nodeDataRefresh) {
-            this.contextNodeData = await this.createNodeData();
+            this.contextNodeData = this.createNodeData();
             this.nodeDataRefresh = false;
         }
     }
@@ -484,13 +484,13 @@ export class MapMarkerSeries
         return true;
     }
 
-    override async update({ seriesRect }: { seriesRect?: _ModuleSupport.BBox }): Promise<void> {
+    override update({ seriesRect }: { seriesRect?: _ModuleSupport.BBox }) {
         const resize = this.checkResize(seriesRect);
         const scaleChange = this.checkScaleChange();
 
         const { labelSelection, markerSelection, highlightMarkerSelection } = this;
 
-        await this.updateSelections();
+        this.updateSelections();
 
         this.contentGroup.visible = this.visible;
         this.contentGroup.opacity = this.getOpacity();
@@ -502,17 +502,17 @@ export class MapMarkerSeries
 
         const nodeData = this.contextNodeData?.nodeData ?? [];
 
-        this.labelSelection = await this.updateLabelSelection({ labelSelection });
-        await this.updateLabelNodes({ labelSelection });
+        this.labelSelection = this.updateLabelSelection({ labelSelection });
+        this.updateLabelNodes({ labelSelection });
 
-        this.markerSelection = await this.updateMarkerSelection({ markerData: nodeData, markerSelection });
-        await this.updateMarkerNodes({ markerSelection, isHighlight: false, highlightedDatum });
+        this.markerSelection = this.updateMarkerSelection({ markerData: nodeData, markerSelection });
+        this.updateMarkerNodes({ markerSelection, isHighlight: false, highlightedDatum });
 
-        this.highlightMarkerSelection = await this.updateMarkerSelection({
+        this.highlightMarkerSelection = this.updateMarkerSelection({
             markerData: highlightedDatum != null ? [highlightedDatum] : [],
             markerSelection: highlightMarkerSelection,
         });
-        await this.updateMarkerNodes({
+        this.updateMarkerNodes({
             markerSelection: highlightMarkerSelection,
             isHighlight: true,
             highlightedDatum,
@@ -524,7 +524,7 @@ export class MapMarkerSeries
         this.animationState.transition('update');
     }
 
-    private async updateLabelSelection(opts: {
+    private updateLabelSelection(opts: {
         labelSelection: _ModuleSupport.Selection<
             _ModuleSupport.Text,
             _ModuleSupport.PlacedLabel<_ModuleSupport.PointLabelDatum>
@@ -534,7 +534,7 @@ export class MapMarkerSeries
         return opts.labelSelection.update(placedLabels);
     }
 
-    private async updateLabelNodes(opts: {
+    private updateLabelNodes(opts: {
         labelSelection: _ModuleSupport.Selection<
             _ModuleSupport.Text,
             _ModuleSupport.PlacedLabel<_ModuleSupport.PointLabelDatum>
@@ -558,7 +558,7 @@ export class MapMarkerSeries
         });
     }
 
-    private async updateMarkerSelection(opts: {
+    private updateMarkerSelection(opts: {
         markerData: MapMarkerNodeDatum[];
         markerSelection: _ModuleSupport.Selection<_ModuleSupport.Marker, MapMarkerNodeDatum>;
     }) {
@@ -569,7 +569,7 @@ export class MapMarkerSeries
         );
     }
 
-    private async updateMarkerNodes(opts: {
+    private updateMarkerNodes(opts: {
         markerSelection: _ModuleSupport.Selection<_ModuleSupport.Marker, MapMarkerNodeDatum>;
         isHighlight: boolean;
         highlightedDatum: MapMarkerNodeDatum | undefined;

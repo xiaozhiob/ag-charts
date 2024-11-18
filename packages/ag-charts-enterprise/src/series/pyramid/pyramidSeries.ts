@@ -129,7 +129,7 @@ export class PyramidSeries extends _ModuleSupport.DataModelSeries<
         });
     }
 
-    override async createNodeData(): Promise<PyramidNodeDataContext | undefined> {
+    override createNodeData() {
         const {
             id: seriesId,
             dataModel,
@@ -365,19 +365,19 @@ export class PyramidSeries extends _ModuleSupport.DataModelSeries<
         };
     }
 
-    async updateSelections(): Promise<void> {
+    updateSelections() {
         if (this.nodeDataRefresh) {
-            this.contextNodeData = await this.createNodeData();
+            this.contextNodeData = this.createNodeData();
             this.nodeDataRefresh = false;
         }
     }
 
-    override async update({ seriesRect }: { seriesRect?: _ModuleSupport.BBox }): Promise<void> {
+    override update({ seriesRect }: { seriesRect?: _ModuleSupport.BBox }) {
         this.checkResize(seriesRect);
 
         const { datumSelection, labelSelection, stageLabelSelection, highlightDatumSelection } = this;
 
-        await this.updateSelections();
+        this.updateSelections();
 
         this.contentGroup.visible = this.visible;
         this.contentGroup.opacity = this.getOpacity();
@@ -391,33 +391,33 @@ export class PyramidSeries extends _ModuleSupport.DataModelSeries<
         const labelData = this.contextNodeData?.labelData ?? [];
         const stageLabelData = this.contextNodeData?.stageLabelData ?? [];
 
-        this.datumSelection = await this.updateDatumSelection({ nodeData, datumSelection });
-        await this.updateDatumNodes({ datumSelection, isHighlight: false });
+        this.datumSelection = this.updateDatumSelection({ nodeData, datumSelection });
+        this.updateDatumNodes({ datumSelection, isHighlight: false });
 
-        this.labelSelection = await this.updateLabelSelection({ labelData, labelSelection });
-        await this.updateLabelNodes({ labelSelection, labelProperties: this.properties.label });
+        this.labelSelection = this.updateLabelSelection({ labelData, labelSelection });
+        this.updateLabelNodes({ labelSelection, labelProperties: this.properties.label });
 
-        this.stageLabelSelection = await this.updateStageLabelSelection({ stageLabelData, stageLabelSelection });
-        await this.updateLabelNodes({
+        this.stageLabelSelection = this.updateStageLabelSelection({ stageLabelData, stageLabelSelection });
+        this.updateLabelNodes({
             labelSelection: stageLabelSelection,
             labelProperties: this.properties.stageLabel,
         });
 
-        this.highlightDatumSelection = await this.updateDatumSelection({
+        this.highlightDatumSelection = this.updateDatumSelection({
             nodeData: highlightedDatum != null ? [highlightedDatum] : [],
             datumSelection: highlightDatumSelection,
         });
-        await this.updateDatumNodes({ datumSelection: highlightDatumSelection, isHighlight: true });
+        this.updateDatumNodes({ datumSelection: highlightDatumSelection, isHighlight: true });
     }
 
-    private async updateDatumSelection(opts: {
+    private updateDatumSelection(opts: {
         nodeData: PyramidNodeDatum[];
         datumSelection: _ModuleSupport.Selection<FunnelConnector, PyramidNodeDatum>;
     }) {
         return opts.datumSelection.update(opts.nodeData);
     }
 
-    private async updateDatumNodes(opts: {
+    private updateDatumNodes(opts: {
         datumSelection: _ModuleSupport.Selection<FunnelConnector, PyramidNodeDatum>;
         isHighlight: boolean;
     }) {
@@ -479,21 +479,21 @@ export class PyramidSeries extends _ModuleSupport.DataModelSeries<
         });
     }
 
-    private async updateLabelSelection(opts: {
+    private updateLabelSelection(opts: {
         labelData: PyramidNodeLabelDatum[];
         labelSelection: _ModuleSupport.Selection<_ModuleSupport.Text, PyramidNodeLabelDatum>;
     }) {
         return opts.labelSelection.update(this.properties.label.enabled ? opts.labelData : []);
     }
 
-    private async updateStageLabelSelection(opts: {
+    private updateStageLabelSelection(opts: {
         stageLabelData: PyramidNodeLabelDatum[];
         stageLabelSelection: _ModuleSupport.Selection<_ModuleSupport.Text, PyramidNodeLabelDatum>;
     }) {
         return opts.stageLabelSelection.update(opts.stageLabelData);
     }
 
-    private async updateLabelNodes(opts: {
+    private updateLabelNodes(opts: {
         labelSelection: _ModuleSupport.Selection<_ModuleSupport.Text, PyramidNodeLabelDatum>;
         labelProperties: _ModuleSupport.Label<AgPyramidSeriesLabelFormatterParams>;
     }) {

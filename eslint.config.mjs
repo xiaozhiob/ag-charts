@@ -120,6 +120,7 @@ export default [
             '@typescript-eslint/no-base-to-string': 0,
             'sonarjs/no-selector-parameter': 0,
             'sonarjs/redundant-type-aliases': 0,
+            'sonarjs/new-cap': 0,
 
             // For review - actual bugs?
             'sonarjs/no-inverted-boolean-check': 1,
@@ -127,10 +128,8 @@ export default [
             // For review - new for eslint 9.
             'sonarjs/no-redeclare': 1,
             '@typescript-eslint/ban-ts-comment': 1,
-            '@typescript-eslint/require-await': 1,
             '@typescript-eslint/no-this-alias': 1,
             'sonarjs/public-static-readonly': 1,
-            'sonarjs/new-cap': 1,
             'sonarjs/updated-loop-counter': 1,
             'sonarjs/todo-tag': 1,
             'sonarjs/function-return-type': 1,

@@ -163,15 +163,15 @@ export abstract class RadarSeries extends _ModuleSupport.PolarSeries<
         return radiusAxis instanceof PolarAxis ? this.radius * radiusAxis.innerRadiusRatio : 0;
     }
 
-    async maybeRefreshNodeData() {
+    maybeRefreshNodeData() {
         const didCircleChange = this.didCircleChange();
         if (!didCircleChange && !this.nodeDataRefresh) return;
-        const { nodeData = [] } = (await this.createNodeData()) ?? {};
+        const { nodeData = [] } = this.createNodeData() ?? {};
         this.nodeData = nodeData;
         this.nodeDataRefresh = false;
     }
 
-    async createNodeData() {
+    override createNodeData() {
         const { processedData, dataModel } = this;
 
         if (!processedData || !dataModel || processedData.rawData.length === 0 || !this.properties.isValid()) {
@@ -255,14 +255,14 @@ export abstract class RadarSeries extends _ModuleSupport.PolarSeries<
         return { itemId: radiusKey, nodeData, labelData: nodeData };
     }
 
-    async update({ seriesRect }: { seriesRect?: _ModuleSupport.BBox }) {
+    update({ seriesRect }: { seriesRect?: _ModuleSupport.BBox }) {
         const resize = this.checkResize(seriesRect);
 
         const animationEnabled = !this.ctx.animationManager.isSkipped();
         const { series } = this.ctx.highlightManager?.getActiveHighlight() ?? {};
         this.highlightGroup.visible = (animationEnabled || this.visible) && series === this;
 
-        await this.maybeRefreshNodeData();
+        this.maybeRefreshNodeData();
 
         this.contentGroup.translationX = this.centerX;
         this.contentGroup.translationY = this.centerY;
@@ -528,10 +528,10 @@ export abstract class RadarSeries extends _ModuleSupport.PolarSeries<
         }
     }
 
-    override async computeLabelsBBox() {
+    override computeLabelsBBox() {
         const { label } = this.properties;
 
-        await this.maybeRefreshNodeData();
+        this.maybeRefreshNodeData();
 
         const textBoxes: _ModuleSupport.BBox[] = [];
         const tempText = new Text();
