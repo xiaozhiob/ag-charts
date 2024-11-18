@@ -86,11 +86,14 @@ export class DataService<D extends object> extends Listeners<EventType, EventHan
     }
 
     private createThrottledFetch(requestThrottle: number) {
-        return throttle((params: DataSourceCallbackParams) => this.fetch(params), requestThrottle, {
-            leading: false,
-            trailing: true,
-            errorHandler: (e) => Logger.error('callback failed', e),
-        });
+        return throttle(
+            (params: DataSourceCallbackParams) => this.fetch(params).catch((e) => Logger.error('callback failed', e)),
+            requestThrottle,
+            {
+                leading: false,
+                trailing: true,
+            }
+        );
     }
 
     private createThrottledDispatch(dispatchThrottle: number) {
@@ -103,7 +106,6 @@ export class DataService<D extends object> extends Listeners<EventType, EventHan
             {
                 leading: true,
                 trailing: true,
-                errorHandler: (e) => Logger.error('callback failed', e),
             }
         );
     }

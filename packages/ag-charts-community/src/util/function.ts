@@ -7,7 +7,6 @@ interface DebounceOptions {
 interface ThrottleOptions {
     leading?: boolean;
     trailing?: boolean;
-    errorHandler: (e: any) => void;
 }
 
 const doOnceState = new Map<string, boolean>();
@@ -73,10 +72,10 @@ export function debounce<T extends (...args: Parameters<T>) => void>(
     });
 }
 
-export function throttle<T extends (...args: Parameters<T>) => void | Promise<void>>(
+export function throttle<T extends (...args: Parameters<T>) => void>(
     callback: T,
     waitMs: number,
-    options: ThrottleOptions
+    options?: ThrottleOptions
 ) {
     const { leading = true, trailing = true } = options ?? {};
     let timerId: NodeJS.Timeout | number;
@@ -86,7 +85,7 @@ export function throttle<T extends (...args: Parameters<T>) => void | Promise<vo
     function timeoutHandler() {
         if (trailing && lastArgs) {
             timerId = setTimeout(timeoutHandler, waitMs);
-            callback(...(lastArgs as Parameters<T>))?.catch((e) => options.errorHandler(e));
+            callback(...(lastArgs as Parameters<T>));
         } else {
             shouldWait = false;
         }
@@ -100,7 +99,7 @@ export function throttle<T extends (...args: Parameters<T>) => void | Promise<vo
             shouldWait = true;
             timerId = setTimeout(timeoutHandler, waitMs);
             if (leading) {
-                callback(...args)?.catch((e) => options.errorHandler(e));
+                callback(...args);
             } else {
                 lastArgs = args;
             }

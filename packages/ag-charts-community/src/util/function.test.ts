@@ -103,7 +103,7 @@ describe('function utils', () => {
 
         it('calls the function at most once per specified period with both leading and trailing true by default', () => {
             const mockFn = jest.fn();
-            const throttledFn = throttle(mockFn, 100, { errorHandler: console.error });
+            const throttledFn = throttle(mockFn, 100);
             throttledFn('first');
             expect(mockFn).toHaveBeenCalledWith('first');
             expect(mockFn).toHaveBeenCalledTimes(1);
@@ -119,7 +119,7 @@ describe('function utils', () => {
 
         it('does not call the function immediately when leading is false', () => {
             const mockFn = jest.fn();
-            const throttledFn = throttle(mockFn, 100, { leading: false, errorHandler: console.error });
+            const throttledFn = throttle(mockFn, 100, { leading: false });
             throttledFn('noLead');
 
             expect(mockFn).not.toHaveBeenCalled();
@@ -132,7 +132,7 @@ describe('function utils', () => {
 
         it('does not call the function at the end of the period when trailing is false', () => {
             const mockFn = jest.fn();
-            const throttledFn = throttle(mockFn, 100, { trailing: false, errorHandler: console.error });
+            const throttledFn = throttle(mockFn, 100, { trailing: false });
             throttledFn('noTrail');
             expect(mockFn).toHaveBeenCalledWith('noTrail');
             expect(mockFn).toHaveBeenCalledTimes(1);
