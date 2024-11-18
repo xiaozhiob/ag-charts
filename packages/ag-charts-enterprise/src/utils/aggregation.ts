@@ -1,6 +1,6 @@
 import { _ModuleSupport } from 'ag-charts-community';
 
-const { findMinValue, findMaxValue } = _ModuleSupport;
+const { findMinMax, findMinValue, findMaxValue } = _ModuleSupport;
 
 export const X_MIN = 0;
 export const X_MAX = 1;
@@ -8,11 +8,15 @@ export const Y_MIN = 2;
 export const Y_MAX = 3;
 export const SPAN = 4;
 
-function xRatioForDatumIndex(xValue: any, d0: number, d1: number) {
+export function aggregationDomain(domain: any[]): [number, number] {
+    return findMinMax(domain.map((x) => Number(x))) as [number, number];
+}
+
+export function xRatioForDatumIndex(xValue: any, d0: number, d1: number) {
     return (xValue.valueOf() - d0) / (d1 - d0);
 }
 
-function aggregationIndexForXRatio(xRatio: number, maxRange: number) {
+export function aggregationIndexForXRatio(xRatio: number, maxRange: number) {
     return (Math.min(Math.floor(xRatio * maxRange), maxRange - 1) * SPAN) | 0;
 }
 
