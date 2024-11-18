@@ -1,4 +1,4 @@
-import type { AgBaseAxisOptions, AgChartInstance, AgChartOptions } from 'ag-charts-types';
+import type { AgBaseAxisOptions, AgChartInstance, AgChartOptions, AgInitialStateLegendOptions } from 'ag-charts-types';
 
 import type { AxisOptionModule } from '../module/axisOptionModule';
 import type { LayoutContext } from '../module/baseModule';
@@ -48,7 +48,7 @@ import { REGIONS, SimpleRegionBBoxProvider } from './interaction/regions';
 import { SyncManager } from './interaction/syncManager';
 import { Keyboard } from './keyboard';
 import { LayoutElement } from './layout/layoutManager';
-import type { CategoryLegendDatum, ChartLegend, ChartLegendType, GradientLegendDatum } from './legendDatum';
+import type { ChartLegend, ChartLegendType } from './legend/legendDatum';
 import { guessInvalidPositions } from './mapping/prepareAxis';
 import { matchSeriesOptions } from './mapping/prepareSeries';
 import { type SeriesOptionsTypes, isAgCartesianChartOptions } from './mapping/types';
@@ -478,7 +478,7 @@ export abstract class Chart extends Observable {
     private readonly seriesToUpdate: Set<ISeries<any, any>> = new Set();
     private readonly updateMutex = new Mutex();
     private updateRequestors: Record<string, ChartUpdateType> = {};
-    private readonly performUpdateTrigger = debouncedCallback(async ({ count }) => {
+    private readonly performUpdateTrigger = debouncedCallback(({ count }) => {
         if (this.destroyed) return;
         this.updateMutex
             .acquire(async () => {
@@ -614,7 +614,7 @@ export abstract class Chart extends Observable {
                 ctx.animationManager.endBatch();
 
                 extraDebugStats['updateShortcutCount'] = this.updateShortcutCount;
-                await ctx.scene.render({ debugSplitTimes: splits, extraDebugStats, seriesRect: this.seriesRect });
+                ctx.scene.render({ debugSplitTimes: splits, extraDebugStats, seriesRect: this.seriesRect });
                 this.extraDebugStats = {};
                 for (const key of Object.keys(splits)) {
                     delete splits[key];
@@ -901,13 +901,24 @@ export abstract class Chart extends Observable {
         }
 
         const dataController = new DataController(this.mode);
-        const seriesPromises = this.series.map((s) => s.processData(dataController));
+        const seriesPromises = this.series.map((s) => {
+            s.resetDatumCallbackCache();
+            return s.processData(dataController);
+        });
         const modulePromises = this.modulesManager.mapModules((m) => m.processData?.(dataController));
         this._cachedData = dataController.execute(this._cachedData);
         await Promise.all([...seriesPromises, ...modulePromises]);
 
-        for (const { legendType, legend } of this.modulesManager.legends()) {
-            legend.data = this.getLegendData(legendType, this.mode !== 'integrated');
+        this.updateLegends();
+    }
+
+    private updateLegends(initialStateLegend?: AgInitialStateLegendOptions[]) {
+        for (const { legend, legendType } of this.modulesManager.legends()) {
+            if (legendType === 'category') {
+                this.setCategoryLegendData(initialStateLegend);
+            } else {
+                this.setLegendData(legendType, legend);
+            }
         }
     }
 
@@ -943,16 +954,23 @@ export abstract class Chart extends Observable {
         return new Map(labels.map((l, i) => [visibleSeries[i], l]));
     }
 
-    private getLegendData(legendType: ChartLegendType, warnConflicts?: boolean) {
-        const legendData = this.series
-            .filter((s) => s.properties.showInLegend)
-            .flatMap((s) => s.getLegendData(legendType));
+    private setCategoryLegendData(initialState?: AgInitialStateLegendOptions[]) {
+        const {
+            ctx: { legendManager, stateManager },
+        } = this;
 
-        const isCategoryLegendData = (
-            data: Array<CategoryLegendDatum | GradientLegendDatum>
-        ): data is CategoryLegendDatum[] => data.every((d) => d.legendType === 'category');
+        const legendData = this.series.flatMap((s) => {
+            const seriesLegendData = s.getLegendData('category');
+            legendManager.updateData(s.id, seriesLegendData);
+            return seriesLegendData;
+        });
 
-        if (warnConflicts && isCategoryLegendData(legendData)) {
+        if (initialState) {
+            stateManager.setState(legendManager, initialState);
+            return;
+        }
+
+        if (this.mode !== 'integrated') {
             // Validate each series that shares a legend item label uses the same fill colour
             const seriesMarkerFills: { [key: string]: { [key: string]: string | undefined } } = {};
             const seriesTypeMap = new Map(this.series.map((s) => [s.id, s.type]));
@@ -961,7 +979,7 @@ export abstract class Chart extends Observable {
                 seriesId,
                 symbols: [{ marker }],
                 label,
-            } of legendData) {
+            } of legendData.filter((d) => !d.hideInLegend)) {
                 if (marker.fill == null) continue;
 
                 const seriesType = seriesTypeMap.get(seriesId)!;
@@ -976,7 +994,11 @@ export abstract class Chart extends Observable {
             }
         }
 
-        return legendData;
+        legendManager.update();
+    }
+
+    private setLegendData(legendType: ChartLegendType, legend: ChartLegend) {
+        legend.data = this.series.filter((s) => s.properties.showInLegend).flatMap((s) => s.getLegendData(legendType));
     }
 
     private async processLayout() {
@@ -1183,9 +1205,8 @@ export abstract class Chart extends Observable {
         });
         this.update(updateType, { forceNodeDataRefresh, newAnimationBatch: true });
 
-        if (deltaOptions.initialState || deltaOptions.theme) {
-            this.applyInitialState(newOpts);
-        }
+        this.ctx.legendManager.clearData();
+        this.applyInitialState(newOpts);
 
         this.firstApply = false;
     }
@@ -1209,6 +1230,10 @@ export abstract class Chart extends Observable {
 
         if ((options.navigator?.enabled || options.zoom?.enabled) && initialState?.zoom != null) {
             stateManager.setState(zoomManager, initialState.zoom);
+        }
+
+        if (initialState?.legend != null) {
+            this.updateLegends(initialState.legend);
         }
 
         if (initialState != null) {

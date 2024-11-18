@@ -31,7 +31,7 @@ import {
     normaliseGroupTo,
     valueProperty,
 } from '../../data/processors';
-import type { CategoryLegendDatum, ChartLegendType } from '../../legendDatum';
+import type { CategoryLegendDatum, ChartLegendType } from '../../legend/legendDatum';
 import type { Marker } from '../../marker/marker';
 import { getMarker } from '../../marker/util';
 import { EMPTY_TOOLTIP_CONTENT, type TooltipContent } from '../../tooltip/tooltip';
@@ -257,7 +257,7 @@ export class AreaSeries extends CartesianSeries<
         }
     }
 
-    async createNodeData() {
+    override createNodeData() {
         const { axes, data, processedData, dataModel } = this;
 
         const xAxis = axes[ChartAxisDirection.X];
@@ -320,7 +320,6 @@ export class AreaSeries extends CartesianSeries<
             };
         };
 
-        const itemId = yKey;
         const labelData: LabelSelectionDatum[] = [];
         const markerData: MarkerSelectionDatum[] = [];
         const { visibleSameStackCount } = this.ctx.seriesStateManager.getVisiblePeerGroupIndex(this);
@@ -351,7 +350,7 @@ export class AreaSeries extends CartesianSeries<
                     markerData.push({
                         index: datumIndex,
                         series: this,
-                        itemId,
+                        itemId: yKey,
                         datum: seriesDatum,
                         midPoint: { x: point.x, y: point.y },
                         cumulativeValue: yValueEnd,
@@ -512,9 +511,9 @@ export class AreaSeries extends CartesianSeries<
         const strokeSpans = currentSeriesSpans.filter((span): span is LinePathSpan => span != null);
 
         const context: AreaSeriesNodeDataContext = {
-            itemId,
-            fillData: { itemId, spans: fillSpans, phantomSpans },
-            strokeData: { itemId, spans: strokeSpans },
+            itemId: yKey,
+            fillData: { itemId: yKey, spans: fillSpans, phantomSpans },
+            strokeData: { itemId: yKey, spans: strokeSpans },
             labelData,
             nodeData: markerData,
             scales: this.calculateScaling(),
@@ -536,7 +535,7 @@ export class AreaSeries extends CartesianSeries<
         return new MarkerShape();
     }
 
-    protected override async updatePathNodes(opts: {
+    protected override updatePathNodes(opts: {
         paths: Path[];
         opacity: number;
         visible: boolean;
@@ -576,7 +575,7 @@ export class AreaSeries extends CartesianSeries<
         updateClipPath(this, fill);
     }
 
-    protected override async updatePaths(opts: { contextData: AreaSeriesNodeDataContext; paths: Path[] }) {
+    protected override updatePaths(opts: { contextData: AreaSeriesNodeDataContext; paths: Path[] }) {
         this.updateAreaPaths(opts.paths, opts.contextData);
     }
 
@@ -613,7 +612,7 @@ export class AreaSeries extends CartesianSeries<
         stroke.markDirty();
     }
 
-    protected override async updateMarkerSelection(opts: {
+    protected override updateMarkerSelection(opts: {
         nodeData: MarkerSelectionDatum[];
         markerSelection: Selection<Marker, MarkerSelectionDatum>;
     }) {
@@ -628,7 +627,7 @@ export class AreaSeries extends CartesianSeries<
         return markerSelection.update(markersEnabled ? nodeData : []);
     }
 
-    protected override async updateMarkerNodes(opts: {
+    protected override updateMarkerNodes(opts: {
         markerSelection: Selection<Marker, MarkerSelectionDatum>;
         isHighlight: boolean;
     }) {
@@ -660,7 +659,7 @@ export class AreaSeries extends CartesianSeries<
         }
     }
 
-    protected async updateLabelSelection(opts: {
+    protected updateLabelSelection(opts: {
         labelData: LabelSelectionDatum[];
         labelSelection: Selection<Text, LabelSelectionDatum>;
     }) {
@@ -669,7 +668,7 @@ export class AreaSeries extends CartesianSeries<
         return labelSelection.update(labelData);
     }
 
-    protected async updateLabelNodes(opts: { labelSelection: Selection<Text, LabelSelectionDatum> }) {
+    protected updateLabelNodes(opts: { labelSelection: Selection<Text, LabelSelectionDatum> }) {
         const { labelSelection } = opts;
         const { enabled: labelEnabled, fontStyle, fontWeight, fontSize, fontFamily, color } = this.properties.label;
         labelSelection.each((text, datum) => {
@@ -739,17 +738,18 @@ export class AreaSeries extends CartesianSeries<
     }
 
     getLegendData(legendType: ChartLegendType): CategoryLegendDatum[] {
-        if (
-            !this.data?.length ||
-            !this.properties.isValid() ||
-            !this.properties.showInLegend ||
-            legendType !== 'category'
-        ) {
+        if (!this.properties.isValid() || legendType !== 'category') {
             return [];
         }
 
         const {
-            yKey,
+            id: seriesId,
+            ctx: { legendManager },
+            visible,
+        } = this;
+
+        const {
+            yKey: itemId,
             yName,
             fill,
             stroke,
@@ -758,20 +758,20 @@ export class AreaSeries extends CartesianSeries<
             strokeWidth,
             lineDash,
             marker,
-            visible,
             legendItemName,
+            showInLegend,
         } = this.properties;
 
         const useAreaFill = !marker.enabled || marker.fill === undefined;
         return [
             {
                 legendType,
-                id: this.id,
-                itemId: yKey,
-                seriesId: this.id,
-                enabled: visible,
+                id: seriesId,
+                itemId,
+                seriesId,
+                enabled: visible && legendManager.getItemEnabled({ seriesId, itemId }),
                 label: {
-                    text: legendItemName ?? yName ?? yKey,
+                    text: legendItemName ?? yName ?? itemId,
                 },
                 symbols: [
                     {
@@ -793,6 +793,7 @@ export class AreaSeries extends CartesianSeries<
                     },
                 ],
                 legendItemName,
+                hideInLegend: !showInLegend,
             },
         ];
     }

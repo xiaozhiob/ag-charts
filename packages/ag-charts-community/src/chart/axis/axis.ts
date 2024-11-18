@@ -414,7 +414,7 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
                 this.labelFormatter = formatter;
                 this.datumFormatter = formatter;
                 return;
-            } catch (e) {
+            } catch {
                 Logger.warnOnce(`the axis label format string ${format} is invalid. No formatting will be applied`);
             }
         }
@@ -1090,8 +1090,12 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
     }
 
     protected calculateDomain() {
-        const visibleSeries = this.boundSeries.filter((s) => this.includeInvisibleDomains || s.isEnabled());
-        const domains = visibleSeries.flatMap((series) => series.getDomain(this.direction));
+        const { includeInvisibleDomains, boundSeries, direction } = this;
+        const visibleSeries = includeInvisibleDomains ? boundSeries : boundSeries.filter((s) => s.isEnabled());
+        const domains =
+            visibleSeries.length === 1
+                ? visibleSeries[0].getDomain(direction)
+                : visibleSeries.flatMap((series) => series.getDomain(direction));
         this.setDomain(domains);
     }
 
@@ -1233,7 +1237,7 @@ export abstract class Axis<S extends Scale<D, number, TickInterval<S>> = Scale<a
         if (format && this.scale.tickFormat) {
             try {
                 return this.scale.tickFormat({ specifier: format });
-            } catch (e) {
+            } catch {
                 Logger.warnOnce(`the format string ${format} is invalid, ignoring.`);
             }
         }

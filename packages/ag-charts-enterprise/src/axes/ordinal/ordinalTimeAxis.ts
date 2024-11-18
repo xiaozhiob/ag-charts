@@ -1,6 +1,6 @@
 import { _ModuleSupport } from 'ag-charts-community';
 
-const { dateToNumber, OrdinalTimeScale } = _ModuleSupport;
+const { dateToNumber, datesSortOrder, OrdinalTimeScale } = _ModuleSupport;
 
 export class OrdinalTimeAxis extends _ModuleSupport.CategoryAxis<_ModuleSupport.OrdinalTimeScale> {
     static override readonly className = 'OrdinalTimeAxis' as const;
@@ -10,7 +10,26 @@ export class OrdinalTimeAxis extends _ModuleSupport.CategoryAxis<_ModuleSupport.
         super(moduleCtx, new OrdinalTimeScale());
     }
 
+    private _cachedDataDomain: { d: Date[]; domain: Date[] } | undefined;
     override normaliseDataDomain(d: Date[]) {
+        if (this._cachedDataDomain?.d === d) {
+            const { domain } = this._cachedDataDomain;
+            return { domain, clipped: false };
+        }
+
+        const sortOrder = datesSortOrder(d);
+
+        if (sortOrder != null) {
+            const domain = d.slice();
+            if (sortOrder === -1) domain.reverse();
+
+            this._cachedDataDomain = { d, domain };
+
+            return { domain, clipped: false };
+        }
+
+        this._cachedDataDomain = undefined;
+
         const domain = [];
         const uniqueValues = new Set();
         for (let v of d) {

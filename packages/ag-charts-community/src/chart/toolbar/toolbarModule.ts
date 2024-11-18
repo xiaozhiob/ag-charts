@@ -1,4 +1,3 @@
-/* eslint-disable sonarjs/no-duplicate-string */
 import type { AgToolbarOptions } from 'ag-charts-types';
 
 import type { Module } from '../../module/module';
@@ -136,49 +135,6 @@ const annotationOptions: AgToolbarOptions['annotationOptions'] = {
     ],
 };
 
-const zoom: AgToolbarOptions['zoom'] = {
-    enabled: true,
-    position: 'top',
-    align: 'end',
-    buttons: [
-        {
-            icon: 'zoom-out',
-            tooltip: 'toolbarZoomZoomOut',
-            value: 'zoom-out',
-        },
-        {
-            icon: 'zoom-in',
-            tooltip: 'toolbarZoomZoomIn',
-            value: 'zoom-in',
-        },
-        {
-            icon: 'pan-left',
-            tooltip: 'toolbarZoomPanLeft',
-            value: 'pan-left',
-        },
-        {
-            icon: 'pan-right',
-            tooltip: 'toolbarZoomPanRight',
-            value: 'pan-right',
-        },
-        {
-            icon: 'pan-start',
-            tooltip: 'toolbarZoomPanStart',
-            value: 'pan-start',
-        },
-        {
-            icon: 'pan-end',
-            tooltip: 'toolbarZoomPanEnd',
-            value: 'pan-end',
-        },
-        {
-            icon: 'reset',
-            tooltip: 'toolbarZoomReset',
-            value: 'reset',
-        },
-    ],
-};
-
 export const ToolbarModule: Module = {
     type: 'root',
     optionsKey: 'toolbar',
@@ -191,7 +147,6 @@ export const ToolbarModule: Module = {
             seriesType,
             annotations,
             annotationOptions,
-            zoom,
         },
     },
 };

@@ -27,7 +27,7 @@ abstract class WidgetBounds {
         this.elem = elem;
     }
 
-    setBounds(bounds: BBoxValues): void {
+    setBounds(bounds: Partial<BBoxValues>): void {
         setElementBBox(this.elemContainer ?? this.elem, bounds);
     }
 

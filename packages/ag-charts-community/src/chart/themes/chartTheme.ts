@@ -355,9 +355,9 @@ export class ChartTheme {
 
     private createChartConfigPerChartType(config: AgChartThemeOverrides) {
         for (const [nextType, { seriesTypes }] of Object.entries(CHART_TYPE_CONFIG)) {
-            const typeDefaults = chartDefaults.get(nextType as ChartType) as any;
+            const typeDefaults = chartDefaults.get(nextType as ChartType);
             for (const seriesType of seriesTypes) {
-                config[seriesType as keyof AgChartThemeOverrides] ||= deepClone(typeDefaults);
+                config[seriesType as keyof AgChartThemeOverrides] ??= deepClone(typeDefaults);
             }
         }
         return config;
@@ -365,7 +365,7 @@ export class ChartTheme {
 
     private getDefaults(): AgChartThemeOverrides {
         const getOverridesByType = (chartType: ChartType, seriesTypes: string[]) => {
-            const result: Record<string, { series?: {}; axes?: {} }> = {};
+            const result: Record<string, { series?: object; axes?: object }> = {};
             const chartTypeDefaults = {
                 axes: {},
                 ...legendRegistry.getThemeTemplates(),
@@ -378,7 +378,7 @@ export class ChartTheme {
                     result[seriesType] ?? deepClone(chartTypeDefaults)
                 );
 
-                const { axes } = result[seriesType] as { axes: Record<string, {}> };
+                const { axes } = result[seriesType] as { axes: Record<string, object> };
 
                 for (const axisType of axisRegistry.keys()) {
                     axes[axisType] = mergeDefaults(
@@ -403,7 +403,7 @@ export class ChartTheme {
         );
     }
 
-    private static applyTemplateTheme(node: any, _other: any, params?: Map<any, any>) {
+    private static applyTemplateTheme(this: void, node: any, _other: any, params?: Map<any, any>) {
         if (isArray(node)) {
             for (let i = 0; i < node.length; i++) {
                 const symbol = node[i];

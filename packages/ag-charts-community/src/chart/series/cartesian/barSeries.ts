@@ -15,7 +15,7 @@ import type { RequireOptional } from '../../../util/types';
 import { LogAxis } from '../../axis/logAxis';
 import { ChartAxisDirection } from '../../chartAxisDirection';
 import type { DataController } from '../../data/dataController';
-import { fixNumericExtent } from '../../data/dataModel';
+import { type PropertyDefinition, fixNumericExtent } from '../../data/dataModel';
 import {
     LARGEST_KEY_INTERVAL,
     SMALLEST_KEY_INTERVAL,
@@ -27,7 +27,7 @@ import {
     normaliseGroupTo,
     valueProperty,
 } from '../../data/processors';
-import type { CategoryLegendDatum, ChartLegendType } from '../../legendDatum';
+import type { CategoryLegendDatum, ChartLegendType } from '../../legend/legendDatum';
 import { EMPTY_TOOLTIP_CONTENT, type TooltipContent } from '../../tooltip/tooltip';
 import { type PickFocusInputs, SeriesNodePickMode } from '../series';
 import { resetLabelFn, seriesLabelFadeInAnimation } from '../seriesLabelUtil';
@@ -124,7 +124,10 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
             return;
         }
 
-        const { seriesGrouping: { groupIndex = this.id } = {}, data = [] } = this;
+        const { seriesGrouping: { groupIndex = this.id } = {}, data } = this;
+        const groupCount = this.seriesGrouping?.groupCount ?? 0;
+        const stackCount = this.seriesGrouping?.stackCount ?? 0;
+        const grouped = !this.properties.fastDataProcessing || groupCount > 1 || stackCount > 1;
         const { xKey, yKey, yFilterKey, normalizedTo } = this.properties;
 
         const animationEnabled = !this.ctx.animationManager.isSkipped();
@@ -137,33 +140,24 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
         const stackGroupName = `bar-stack-${groupIndex}-yValues`;
         const stackGroupTrailingName = `${stackGroupName}-trailing`;
 
-        const extraProps = [];
-        if (isFiniteNumber(normalizedTo)) {
-            extraProps.push(
-                normaliseGroupTo([stackGroupName, stackGroupTrailingName], Math.abs(normalizedTo), 'range')
+        const visibleProps = this.visible ? {} : { forceValue: 0 };
+        const props: PropertyDefinition<any>[] = [
+            keyProperty(xKey, xScaleType, { id: 'xValue' }),
+            valueProperty(yKey, yScaleType, { id: `yValue-raw`, invalidValue: null, ...visibleProps }),
+        ];
+
+        if (this.crossFilteringEnabled()) {
+            props.push(
+                valueProperty(yFilterKey!, yScaleType, {
+                    id: `yFilterValue`,
+                    invalidValue: null,
+                    ...visibleProps,
+                })
             );
         }
-        if (animationEnabled && this.processedData) {
-            extraProps.push(diff(this.id, this.processedData));
-        }
-        if (animationEnabled) {
-            extraProps.push(animationValidation());
-        }
 
-        const visibleProps = this.visible ? {} : { forceValue: 0 };
-        const { processedData } = await this.requestDataModel<any, any, true>(dataController, data, {
-            props: [
-                keyProperty(xKey, xScaleType, { id: 'xValue' }),
-                valueProperty(yKey, yScaleType, { id: `yValue-raw`, invalidValue: null, ...visibleProps }),
-                ...(this.crossFilteringEnabled()
-                    ? [
-                          valueProperty(yFilterKey!, yScaleType, {
-                              id: `yFilterValue`,
-                              invalidValue: null,
-                              ...visibleProps,
-                          }),
-                      ]
-                    : []),
+        if (grouped) {
+            props.push(
                 ...groupAccumulativeValueProperty(
                     yKey,
                     'normal',
@@ -192,12 +186,28 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
                         ...visibleProps,
                     },
                     yScaleType
-                ),
-                ...(isContinuousX ? [SMALLEST_KEY_INTERVAL, LARGEST_KEY_INTERVAL] : []),
-                ...extraProps,
-            ],
-            groupByKeys: true,
-            groupByData: false,
+                )
+            );
+        }
+
+        if (isContinuousX) {
+            props.push(SMALLEST_KEY_INTERVAL, LARGEST_KEY_INTERVAL);
+        }
+
+        if (isFiniteNumber(normalizedTo)) {
+            props.push(normaliseGroupTo([stackGroupName, stackGroupTrailingName], Math.abs(normalizedTo), 'range'));
+        }
+        if (animationEnabled && this.processedData) {
+            props.push(diff(this.id, this.processedData));
+        }
+        if (animationEnabled || !grouped) {
+            props.push(animationValidation());
+        }
+
+        const { processedData } = await this.requestDataModel<any, any, true>(dataController, data, {
+            props,
+            groupByKeys: grouped,
+            groupByData: !grouped,
         });
 
         this.smallestDataInterval = processedData.reduced?.smallestKeyInterval;
@@ -217,7 +227,10 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
         const keyDef = dataModel.resolveProcessedDataDefById(this, `xValue`);
         const keys = dataModel.getDomain(this, `xValue`, 'key', processedData);
 
-        let yExtent = dataModel.getDomain(this, `yValue-end`, 'value', processedData);
+        let yExtent =
+            processedData.type === 'grouped'
+                ? dataModel.getDomain(this, `yValue-end`, 'value', processedData)
+                : dataModel.getDomain(this, `yValue-raw`, 'value', processedData);
         const yFilterExtent = this.crossFilteringEnabled()
             ? dataModel.getDomain(this, `yFilterValue`, 'value', processedData)
             : undefined;
@@ -238,19 +251,12 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
         }
     }
 
-    async createNodeData() {
+    override createNodeData() {
         const { dataModel, processedData } = this;
         const xAxis = this.getCategoryAxis();
         const yAxis = this.getValueAxis();
 
-        if (
-            !dataModel ||
-            !processedData ||
-            processedData.type !== 'grouped' ||
-            !xAxis ||
-            !yAxis ||
-            !this.properties.isValid()
-        ) {
+        if (!dataModel || !processedData || !xAxis || !yAxis || !this.properties.isValid()) {
             return;
         }
 
@@ -272,9 +278,14 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
         const yFilterValues = this.crossFilteringEnabled()
             ? dataModel.resolveColumnById(this, `yFilterValue`, processedData)
             : undefined;
-        const yStartValues = dataModel.resolveColumnById(this, `yValue-start`, processedData);
-        const yEndValues = dataModel.resolveColumnById(this, `yValue-end`, processedData);
-        const yRangeIndex = dataModel.resolveProcessedDataIndexById(this, `yValue-range`);
+        const yStartValues =
+            processedData.type === 'grouped'
+                ? dataModel.resolveColumnById(this, `yValue-start`, processedData)
+                : undefined;
+        const yEndValues =
+            processedData.type === 'grouped'
+                ? dataModel.resolveColumnById(this, `yValue-end`, processedData)
+                : yRawValues;
         const animationEnabled = !this.ctx.animationManager.isSkipped();
 
         const nodeDatum = ({
@@ -389,74 +400,87 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
         const nodes: BarNodeDatum[] = [];
         const labels: BarNodeDatum[] = [];
 
-        processedData?.groups.forEach(({ datumIndices, aggregation }) => {
-            const yRanges = aggregation[yRangeIndex];
+        const handleDatum = (datumIndex: number, valueIndex: number, yRanges: number[] | undefined) => {
+            const xValue = xValues[datumIndex];
+            if (xValue == null) return;
 
-            datumIndices.forEach((datumIndex, valueIndex) => {
-                const xValue = xValues[datumIndex];
-                if (xValue == null) return;
+            const yRawValue = yRawValues[datumIndex];
+            const yStart = Number(yStartValues != null ? yStartValues[datumIndex] : 0);
+            const yFilterValue = yFilterValues != null ? Number(yFilterValues[datumIndex]) : undefined;
+            const yEnd = Number(yEndValues[datumIndex]);
+            const isPositive = yRawValue >= 0 && !Object.is(yRawValue, -0);
+            const yRangeIndex = isPositive ? 1 : 0;
+            const yRange = yRanges != null ? yRanges[yRangeIndex] : yEnd;
 
-                const yRawValue = yRawValues[datumIndex];
-                const yStart = Number(yStartValues[datumIndex]);
-                const yFilterValue = yFilterValues != null ? Number(yFilterValues[datumIndex]) : undefined;
-                const yEnd = Number(yEndValues[datumIndex]);
-                const isPositive = yRawValue >= 0 && !Object.is(yRawValue, -0);
-                const yRange = yRanges[isPositive ? 1 : 0] ?? 0;
+            if (!Number.isFinite(yEnd)) return;
+            if (yFilterValue != null && !Number.isFinite(yFilterValue)) return;
 
-                if (!Number.isFinite(yEnd)) return;
-                if (yFilterValue != null && !Number.isFinite(yFilterValue)) return;
+            const labelText =
+                yRawValue != null
+                    ? this.getLabelText(this.properties.label, {
+                          datum: rawData[datumIndex],
+                          value: yFilterValue ?? yRawValue,
+                          xKey,
+                          yKey,
+                          xName,
+                          yName,
+                          legendItemName,
+                      })
+                    : undefined;
 
-                const labelText =
-                    yRawValue != null
-                        ? this.getLabelText(this.properties.label, {
-                              datum: rawData[datumIndex],
-                              value: yFilterValue ?? yRawValue,
-                              xKey,
-                              yKey,
-                              xName,
-                              yName,
-                              legendItemName,
-                          })
-                        : undefined;
+            const inset = yFilterValue != null && yFilterValue > yRawValue;
 
-                const inset = yFilterValue != null && yFilterValue > yRawValue;
+            const nodeData = nodeDatum({
+                datum: rawData[datumIndex],
+                valueIndex,
+                xValue,
+                yValue: yFilterValue ?? yRawValue,
+                cumulativeValue: yFilterValue ?? yEnd,
+                phantom: false,
+                currY: yFilterValue != null ? yStart + yFilterValue : yEnd,
+                prevY: yStart,
+                isPositive,
+                yRange: Math.max(yStart + (yFilterValue ?? -Infinity), yRange),
+                labelText,
+                crossScale: inset ? 0.6 : undefined,
+            });
+            nodes.push(nodeData);
+            labels.push(nodeData);
 
-                const nodeData = nodeDatum({
+            if (yFilterValue != null) {
+                const phantomNodeData = nodeDatum({
                     datum: rawData[datumIndex],
                     valueIndex,
                     xValue,
-                    yValue: yFilterValue ?? yRawValue,
-                    cumulativeValue: yFilterValue ?? yEnd,
-                    phantom: false,
-                    currY: yFilterValue != null ? yStart + yFilterValue : yEnd,
+                    yValue: yFilterValue,
+                    cumulativeValue: yFilterValue,
+                    phantom: true,
+                    currY: yEnd,
                     prevY: yStart,
                     isPositive,
-                    yRange: Math.max(yStart + (yFilterValue ?? -Infinity), yRange),
-                    labelText,
-                    crossScale: inset ? 0.6 : undefined,
+                    yRange,
+                    labelText: undefined,
+                    crossScale: undefined,
                 });
-                nodes.push(nodeData);
-                labels.push(nodeData);
+                phantomNodes.push(phantomNodeData);
+            }
+        };
 
-                if (yFilterValue != null) {
-                    const phantomNodeData = nodeDatum({
-                        datum: rawData[datumIndex],
-                        valueIndex,
-                        xValue,
-                        yValue: yFilterValue,
-                        cumulativeValue: yFilterValue,
-                        phantom: true,
-                        currY: yEnd,
-                        prevY: yStart,
-                        isPositive,
-                        yRange,
-                        labelText: undefined,
-                        crossScale: undefined,
-                    });
-                    phantomNodes.push(phantomNodeData);
-                }
+        if (processedData.type === 'grouped') {
+            const yRangeIndex = dataModel.resolveProcessedDataIndexById(this, `yValue-range`);
+
+            processedData.groups.forEach(({ datumIndices, aggregation }) => {
+                const yRanges = aggregation[yRangeIndex];
+
+                datumIndices.forEach((datumIndex, valueIndex) => {
+                    handleDatum(datumIndex, valueIndex, yRanges);
+                });
             });
-        });
+        } else {
+            for (let datumIndex = 0; datumIndex < rawData.length; datumIndex += 1) {
+                handleDatum(datumIndex, 0, undefined);
+            }
+        }
 
         return {
             itemId: yKey,
@@ -481,19 +505,14 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
         return highlightItem != null ? [highlightItem] : undefined;
     }
 
-    protected override async updateDatumSelection(opts: {
+    protected override updateDatumSelection(opts: {
         nodeData: BarNodeDatum[];
         datumSelection: Selection<Rect, BarNodeDatum>;
     }) {
-        return opts.datumSelection.update(opts.nodeData, undefined, (datum) =>
-            createDatumId(datum.xValue, datum.valueIndex, datum.phantom)
-        );
+        return opts.datumSelection.update(opts.nodeData, undefined, (datum) => this.getDatumId(datum));
     }
 
-    protected override async updateDatumNodes(opts: {
-        datumSelection: Selection<Rect, BarNodeDatum>;
-        isHighlight: boolean;
-    }) {
+    protected override updateDatumNodes(opts: { datumSelection: Selection<Rect, BarNodeDatum>; isHighlight: boolean }) {
         if (!this.properties.isValid()) {
             return;
         }
@@ -555,35 +574,28 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
                 ? (datum.clipBBox?.width ?? datum.width) > 0
                 : (datum.clipBBox?.height ?? datum.height) > 0;
 
-            const config = getRectConfig(rectParams);
+            const config = getRectConfig(this, this.getDatumId(datum), rectParams);
             config.crisp = crisp;
             config.visible = visible;
             updateRect(rect, config);
         });
     }
 
-    protected async updateLabelSelection(opts: {
-        labelData: BarNodeDatum[];
-        labelSelection: Selection<Text, BarNodeDatum>;
-    }) {
+    protected updateLabelSelection(opts: { labelData: BarNodeDatum[]; labelSelection: Selection<Text, BarNodeDatum> }) {
         const data = this.isLabelEnabled() ? opts.labelData : [];
         return opts.labelSelection.update(data, (text) => {
             text.pointerEvents = PointerEvents.None;
         });
     }
 
-    protected async updateLabelNodes(opts: { labelSelection: Selection<Text, BarNodeDatum> }) {
+    protected updateLabelNodes(opts: { labelSelection: Selection<Text, BarNodeDatum> }) {
         opts.labelSelection.each((textNode, datum) => {
             updateLabelNode(textNode, this.properties.label, datum.label);
         });
     }
 
     getTooltipHtml(nodeDatum: BarNodeDatum): TooltipContent {
-        const {
-            id: seriesId,
-            processedData,
-            ctx: { callbackCache },
-        } = this;
+        const { id: seriesId, processedData } = this;
         const xAxis = this.getCategoryAxis();
         const yAxis = this.getValueAxis();
 
@@ -605,20 +617,22 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
         if (itemStyler) {
             const xDomain = this.getSeriesDomain(ChartAxisDirection.X);
             const yDomain = this.getSeriesDomain(ChartAxisDirection.Y);
-            format = callbackCache.call(itemStyler, {
-                seriesId,
-                ...datumStylerProperties(nodeDatum, xKey, yKey, xDomain, yDomain),
-                stackGroup,
-                fill,
-                stroke,
-                strokeWidth: this.getStrokeWidth(strokeWidth),
-                highlighted: false,
-                cornerRadius: this.properties.cornerRadius,
-                fillOpacity: this.properties.fillOpacity,
-                strokeOpacity: this.properties.strokeOpacity,
-                lineDash: this.properties.lineDash ?? [],
-                lineDashOffset: this.properties.lineDashOffset,
-            });
+            format = this.cachedDatumCallback(createDatumId(this.getDatumId(datum), 'tooltip'), () =>
+                itemStyler({
+                    seriesId,
+                    ...datumStylerProperties(nodeDatum, xKey, yKey, xDomain, yDomain),
+                    stackGroup,
+                    fill,
+                    stroke,
+                    strokeWidth: this.getStrokeWidth(strokeWidth),
+                    highlighted: false,
+                    cornerRadius: this.properties.cornerRadius,
+                    fillOpacity: this.properties.fillOpacity,
+                    strokeOpacity: this.properties.strokeOpacity,
+                    lineDash: this.properties.lineDash ?? [],
+                    lineDashOffset: this.properties.lineDashOffset,
+                })
+            );
         }
 
         const color = format?.fill ?? fill;
@@ -645,23 +659,37 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
     getLegendData(legendType: ChartLegendType): CategoryLegendDatum[] {
         const { showInLegend } = this.properties;
 
-        if (legendType !== 'category' || !this.data?.length || !this.properties.isValid() || !showInLegend) {
+        if (legendType !== 'category' || !this.properties.isValid()) {
             return [];
         }
 
-        const { yKey, yName, fill, stroke, strokeWidth, fillOpacity, strokeOpacity, legendItemName, visible } =
-            this.properties;
+        const {
+            id: seriesId,
+            ctx: { legendManager },
+            visible,
+        } = this;
 
+        const {
+            yKey: itemId,
+            yName,
+            fill,
+            stroke,
+            strokeWidth,
+            fillOpacity,
+            strokeOpacity,
+            legendItemName,
+        } = this.properties;
         return [
             {
                 legendType: 'category',
-                id: this.id,
-                itemId: yKey,
-                seriesId: this.id,
-                enabled: visible,
-                label: { text: legendItemName ?? yName ?? yKey },
+                id: seriesId,
+                itemId,
+                seriesId,
+                enabled: visible && legendManager.getItemEnabled({ seriesId, itemId }),
+                label: { text: legendItemName ?? yName ?? itemId },
                 symbols: [{ marker: { fill, fillOpacity, stroke, strokeWidth, strokeOpacity } }],
                 legendItemName,
+                hideInLegend: !showInLegend,
             },
         ];
     }
@@ -689,7 +717,7 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
             this.ctx.animationManager,
             [datumSelection],
             fns,
-            (_, datum) => createDatumId(datum.xValue, datum.valueIndex, datum.phantom),
+            (_, datum) => this.getDatumId(datum),
             dataDiff
         );
 
@@ -698,6 +726,10 @@ export class BarSeries extends AbstractBarSeries<Rect, BarSeriesProperties, BarN
             seriesLabelFadeInAnimation(this, 'labels', this.ctx.animationManager, labelSelection);
             seriesLabelFadeInAnimation(this, 'annotations', this.ctx.animationManager, ...annotationSelections);
         }
+    }
+
+    private getDatumId(datum: BarNodeDatum) {
+        return createDatumId(datum.xValue, datum.valueIndex, datum.phantom);
     }
 
     protected isLabelEnabled() {

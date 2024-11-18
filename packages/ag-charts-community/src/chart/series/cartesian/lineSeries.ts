@@ -30,7 +30,7 @@ import {
     normaliseGroupTo,
     valueProperty,
 } from '../../data/processors';
-import type { CategoryLegendDatum, ChartLegendType } from '../../legendDatum';
+import type { CategoryLegendDatum, ChartLegendType } from '../../legend/legendDatum';
 import type { Marker } from '../../marker/marker';
 import { getMarker } from '../../marker/util';
 import { EMPTY_TOOLTIP_CONTENT, type TooltipContent } from '../../tooltip/tooltip';
@@ -246,7 +246,7 @@ export class LineSeries extends CartesianSeries<
         return [0, length];
     }
 
-    async createNodeData() {
+    override createNodeData() {
         const { dataModel, processedData, axes, dataAggregationFilters } = this;
         const xAxis = axes[ChartAxisDirection.X];
         const yAxis = axes[ChartAxisDirection.Y];
@@ -414,7 +414,7 @@ export class LineSeries extends CartesianSeries<
         return new MarkerShape();
     }
 
-    protected override async updatePathNodes(opts: {
+    protected override updatePathNodes(opts: {
         seriesHighlighted?: boolean;
         paths: Path[];
         opacity: number;
@@ -449,7 +449,7 @@ export class LineSeries extends CartesianSeries<
         updateClipPath(this, lineNode);
     }
 
-    protected override async updateMarkerSelection(opts: {
+    protected override updateMarkerSelection(opts: {
         nodeData: LineNodeDatum[];
         markerSelection: Selection<Marker, LineNodeDatum>;
         markerGroup?: Group;
@@ -467,7 +467,7 @@ export class LineSeries extends CartesianSeries<
         return markerSelection.update(nodeData, undefined, (datum) => createDatumId(datum.xValue));
     }
 
-    protected override async updateMarkerNodes(opts: {
+    protected override updateMarkerNodes(opts: {
         markerSelection: Selection<Marker, LineNodeDatum>;
         isHighlight: boolean;
     }) {
@@ -497,14 +497,14 @@ export class LineSeries extends CartesianSeries<
         }
     }
 
-    protected async updateLabelSelection(opts: {
+    protected updateLabelSelection(opts: {
         labelData: LineNodeDatum[];
         labelSelection: Selection<Text, LineNodeDatum>;
     }) {
         return opts.labelSelection.update(this.isLabelEnabled() ? opts.labelData : []);
     }
 
-    protected async updateLabelNodes(opts: { labelSelection: Selection<Text, LineNodeDatum> }) {
+    protected updateLabelNodes(opts: { labelSelection: Selection<Text, LineNodeDatum> }) {
         const { enabled, fontStyle, fontWeight, fontSize, fontFamily, color } = this.properties.label;
 
         opts.labelSelection.each((text, datum) => {
@@ -571,24 +571,40 @@ export class LineSeries extends CartesianSeries<
     }
 
     getLegendData(legendType: ChartLegendType): CategoryLegendDatum[] {
-        if (!(this.data?.length && this.properties.isValid() && legendType === 'category')) {
+        if (!(this.properties.isValid() && legendType === 'category')) {
             return [];
         }
 
-        const { yKey, yName, stroke, strokeOpacity, strokeWidth, lineDash, title, marker, visible, legendItemName } =
-            this.properties;
+        const {
+            id: seriesId,
+            ctx: { legendManager },
+            visible,
+        } = this;
+
+        const {
+            yKey: itemId,
+            yName,
+            stroke,
+            strokeOpacity,
+            strokeWidth,
+            lineDash,
+            title,
+            marker,
+            legendItemName,
+            showInLegend,
+        } = this.properties;
 
         const color0 = 'rgba(0, 0, 0, 0)';
         return [
             {
                 legendType: 'category',
-                id: this.id,
-                itemId: yKey,
+                id: seriesId,
+                itemId,
                 legendItemName,
-                seriesId: this.id,
-                enabled: visible,
+                seriesId,
+                enabled: visible && legendManager.getItemEnabled({ seriesId, itemId }),
                 label: {
-                    text: legendItemName ?? title ?? yName ?? yKey,
+                    text: legendItemName ?? title ?? yName ?? itemId,
                 },
                 symbols: [
                     {
@@ -609,11 +625,12 @@ export class LineSeries extends CartesianSeries<
                         },
                     },
                 ],
+                hideInLegend: !showInLegend,
             },
         ];
     }
 
-    protected override async updatePaths(opts: { contextData: LineSeriesNodeDataContext; paths: Path[] }) {
+    protected override updatePaths(opts: { contextData: LineSeriesNodeDataContext; paths: Path[] }) {
         this.updateLinePaths(opts.paths, opts.contextData);
     }
 

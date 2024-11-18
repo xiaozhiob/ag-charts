@@ -23,6 +23,7 @@ export interface IChartTheme {
     getTemplateParameters(): Map<symbol, any>;
 }
 
+// eslint-disable-next-line sonarjs/class-name
 export interface _IScene {
     toRadians(degrees: number): number;
     getRadialColumnWidth(
@@ -36,6 +37,7 @@ export interface _IScene {
     Caption: AgChartCaptionOptions;
 }
 
+// eslint-disable-next-line sonarjs/class-name
 export interface _ITheme {
     themeNames: string[];
     themeSymbols: Record<string, symbol>;
@@ -45,6 +47,7 @@ export interface _ITheme {
     themes: Record<string, () => IChartTheme>;
 }
 
+// eslint-disable-next-line sonarjs/class-name
 export interface _IUtil {
     Color: {
         new (r: number, g: number, b: number, a?: number): IColor;

@@ -47,17 +47,13 @@ export interface AgLineSeriesMarkerItemStylerParams extends AgLineSeriesOptionsK
     xValue: any;
     /** The y value of the datum. */
     yValue: any;
-    /** The range of the x values of the data. */
-    xDomain: any[];
-    /** The range of the y values of the data. */
-    yDomain: any[];
-    /** Whether the item's x value is the minimum */
+    /** Whether the item's x value is the first in the data domain. */
     first: boolean;
-    /** Whether the item's x value is the maximum */
+    /** Whether the item's x value is the last in the data domain. */
     last: boolean;
-    /** Whether the item's y value is the minimum */
+    /** Whether the item's y value is the lowest in the data. */
     min: boolean;
-    /** Whether the item's y value is the maximum */
+    /** Whether the item's y value is the highest in the data. */
     max: boolean;
 }
 

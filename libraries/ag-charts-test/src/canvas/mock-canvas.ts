@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/unbound-method */
 import { Canvas, Image, CanvasRenderingContext2D as NodeCanvasRenderingContext2D, createCanvas } from 'canvas';
 
 import { ConicGradient } from './conicGradient';
@@ -56,8 +57,8 @@ export class MockContext {
     canvases: WeakRef<Canvas>[] = [];
 
     constructor(
-        width = 1,
-        height = 1,
+        width: number,
+        height: number,
         document: Document,
         realCreateElement: Document['createElement'] = document.createElement
     ) {
@@ -143,7 +144,7 @@ export function setup(opts: {
                 return context2d as any;
             };
 
-            mockedElement.toDataURL = (mimeType?: 'image/png', quality?: any) => {
+            mockedElement.toDataURL = (mimeType?: 'image/png') => {
                 return nextCanvas.toDataURL(mimeType ?? 'image/png');
             };
 

@@ -5,7 +5,7 @@ import { BaseModuleInstance } from '../../module/module';
 import type { ModuleContext } from '../../module/moduleContext';
 import { BBox } from '../../scene/bbox';
 import { setAttribute, setAttributes } from '../../util/attributeUtil';
-import { createElement, getWindow } from '../../util/dom';
+import { createElement, getIconClassNames, getWindow } from '../../util/dom';
 import { initToolbarKeyNav, makeAccessibleClickListener } from '../../util/keynavUtil';
 import { clamp } from '../../util/number';
 import { ObserveChanges } from '../../util/proxy';
@@ -56,10 +56,6 @@ export class Toolbar extends BaseModuleInstance implements ModuleInstance {
         this.onGroupChanged.bind(this, 'annotationOptions'),
         this.onGroupButtonsChanged.bind(this, 'annotationOptions')
     );
-    public zoom = new ToolbarGroupProperties(
-        this.onGroupChanged.bind(this, 'zoom'),
-        this.onGroupButtonsChanged.bind(this, 'zoom')
-    );
 
     private dragState: {
         client: { x: number; y: number };
@@ -104,14 +100,12 @@ export class Toolbar extends BaseModuleInstance implements ModuleInstance {
         seriesType: new Set(),
         annotations: new Set(),
         annotationOptions: new Set(),
-        zoom: new Set(),
     };
 
     private groupButtons: Record<ToolbarGroup, Array<HTMLButtonElement>> = {
         seriesType: [],
         annotations: [],
         annotationOptions: [],
-        zoom: [],
     };
 
     private readonly ariaToolbars: {
@@ -121,7 +115,6 @@ export class Toolbar extends BaseModuleInstance implements ModuleInstance {
     }[] = [
         { groups: ['seriesType', 'annotations'], destroyFns: [], resetListeners: () => {} },
         { groups: ['annotationOptions'], destroyFns: [], resetListeners: () => {} },
-        { groups: ['zoom'], destroyFns: [], resetListeners: () => {} },
     ];
 
     private pendingButtonToggledEvents: Array<ToolbarButtonToggledEvent> = [];
@@ -811,7 +804,6 @@ export class Toolbar extends BaseModuleInstance implements ModuleInstance {
             seriesType: 'ariaLabelFinancialCharts',
             annotations: 'ariaLabelFinancialCharts',
             annotationOptions: 'ariaLabelAnnotationOptionsToolbar',
-            zoom: 'ariaLabelZoomToolbar',
         } as const;
         alignElement.ariaLabel = this.ctx.localeManager.t(map[group]);
     }
@@ -829,7 +821,7 @@ export class Toolbar extends BaseModuleInstance implements ModuleInstance {
     }
 
     private updateButton(button: HTMLButtonElement, options: ButtonConfiguration) {
-        const { domManager, localeManager } = this.ctx;
+        const { localeManager } = this.ctx;
         const { icon, label, ariaLabel, tooltip } = this.expandButtonConfig(button, options);
 
         if (tooltip) {
@@ -839,7 +831,7 @@ export class Toolbar extends BaseModuleInstance implements ModuleInstance {
         let inner = '';
 
         if (icon != null) {
-            inner = `<span class="${domManager.getIconClassNames(icon)} ${styles.elements.icon}"></span>`;
+            inner = `<span class="${getIconClassNames(icon)} ${styles.elements.icon}"></span>`;
         }
 
         if (label != null) {
