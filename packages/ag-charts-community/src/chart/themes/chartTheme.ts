@@ -272,6 +272,12 @@ export class ChartTheme {
             gridLine: { enabled: DEFAULT_GRIDLINE_ENABLED },
             crosshair: { enabled: false },
         }),
+        [CARTESIAN_AXIS_TYPE.GROUPED_CATEGORY]: ChartTheme.getAxisDefaults({
+            tick: { enabled: true },
+            label: { padding: 5 },
+            paddingOuter: 0.1,
+            paddingInner: 0.2,
+        }),
         [CARTESIAN_AXIS_TYPE.TIME]: ChartTheme.getAxisDefaults({ gridLine: { enabled: DEFAULT_GRIDLINE_ENABLED } }),
         [CARTESIAN_AXIS_TYPE.ORDINAL_TIME]: ChartTheme.getAxisDefaults({
             groupPaddingInner: 0,
@@ -291,12 +297,6 @@ export class ChartTheme {
         }),
         [POLAR_AXIS_TYPE.RADIUS_NUMBER]: ChartTheme.getAxisDefaults({
             line: { enabled: false },
-        }),
-        'grouped-category': ChartTheme.getAxisDefaults({
-            tick: { enabled: true },
-            label: { padding: 5 },
-            paddingOuter: 0.1,
-            paddingInner: 0.2,
         }),
     };
 
