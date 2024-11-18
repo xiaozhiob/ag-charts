@@ -179,11 +179,14 @@ export class DataController {
                 .join(';');
         }
 
+        const { groupByData, groupByKeys = false, groupByFn, props } = opts;
+        const propsKeys = keys(props);
+
         return ([group]: RequestedProcessing<any, any, any>[]) =>
-            (opts.groupByData === false || group.data === data) &&
-            group.opts.groupByKeys === opts.groupByKeys &&
-            group.opts.groupByFn === opts.groupByFn &&
-            keys(group.opts.props) === keys(opts.props);
+            (groupByData === false || group.data === data) &&
+            (group.opts.groupByKeys ?? false) === groupByKeys &&
+            group.opts.groupByFn === groupByFn &&
+            keys(group.opts.props) === propsKeys;
     }
 
     private static mergeRequests(

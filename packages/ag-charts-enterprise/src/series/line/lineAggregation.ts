@@ -1,27 +1,19 @@
 import { _ModuleSupport } from 'ag-charts-community';
 
 import {
-    SPAN,
     X_MAX,
     X_MIN,
     Y_MAX,
     Y_MIN,
+    aggregationDomain,
+    aggregationIndexForXRatio,
     compactAggregationIndices,
     createAggregationIndices,
+    xRatioForDatumIndex,
 } from '../../utils/aggregation';
-
-const { findMinMax } = _ModuleSupport;
 
 const AGGREGATION_THRESHOLD = 1e3;
 const MAX_POINTS = 10;
-
-function xRatioForDatumIndex(xValue: any, d0: number, d1: number) {
-    return (xValue.valueOf() - d0) / (d1 - d0);
-}
-
-function aggregationIndexForXRatio(xRatio: number, maxRange: number) {
-    return (Math.min(Math.floor(xRatio * maxRange), maxRange - 1) * SPAN) | 0;
-}
 
 function aggregationContainsIndex(
     xValues: any[],
@@ -52,7 +44,7 @@ export function aggregateData(
 ): _ModuleSupport.LineSeriesDataAggregationFilter[] | undefined {
     if (xValues.length < AGGREGATION_THRESHOLD) return;
 
-    const [d0, d1] = findMinMax(domain);
+    const [d0, d1] = aggregationDomain(domain);
 
     let maxRange = (2 ** Math.ceil(Math.log2(xValues.length / MAX_POINTS))) | 0;
     const { indexData, valueData } = createAggregationIndices(xValues, yValues, yValues, d0, d1, maxRange);

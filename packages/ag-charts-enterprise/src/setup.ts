@@ -22,6 +22,7 @@ import { ZoomModule } from './features/zoom/main';
 import { GradientLegendModule } from './gradient-legend/gradientLegendModule';
 import { LicenseManager } from './license/licenseManager';
 import { injectWatermark } from './license/watermark';
+import { BarModule } from './series/bar/barModule';
 import { BoxPlotModule } from './series/box-plot/main';
 import { CandlestickModule } from './series/candlestick/main';
 import { ChordModule } from './series/chord/main';
@@ -58,6 +59,7 @@ export function setupEnterpriseModules() {
         AnimationModule,
         AnnotationsModule,
         BackgroundModule,
+        BarModule,
         ForegroundModule,
         BoxPlotModule,
         CandlestickModule,

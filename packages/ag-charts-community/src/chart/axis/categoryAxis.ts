@@ -51,12 +51,16 @@ export class CategoryAxis<
     private categoryAnimatable = true;
     protected override calculateDomain() {
         let normalizedDomain: any[] | undefined = undefined;
+        const seenDomains = new Set<any[]>();
 
         let categoryAnimatable = true;
         for (const series of this.boundSeries) {
             if (!this.includeInvisibleDomains && !series.isEnabled()) continue;
 
             const seriesDomain = series.getDomain(this.direction);
+
+            if (seenDomains.has(seriesDomain)) continue;
+            seenDomains.add(seriesDomain);
 
             if (normalizedDomain == null) {
                 normalizedDomain = this.normaliseDataDomain(seriesDomain).domain;
