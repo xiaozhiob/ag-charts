@@ -79,19 +79,19 @@ const options: AgCartesianChartOptions = {
 const chart = AgCharts.create(options)
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function setNumberAxis() {
+async function setNumberAxis() {
   options.subtitle = {
     text: "linear scale",
   }
   options.axes = linearAxes
-  void chart.update(options)
+  await chart.update(options)
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function setLogAxis() {
+async function setLogAxis() {
   options.subtitle = {
     text: "log scale",
   }
   options.axes = logAxes
-  void chart.update(options)
+  await chart.update(options)
 }
